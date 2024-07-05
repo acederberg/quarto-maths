@@ -1,0 +1,6 @@
+.venv
+demo_files
+demo.html
+
+/.quarto/
+demo-data

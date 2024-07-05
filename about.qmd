@@ -1,0 +1,16 @@
+---
+title: About
+image: https://avatars.githubusercontent.com/u/77076023?v=4
+about:
+  template: jolla
+  links: 
+    - icon: github
+      text: Github
+      href: https://github.com/acederberg
+---
+
+## WTF is ``quarto``?
+
+This is a ``quarto`` project! ``quarto`` may be familiar to you since it is 
+very much like ``jupyter``.
+

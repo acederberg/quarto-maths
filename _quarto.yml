@@ -1,0 +1,17 @@
+---
+project:
+  output-dir: demo-data
+  preview:
+    port: 3000
+    browser: false
+lib-dir: ./assets
+jupyter: python3
+website:
+  title: "Quarto Projects"
+  site-url: https://quarto.acederberg.io
+  description: "My quarto projects"
+  # navbar:
+  #   right:
+  #     - icon: rss
+  #       href: index.xml
+theme: solar

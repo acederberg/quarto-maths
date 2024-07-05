@@ -1,0 +1,6 @@
+---
+title: Quarto Projects Nested
+listing: default
+page-layout: full
+title-block-banner: true
+---
