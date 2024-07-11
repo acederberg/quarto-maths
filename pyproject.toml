@@ -10,6 +10,9 @@ python = "^3.11"
 numpy = "^2.0.0"
 seaborn = "^0.13.2"
 jupyter = "^1.0.0"
+pandas = "^2.2.2"
+shiny = "^0.10.2"
+shinywidgets = "^0.3.2"
 
 
 [build-system]

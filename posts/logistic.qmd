@@ -1,0 +1,220 @@
+---
+title: "The Logistic Map and Chaos"
+format:
+  html:
+    code-fold: true
+---
+
+
+The logistic map is an anology for dynamic systems. The map defined by
+
+```
+```
+
+Below is the definition of the logistic map:
+
+```{python}
+import itertools
+import os
+import pathlib
+from os import environ
+from typing import Generator, List
+
+import seaborn as sns
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+
+LOGISTIC_STEP_SIZE = float(environ.get("LOGISTIC_STEP_SIZE", "0.05"))
+LOGISTIC_ITERATIONS = int(environ.get("LOGISTIC_ITERATIONS", "1000 "))
+LOGISTIC_ITERATIONS_KEPT = int(environ.get("LOGISTIC_ITERATIONS_KEPT", "100"))
+
+QUARTO_POSTS = pathlib.Path(".").resolve()
+LOGISTIC_DATA = QUARTO_POSTS.parent / "demo-data" / "posts" / "logistic_data"
+LOGISTIC_DATA_BIFURCATION = LOGISTIC_DATA / f"logistic-bifurcation-{LOGISTIC_ITERATIONS}-{LOGISTIC_STEP_SIZE}.csv"
+
+
+def logistic_point(rr: float, xx: float) -> float:
+  """Compute the value of the logistic map for some coefficient `rr` and 
+  number `xx`.
+  """
+  return rr * xx * (1 - xx) 
+
+
+def logistic_array(rr: float, *, step: float = 0.001):
+  """Compute the graph of the logistic map on the closed interval $[0, 1]$."""
+
+  # NOTE: Numpy multiplies elements stepwise.
+  xx = np.arange(0, 1 + step, step=step)
+  yy = rr * xx * (1 - xx)
+
+  return pd.DataFrame(dict(xx=xx, yy=yy))
+
+
+def logistic_point_sequence(
+  rr: float,
+  xx: float,
+  *,
+  iterations: int = LOGISTIC_ITERATIONS,
+) -> Generator[float, None, None]:
+  """Iterate the logistic sequence starting at `xx` for coefficient `rr` for
+  `iterations` number of steps."""
+
+  yield xx 
+
+  iteration = 0
+  while (iteration := iteration + 1) < iterations:
+    yield (xx := logistic_point(rr, xx))
+
+
+def logistic_point_attractor(
+  rr: float,
+  xx: float,
+  *,
+  iterations: int = LOGISTIC_ITERATIONS,
+  iterations_kept = LOGISTIC_ITERATIONS_KEPT,
+) -> List[float]:
+
+  seq = enumerate(logistic_point_sequence(rr, xx,  iterations=iterations)) 
+  pos_min = iterations - iterations_kept 
+  return [value for pos, value in seq if pos >= pos_min]
+
+
+```
+
+
+Data loading/creation for the bifurcation diagram:
+
+
+```{python}
+def logistic_bifurcation_data(
+  *,
+  start: float = float(2), 
+  stop: float = float(4),
+  step: float = 0.05,
+  iterations: int = LOGISTIC_ITERATIONS,
+  iterations_kept: int = LOGISTIC_ITERATIONS_KEPT,
+):
+  """Returns a ``DataFrame`` containing coefficients, attractors, and initial
+  conditions.
+  """
+
+  rs = np.arange(start, stop, step)
+  x0s =  list( np.random.rand() for _ in range(len(rs)))
+
+  return pd.DataFrame(
+    dict(
+      rr=rs,
+      x0=x0s,
+      attractors=list(
+        logistic_point_attractor(
+          rr, 
+          x0,
+          iterations=iterations,
+          iterations_kept=iterations_kept,
+        )
+        for rr, x0 in zip(rs, x0s)
+      ) 
+    )
+  )
+
+
+if not LOGISTIC_DATA.exists():
+  os.mkdir(LOGISTIC_DATA)
+
+if not LOGISTIC_DATA_BIFURCATION.exists():
+  print("Creating data...")
+  data_raw = logistic_bifurcation_data(step=0.0001)
+
+  rr = [rr for rr in data_raw["rr"] for _ in range(LOGISTIC_ITERATIONS_KEPT)] 
+  xx =list(itertools.chain(*data_raw["attractors"]) )
+  data = pd.DataFrame(dict(rr=rr, xx=xx))
+  data.to_csv(LOGISTIC_DATA_BIFURCATION)
+else:
+  print("Loading data...")
+  data = pd.read_csv(LOGISTIC_DATA_BIFURCATION)
+```
+
+
+Logistic bifurcation diagram:
+
+
+```{python}
+#| label: fig-logistic-bifurcation
+#| fig-cap: "Logistic Bifurcation"
+
+sns.scatterplot(data=data, x="rr", y="xx", s=0.1)
+```
+
+
+A cobweb diagram can be used to demonstrate how the sequence definition results
+in chaos. 
+
+1. An initial input ``x0`` is chosen. This can be written as the point 
+   ``(x0, 0)`` on the graph.
+2. The output ``y0 = logistic_point(x0)`` is computed. This can be written as 
+   the point ``(x0, y0)``.
+3. The next point will be ``(y0, y0)``, directly on the line defined as
+   ``x = y``. This helps find the next input into the logistic map.
+4. Since the next input into the logistic map is ``y0``, we follow the ``x``
+   projection onto the logistic maps graph to get ``(y0, logistic_point(y0))``.
+   This step is realy just the same as step ``2``.
+
+Cobweb diagram:
+
+```{python}
+#| tags: [parameters]
+
+x0 = 0.7
+rr = 3.8
+```
+
+
+```{python}
+#| label: fig-logistic-cobweb
+#| fig-cap: "Logistic Cobweb Diagram."
+
+def logistic_cobweb_sequence(
+  rr: float,
+  x0: float,
+  *, 
+  iterations: int = LOGISTIC_ITERATIONS,
+):
+  iteration = 0 
+
+  yield (xx := x0, 0) # 1
+  while (iteration := iteration + 1) < iterations:
+    yield (xx, yy := logistic_point(rr, xx)) # 2
+    yield (xx := yy, yy) # 3
+
+def logistic_cobweb(
+  rr: float,
+  x0: float,
+  *,
+  iterations: int = LOGISTIC_ITERATIONS,
+):
+  points = logistic_cobweb_sequence(rr, x0, iterations=iterations)
+  xx, yy = zip(*points) 
+  for xx_coords, yy_coords in zip(
+      zip(xx[:-1], xx[1:]),
+      zip(yy[:-1], yy[1:])
+  ):
+    yield pd.DataFrame(dict(xx=xx_coords, yy=yy_coords))
+
+
+data = logistic_array(rr)
+
+sns.lineplot(data=data, x="xx", y="yy")
+sns.lineplot(data=data, x="xx", y="xx")
+#
+for line in logistic_cobweb(rr, x0, iterations=100):
+  sns.lineplot(data=pd.DataFrame(line), x="xx", y="yy")
+
+plt.xlim(0, 1)
+plt.ylim(0, 1)
+```
+
+
+
