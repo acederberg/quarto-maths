@@ -13,6 +13,8 @@ jupyter = "^1.0.0"
 pandas = "^2.2.2"
 shiny = "^0.10.2"
 shinywidgets = "^0.3.2"
+jupyter-cache = "^1.0.0"
+shinylive = "^0.4.1"
 
 
 [build-system]

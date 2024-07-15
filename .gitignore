@@ -4,3 +4,5 @@ demo.html
 
 /.quarto/
 demo-data
+.jupyter_cache
+__pycache__
