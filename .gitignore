@@ -6,3 +6,4 @@ demo.html
 demo-data
 .jupyter_cache
 __pycache__
+_freeze

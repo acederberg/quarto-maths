@@ -1,20 +1,20 @@
 ---
-title: Quarto Projects
-listing:
-  contents: posts/*.qmd
-  type: grid
-  sort: date desc
-  # categories: true
-  # sort-ui: false
-  # filter-ui: false
-  feed: 
-    categories:
-      - demo
-page-layout: full
-title-block-banner: true
+title: About
+image: https://avatars.githubusercontent.com/u/77076023?v=4
+about:
+  template: jolla
+  links: 
+    - icon: github
+      text: Github
+      href: https://github.com/acederberg
 ---
-# This is my Quarto Blog!
 
-This is a test. Take a look at the [about](/about.html) page. There should be a 
-feed of posts included below.
+This is my quarto blog! Here I will be exploring numerical mathematics with 
+``python`` using ``seaborn``, ``pandas``, and ``numpy``. This is just one part
+of my [portfolio website](https://acederberg.io).
+
+For inquiries, please reach out to me at ``adrn.cederberg123@gmail.com``.
+For the source code of this website, see ``https://github.com/acederberg/acederberg.io``.
+
+
 

@@ -1,6 +1,6 @@
 ---
-title: Quarto Projects Nested
+title: Mathematics Projects
 listing: default
 page-layout: full
-title-block-banner: true
+title-block-banner: false
 ---

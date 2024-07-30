@@ -1,5 +1,6 @@
 ---
 project:
+  type: website
   output-dir: demo-data
   preview:
     port: 3000
@@ -7,11 +8,19 @@ project:
 lib-dir: ./assets
 jupyter: python3
 website:
-  title: "Quarto Projects"
+  title: "acederberg's data science blog"
   site-url: https://quarto.acederberg.io
-  description: "My quarto projects"
-  # navbar:
-  #   right:
-  #     - icon: rss
-  #       href: index.xml
-theme: solar
+  description: "acederberg's quarto projects"
+  navbar:
+    right:
+      - icon: github
+        href: https://github.com/acederberg
+      - icon: linkedin
+        href: https://www.linkedin.com/in/adrian-cederberg-b453571b9/
+      # - icon: rss
+      #   href: index.xml
+      - text: acederberg.io
+        href: https://acederbeg.io
+style: 
+  html:
+    theme: index.scss
