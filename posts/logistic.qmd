@@ -26,6 +26,7 @@ that will compute the values of the logistic sequence:
 ```{python}
 #| echo: true
 import itertools
+import json
 import os
 import pathlib
 from os import environ
@@ -36,19 +37,23 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+from IPython.display import HTML
+from matplotlib.animation import FuncAnimation
+
+
+
 
 # NOTE: Constants. These will determine how long it will take for this document
 #       to render.
 LOGISTIC_STEP_SIZE = float(environ.get("LOGISTIC_STEP_SIZE", "0.05"))
+LOGISTIC_STEP_SIZE_RR = float(environ.get("LOGISTIC_STEP_SIZE_RR", "0.05"))
 LOGISTIC_ITERATIONS = int(environ.get("LOGISTIC_ITERATIONS", "1000 "))
 LOGISTIC_ITERATIONS_KEPT = int(environ.get("LOGISTIC_ITERATIONS_KEPT", "100"))
-
-LOGISTIC_COMPOSITION_FRAMES = 7 
 
 QUARTO_POSTS = pathlib.Path(".").resolve()
 LOGISTIC_DATA = QUARTO_POSTS.parent / "demo-data" / "posts" / "logistic_data"
 LOGISTIC_DATA_BIFURCATION = LOGISTIC_DATA / f"logistic-bifurcation-{LOGISTIC_ITERATIONS}-{LOGISTIC_STEP_SIZE}.csv"
-
+LOGISTIC_DATA_COBWEB_RR = LOGISTIC_DATA / f"cobweb-{LOGISTIC_STEP_SIZE_RR}.json"
 
 def logistic_point(
   rr: float, 
@@ -60,12 +65,14 @@ def logistic_point(
   """Compute the value of the logistic map for some coefficient `rr` and 
   number `xx`.
   """
+
+  _power += 1
   
   xx_next = rr * xx * (1 - xx) 
   if _power == power:
     return xx_next
 
-  return logistic_point(rr, xx_next, power=power, _power=_power+1)
+  return logistic_point(rr, xx_next, power=power, _power=_power)
 
 
 def _logistic_array(rr: float, xx, *, power = 1):
@@ -125,38 +132,6 @@ def logistic_point_attractor(
 
 ```
 
-Using the above functions it is possible to make some nice graphs of the 
-logistic function and its composition with itself. The graphs are generated 
-inside of this ``quarto`` document using ``matplotlib`` and ``numpy`` with the 
-following ``python`` code:
-
-```{python}
-#| label: logistic-composition
-#| fig-cap: $\lambda_4^k$ for $k \in N$ and $0 < k < 7$. Press the play button to show the animation.
-from IPython.display import HTML
-import matplotlib.pyplot as plt
-
-from matplotlib.animation import FuncAnimation
-
-
-def update(frame):
-  line.set_ydata(data[frame]["yy"])
-
-  tx.set_text(f"k = {frame}")
-  return ( line,)
-
-data = [logistic_array(4, power=k + 1) for k in range(LOGISTIC_COMPOSITION_FRAMES)]
-fig, ax = plt.subplots()
-tx = ax.text(0, 1.1, "k = 0")
-
-line, = ax.plot(data[0]["xx"], data[0]["yy"])
-animation = FuncAnimation(fig, update, frames=LOGISTIC_COMPOSITION_FRAMES)
-
-plt.close()
-HTML(animation.to_jshtml())
-```
-
-
 ## Bifurcation Diagram
 
 Below is the bifurcation diagram for the logistic map. A bifurcation diagram
@@ -178,7 +153,9 @@ A few well known facts about the logistic map are appearent from the figure:
 - The bifurcation cascade continues as the value of ``rr`` increases.
 
 ```{python}
-def logistic_bifurcation_data(
+#| fig-cap: Logistic Bifurcation Diagram
+#| label: logistic-bifurcation-diagram
+def create_bifurcation(
   *,
   start: float = float(2), 
   stop: float = float(4),
@@ -210,7 +187,7 @@ def logistic_bifurcation_data(
   )
 
 
-def create_data():
+def load_bifurcation():
   """Load data if it has already been computed. This is especially useful when
   developing this document."""
 
@@ -218,7 +195,7 @@ def create_data():
     os.mkdir(LOGISTIC_DATA)
 
   if not LOGISTIC_DATA_BIFURCATION.exists():
-    data_raw = logistic_bifurcation_data(step=0.0001)
+    data_raw = create_bifurcation(step=0.0001)
 
     rr = [rr for rr in data_raw["rr"] for _ in range(LOGISTIC_ITERATIONS_KEPT)] 
     xx =list(itertools.chain(*data_raw["attractors"]) )
@@ -228,7 +205,83 @@ def create_data():
     data = pd.read_csv(LOGISTIC_DATA_BIFURCATION)
 
   return data
+
+sns.scatterplot(data=load_bifurcation(), x="rr", y="xx", s=0.1)
 ```
+
+## Logistic Compositions
+
+In this context, **logistic compositions** refers to the sequence of functions
+
+\begin{equation}
+  \{\lambda_r^k: k \in N\}
+\end{equation}
+
+for some $r$. This sequence exists in the space of continuously differentiable 
+functions on the closed unit interval, which is notated as $C^\infty([0, 1])$. 
+Here I will not bother to proof that polynomials are continuously 
+differentiable as this is easy to find in any analysis book or online.
+
+It is possible to make some nice graphs of the logistic function and its 
+composition with itself. The following code is used to generate the subsequent
+diagrams:
+
+```{python}
+#| label: logistic-composition-4
+#| fig-cap: $\lambda_4^k$ for $k \in N$ and $0 < k < 7$. 
+
+def diagram_composition(rr: float, frames: int):
+  def update_composition(frame):
+    line.set_ydata(data_composition[frame]["yy"])
+
+    tx.set_text(f"k = {frame}")
+    return (line,)
+
+  data_composition = [logistic_array(rr, power=k + 1) for k in range(frames)]
+  fig, ax = plt.subplots()
+
+  tx = ax.text(0, 1.1, "k = 0")
+  line, = ax.plot(
+    xx := data_composition[0]["xx"],
+    data_composition[0]["yy"],
+    color = "blue",
+  )
+  ax.plot(xx, xx, color="red")
+  animation = FuncAnimation(
+    fig, 
+    update_composition, 
+    frames=frames
+  )
+
+  plt.close()
+  return HTML(animation.to_jshtml())
+```
+
+The plot below shows $\lambda_4^k$ *(the compositions)*:
+
+```{python}
+diagram_composition(4, frames=7)
+```
+
+Seeing the evolutions of the above plot it is clear why the logistic sequence 
+does not converge for higher values of ``r``. In the case that ``r`` is ``3`` 
+the sequence does converge (as we will see in the next section) and the 
+compositions have maxima and minima that are in a smaller range.
+
+```{python}
+#| label: logistic-composition-3
+#| fig-cap: $\lambda_3^k$ for $k \in N$ and $0 < k < 9$. 
+diagram_composition(3, frames=9)
+```
+
+Finally, when ``r=2`` the compositions only have ``3`` extrema:
+
+```{python}
+#| label: logistic-composition-2
+#| fig-cap: $\lambda_2^k$ for $k \in N$ and $0 < k < 11$. 
+diagram_composition(1, frames=11)
+```
+
 
 
 ## Cobweb Diagram
@@ -273,57 +326,161 @@ sequence, then we are just plotting
 This can be done using the following code:
 
 ```{python}
-#| label: fig-logistic-cobweb
-#| fig-cap: "Logistic Cobweb Diagram."
-
-def logistic_cobweb_sequence(
+def iter_cobweb(
   rr: float,
   x0: float,
   *, 
   iterations: int = LOGISTIC_ITERATIONS,
 ):
-  iteration = 0 
-
-  yield (xx := x0, xx) # 1
+  iteration, xx = 0, x0
   while (iteration := iteration + 1) < iterations:
-    yield (xx, yy := logistic_point(rr, xx)) # 2
-    yield (xx := yy, yy) # 3
+    yield (xx, xx)
+    yield (xx, xx := logistic_point(rr, xx))
 
 
-def logistic_cobweb(
+def iter_cobweb_segments(
   rr: float,
   x0: float,
   *,
   iterations: int = LOGISTIC_ITERATIONS,
 ):
-  points = logistic_cobweb_sequence(rr, x0, iterations=iterations)
+  points = iter_cobweb(rr, x0, iterations=iterations)
   xx, yy = zip(*points) 
   for xx_coords, yy_coords in zip(
       zip(xx[:-1], xx[1:]),
       zip(yy[:-1], yy[1:])
   ):
-    yield pd.DataFrame(dict(xx=xx_coords, yy=yy_coords))
+    yield (xx_coords, yy_coords)
 
 
-# TODO: Animate this over x0.
-rr = 3.8 # type: ignore
-x0 = 0.4 # type: ignore
+plt.close()
 
-data = logistic_array(rr)
-sns.lineplot(data=data, x="xx", y="yy")
-sns.lineplot(data=data, x="xx", y="xx")
+def diagram_cobweb(rr: float, x0: float, *, frames: int):
+  def update_cobweb(frame):
+    line, = ax.plot(
+      data_cobweb[frame][0],
+      data_cobweb[frame][1],
+      color="red",
+    )
+    return line
 
-for line in logistic_cobweb(rr, x0, iterations=100):
-  sns.lineplot(
-    data=pd.DataFrame(line),
-    x="xx",
-    y="yy",
-    color="red",
+
+  data_logistic = logistic_array(rr)
+  data_cobweb = list(iter_cobweb_segments(rr, x0, iterations=frames))
+
+  plt.xlim(0, 1)
+  plt.ylim(0, 1)
+  fig, ax = plt.subplots()
+
+  # Plot the logistic map.
+  ax.plot(
+    xx := data_logistic["xx"],
+    data_logistic["yy"],
+    color = "blue",
+  )
+  ax.plot(xx, xx, color="green")
+
+  # Animate cobweb.
+  animation = FuncAnimation(
+    fig, 
+    update_cobweb, 
+    frames=frames,
   )
 
-plt.xlim(0, 1)
-plt.ylim(0, 1)
+  # Why do I have to do this twice?
+  plt.close()
+  plt.close()
+  return HTML(animation.to_jshtml())
 ```
 
+Starting with a large value we can see that sequence probably does not 
+converge:
+
+```{python}
+#| label: fig-logistic-cobweb-3-8
+#| fig-cap: "Logistic Cobweb Diagram for $r = 3.8$."
+diagram_cobweb(3.8, 0.9, frames=100)
+```
+
+With a smaller value of ``r`` the convergence easy to confirm visually:
+
+```{python}
+#| label: fig-logistic-cobweb-2
+#| fig-cap: "Logistic Cobweb Diagram for $r = 3$."
+
+diagram_cobweb(2, 0.9, frames=15)
+```
+
+On the next diagram, use the slider to change the value of ``r``. 
+
+```{python}
+#| label: fig-logistic-cobweb-rr
+#| fig-cap: "Use the slider to change $r$."
+
+def load_cobweb_rr(x0):
+  if LOGISTIC_DATA_COBWEB_RR.exists():
+    with open(LOGISTIC_DATA_COBWEB_RR, "r") as file:
+      raw = json.load(file)
+
+    return raw["data_cobweb"], {
+      rr: pd.DataFrame(json.loads(df_raw))
+      for rr, df_raw in raw["data_logistic"].items()
+    }
+
+  rrs = np.arange(0, 4, LOGISTIC_STEP_SIZE_RR)
+  data_cobweb = {
+    rr: list(zip(*iter_cobweb(rr, x0, iterations=len(rrs))))
+    for rr in rrs
+  }
+  data_logistic = {
+    rr: logistic_array(rr)
+    for rr in rrs
+  }
 
 
+  with open(LOGISTIC_DATA_COBWEB_RR, "w") as file:
+    json.dump({"data_cobweb": data_cobweb, "data_logistic": {rr: df.to_json() for rr, df in data_logistic.items()}}, file)
+
+  return (data_cobweb, data_logistic)
+
+
+
+x0 = 0.9
+data_cobweb, data_logistic = load_cobweb_rr(x0)
+
+fig, ax = plt.subplots()
+
+rrs = np.array(sorted(data_cobweb))
+rr0 = min(rrs)
+
+
+print(data_cobweb[rr0])
+line_cobweb, = ax.plot(
+  data_cobweb[rr0][0],
+  data_cobweb[rr0][1],
+  color="blue",
+)
+line_logistic, = ax.plot(
+  data_logistic[rr0]["xx"],
+  data_logistic[rr0]["yy"],
+  color="red",
+)
+ax.plot(xx := data_logistic[rr0]["xx"], xx, color="green")
+
+def update_cobweb_rr(frame_rr):
+  line_cobweb.set_xdata(data_cobweb[frame_rr][0])
+  line_cobweb.set_ydata(data_cobweb[frame_rr][1])
+
+  line_logistic.set_xdata(data_logistic[frame_rr]["xx"])
+  line_logistic.set_ydata(data_logistic[frame_rr]["yy"])
+
+  return (line_cobweb, line_logistic)
+
+animation = FuncAnimation(
+  fig,
+  update_cobweb_rr,
+  frames=rrs
+)
+plt.close()
+HTML(animation.to_jshtml())
+```

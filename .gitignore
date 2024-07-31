@@ -7,3 +7,6 @@ demo-data
 .jupyter_cache
 __pycache__
 _freeze
+site_libs
+logistic_files
+*.html
