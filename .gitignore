@@ -10,3 +10,4 @@ _freeze
 site_libs
 logistic_files
 *.html
+*.quarto_ipynb

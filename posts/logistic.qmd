@@ -44,16 +44,19 @@ from matplotlib.animation import FuncAnimation
 
 
 # NOTE: Constants. These will determine how long it will take for this document
-#       to render.
-LOGISTIC_STEP_SIZE = float(environ.get("LOGISTIC_STEP_SIZE", "0.05"))
-LOGISTIC_STEP_SIZE_RR = float(environ.get("LOGISTIC_STEP_SIZE_RR", "0.05"))
+#       to render. Further, changing these documents can result in an error 
+#       from deno with the message ``ERROR: RangeError: Maximum call stack size 
+#       exceeded``.
+LOGISTIC_X0_DEFAULT = float(environ.get("LOGISTIC_X0_DEFAULT", "0.9"))
+LOGISTIC_STEP_SIZE = float(environ.get("LOGISTIC_STEP_SIZE", "0.01"))
+LOGISTIC_STEP_SIZE_RR = float(environ.get("LOGISTIC_STEP_SIZE_RR", "0.02"))
 LOGISTIC_ITERATIONS = int(environ.get("LOGISTIC_ITERATIONS", "1000 "))
 LOGISTIC_ITERATIONS_KEPT = int(environ.get("LOGISTIC_ITERATIONS_KEPT", "100"))
 
 QUARTO_POSTS = pathlib.Path(".").resolve()
 LOGISTIC_DATA = QUARTO_POSTS.parent / "demo-data" / "posts" / "logistic_data"
 LOGISTIC_DATA_BIFURCATION = LOGISTIC_DATA / f"logistic-bifurcation-{LOGISTIC_ITERATIONS}-{LOGISTIC_STEP_SIZE}.csv"
-LOGISTIC_DATA_COBWEB_RR = LOGISTIC_DATA / f"cobweb-{LOGISTIC_STEP_SIZE_RR}.json"
+LOGISTIC_DATA_COBWEB_RR = LOGISTIC_DATA / f"cobweb-{LOGISTIC_STEP_SIZE}-{LOGISTIC_STEP_SIZE_RR}.json"
 
 def logistic_point(
   rr: float, 
@@ -190,6 +193,12 @@ def create_bifurcation(
 def load_bifurcation():
   """Load data if it has already been computed. This is especially useful when
   developing this document."""
+
+  if not LOGISTIC_DATA.parent.parent.exists(): 
+    os.mkdir(LOGISTIC_DATA.parent.parent)
+
+  if not LOGISTIC_DATA.parent.exists(): 
+    os.mkdir(LOGISTIC_DATA.parent)
 
   if not LOGISTIC_DATA.exists():
     os.mkdir(LOGISTIC_DATA)
@@ -328,7 +337,7 @@ This can be done using the following code:
 ```{python}
 def iter_cobweb(
   rr: float,
-  x0: float,
+  x0: float = LOGISTIC_X0_DEFAULT,
   *, 
   iterations: int = LOGISTIC_ITERATIONS,
 ):
@@ -340,7 +349,7 @@ def iter_cobweb(
 
 def iter_cobweb_segments(
   rr: float,
-  x0: float,
+  x0: float = LOGISTIC_X0_DEFAULT,
   *,
   iterations: int = LOGISTIC_ITERATIONS,
 ):
@@ -353,9 +362,13 @@ def iter_cobweb_segments(
     yield (xx_coords, yy_coords)
 
 
-plt.close()
-
-def diagram_cobweb(rr: float, x0: float, *, frames: int):
+def diagram_cobweb(
+  rr: float, 
+  x0: float = LOGISTIC_X0_DEFAULT, 
+  *, 
+  frames: int,
+  interval: int = 200,
+):
   def update_cobweb(frame):
     line, = ax.plot(
       data_cobweb[frame][0],
@@ -385,6 +398,7 @@ def diagram_cobweb(rr: float, x0: float, *, frames: int):
     fig, 
     update_cobweb, 
     frames=frames,
+    interval=interval
   )
 
   # Why do I have to do this twice?
@@ -399,7 +413,7 @@ converge:
 ```{python}
 #| label: fig-logistic-cobweb-3-8
 #| fig-cap: "Logistic Cobweb Diagram for $r = 3.8$."
-diagram_cobweb(3.8, 0.9, frames=100)
+diagram_cobweb(3.8, frames=200, interval=50)
 ```
 
 With a smaller value of ``r`` the convergence easy to confirm visually:
@@ -408,22 +422,23 @@ With a smaller value of ``r`` the convergence easy to confirm visually:
 #| label: fig-logistic-cobweb-2
 #| fig-cap: "Logistic Cobweb Diagram for $r = 3$."
 
-diagram_cobweb(2, 0.9, frames=15)
+diagram_cobweb(2, frames=15)
 ```
 
-On the next diagram, use the slider to change the value of ``r``. 
+The following code can be used to animate the sequence starting at the same 
+point:
 
 ```{python}
-#| label: fig-logistic-cobweb-rr
-#| fig-cap: "Use the slider to change $r$."
-
 def load_cobweb_rr(x0):
   if LOGISTIC_DATA_COBWEB_RR.exists():
     with open(LOGISTIC_DATA_COBWEB_RR, "r") as file:
       raw = json.load(file)
 
-    return raw["data_cobweb"], {
-      rr: pd.DataFrame(json.loads(df_raw))
+    return {
+      float(rr): df_raw
+      for rr, df_raw in     raw["data_cobweb"].items()
+    }, {
+      float(rr): pd.DataFrame(json.loads(df_raw))
       for rr, df_raw in raw["data_logistic"].items()
     }
 
@@ -437,50 +452,70 @@ def load_cobweb_rr(x0):
     for rr in rrs
   }
 
-
   with open(LOGISTIC_DATA_COBWEB_RR, "w") as file:
-    json.dump({"data_cobweb": data_cobweb, "data_logistic": {rr: df.to_json() for rr, df in data_logistic.items()}}, file)
+    json.dump(
+      {
+        "data_cobweb": data_cobweb,
+        "data_logistic": {
+          rr: df.to_json() 
+          for rr, df in data_logistic.items()
+        }
+      }, 
+      file
+    )
 
   return (data_cobweb, data_logistic)
 
 
+def diagram_cobweb_rr(interval: int = 200):
+  x0 = LOGISTIC_X0_DEFAULT
+  data_cobweb, data_logistic = load_cobweb_rr(x0)
 
-x0 = 0.9
-data_cobweb, data_logistic = load_cobweb_rr(x0)
+  fig, ax = plt.subplots()
 
-fig, ax = plt.subplots()
-
-rrs = np.array(sorted(data_cobweb))
-rr0 = min(rrs)
+  rrs = np.array(sorted(data_cobweb))
+  rr0 = min(rrs)
 
 
-print(data_cobweb[rr0])
-line_cobweb, = ax.plot(
-  data_cobweb[rr0][0],
-  data_cobweb[rr0][1],
-  color="blue",
-)
-line_logistic, = ax.plot(
-  data_logistic[rr0]["xx"],
-  data_logistic[rr0]["yy"],
-  color="red",
-)
-ax.plot(xx := data_logistic[rr0]["xx"], xx, color="green")
+  line_cobweb, = ax.plot(
+    data_cobweb[rr0][0],
+    data_cobweb[rr0][1],
+    color="blue",
+  )
+  line_logistic, = ax.plot(
+    data_logistic[rr0]["xx"],
+    data_logistic[rr0]["yy"],
+    color="red",
+  )
+  ax.plot(xx := data_logistic[rr0]["xx"], xx, color="green")
+  tx = ax.text(0, 1.1, f"r = {rr0}")
 
-def update_cobweb_rr(frame_rr):
-  line_cobweb.set_xdata(data_cobweb[frame_rr][0])
-  line_cobweb.set_ydata(data_cobweb[frame_rr][1])
+  def update_cobweb_rr(frame_rr):
+    line_cobweb.set_xdata(data_cobweb[frame_rr][0])
+    line_cobweb.set_ydata(data_cobweb[frame_rr][1])
 
-  line_logistic.set_xdata(data_logistic[frame_rr]["xx"])
-  line_logistic.set_ydata(data_logistic[frame_rr]["yy"])
+    line_logistic.set_xdata(data_logistic[frame_rr]["xx"])
+    line_logistic.set_ydata(data_logistic[frame_rr]["yy"])
 
-  return (line_cobweb, line_logistic)
+    tx.set_text(f"r = {round(frame_rr, 2)}")
 
-animation = FuncAnimation(
-  fig,
-  update_cobweb_rr,
-  frames=rrs
-)
-plt.close()
-HTML(animation.to_jshtml())
+    return (line_cobweb, line_logistic)
+
+  animation = FuncAnimation(
+    fig,
+    update_cobweb_rr,
+    frames=rrs,
+    interval=interval,
+  )
+  plt.close()
+  return HTML(animation.to_jshtml())
+```
+
+The animation below shows cobweb diagrams with varying values of ``rr``.
+
+```{python}
+#| label: fig-logistic-cobweb-rr
+#| fig-cap: "Use the slider to change $r$."
+
+diagram_cobweb_rr(interval=100)
 ```
