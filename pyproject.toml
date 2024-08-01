@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "quarto-demo"
-version = "0.0.0"
+version = "0.0.1"
 description = "Quarto demo"
 authors = ["Adrian Cederberg <adrn.cederberg123@gmail.com>"]
 readme = "README.rst"
@@ -16,6 +16,25 @@ shinywidgets = "^0.3.2"
 jupyter-cache = "^1.0.0"
 shinylive = "^0.4.1"
 yaml-settings-pydantic = "^2.3.0"
+
+
+[tool.poetry.group.ci.dependencies]
+bumpver = "^2023.1129"
+
+
+[tool.bumpver]
+current_version = "0.0.0"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message  = "chore(version): Bump version {old_version} -> {new_version}"
+commit          = true
+tag             = true
+push            = false
+
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = ['current_version = "{version}"', 'version = "{version}"']
+"docker/compose.yaml" = ["image: acederberg.io/quarto-blog-development:{version}"]
+"docker/compose.prod.yaml" = ["image: acederberg.io/quarto-blog-production:{version}"]
 
 
 [build-system]
