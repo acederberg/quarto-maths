@@ -33,5 +33,5 @@ website:
 # style: 
 #   html:
 theme:
-  dark: [darkly, dark.scss]
-  light: [flatly]
+  dark: [darkly, themes/index.css, themes/dark.scss, themes/dark-default.scss]
+  light: [flatly, themes/index.css]

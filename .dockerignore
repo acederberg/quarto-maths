@@ -5,3 +5,5 @@ site_libs
 .venv
 .git
 .jupyter_cache
+docker/*.yaml
+docker/dockerfile

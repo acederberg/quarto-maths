@@ -1,7 +1,4 @@
-/*-- scss:defaults --*/
-$code-bg: var(--bs-gray-800);
-$code-color: "#ffa07a";
-
+/*-- scss:rules--*/
 .animation img,
 .figure img {
   filter: invert(1) hue-rotate(135deg) saturate(2);
@@ -10,6 +7,4 @@ $code-color: "#ffa07a";
 .anim-controls button i,
 .anim-buttons button i .fa-flip-horizontal {
   filter: invert(1);
-  // background: var(--bs-gray-400);
-  // border: 1px solid var(--bs-gray-300);
 }

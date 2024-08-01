@@ -1,0 +1,37 @@
+/*-- scss:rules --*/
+
+input[type='range'] {
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--bs-gray-800);
+}
+
+
+/* Does not work in brave */
+input[type="range"]::-moz-range-track,
+input[type="range"]::-webkit-slider-runnable-track {
+  background: var(--bs-gray-800);
+  height: 0.5rem;
+}
+
+/* Does not work in brave */
+input[type="range"]::-webkit-slider-thumb,
+input[type="range"]::-moz-range-thumb {
+  background: var(--bs-success);
+}
+
+input[type='radio'] {
+  background: var(--bs-gray-500);
+  appearance: none;
+  border-radius: 50%;
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+
+  border: 3px solid var(--bs-light);
+}
+
+input[type='radio']:checked {
+  background: var(--bs-gray-300);
+  border: 3px solid var(--bs-success);
+}

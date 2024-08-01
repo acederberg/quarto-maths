@@ -2,9 +2,13 @@
 services:
   server:
     build:
-      context: .
+      context: ..
+      dockerfile: ./docker/dockerfile
       target: production
     image: acederberg.io/quarto
+    ports:
+      - published: 8080
+        target: 8080
     tty: true
     # command: ["sh"]
     command: [

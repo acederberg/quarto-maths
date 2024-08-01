@@ -1,0 +1,16 @@
+body {
+  background: red;
+}
+
+input[type='radio'] {
+  background: var(--bs-gray-500);
+  appearance: none;
+  border-radius: 50%;
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+}
+
+input[type='radio']:checked {
+  background: var(--bs-gray-300);
+}

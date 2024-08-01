@@ -51,10 +51,19 @@ CMD ["bash"]
 # --------------------------------------------------------------------------- #
 FROM quarto AS builder
 
-COPY . /quarto
-RUN quarto render /quarto
+# NOTE: Assumes that build is occuring at the project root.
+WORKDIR /quarto/app
+COPY . /quarto/app
 
-CMD ["bash"]
+ENV ACEDERBERG_IO_VENV=/quarto/.venv \
+  ACEDERBERG_IO_WORKDIR=/quarto/app \
+  ACEDERBERG_IO_BUILD_LOG=/quarto/app/build/build.log
+RUN mkdir $ACEDERBERG_IO_WORKDIR/build \
+  && bash $ACEDERBERG_IO_WORKDIR/docker/docker.sh >> $ACEDERBERG_IO_BUILD_LOG
+# ENV PATH=$PATH:$ACEDERBERG_IO_VENV/bin
+# RUN echo $PATH >> $ACEDERBERG_IO_BUILD_LOG
+# RUN which python3 >> $ACEDERBERG_IO_BUILD_LOG
+RUN bash -c "source $ACEDERBERG_IO_VENV/bin/activate && quarto render /quarto/app"
 
 
 # --------------------------------------------------------------------------- #
@@ -66,7 +75,7 @@ FROM node:lts-alpine3.20 AS production
 USER node
 
 WORKDIR /app
-COPY --from=builder /quarto/build /app
+COPY --from=builder /quarto/app/build /app
 RUN npm install http-server
 
 
