@@ -1,0 +1,16 @@
+---
+services:
+  server:
+    build:
+      context: .
+      target: production
+    image: acederberg.io/quarto
+    tty: true
+    # command: ["sh"]
+    command: [
+      "npx", 
+      "http-server", 
+      "--port", "8080", 
+      "--robots", "--proxy", 
+      "https://errors.acederberg.io/404.html", "/app"
+    ]

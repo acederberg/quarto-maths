@@ -1,26 +1,33 @@
 ---
 project:
   type: website
-  output-dir: demo-data
+  output-dir: build
   preview:
     port: 3000
     browser: false
 lib-dir: ./assets
 jupyter: python3
 website:
-  title: "acederberg's data science blog"
+  title: "acederberg.io"
   site-url: https://quarto.acederberg.io
   description: "acederberg's quarto projects"
+
+  # NOTE: https://icons.getbootstrap.com/
   navbar:
     right:
       - icon: github
         href: https://github.com/acederberg
       - icon: linkedin
         href: https://www.linkedin.com/in/adrian-cederberg-b453571b9/
-      # - icon: rss
-      #   href: index.xml
-      - text: acederberg.io
-        href: https://acederbeg.io
+      - icon: twitter
+        href: https://x.com/_acederberg
+    left:
+      - icon: house
+        href: https://acederberg.io
+      - text: posts
+        href: /posts
+      - text: resume
+        href: https://acederberg.io/resume
 style: 
   html:
     theme: index.scss

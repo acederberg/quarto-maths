@@ -1,8 +1,7 @@
 .venv
-demo_files
-demo.html
+build
 
-/.quarto/
+.quarto
 demo-data
 .jupyter_cache
 __pycache__
@@ -11,3 +10,5 @@ site_libs
 logistic_files
 *.html
 *.quarto_ipynb
+
+/.quarto/
