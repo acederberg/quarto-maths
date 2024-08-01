@@ -1,0 +1,13 @@
+options:
+  tier: base
+git:
+  repository: ssh://git@github.com/acederberg/quarto-maths.git
+  branch: main
+  dockerfile: docker/dockerfile
+  dockertarget: production
+  pull: true
+image:
+  target: quarto-maths
+  repository: quarto-blog
+
+
