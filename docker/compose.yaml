@@ -6,7 +6,7 @@ services:
       dockerfile: docker/dockerfile
       target: develop
     container_name: quarto-server
-    image: acederberg.io/quarto-blog-development:0.0.0
+    image: acederberg.io/quarto-blog-development:0.0.1
     ports: 
       - target: 3000
         published: 3000
