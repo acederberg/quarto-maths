@@ -6,7 +6,7 @@ authors = ["Adrian Cederberg <adrn.cederberg123@gmail.com>"]
 readme = "README.rst"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.10"
 numpy = "^2.0.0"
 seaborn = "^0.13.2"
 jupyter = "^1.0.0"

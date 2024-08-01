@@ -1,0 +1,20 @@
+---
+services:
+  server:
+    build:
+      context: ..
+      dockerfile: docker/dockerfile
+      target: develop
+    container_name: quarto-server
+    image: acederberg.io/quarto-develop
+    ports: 
+      - target: 3000
+        published: 3000
+    tty: true
+    volumes:
+      - '.venv:/home/docker/.venv'
+      - '..:/home/docker/app'
+      # NOTE: Because don't want to overwrite local and don't want to reinstall
+      #       every time. If there are permissions issues with the volume, just
+      #       do ``rm -r ./docker/.venv`` on the host system.
+      - /home/quarto/app/docker/.venv

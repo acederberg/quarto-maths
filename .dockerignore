@@ -1,0 +1,7 @@
+build
+.quarto
+_freeze
+site_libs
+.venv
+.git
+.jupyter_cache
