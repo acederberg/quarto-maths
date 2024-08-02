@@ -1,0 +1,313 @@
+---
+title: "The Logistic Map and Chaos"
+---
+
+Hello readers! 
+
+In this blog post I will be demonstrating how to deploy your static ``quarto`` 
+blog to ``kubernetes`` using manifests. If your blog needs ``quarto serve``
+this approach will not serve your purposes.
+
+This blog post will go into great detail as there does not appear to be a high
+degree of intersetion between users of ``kubernetes`` and notebooks like 
+``quarto``. For example, this blog post will give you a starting point if you
+have little understanding ``kubernetes`` and outline some of the things that 
+will be required to deploy your app that might be taken for granted if the 
+primary audience were seasoned users of ``kubernetes``.
+
+I would first recommend that you look at the articles about containerization of 
+``quarto`` with ``docker`` (and if it floats your boat making a 
+``docker-compose`` project for the development of your ``quarto`` website). 
+There will soon be subsequent articles about deploying your ``quarto`` app to 
+``kubernetes`` in ``pulumi``, a wonderful infrastructure as code (IaC) tool 
+that is a complete alternative to ``terraform`` that avoids the many pitfalls 
+of domain specific languages.
+
+Deploying your quarto notebooks is an excellent way to build a portfolio. 
+One may show of their cool data science projects, write how to articals, and
+render mathematics documents using ``TeX``. 
+
+Further, your notebooks do not need to contain executable code cells for them 
+to be published to your blog. For instance, this document is rendered as part 
+of a quarto blog deployed roughly as stated in this article and only uses the
+``markdown`` feature of quarto.
+
+
+## Choosing a Kubernetes Cluster 
+
+First of all, you will need a ``kubernetes`` cluster. This can be accomplished a
+number of ways and the specifics are far beyond the scope of this blog post. 
+However, a few good places to start are:
+
+- [Minikube](https://minikube.sigs.k8s.io/docs/) - A cloud free solution. This
+  will allow one to run a cluster locally on their own machine. If you're just 
+  seeing if it is possible to deploy your quarto site, then I would recommend 
+  this as it is the cheapest. *(all you need is electricity!)*
+
+- [Linode Kuberenetes Engine](https://www.linode.com/products/kubernetes/) - By 
+  far the cheapest cloud based option. It is as complete as any of the other 
+  cloud options mentioned here. The only drawback is that you might have to
+  deploy your own ingress controller (for instance [traefik](https://doc.traefik.io/traefik/providers/kubernetes-ingress/) 
+  or the [nginx ingress controller](https://github.com/kubernetes/ingress-nginx) 
+  to direct traffik to your deployment. **I will probablyt write a blog post on
+  this matter soon.**
+
+- [Azure Kubernetes Services](https://azure.microsoft.com/en-us/products/kubernetes-service/) - This 
+  is probably overkill for an experiment, and I would not recommend ``azure`` 
+  for your experimental deployments as there are many options to get web 
+  traffik to your ``kubernetes`` deployment that can become very expensive (for 
+  instance the azure application gateway).
+
+
+## Building a Container Image
+
+In my blogpost about building a ``docker`` image you can find out how to
+``containerize`` your ``quarto`` project. There are a few important 
+assumptions about your project:
+
+1. The quarto project should not use ``shiny`` and should not require the use
+   of ``quarto serve``. I will probably write a blog post about this once I 
+   have to deploy such a thing myself.
+2. The quarto project container has been published to dockerhub using the tag
+   ``{your-dockerhub-username}/quarto-blog:latest``. 
+3. The container will serve the ``quarto`` website on port ``8080``.
+
+
+## Install the Kubernetes Command Line Client
+
+``kubernetes`` is communicated with via an HTTP API - this means that there are
+a number of means to talk to the API - for instance 
+
+- [python client](https://github.com/kubernetes-client/python) - If you want
+  to write some automation in ``python``.
+- [go client](https://github.com/kubernetes/client-go) - If you want to 
+  write some automation in ``go``.
+- [command line client](https://kubernetes.io/docs/tasks/tools/) - This is the 
+  option we will be using today. The ``YAML`` manifests written in this 
+  document will require some extra work to deploy using the other clients, for 
+  instance [see this stack exchange post](https://stackoverflow.com/questions/58783939/using-client-go-to-kubectl-apply-against-the-kubernetes-api-directly-with-mult).
+
+Further, it is even possible to use the API using ``curl`` or ``python``s 
+``requests`` or ``httpx`` library - I would not recommend it.
+
+Once you think you have installed the ``kubectl`` command line client, run
+
+```sh
+kubectl version --output=yaml
+```
+
+to ensure that the client is working. This should give you something like
+
+```yaml
+clientVersion:
+  buildDate: "2024-05-14T10:50:53Z"
+  compiler: gc
+  gitCommit: 6911225c3f747e1cd9d109c305436d08b668f086
+  gitTreeState: clean
+  gitVersion: v1.30.1
+  goVersion: go1.22.2
+  major: "1"
+  minor: "30"
+  platform: linux/amd64
+kustomizeVersion: v5.0.4-0.20230601165947-6ce0bf390ce3
+serverVersion:
+  buildDate: "2024-03-14T23:58:36Z"
+  compiler: gc
+  gitCommit: 6813625b7cd706db5bc7388921be03071e1a492d
+  gitTreeState: clean
+  gitVersion: v1.29.3
+  goVersion: go1.21.8
+  major: "1"
+  minor: "29"
+  platform: linux/amd64
+```
+ 
+Next, ensure that you are connected to the cluster that you want to deploy to.
+This can be done like
+
+```sh
+kubectl config get-context
+```
+
+and should give a response something like
+
+```stdout
+CURRENT   NAME            CLUSTER     AUTHINFO          NAMESPACE
+*         lkeXXXXXX-ctx   lkeXXXXXX   lkeXXXXXX-admin   *
+```
+
+
+## Kubernetes Manifests
+
+A ``kubernetes`` manifest is just a ``YAML`` file that is interpretted by the 
+``kubectl`` client and transformed into API calls. This will result in the 
+creation of resources on your ``kubernetes`` cluster.
+
+
+### Creating a Namespace
+
+First, in a new file ``quarto-blog.yaml``, we will create a ``namespace``, 
+which will help keep the objects created separate from any existing resources:
+
+```yaml
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: quarto-blog
+```
+
+then run 
+
+```sh
+kubectl apply -f quarto-blog.yaml
+```
+
+This will instantiate the namespace within your ``kubernetes`` cluster. To see 
+verify namespace was created, run
+
+```sh
+kubectl get ns
+```
+
+and finally, run 
+
+```sh
+kubectl config set-context --current --namespace=quarto-blog
+```
+
+This will make sure that ``kubectl get`` will look in the ``quarto-blog`` 
+namespace. 
+
+
+### Creating a Deployment
+
+Now a ``Deployment`` can be added to the new ``Namespace``. A deployment is a 
+self healing set of ``Pods`` (which are groups of containers). This means that 
+when a pod dies or is directly removed, it will be replaced by a new one by the 
+deployment.
+
+```yaml
+# Also in ``quarto-blog.yaml``
+---
+apiVersion: apps/v1
+metadata:
+  namespace: quarto-blog
+  name: quarto-blog
+kind: Deployment
+spec:
+  selector:
+    matchLabels:
+      app: quarto-blog
+  template:
+    metadata: 
+      labels:
+        app: quarto-blog
+    spec:
+      containers:
+        - name: quarto-blog
+          image: "{your-dockerhub-username}/quarto-blog:latest"
+          imagePullPolicy: Always
+          ports: 
+            - name: captura-http
+              containerPort: 8080
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 8080
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+```
+
+There are noteworthy aspects of this manifest:
+
+- A new ``YAML`` document is started in ``quarto-blog.yaml`` by writing ``---``
+  on its own line.
+- The ``spec.selector.matchLabels`` should be some subset of ``spec.template.metadata.labels``.
+- It is necessary to tell ``kubernetes`` the port that this will be hosted on.
+- The ``readinessProbe`` field will check to make sure that the site is being 
+  successfully served. 
+
+Once again, use ``kubectl apply -f ./quarto-blog.yaml`` to start up your 
+``Deployment``. If everything goes right, running
+
+```sh
+kubectl get deployments
+```
+
+should return
+`` 
+
+```stdout
+```
+
+if the ``Ready`` column does not show ``1/1`` the following section will aid 
+in debugging.
+
+
+### Debugging the Deployment
+
+If things do not go smoothly, some solutions to likely cases are provided here.
+To get more specifics of what went wrong, run
+
+```sh
+kubectl get pods --selector app=quarto-blog
+```
+
+If the image provided in the manifest is not found, the output of 
+``kubectl get deployments`` will be like
+
+```stdout
+NAME                           READY   STATUS             RESTARTS   AGE
+{name of pod}                  0/1     ImagePullBackOff   0          98s
+```
+
+In this case, go inspect your dockerhub responsitory and click on the 
+``latest`` tag (or the tag you desire). The image name to use should be on the 
+page:
+
+![Dockerhub imagename](./assets/quarto-kubernetes/dockerhub-imgname.png)
+
+If your pod(s) are crashing (that is, they have the value ``CrashLoopBackOff`` 
+in the ``STATUS`` column), like 
+
+```
+NAME                           READY   STATUS             RESTARTS        AGE
+quarto-blog-75cf7b96c6-7n8m7   0/1     CrashLoopBackOff   8 (2m58s ago)   19m
+```
+
+then ``kubectl inspect pod/{name of pod}`` and ``kubectl logs {name of pod}`` 
+can help point you towards any server failures.
+
+
+### Creating a Service
+
+A service determines how your pods will be grouped and when their traffik is 
+routed to the internet. The ingress controller will use services to route 
+traffik thus services are necessary. In this instance, only the pods from 
+``quarto-blog`` are to be selected. To do this the following must be added
+to ``quarto-blog.yaml``:
+
+```yaml
+# Also in ``quarto-blog.yaml``
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: quarto-blog
+  namespace: quarto-blog
+spec:
+  selector:
+    app: quarto-blog
+  ports:
+    - targetPort: 8080
+      port: 80
+```
+
+this will route all of the traffik from port ``8080`` of the pods to port 
+``80`` of the service.
+
+

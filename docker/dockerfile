@@ -78,4 +78,5 @@ WORKDIR /app
 COPY --from=builder /quarto/app/build /app
 RUN npm install http-server
 
+CMD ["npx", "http-server", "--port", "8080", "--robots", "--proxy", "https://errors.acederberg.io/404.html", "/app"]
 

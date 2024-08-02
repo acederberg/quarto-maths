@@ -29,9 +29,6 @@ website:
         href: /posts
       - text: resume
         href: https://acederberg.io/resume
-
-# style: 
-#   html:
 theme:
   dark: [darkly, themes/index.css, themes/dark.scss, themes/dark-default.scss]
   light: [flatly, themes/index.css]
