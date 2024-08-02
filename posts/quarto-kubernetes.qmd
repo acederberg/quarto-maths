@@ -1,5 +1,5 @@
 ---
-title: "The Logistic Map and Chaos"
+title: "Deploying Quarto To Kubernetes"
 ---
 
 Hello readers! 
@@ -9,7 +9,7 @@ blog to ``kubernetes`` using manifests. If your blog needs ``quarto serve``
 this approach will not serve your purposes.
 
 This blog post will go into great detail as there does not appear to be a high
-degree of intersetion between users of ``kubernetes`` and notebooks like 
+degree of intersection between users of ``kubernetes`` and notebooks like 
 ``quarto``. For example, this blog post will give you a starting point if you
 have little understanding ``kubernetes`` and outline some of the things that 
 will be required to deploy your app that might be taken for granted if the 
@@ -24,7 +24,7 @@ that is a complete alternative to ``terraform`` that avoids the many pitfalls
 of domain specific languages.
 
 Deploying your quarto notebooks is an excellent way to build a portfolio. 
-One may show of their cool data science projects, write how to articals, and
+One may show of their cool data science projects, write how to articles, and
 render mathematics documents using ``TeX``. 
 
 Further, your notebooks do not need to contain executable code cells for them 
@@ -48,14 +48,14 @@ However, a few good places to start are:
   far the cheapest cloud based option. It is as complete as any of the other 
   cloud options mentioned here. The only drawback is that you might have to
   deploy your own ingress controller (for instance [traefik](https://doc.traefik.io/traefik/providers/kubernetes-ingress/) 
-  or the [nginx ingress controller](https://github.com/kubernetes/ingress-nginx) 
-  to direct traffik to your deployment. **I will probablyt write a blog post on
+  or the [``nginx`` ingress controller](https://github.com/kubernetes/ingress-nginx) 
+  to direct traffic to your deployment. **I will probably write a blog post on
   this matter soon.**
 
 - [Azure Kubernetes Services](https://azure.microsoft.com/en-us/products/kubernetes-service/) - This 
   is probably overkill for an experiment, and I would not recommend ``azure`` 
   for your experimental deployments as there are many options to get web 
-  traffik to your ``kubernetes`` deployment that can become very expensive (for 
+  traffic to your ``kubernetes`` deployment that can become very expensive (for 
   instance the azure application gateway).
 
 
@@ -265,11 +265,12 @@ NAME                           READY   STATUS             RESTARTS   AGE
 {name of pod}                  0/1     ImagePullBackOff   0          98s
 ```
 
-In this case, go inspect your dockerhub responsitory and click on the 
+In this case, go inspect your ``hub.docker.com`` repository and click on the 
 ``latest`` tag (or the tag you desire). The image name to use should be on the 
 page:
 
-![Dockerhub imagename](./assets/quarto-kubernetes/dockerhub-imgname.png)
+![Dockerhub image name](./assets/quarto-kubernetes/dockerhub-imgname.png)
+
 
 If your pod(s) are crashing (that is, they have the value ``CrashLoopBackOff`` 
 in the ``STATUS`` column), like 
@@ -279,15 +280,15 @@ NAME                           READY   STATUS             RESTARTS        AGE
 quarto-blog-75cf7b96c6-7n8m7   0/1     CrashLoopBackOff   8 (2m58s ago)   19m
 ```
 
-then ``kubectl inspect pod/{name of pod}`` and ``kubectl logs {name of pod}`` 
+then ``kubectl describe pod/{name of pod}`` and ``kubectl logs {name of pod}`` 
 can help point you towards any server failures.
 
 
 ### Creating a Service
 
-A service determines how your pods will be grouped and when their traffik is 
+A service determines how your pods will be grouped and when their traffic is 
 routed to the internet. The ingress controller will use services to route 
-traffik thus services are necessary. In this instance, only the pods from 
+traffic thus services are necessary. In this instance, only the pods from 
 ``quarto-blog`` are to be selected. To do this the following must be added
 to ``quarto-blog.yaml``:
 
@@ -307,7 +308,74 @@ spec:
       port: 80
 ```
 
-this will route all of the traffik from port ``8080`` of the pods to port 
-``80`` of the service.
+this will route all of the traffic from port ``8080`` of the pods to port 
+``80`` of the service. Once again ``kubectl apply -f quarto-blog.yaml`` and 
+verify that the service exists and is properly function with 
+``kubectl get services``.
 
 
+### Routing
+
+In my particular case, I have decided to use ``traefik`` as my ingress 
+controller. Setting up ``traefik`` in ``kubernetes`` with ``letsencrypt`` can be 
+a pain, and I will go into the details in a subsequent blog post. The following
+assumes that 
+
+1. ``traefik`` and its custom resource definitions have been added to 
+   ``kubernetes``. 
+3. ``traefik`` has a certificate resolver ``letsencrypt``.
+2. That your website is ``example.io``.
+
+``traefik`` will respond to http ``traefik`` on ``blog.example.io`` with the 
+response from the ``quarto-blog`` service when provided the following 
+additional manifest in ``quarto-blog.yaml``:
+
+```yaml
+---
+- apiVersion: traefik.io/v1alpha1
+  kind: Middleware
+  metadata:
+    creationTimestamp: "2024-05-23T18:08:33Z"
+    generation: 1
+    labels:
+      acederberg.io/component: traefik
+      acederberg.io/from: pulumi
+      acederberg.io/tier: base
+    name: traefik-ratelimit
+    namespace: traefik
+    resourceVersion: "299631"
+    uid: a2353bac-a511-4118-bbb0-8b2ad989f938
+  spec:
+    rateLimit:
+      average: 100
+      burst: 200
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: quarto-blog
+  namespace: quarto-blog
+spec:
+  tls:
+    certResolver: letsencrypt
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: HOST(`blog.example.io`)
+      middlewares:
+        - name: traefik-ratelimit
+          namespace: traefik
+      services:
+        - kind: Service
+          name: quarto-blog
+          namespace: quarto-blog
+          port: 80
+```
+
+
+Now ``kubectl apply -f quarto-blog.yaml``. Finally, browse to the matched host 
+and your webpage should appear with valid https:
+
+![Deployed blog](./assets/quarto-kubernetes/blog.png)
