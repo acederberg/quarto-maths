@@ -7,14 +7,19 @@ about:
     - icon: github
       text: Github
       href: https://github.com/acederberg
+    - icon: linkedin
+      text: LinkedIn
+      href: https://www.linkedin.com/in/adrian-cederberg-b453571b9/
+    - icon: twitter
+      text: Twitter
+      href: https://x.com/_acederberg
+
 ---
 
-This is my quarto blog! Here I will be exploring numerical mathematics with 
-``python`` using ``seaborn``, ``pandas``, and ``numpy``. This is just one part
-of my [portfolio website](https://acederberg.io).
+This is my quarto blog! It is just one part of 
+[my website](https://acederberg.io). Here I will write blog posts about 
+``python``, containerization, infrastructure as code, numerical mathematics, 
+and (eventually) data science.
 
-For inquiries, please reach out to me at ``adrn.cederberg123@gmail.com``.
-For the source code of this website, see ``https://github.com/acederberg/acederberg.io``.
-
-
-
+For inquiries, please reach out to me at ``adrn.cederberg123@gmail.com`` or ``@_acederberg``
+on twitter. 

@@ -1,0 +1,102 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: quarto-blog
+  labels:
+    acederberg.io/tier: browser
+    acederberg.io/from: kubectl
+    acederberg.io/component: quarto-blog
+
+
+---
+apiVersion: apps/v1
+metadata:
+  namespace: quarto-blog
+  name: quarto-blog
+  labels:
+    acederberg.io/tier: browser
+    acederberg.io/from: kubectl
+    acederberg.io/component: quarto-blog
+kind: Deployment
+spec:
+  selector:
+    matchLabels:
+      acederberg.io/tier: browser
+      acederberg.io/from: kubectl
+      acederberg.io/component: quarto-blog
+  template:
+    metadata: 
+      labels:
+        acederberg.io/tier: browser
+        acederberg.io/from: kubectl
+        acederberg.io/component: quarto-blog
+    spec:
+      containers:
+        - name: quarto-blog
+          image: acederberg/quarto-blog:1efc8beb16200dba7bfd42eb8f027b6ddace6ad3
+          imagePullPolicy: Always
+          ports: 
+            - name: captura-http
+              containerPort: 8080
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 8080
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: quarto-blog
+  namespace: quarto-blog
+  labels:
+    acederberg.io/tier: browser
+    acederberg.io/from: kubectl
+    acederberg.io/component: quarto-blog
+spec:
+  selector:
+    acederberg.io/tier: browser
+    acederberg.io/from: kubectl
+    acederberg.io/component: quarto-blog
+  ports:
+    - targetPort: 8080
+      port: 80
+
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: quarto-blog
+  namespace: quarto-blog
+  labels:
+    acederberg.io/tier: browser
+    acederberg.io/from: kubectl
+    acederberg.io/component: quarto-blog
+spec:
+  tls:
+    certResolver: letsencrypt
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: HOST(`blog.acederberg.io`)
+      middlewares:
+        - name: traefik-ratelimit
+          namespace: traefik
+        - name: traefik-error-pages
+          namespace: traefik
+      services:
+        - kind: Service
+          name: quarto-blog
+          namespace: quarto-blog
+          port: 80
+
+
