@@ -1,12 +1,15 @@
 ---
 project:
   type: website
+  resources:
+    - ./robots.txt
+    - ./posts/assets
+
   output-dir: build
   preview:
     host: 0.0.0.0
     port: 3000
     browser: false
-lib-dir: ./assets
 jupyter: python3
 website:
   title: "acederberg.io"
