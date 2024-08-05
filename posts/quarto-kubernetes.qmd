@@ -1,5 +1,12 @@
 ---
 title: "Deploying Quarto To Kubernetes"
+description: An in depth guide for deploying quarto to kubernetes suitable for begginers.
+categories:
+  - kubernetes
+  - IaC
+  - quarto
+date: 8-2-2024
+date-modified: 8-2-2024
 ---
 
 Hello readers! 
@@ -131,7 +138,7 @@ kubectl config get-context
 
 and should give a response something like
 
-```stdout
+```default
 CURRENT   NAME            CLUSTER     AUTHINFO          NAMESPACE
 *         lkeXXXXXX-ctx   lkeXXXXXX   lkeXXXXXX-admin   *
 ```
@@ -241,7 +248,7 @@ kubectl get deployments
 should return
 `` 
 
-```stdout
+```default
 ```
 
 if the ``Ready`` column does not show ``1/1`` the following section will aid 
@@ -260,7 +267,7 @@ kubectl get pods --selector app=quarto-blog
 If the image provided in the manifest is not found, the output of 
 ``kubectl get deployments`` will be like
 
-```stdout
+```default
 NAME                           READY   STATUS             RESTARTS   AGE
 {name of pod}                  0/1     ImagePullBackOff   0          98s
 ```
@@ -269,13 +276,13 @@ In this case, go inspect your ``hub.docker.com`` repository and click on the
 ``latest`` tag (or the tag you desire). The image name to use should be on the 
 page:
 
-![Dockerhub image name](./assets/quarto-kubernetes/dockerhub-imgname.png)
+![Dockerhub image name](./assets/quarto-kubernetes/dockerhub-imgname.png){.no-filter}
 
 
 If your pod(s) are crashing (that is, they have the value ``CrashLoopBackOff`` 
 in the ``STATUS`` column), like 
 
-```
+```default
 NAME                           READY   STATUS             RESTARTS        AGE
 quarto-blog-75cf7b96c6-7n8m7   0/1     CrashLoopBackOff   8 (2m58s ago)   19m
 ```
@@ -378,4 +385,5 @@ spec:
 Now ``kubectl apply -f quarto-blog.yaml``. Finally, browse to the matched host 
 and your webpage should appear with valid https:
 
-![Deployed blog](./assets/quarto-kubernetes/blog.png)
+![Deployed blog](./assets/quarto-kubernetes/blog.png){.no-filter}
+

@@ -16,6 +16,7 @@ website:
   # NOTE: https://icons.getbootstrap.com/
   navbar:
     background: success
+    foreground: '#222'
     right:
       - icon: github
         href: https://github.com/acederberg

@@ -35,3 +35,7 @@ input[type='radio']:checked {
   background: var(--bs-gray-300);
   border: 3px solid var(--bs-success);
 }
+
+.no-filter {
+  filter: none !important;
+}

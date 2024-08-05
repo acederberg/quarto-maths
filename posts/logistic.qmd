@@ -1,8 +1,14 @@
 ---
 title: "The Logistic Map and Chaos"
+# description:
+categories:
+  - python
+  - math
+date: 8-1-2024
+date-modified: 8-3-2024
 ---
 
-This is the first blog post I am writing with quarto!
+This is the first quarto blog post!
 
 For the most part, I wanted to make this because the graphs are interesting to
 look at. Further, I wanted to test the abilities of quarto to use ``latex``,

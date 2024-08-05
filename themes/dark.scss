@@ -1,10 +1,11 @@
-/*-- scss:rules--*/
+/*-- scss:rules --*/
 .animation img,
 .figure img {
-  filter: invert(1) hue-rotate(135deg) saturate(2);
+  filter: invert(0.87) hue-rotate(135deg) saturate(2);
 }
 
 .anim-controls button i,
-.anim-buttons button i .fa-flip-horizontal {
-  filter: invert(1);
+.anim-buttons button i .fa-flip-horizontal,
+.anim-buttons button i .fa {
+  filter: invert(1) !important;
 }
