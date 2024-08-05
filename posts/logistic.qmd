@@ -6,6 +6,10 @@ categories:
   - math
 date: 8-1-2024
 date-modified: 8-3-2024
+format:
+  html:
+    include-in-header:
+      - ./assets/logistic/meta.html
 ---
 
 This is the first quarto blog post!

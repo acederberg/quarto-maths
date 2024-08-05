@@ -245,13 +245,14 @@ Once again, use ``kubectl apply -f ./quarto-blog.yaml`` to start up your
 kubectl get deployments
 ```
 
-should return
-`` 
+should display 
 
 ```default
+NAME          READY   UP-TO-DATE   AVAILABLE   AGE
+quarto-blog   1/1     1            1           2d20h
 ```
 
-if the ``Ready`` column does not show ``1/1`` the following section will aid 
+If the ``Ready`` column does not show ``1/1`` the following section will aid 
 in debugging.
 
 
@@ -387,3 +388,11 @@ and your webpage should appear with valid https:
 
 ![Deployed blog](./assets/quarto-kubernetes/blog.png){.no-filter}
 
+
+## Removal
+
+If you would like to undo all of the actions in this article, do
+
+```default
+kubectl delete -f ./quarto-blog.yaml
+```
