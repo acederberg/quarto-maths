@@ -8,7 +8,6 @@ __pycache__
 _freeze
 site_libs
 logistic_files
-*.html
 *.quarto_ipynb
 
 /.quarto/

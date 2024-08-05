@@ -71,7 +71,6 @@ RUN bash -c "source $ACEDERBERG_IO_VENV/bin/activate && quarto render /quarto/ap
 
 FROM node:lts-alpine3.20 AS production
 
-# RUN npm install http-server
 USER node
 
 WORKDIR /app
