@@ -1,6 +1,20 @@
 ---
 title: "Deploying Quarto To Kubernetes"
 description: An in depth guide for deploying quarto to kubernetes suitable for begginers.
+extra:
+  url: /posts/quarto-kube-static
+keywords:
+  - kubernetes
+  - manifest
+  - cluster
+  - kubernetes manifest
+  - docker
+  - containerization
+  - IaC
+  - Infrastructure as Code
+  - quarto
+  - quarto website
+  - static site
 categories:
   - kubernetes
   - IaC
@@ -277,7 +291,7 @@ In this case, go inspect your ``hub.docker.com`` repository and click on the
 ``latest`` tag (or the tag you desire). The image name to use should be on the 
 page:
 
-![Dockerhub image name](./assets/quarto-kubernetes/dockerhub-imgname.png){.no-filter}
+![Dockerhub image name](./dockerhub-imgname.png){.no-filter}
 
 
 If your pod(s) are crashing (that is, they have the value ``CrashLoopBackOff`` 
@@ -386,7 +400,7 @@ spec:
 Now ``kubectl apply -f quarto-blog.yaml``. Finally, browse to the matched host 
 and your webpage should appear with valid https:
 
-![Deployed blog](./assets/quarto-kubernetes/blog.png){.no-filter}
+![Deployed blog](./blog.png){.no-filter}
 
 
 ## Removal

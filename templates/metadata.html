@@ -1,0 +1,55 @@
+<!-- ---------------------------------------------------------------------- -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+
+$if(quarto-version)$
+<meta name="generator" content="quarto-$quarto-version$" />
+$else$
+<meta name="generator" content="quarto" />
+$endif$
+
+<meta property="og:type" content="article" />
+
+
+<!-- Basic Metadata ------------------------------------------------------- -->
+$for(author-meta)$
+<meta name="author" content="$author-meta$" />
+$endfor$
+
+$if(date-meta)$
+<meta name="dcterms.date" content="$date-meta$" />
+$endif$
+
+$if(keywords)$
+<meta name="keywords" content="$for(keywords)$$keywords$$sep$, $endfor$" />
+$endif$
+
+<!-- Misc ----------------------------------------------------------------- -->
+$if(extra.url)$
+<meta property="og:url" content="$meta.url$" />
+$endif$
+
+$if(extra.summary)$
+<meta property="twitter:summary" content="$extra.summary$" />
+$endif$
+
+<!-- Description ---------------------------------------------------------- -->
+$if(description-meta)$
+<meta name="description" content="$description-meta$" />
+<meta property="og:description" content="$description-meta$" />
+<meta property="twitter:description" content="$description-meta$" />
+$endif$
+
+<!-- Image ---------------------------------------------------------------- -->
+$if(extra.image)$
+<meta name="image" content="$extra.image$" />
+<meta property="og:image" content="$extra.image$" />
+<meta property="twitter:image" content="$extra.image$" />
+$endif$
+
+<!-- Title ---------------------------------------------------------------- -->
+<meta name="title" content="$pagetitle$" />
+<meta property="og:title" content="$pagetitle$" />
+<meta property="twitter:title" content="$pagetitle$" />
+<title>$pagetitle$$if(title-prefix)$ – $title-prefix$$endif$</title>
+<!-- ---------------------------------------------------------------------- -->

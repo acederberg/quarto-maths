@@ -3,7 +3,7 @@ project:
   type: website
   resources:
     - ./robots.txt
-    - ./posts/assets
+    - ./posts/**/*.png
 
   output-dir: build
   preview:
@@ -34,18 +34,10 @@ website:
         href: /posts
       - text: resume
         href: https://acederberg.io/resume
-
-  # NOTE: https://quarto.org/docs/websites/website-navigation.html
-  # sidebar:
-  #   search: true
-  #   contents: 
-  #     - section: Introduction
-  #       contents: 
-  #         - about.qmd
-  #     - section: Posts
-  #       contents: 
-  #         - posts/quarto-kubernetes.qmd
-  #         - posts/logistic.qmd
 theme:
   dark: [darkly, themes/index.css, themes/dark.scss, themes/dark-default.scss]
   light: [flatly, themes/index.css]
+format:
+  html:
+    template-partials:
+      - templates/metadata.html

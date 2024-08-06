@@ -1,15 +1,28 @@
 ---
 title: "The Logistic Map and Chaos"
-# description:
+description: "The logistic map: Animations and properties."
+extra:
+  url: /posts/logistic
+  image: /posts/logistic/thumb.png
+  summary: blah lbha
+keywords: 
+  - logistic map
+  - logistic
+  - map
+  - chaos
+  - python
+  - seaborn
+  - numpy
+  - diagram
+  - cobweb
+  - bifurcation
+  - polynomial
+
 categories:
   - python
   - math
 date: 8-1-2024
 date-modified: 8-3-2024
-format:
-  html:
-    include-in-header:
-      - ./assets/logistic/meta.html
 ---
 
 This is the first quarto blog post!
