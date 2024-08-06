@@ -11,3 +11,8 @@ logistic_files
 *.quarto_ipynb
 
 /.quarto/
+*.csv
+*.json
+*.gif
+*.png
+!thumb.png

@@ -1,6 +1,7 @@
 ---
 title: "The Logistic Map and Chaos"
 description: "The logistic map: Animations and properties."
+image: thumb.png
 extra:
   url: /posts/logistic
   image: /posts/logistic/thumb.png
@@ -22,7 +23,7 @@ categories:
   - python
   - math
 date: 8-1-2024
-date-modified: 8-3-2024
+date-modified: 8-6-2024
 ---
 
 This is the first quarto blog post!
@@ -73,7 +74,6 @@ of the logistic sequence:
 #| echo: true
 import itertools
 import json
-import os
 import pathlib
 from os import environ
 from typing import Generator, List
@@ -83,7 +83,6 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-from IPython.display import HTML
 from matplotlib.animation import FuncAnimation
 
 
@@ -97,10 +96,9 @@ LOGISTIC_STEP_SIZE_RR = float(environ.get("LOGISTIC_STEP_SIZE_RR", "0.02"))
 LOGISTIC_ITERATIONS = int(environ.get("LOGISTIC_ITERATIONS", "1000 "))
 LOGISTIC_ITERATIONS_KEPT = int(environ.get("LOGISTIC_ITERATIONS_KEPT", "100"))
 
-QUARTO_POSTS = pathlib.Path(".").resolve()
-LOGISTIC_DATA = QUARTO_POSTS.parent / "demo-data" / "posts" / "logistic_data"
-LOGISTIC_DATA_BIFURCATION = LOGISTIC_DATA / f"logistic-bifurcation-{LOGISTIC_ITERATIONS}-{LOGISTIC_STEP_SIZE}.csv"
-LOGISTIC_DATA_COBWEB_RR = LOGISTIC_DATA / f"cobweb-{LOGISTIC_STEP_SIZE}-{LOGISTIC_STEP_SIZE_RR}.json"
+DIR = pathlib.Path(".").resolve()
+LOGISTIC_DATA_BIFURCATION = DIR / f"logistic-bifurcation-{LOGISTIC_ITERATIONS}-{LOGISTIC_STEP_SIZE}.csv"
+LOGISTIC_DATA_COBWEB_RR = DIR / f"cobweb-{LOGISTIC_STEP_SIZE}-{LOGISTIC_STEP_SIZE_RR}.json"
 
 def logistic_point(
   rr: float, 
@@ -230,15 +228,6 @@ def create_bifurcation(
 def load_bifurcation():
   """Load data if it has already been computed. This is especially useful when
   developing this document."""
-
-  if not LOGISTIC_DATA.parent.parent.exists(): 
-    os.mkdir(LOGISTIC_DATA.parent.parent)
-
-  if not LOGISTIC_DATA.parent.exists(): 
-    os.mkdir(LOGISTIC_DATA.parent)
-
-  if not LOGISTIC_DATA.exists():
-    os.mkdir(LOGISTIC_DATA)
 
   if not LOGISTIC_DATA_BIFURCATION.exists():
     data_raw = create_bifurcation(step=0.0001)
@@ -390,28 +379,36 @@ def diagram_cobweb(
   # Why do I have to do this twice?
   plt.close()
   plt.close()
-  return HTML(animation.to_jshtml())
+  return animation
 ```
+
 
 Starting with a large value we can see that sequence probably does not 
 converge
 
+
 ```{python}
-#| label: fig-logistic-cobweb-3-8
-#| fig-cap: "Logistic Cobweb Diagram for $r = 3.8$."
-diagram_cobweb(3.8, frames=200, interval=50)
+animation = diagram_cobweb(3.8, 0.9, frames=200, interval=50)
+animation.save(DIR / "cobweb-3.8-0.9.gif", writer="pillow")
 ```
+
+
+![Logistic Cobweb Diagram for $r = 3.8$.](./cobweb-3.8-0.9.gif)
+
 
 The lack of convergence for large $r$ values will also be demonstrated in the 
 section about the bifurcation diagram. With a smaller value of $r$ the 
 convergence easy to confirm visually:
 
-```{python}
-#| label: fig-logistic-cobweb-2
-#| fig-cap: "Logistic Cobweb Diagram for $r = 3$."
 
-diagram_cobweb(2, frames=10)
+```{python}
+animation = diagram_cobweb(2, 0.9, frames=10)
+animation.save(DIR / "cobweb-2-0.9.gif", writer="pillow")
 ```
+
+
+![Logistic Cobweb Diagram for $r = 2$.](./cobweb-2-0.9.gif)
+
 
 The following code can be used to animate the sequence starting at the same 
 point for varying values of $r$. This will show how convergence varies as the
@@ -502,17 +499,21 @@ def diagram_cobweb_rr(interval: int = 200):
     interval=interval,
   )
   plt.close()
-  return HTML(animation.to_jshtml())
+  return animation
 ```
 
-The animation below shows cobweb diagrams with varying values of ``rr``.
+The animation below shows cobweb diagrams with the value of $r$ varied along
+$[0, 4]$.
+
 
 ```{python}
-#| label: fig-logistic-cobweb-rr
-#| fig-cap: "Use the slider to change $r$."
-
-diagram_cobweb_rr(interval=100)
+animation = diagram_cobweb_rr(interval=100)
+animation.save("cobweb-rr-0.9.gif", writer="pillow")
 ```
+
+
+![Cobweb Diagram with varying $r$ values and $x=0.9$](./cobweb-rr-0.9.gif)
+
 
 ## Logistic Compositions
 
@@ -564,34 +565,48 @@ def diagram_composition(rr: float, frames: int):
   )
 
   plt.close()
-  return HTML(animation.to_jshtml())
+  return animation
 ```
 
 The plot below shows $\lambda_4^k$ *(the compositions)*:
 
+
 ```{python}
-diagram_composition(4, frames=64)
+animation = diagram_composition(4, frames=64)
+if not (output_path := DIR / "composition-4.gif").exists():
+  animation.save(output_path, writer="pillow")
 ```
+
+
+![Compositions for $r=4$](./composition-4.gif)
+
 
 Seeing the evolutions of the above plot it is clear why the logistic sequence 
 does not converge for higher values of $r$. In the case that $r = 3$ 
 the sequence does converge (as we will see in the next section) and the 
 compositions have maxima and minima that are in a smaller range.
 
+
 ```{python}
-#| label: logistic-composition-3
-#| fig-cap: $\lambda_3^k$ for $k \in N$ and $0 < k < 9$. 
-diagram_composition(3, frames=9)
+animation = diagram_composition(3, frames=9)
+if not (output_path := DIR / "composition-3.gif").exists():
+  animation.save(output_path, writer="pillow")
 ```
+
+
+![Compositions for $r=3$](./composition-3.gif)
+
 
 Finally, when $r=2$ the compositions appears to only have $3$ extrema no matter
 the degree of composition:
 
+
 ```{python}
-#| label: logistic-composition-2
-#| fig-cap: $\lambda_2^k$ for $k \in N$ and $0 < k < 11$. 
-diagram_composition(1, frames=11)
+animation = diagram_composition(1, frames=11)
+if not (output_path := DIR / "composition-1.gif").exists():
+  animation.save(output_path, writer="pillow")
 ```
 
 
+![Compositions for $r=1$](./composition-1.gif)
 

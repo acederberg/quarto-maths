@@ -39,5 +39,6 @@ theme:
   light: [flatly, themes/index.css]
 format:
   html:
+    embed-resources: false
     template-partials:
       - templates/metadata.html
