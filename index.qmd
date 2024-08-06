@@ -1,6 +1,13 @@
 ---
 title: About
+description: "@_acederberg's blog posts"
 image: https://avatars.githubusercontent.com/u/77076023?v=4
+keywords:
+  - acederberg
+  - captura
+  - python
+  - blog
+  - quarto
 about:
   template: jolla
   links: 

@@ -30,26 +30,30 @@ $if(extra.url)$
 $endif$
 
 $if(extra.summary)$
-<meta property="twitter:summary" content="$extra.summary$" />
+<meta name="twitter:summary" content="$extra.summary$" />
 $endif$
 
 <!-- Description ---------------------------------------------------------- -->
 $if(description-meta)$
 <meta name="description" content="$description-meta$" />
+<meta name="twitter:description" content="$description-meta$" />
 <meta property="og:description" content="$description-meta$" />
-<meta property="twitter:description" content="$description-meta$" />
 $endif$
 
 <!-- Image ---------------------------------------------------------------- -->
 $if(extra.image)$
 <meta name="image" content="$extra.image$" />
+<meta name="twitter:image" content="$extra.image$" />
 <meta property="og:image" content="$extra.image$" />
-<meta property="twitter:image" content="$extra.image$" />
 $endif$
 
 <!-- Title ---------------------------------------------------------------- -->
 <meta name="title" content="$pagetitle$" />
+<meta name="twitter:title" content="$pagetitle$" />
 <meta property="og:title" content="$pagetitle$" />
-<meta property="twitter:title" content="$pagetitle$" />
 <title>$pagetitle$$if(title-prefix)$ – $title-prefix$$endif$</title>
+
+<!-- Twitter ---------------------------------------------------------------- -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:creator" content="@_acederberg" />
 <!-- ---------------------------------------------------------------------- -->

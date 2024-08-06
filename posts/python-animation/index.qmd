@@ -28,14 +28,14 @@ some notes for anybody else who has to deal with this in the future as I did
 not find it to be completely obvious.
 
 
-For this demonstration we will plot a sine wave with an increasing phase 
-$\phi$ over the interval $[0, \pi)$. More precisely, we are plotting
+For this demonstration we will plot a sine wave with an increasing phase offset
+$\phi$ over the interval $[0, \pi)$. More precisely, the graph animated is
 
 \begin{equation}
   f_\psi: \phi \mapsto sin(\phi + \psi)
 \end{equation}
 
-for consecutive $\psi \in [0, \pi)$ and all $[0, \pi]$ on each frame.
+for one $\psi \in [0, \pi)$ and all $[0, \pi]$ on each frame.
 
 
 The following code is used to export a ``gif`` of the sinusoid:

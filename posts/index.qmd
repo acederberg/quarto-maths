@@ -1,5 +1,15 @@
 ---
 title: Blog Posts
+description: "@_acederberg's blog posts"
+extra:
+  url: /posts
+  image: https://avatars.githubusercontent.com/u/77076023?v=4
+keywords:
+  - acederberg
+  - captura
+  - python
+  - blog
+  - quarto
 listing: default
 page-layout: full
 title-block-banner: false

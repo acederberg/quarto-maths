@@ -5,7 +5,6 @@ image: thumb.png
 extra:
   url: /posts/logistic
   image: /posts/logistic/thumb.png
-  summary: blah lbha
 keywords: 
   - logistic map
   - logistic
@@ -18,7 +17,6 @@ keywords:
   - cobweb
   - bifurcation
   - polynomial
-
 categories:
   - python
   - math
