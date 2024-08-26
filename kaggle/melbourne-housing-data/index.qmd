@@ -1,0 +1,110 @@
+---
+title: Fun With Melbourne Housing Data
+description: Playing with some housing data.
+image: thumb.png
+extra:
+  url: /kaggle/melbourne-housing-data
+  image: /kaggle/melbourne-housing-data/thumb.png
+keywords:
+  - austrailia
+  - seaborn
+  - numpy 
+  - datascience
+  - data
+  - science
+catagories:
+  - python
+  - kaggle
+---
+
+
+## About Using ``kaggle`` Outside of the Browser
+
+Since this is the first assignment, and since I would much rather automate 
+things, I would like to say that it is worth knowing that the kaggle API has a
+``python`` client available on ``PyPI``. This may be installed using ``pip 
+install kaggle`` or in my case ``poetry add kaggle``. 
+
+It turns out that the ``kaggle`` library is only one client available for using
+kaggle in ``python`` modules. There is also a solution called ``kagglehub``. It 
+can be installed like ``poetry add kagglehub``.
+
+
+The dataset for this assignment can be [viewed and downloaded in the browser](
+https://www.kaggle.com/datasets/dansbecker/melbourne-housing-snapshot?resource=download).
+It may be obtained in ``python`` as follows:
+
+
+```{python}
+import kaggle
+import kagglehub
+import matplotlib
+import pathlib
+import io
+import contextlib
+
+import pandas as pd
+
+
+DIR = pathlib.Path(".").resolve()
+
+# NOTE: The ``path`` argument does not specify the path downloaded to, but 
+#       instead a subpath of the data.
+DATA_DOWNLOAD_IO = io.StringIO()
+DATA_ID ="anthonypino/melbourne-housing-market" 
+with contextlib.redirect_stdout(DATA_DOWNLOAD_IO):
+  DATA_DIR = pathlib.Path(kagglehub.dataset_download(DATA_ID))
+
+DATA_PATH_LESS = DATA_DIR / "MELBOURNE_HOUSE_PRICES_LESS.csv"
+DATA_PATH = DATA_DIR / "Melbourne_Housing_FULL.csv"
+```
+
+
+## Describing Data
+
+Note that it is necessary to supress ``stdout`` if you want your notebook to
+look nice. The output in ``DATA_PATH`` should be a path to the data full data,
+and (obviously) ``DATA_PATH_LESS`` should be a path to the partial data. It
+will look something like
+
+
+```{python}
+#| echo: false
+#| code-overflow: wrap
+print(DATA_PATH)
+```
+
+
+Data is loaded an described using the following:
+
+
+```{python}
+#| fig-caption: Description of the dataset in ``MELBOURNE_HOUSE_PRICES_LESS.csv``.
+DATA_LESS = pd.read_csv(DATA_PATH_LESS)
+DATA_LESS.describe()
+```
+
+
+This is roughly what was done on the first assignment but with a different
+data set (this one came from the example before) the homework assignment. 
+Further the assignment asked for some interpretation of the data set 
+description.
+
+
+## More About Pandas
+
+I will go ahead and write about pandas a little more. The columns are able to 
+be view using the ``columns`` attribute, and the columns can accessed using 
+indices and should also use the describe method. Columns are very similar to
+``pd.DataFrame``:
+
+```{python}
+#| fig-caption: Description of the ``Distance`` column.
+print("Available columns:", DATA_LESS.columns)
+(DISTANCE := DATA_LESS["Distance"]).describe()
+```
+
+```{python}
+print(type(DISTANCE))
+```
+
