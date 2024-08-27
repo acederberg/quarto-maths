@@ -43,6 +43,7 @@ import pathlib
 import io
 import contextlib
 
+import numpy as np
 import pandas as pd
 
 
@@ -56,7 +57,7 @@ with contextlib.redirect_stdout(DATA_DOWNLOAD_IO):
   DATA_DIR = pathlib.Path(kagglehub.dataset_download(DATA_ID))
 
 DATA_PATH_LESS = DATA_DIR / "MELBOURNE_HOUSE_PRICES_LESS.csv"
-DATA_PATH = DATA_DIR / "Melbourne_Housing_FULL.csv"
+DATA_PATH = DATA_DIR / "Melbourne_housing_FULL.csv"
 ```
 
 
@@ -79,7 +80,7 @@ Data is loaded an described using the following:
 
 
 ```{python}
-#| fig-caption: Description of the dataset in ``MELBOURNE_HOUSE_PRICES_LESS.csv``.
+#| fig-cap: Description of the dataset in ``MELBOURNE_HOUSE_PRICES_LESS.csv``.
 DATA_LESS = pd.read_csv(DATA_PATH_LESS)
 DATA_LESS.describe()
 ```
@@ -93,18 +94,142 @@ description.
 
 ## More About Pandas
 
-I will go ahead and write about pandas a little more. The columns are able to 
-be view using the ``columns`` attribute, and the columns can accessed using 
-indices and should also use the describe method. Columns are very similar to
-``pd.DataFrame``:
+I will go ahead and write about pandas a little more as notes on the next 
+tutorial and for my own review. 
+
+The columns of the ``DataFrame`` are able to be viewed using the ``columns`` 
+attribute:
+
 
 ```{python}
-#| fig-caption: Description of the ``Distance`` column.
-print("Available columns:", DATA_LESS.columns)
-(DISTANCE := DATA_LESS["Distance"]).describe()
+#| fig-cap: Available columns.
+DATA = pd.read_csv(DATA_PATH)
+print(
+  "Columns:", 
+  *list(map(lambda item: f"- `{item}`", DATA)),
+  sep="\n"
+)
 ```
 
+
+``pd.core.series.Series`` is very similar to ``pd.DataFrame`` and shares many attributes.
+For instance, we can describe an individual column:
+
+
 ```{python}
-print(type(DISTANCE))
+#| fig-cap: Description of the ``Distance`` column.
+
+(DISTANCE := DATA["Distance"]).describe()
 ```
+
+
+The following block of code confirms the type of ``DISTANCE`` and shows the 
+useful attributes of ``pd.core.series.Series`` by filtering out methods and attributes that
+start with an underscore since they are often builtin or private:
+
+
+```{python}
+#| fig-cap: "Confirming that columns have type ``pd.core.series.Series``."
+print("Type:", type(DISTANCE))
+# print(
+#   "Attributes:", 
+#   list(
+#     map(
+#       lambda attr: f"- {attr}", 
+#       filter(lambda attr: not attr.startswith("_"), dir(DISTANCE))
+#     )
+#   ), 
+# )
+```
+
+
+Null columns can be removed from the ``DataFrame`` using the ``dropna`` method.
+This does not modify in place the ``DataFrame``, rather it returns a new 
+``DataFrame`` (unless the ``inplace`` keyword argument is used):
+
+
+```{python}
+#| fig-cap: Description of the data minus null rows.
+DATA = DATA.dropna(axis='index')
+DATA.describe()
+```
+
+
+The ``axis`` keyword argument of ``DataFrame.dropna`` is used to determine 
+if rows (aka ``index`` or 0) or columns (``columns`` or 1) with null values are 
+dropped. From this data a certain number of columns can be selected using a 
+list as an index:
+
+
+```{python}
+#| fig-cap: First ten rows of ``DATA``.
+DATA_FEATURES_COLUMNS = ['Rooms', 'Bathroom', 'Landsize', 'Lattitude', 'Longtitude']
+DATA_FEATURES = DATA[DATA_FEATURES_COLUMNS]
+DATA_FEATURES.head(10)
+
+DATA_PREDICTION_TARGET = DATA["Price"]
+```
+
+
+# About ``scikit-learn`` Learn
+
+It is easy to install ``scikit-learn`` using poetry or pip like
+
+
+```sh
+poetry add scikit-learn
+```
+
+
+It is easy to use sklearn to attempt to predict the prices of the first ten 
+houses:
+
+
+```{python}
+from sklearn.tree import DecisionTreeRegressor
+
+TREE = DecisionTreeRegressor(random_state=1)
+TREE.fit(DATA_FEATURES, DATA_PREDICTION_TARGET)
+
+PRICE_PREDICTIONS = TREE.predict(
+  DATA_FEATURES.head(10000)
+)
+```
+
+
+compare the outputs:
+
+
+```{python}
+#| fig-cap: Predicted vs Actual Prices
+PRICE_COMPARE = pd.DataFrame(
+  {
+    "predicted": PRICE_PREDICTIONS,
+    "actual": (PRICE_ACTUAL := list(DATA["Price"].head(10000))), 
+    "error": list(
+      round(abs((actual - predicted)/actual), 8) 
+      for predicted, actual in zip(PRICE_PREDICTIONS, PRICE_ACTUAL)
+    )
+  }
+)
+
+PRICE_COMPARE.head(10)
+```
+
+
+and caclulate the total magnitude of error column using the $L^2$ norm:
+
+
+```{python}
+print(PRICE_ERROR_NORM := np.sqrt(sum(PRICE_COMPARE.error**2)))
+```
+
+
+which implies that an upper bound for the error is 
+
+
+```{python}
+print(f"{PRICE_ERROR_NORM / DATA['Price'].max():.8%}")
+```
+
 

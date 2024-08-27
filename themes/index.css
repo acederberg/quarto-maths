@@ -39,3 +39,22 @@ input[type='radio']:checked {
 .no-filter {
   filter: none !important;
 }
+
+
+/* ------------------------------------------------------------------------- */
+/* NOTE: The following is included so that dataframes/tables are easier to 
+*        distinguish from the surrounding text. 
+*/
+.cell {
+  color: var(--bs-yellow);
+  margin-top: 64px;
+  margin-bottom: 64px;
+}
+
+.cell * {
+  border-color: var(--bs-yellow);
+}
+
+.cell-output {
+  background: rgba(67, 67, 67, .65);
+}
