@@ -46,15 +46,26 @@ input[type='radio']:checked {
 *        distinguish from the surrounding text. 
 */
 .cell {
-  color: var(--bs-yellow);
   margin-top: 64px;
   margin-bottom: 64px;
+
+  color: var(--bs-indigo);
 }
 
 .cell * {
-  border-color: var(--bs-yellow);
+  border-color: var(--bs-indigo);
 }
 
 .cell-output {
-  background: rgba(67, 67, 67, .65);
+  background: rgba(236, 240, 241, .65);
+}
+
+.cell-output-stdout {
+  max-height: 256px;
+  overflow-y: scroll;
+}
+
+.cell-output-stdout code,
+.cell-output-display code {
+  color: var(--bs-indigo) !important;
 }

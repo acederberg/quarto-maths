@@ -28,11 +28,13 @@ website:
       - icon: twitter
         href: https://x.com/_acederberg
     left:
-      - text: home
+      - text: Home
         href: https://acederberg.io
-      - text: posts
+      - text: Kaggle
+        href: /kaggle
+      - text: Posts
         href: /posts
-      - text: resume
+      - text: Resume
         href: https://acederberg.io/resume
 theme:
   dark: [darkly, themes/index.css, themes/dark.scss, themes/dark-default.scss]

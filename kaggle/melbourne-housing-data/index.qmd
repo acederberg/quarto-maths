@@ -1,6 +1,10 @@
 ---
 title: Fun With Melbourne Housing Data
-description: Playing with some housing data.
+description: |
+  Making some models and figures using Melbourne housing data from the 
+  dataset [anthonypino/melbourne-housing-market](kaggle.com/datasets/anthonypino/melbourne-housing-market). 
+  Notes from the first two assignments from ``dansbecker``s course and
+  exposition.
 image: thumb.png
 extra:
   url: /kaggle/melbourne-housing-data
@@ -9,6 +13,8 @@ keywords:
   - austrailia
   - seaborn
   - numpy 
+  - sklearn
+  - scikit-learn
   - datascience
   - data
   - science
@@ -16,6 +22,12 @@ catagories:
   - python
   - kaggle
 ---
+
+These notes/assignments were done along with the following parts of 
+``dansbecker``s course:
+
+- [Basic Data Exploration](https://kaggle.com/code/dansbecker/basic-data-exploration)
+- [Your First ML Model](https://kaggle.com/code/dansbecker/your-first-machine-learning-model)
 
 
 ## About Using ``kaggle`` Outside of the Browser
@@ -25,10 +37,9 @@ things, I would like to say that it is worth knowing that the kaggle API has a
 ``python`` client available on ``PyPI``. This may be installed using ``pip 
 install kaggle`` or in my case ``poetry add kaggle``. 
 
-It turns out that the ``kaggle`` library is only one client available for using
-kaggle in ``python`` modules. There is also a solution called ``kagglehub``. It 
-can be installed like ``poetry add kagglehub``.
-
+It turns out that the ``kaggle`` library is not the only client available for 
+using ``kaggle`` in ``python`` modules. There is also a solution called 
+``kagglehub``. It can be installed like ``poetry add kagglehub``.
 
 The dataset for this assignment can be [viewed and downloaded in the browser](
 https://www.kaggle.com/datasets/dansbecker/melbourne-housing-snapshot?resource=download).
@@ -36,9 +47,7 @@ It may be obtained in ``python`` as follows:
 
 
 ```{python}
-import kaggle
 import kagglehub
-import matplotlib
 import pathlib
 import io
 import contextlib
@@ -63,7 +72,7 @@ DATA_PATH = DATA_DIR / "Melbourne_housing_FULL.csv"
 
 ## Describing Data
 
-Note that it is necessary to supress ``stdout`` if you want your notebook to
+Note that it is necessary to capture ``stdout`` if you want your notebook to
 look nice. The output in ``DATA_PATH`` should be a path to the data full data,
 and (obviously) ``DATA_PATH_LESS`` should be a path to the partial data. It
 will look something like
@@ -112,8 +121,8 @@ print(
 ```
 
 
-``pd.core.series.Series`` is very similar to ``pd.DataFrame`` and shares many attributes.
-For instance, we can describe an individual column:
+``pd.core.series.Series`` is very similar to ``pd.DataFrame`` and shares many 
+attributes. For instance, we can describe an individual column:
 
 
 ```{python}
@@ -124,22 +133,27 @@ For instance, we can describe an individual column:
 
 
 The following block of code confirms the type of ``DISTANCE`` and shows the 
-useful attributes of ``pd.core.series.Series`` by filtering out methods and attributes that
-start with an underscore since they are often builtin or private:
+useful attributes of ``pd.core.series.Series`` by filtering out methods and 
+attributes that start with an underscore since they are often builtin or 
+private:
 
 
 ```{python}
 #| fig-cap: "Confirming that columns have type ``pd.core.series.Series``."
 print("Type:", type(DISTANCE))
-# print(
-#   "Attributes:", 
-#   list(
-#     map(
-#       lambda attr: f"- {attr}", 
-#       filter(lambda attr: not attr.startswith("_"), dir(DISTANCE))
-#     )
-#   ), 
-# )
+print(
+  "Common Attributes:", 
+  *list(
+    map(
+      lambda attr: f"- {attr}", 
+      filter(
+        lambda attr: not attr.startswith("_"), 
+        set(dir(DISTANCE)) & set(dir(DATA))
+      )
+    )
+  ), 
+  sep="\n",
+)
 ```
 
 
@@ -181,8 +195,8 @@ poetry add scikit-learn
 ```
 
 
-It is easy to use sklearn to attempt to predict the prices of the first ten 
-houses:
+It is also easy to use ``sklearn`` to attempt to predict the prices of the 
+first ten houses:
 
 
 ```{python}
@@ -217,7 +231,7 @@ PRICE_COMPARE.head(10)
 ```
 
 
-and caclulate the total magnitude of error column using the $L^2$ norm:
+and calculate the total magnitude of error column using the $L^2$ norm:
 
 
 ```{python}
@@ -225,11 +239,12 @@ print(PRICE_ERROR_NORM := np.sqrt(sum(PRICE_COMPARE.error**2)))
 ```
 
 
-which implies that an upper bound for the error is 
+which implies that a (very liberal) upper bound for the error is 
 
 
 ```{python}
 print(f"{PRICE_ERROR_NORM / DATA['Price'].max():.8%}")
 ```
+
 
 
