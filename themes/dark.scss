@@ -26,3 +26,7 @@
 .cell-output-display code {
   color: var(--bs-yellow) !important;
 }
+
+.dataframe .odd {
+  background: rgba(77, 77, 77, .65);
+}

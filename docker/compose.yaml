@@ -9,6 +9,11 @@ services:
     environment:
       KAGGLE_CONFIG_DIR: "/home/docker/app/config/kaggle"
     image: acederberg.io/quarto-blog-development:0.0.1
+    # NOTE: Because dipping into swap memory can crash a standard laptop these
+    #       limitations are imposed.
+    mem_swappiness: 0
+    mem_reservation: 4G
+    mem_limit: 4G
     ports: 
       - target: 3000
         published: 3000

@@ -21,6 +21,8 @@ keywords:
 catagories:
   - python
   - kaggle
+date: 2024-08-27
+date-modified: 2024-08-27
 ---
 
 These notes/assignments were done along with the following parts of 
@@ -28,6 +30,7 @@ These notes/assignments were done along with the following parts of
 
 - [Basic Data Exploration](https://kaggle.com/code/dansbecker/basic-data-exploration)
 - [Your First ML Model](https://kaggle.com/code/dansbecker/your-first-machine-learning-model)
+- [Model Validation](https://www.kaggle.com/code/dansbecker/model-validation)
 
 
 ## About Using ``kaggle`` Outside of the Browser
@@ -52,8 +55,12 @@ import pathlib
 import io
 import contextlib
 
+import matplotlib.pyplot as plt
+import seaborn as sb
 import numpy as np
 import pandas as pd
+
+from IPython.display import display
 
 
 DIR = pathlib.Path(".").resolve()
@@ -164,8 +171,10 @@ This does not modify in place the ``DataFrame``, rather it returns a new
 
 ```{python}
 #| fig-cap: Description of the data minus null rows.
-DATA = DATA.dropna(axis='index')
-DATA.describe()
+DATA_CLEAN = DATA.dropna(axis='index')
+DATA_CLEAN_DESCRIPTION = DATA_CLEAN.describe() # We'll need this later.
+
+display(DATA_CLEAN_DESCRIPTION)
 ```
 
 
@@ -178,10 +187,10 @@ list as an index:
 ```{python}
 #| fig-cap: First ten rows of ``DATA``.
 DATA_FEATURES_COLUMNS = ['Rooms', 'Bathroom', 'Landsize', 'Lattitude', 'Longtitude']
-DATA_FEATURES = DATA[DATA_FEATURES_COLUMNS]
+DATA_FEATURES: pd.DataFrame = DATA_CLEAN[DATA_FEATURES_COLUMNS] # type: ignore
 DATA_FEATURES.head(10)
 
-DATA_PREDICTION_TARGET = DATA["Price"]
+DATA_PREDICTION_TARGET = DATA_CLEAN["Price"]
 ```
 
 
@@ -219,11 +228,16 @@ compare the outputs:
 PRICE_COMPARE = pd.DataFrame(
   {
     "predicted": PRICE_PREDICTIONS,
-    "actual": (PRICE_ACTUAL := list(DATA["Price"].head(10000))), 
-    "error": list(
-      round(abs((actual - predicted)/actual), 8) 
-      for predicted, actual in zip(PRICE_PREDICTIONS, PRICE_ACTUAL)
-    )
+    "actual": (PRICE_ACTUAL := DATA_CLEAN["Price"].head(10000)), 
+    "error": (
+      error := np.array(
+        list(
+          actual - predicted
+          for predicted, actual in zip(PRICE_PREDICTIONS, PRICE_ACTUAL)
+        )
+      )
+    ),
+    "error_percent": 100 * abs(error / PRICE_ACTUAL)
   }
 )
 
@@ -235,16 +249,203 @@ and calculate the total magnitude of error column using the $L^2$ norm:
 
 
 ```{python}
-print(PRICE_ERROR_NORM := np.sqrt(sum(PRICE_COMPARE.error**2)))
+print(PRICE_ERROR_NORM := np.sqrt(sum(PRICE_COMPARE.error_percent**2)))
 ```
 
 
-which implies that a (very liberal) upper bound for the error is 
+So generally the error is low. Let's take a look at the entries above the 95
+quantile:
 
 
 ```{python}
-print(f"{PRICE_ERROR_NORM / DATA['Price'].max():.8%}")
+display(
+  PRICE_COMPARE[
+    PRICE_COMPARE["error_percent"].quantile(0.95) 
+    < PRICE_COMPARE["error_percent"]
+  ]
+  .sort_values(by="error_percent")
+  .tail(50)
+)
 ```
 
 
+This shows that there are some values with an error exceeding ``1%``. 
 
+
+```{python}
+PRICE_COMPARE_ANALYSIS = pd.DataFrame(
+    {
+      "count_exceeding": (
+        count_exceeding := tuple(
+          PRICE_COMPARE["error_percent"][PRICE_COMPARE["error_percent"] > k].count()
+          for k in (1,2,3,5,10)
+        )
+      ),
+      "percent_data": 100 * (count_exceeding / DATA_PREDICTION_TARGET.count()),
+      "percent_minimum": (1,2,3,5,10),
+    }
+)
+display(PRICE_COMPARE_ANALYSIS)
+```
+
+So the model predicts acurately (within 1%) for about 98% of the data, which is 
+reasonable.
+
+
+# Pretty Plots
+
+The goal here is to plot and compare price preditions on the rows of ``DATA``
+that did not have a price and make some pretty plots. Rows with null columns
+can be found like follows:
+
+
+```{python}
+#| fig-cap: Description of the dataset rows with no price specified.
+DATA_PRICE_NULL: pd.DataFrame = DATA[DATA["Price"].isnull()][DATA_FEATURES_COLUMNS] # type: ignore
+DATA_PRICE_NULL.describe()
+# sb.swarmplot()
+```
+
+
+This works because ``DATA["Price"]`` should contain the indices of the 
+respective rows within the dataframe, making it a suitable index. In the 
+description it is clear that this worked because the price stats are either 
+zero of ``NaN``. Now it is time to attempt to fill in these values:
+
+
+```{python}
+#| fig-cap: Price predictions for the rows missing a price.
+PRICE_PREDICTIONS_NULL = TREE.predict(DATA_PRICE_NULL)
+
+DATA_PRICE_NULL_PREDICTIONS = DATA_PRICE_NULL.copy()
+DATA_PRICE_NULL_PREDICTIONS["Price"] = PRICE_PREDICTIONS_NULL
+
+DATA_PRICE_NULL_PREDICTIONS_DESCRIPTION = DATA_PRICE_NULL_PREDICTIONS.describe()
+
+display(DATA_PRICE_NULL_PREDICTIONS_DESCRIPTION)
+```
+
+
+Note that ``TREE`` will reject the input if it contains all of columns and not
+just the feature columns, thus why ``DATA_PRICE_NULL`` is indexed. The 
+description of this dataframe should be reasonable comparable to the data
+description of ``DATA_CLEAN``.
+
+
+```{python}
+# NOTE: The last object in a code cell is displayed by default, thus why this
+#       dataframe is created yet not assigned.
+pd.DataFrame(
+    {
+    "Predicted": DATA_PRICE_NULL_PREDICTIONS_DESCRIPTION["Price"],
+    "Actual": DATA_CLEAN_DESCRIPTION["Price"],
+  }
+)
+```
+
+
+Now that we know the data descriptions are reasonable (by comparing the 
+magnitude of any of the provided data) we can combine the predictions and
+the clean data and label them as being estimated or not in the ``Estimated`` 
+column. 
+
+
+```{python}
+# NOTE: Create dataframe with features and prices, add that it is not estimated
+DATA_COMPLETED = DATA_FEATURES.copy()
+DATA_COMPLETED["Price"] = DATA_CLEAN["Price"]
+DATA_COMPLETED["Estimated"] = pd.Series(data=(False for _ in range(len(DATA_CLEAN))))
+
+# NOTE: Add estimated to the estimated prices dataframe.
+DATA_PRICE_NULL_PREDICTIONS["Estimated"]= pd.Series(data=(True for _ in range(len(DATA_CLEAN))))
+
+# NOTE: Combine the dataframe, cast the ``Rooms`` column to a category.
+DATA_COMPLETED: pd.DataFrame = pd.concat([DATA_COMPLETED, DATA_PRICE_NULL_PREDICTIONS]) # type: ignore
+DATA_COMPLETED["Rooms"] = (_ := DATA_COMPLETED["Rooms"]).astype(
+  pd.CategoricalDtype(
+    categories=list(range(_.min() - 1, _.max() + 1)),
+    ordered=True,
+  )
+)
+
+DATA_COMPLETED["Bathroom"] = (_ := DATA_COMPLETED["Bathroom"]).astype(
+  pd.CategoricalDtype(
+    categories=sorted(set(DATA_COMPLETED["Bathroom"].dropna())),
+    ordered=True,
+  )
+)
+```
+
+
+This will allow us to generate some nice swarm plots in ``seaborn``.
+
+
+```{python}
+
+DATA_COMPLETED_PRICE_MIN: float = DATA_COMPLETED["Price"].min()
+DATA_COMPLETED_PRICE_UB = DATA_COMPLETED["Price"].quantile(0.99).max()
+
+
+if not (_ := DIR / "rooms-stripplot.png").exists():
+  rooms_plot = sb.swarmplot(
+    DATA_COMPLETED[DATA_COMPLETED["Rooms"] <= 5], # noqa: reportArgumentType
+    y="Price", 
+    x="Rooms",
+    hue="Estimated",
+    dodge=True,
+    size=0.99,
+  )
+  rooms_plot.set_xlim(0, 6)
+  rooms_plot.set_ylim(DATA_COMPLETED_PRICE_MIN, DATA_COMPLETED_PRICE_UB)
+  rooms_plot.figure.savefig(_)
+  plt.close()
+
+if not (_ := DIR / "bathrooms-stripplot.png").exists():
+  bathrooms_plot = sb.swarmplot(
+    DATA_COMPLETED[DATA_COMPLETED["Bathroom"] <= 5], # noqa: reportArgumentType 
+    y="Price", 
+    x="Bathroom",
+    hue="Estimated",
+    dodge=True,
+    size=0.99,
+  )
+  bathrooms_plot.set_xlim(0, 5)
+  bathrooms_plot.set_ylim(DATA_COMPLETED_PRICE_MIN, DATA_COMPLETED_PRICE_UB)
+  bathrooms_plot.figure.savefig(_)
+  plt.close()
+```
+
+
+![Swarm Plot by Rooms](./rooms-stripplot.png)
+
+![Swarm Plot by Bathrooms.](./bathrooms-stripplot.png)
+
+
+```{python}
+if not (_ := DIR / "geospacial-scatterplot.png").exists() or True:
+  geospacial_plot = sb.relplot(
+    DATA_COMPLETED[0:10000],
+    x=DATA_COMPLETED["Longtitude"][0:10000],
+    y=DATA_COMPLETED["Lattitude"][0:10000],
+    size="Price",
+    hue="Rooms",
+    sizes=(1, 40),
+    alpha=0.5,
+    palette="muted",
+  )
+  geospacial_plot.legend.set_visible(False)
+  # geospacial_plot = sb.histplot(
+  #   DATA_COMPLETED,
+  #   x=DATA_COMPLETED["Longtitude"],
+  #   y=DATA_COMPLETED["Lattitude"],
+  #   bins=25,
+  #   cmap="mako",
+  #   hue="Price"
+  # )
+
+  geospacial_plot.figure.savefig(_)
+  plt.close()
+```
+
+
+![Geospacial Histogram.](./geospacial-scatterplot.png)
