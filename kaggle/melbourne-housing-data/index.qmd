@@ -250,7 +250,6 @@ poetry add scikit-learn
 ```
 
 
-
 ### Model Implementation
 
 The following cell will predict the prices of houses for which the price is 
@@ -337,7 +336,7 @@ def create_price_compare_analysis(
   df = pd.DataFrame(
       {
         "error_count": error_count,
-        "percent_dataset": 100 * (error_count/ error_percent.count()),
+        "percent_dataset": 100 * (error_count / error_percent.count()),
         "percent_minimum": percents
       }
   )

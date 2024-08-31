@@ -1,7 +1,22 @@
 ---
-title: A test
+title: How to Include Python Code From Files in Quarto
+description: Make it possible to import outside code into your quarto nodebooks.
+image: thumb.png
+extra:
+  url: /examples/include-code-files
+  image: /examples/include-code-files/thumb.png
+keywords:
+  - quarto
+  - python
+  - include code
+  - external code
+  - datascience
+  - data
+  - science
 filters: 
   - include-code-files
+date: 2024-08-31
+date-modified: 2024-08-31
 ---
 
 
@@ -13,12 +28,15 @@ For more on adding extensions, see [the documentation about extensions managemen
 
 First, in the front matter of your quarto document, add 
 
+
 ```yaml
 filters:
   - include-code-files
 ```
 
+
 Next, create ``example.py`` like
+
 
 ```sh
 echo "def main():" > example.py
@@ -32,6 +50,7 @@ and ensure it works using
 ```sh
 python ./example.py
 ```
+
 
 To include this file in simply do:
 
