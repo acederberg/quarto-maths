@@ -1,0 +1,67 @@
+---
+title: A test
+filters: 
+  - include-code-files
+---
+
+
+It is possible to include code files using the [include-code-files](
+https://github.com/quarto-ext/include-code-files) extension for quarto. I 
+started doing this [from this stack exchange post](
+https://stackoverflow.com/questions/75751478/how-can-i-include-external-python-scripts-while-executing-their-codes-in-quarto). 
+For more on adding extensions, see [the documentation about extensions management](https://quarto.org/docs/extensions/managing.html).
+
+First, in the front matter of your quarto document, add 
+
+```yaml
+filters:
+  - include-code-files
+```
+
+Next, create ``example.py`` like
+
+```sh
+echo "def main():" > example.py
+echo "  print(\"It works!\")" >> example.py
+echo "" >> example.py
+echo "if __name__ == \"__main__\": main()" >> example.py
+```
+
+and ensure it works using
+
+```sh
+python ./example.py
+```
+
+To include this file in simply do:
+
+
+````quarto
+```{.python include="example.py"}
+```
+````
+
+
+which should render to
+
+
+```{.python include="example.py"}
+```
+
+
+``example.py`` can be run using the ``run`` jupyter magic commands:
+
+
+```{python}
+#| echo: false
+%run example.py
+```
+
+
+More about magic commands is available in the [jupyter documentation](https://ipython.readthedocs.io/en/stable/interactive/magics.html).
+Finally, with ``main`` in the local python globals, we can execute ``main``.
+
+
+```{python}
+main()
+```

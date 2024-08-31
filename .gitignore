@@ -16,3 +16,4 @@ logistic_files
 *.gif
 *.png
 !thumb.png
+_extensions

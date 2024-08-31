@@ -7,3 +7,4 @@ site_libs
 .jupyter_cache
 docker/*.yaml
 docker/dockerfile
+config

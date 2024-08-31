@@ -62,6 +62,8 @@ import numpy as np
 import pandas as pd
 
 from IPython.display import display
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.model_selection import train_test_split
 
 
 DIR = pathlib.Path(".").resolve()
@@ -211,11 +213,29 @@ list as an index:
 ```{python}
 #| fig-cap: First ten rows of ``DATA``.
 DATA_FEATURES_COLUMNS = ['Rooms', 'Bathroom', 'Landsize', 'Lattitude', 'Longtitude']
-DATA_FEATURES: pd.DataFrame = DATA_CLEAN[DATA_FEATURES_COLUMNS] # type: ignore
-DATA_FEATURES.head(10)
 
-DATA_TARGET = DATA_CLEAN["Price"]
+# DATA_FEATURES: pd.DataFrame = DATA_CLEAN[DATA_FEATURES_COLUMNS] # type: ignore
+# DATA_FEATURES.head(10)
+#
+# DATA_TARGET = DATA_CLEAN["Price"]
+
+DATA_FEATURES, TEST_FEATURES, DATA_TARGET, TEST_TARGET = train_test_split(
+  DATA_CLEAN[DATA_FEATURES_COLUMNS], 
+  DATA_CLEAN["Price"],
+  random_state=1,
+)
+
+DATA_FEATURES.head(10)
 ```
+
+Note that ``sklearn.model_.train_test_split`` is used to chunk up the data so 
+that we can compute error in predictions of the model outside of the data that 
+will be used to train it, this is referred to as 'Out Sample' data.
+
+'In Sample' data is used in the initial error analysis of the model used in 
+this notebook. In the section after that, 'Out Sample' data is used to assess
+the accuracy of the model. Finally, predictions are made for entries that 
+did not have a price.
 
 
 ## Predicting Prices with a Model
@@ -238,8 +258,6 @@ known:
 
 
 ```{python}
-from sklearn.tree import DecisionTreeRegressor
-
 def create_model(features: pd.DataFrame, target):
   tree = DecisionTreeRegressor(random_state=1)
   tree.fit(features, target)
@@ -249,21 +267,27 @@ TREE = create_model(DATA_FEATURES, DATA_TARGET)
 ```
 
 
-### Model Error Analysis
+### Model In Sample Error Analysis
 
-Now we should measure the accuracy of the model. The following function creates
-a dataframe for comparison:
+Now we should measure the accuracy of the model against some in sample data. 
+This is done to contrast against our out sample analysis in the next section
+of this notebook. The following function creates a dataframe for comparison:
 
 
 ```{python}
 #| fig-cap: Predicted vs Actual Prices
 
-def create_price_compare(tree: DecisionTreeRegressor, data: pd.DataFrame):
+def create_price_compare(
+  tree: DecisionTreeRegressor,
+  data: pd.DataFrame,
+  *,
+  price = None,
+):
   """Create a dataframe with price, actual price, error, error_percent and 
   feature columns."""
 
   data_features = data[DATA_FEATURES_COLUMNS]
-  price_actual = data["Price"]
+  price_actual = price if price is not None else data["Price"] 
   price_predictions = tree.predict(data_features)
   error = np.array(
     list(
@@ -367,6 +391,42 @@ create_error_plots()
 
 
 ![Error Analysis Geospacial Plot.](./errors.png)
+
+
+#### Model Out Sample Error Analysis
+
+Conveniently, the functions above can be used for our out sample data. 
+
+```{python}
+#| fig-cap: Prediction analysis for out sample data.
+TEST_PRICE_COMPARE = create_price_compare(TREE, TEST_FEATURES, price=TEST_TARGET)
+TEST_PRICE_COMPARE_ANALYSIS = create_price_compare_analysis(TEST_PRICE_COMPARE)
+
+TEST_PRICE_COMPARE["error_percent"].describe()
+```
+
+So far, the model would appear to be inaccurate at best and wildly inaccurate
+worst. The following is not encouraging either:
+
+
+```{python}
+#| echo: false
+#| fig-cap: Price comparison error analysis.
+TEST_PRICE_COMPARE_ANALYSIS
+```
+
+
+This implies that we should probably not use the model to predict null prices
+as about 60% of the test data set can be predicted within 20%. However, it 
+is possible to better train the model.
+
+
+#### Improving the Model
+
+After running the model against some out sample data, it is clear that the 
+model does not perform well right out of the box. If we were to only look at in
+sample data, this would not be appearent.
+
 
 
 ### Making Predictions with the Model 
