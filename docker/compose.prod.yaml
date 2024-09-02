@@ -5,7 +5,7 @@ services:
       context: ..
       dockerfile: ./docker/dockerfile
       target: production
-    image: acederberg.io/quarto-blog-production:0.0.1
+    image: acederberg.io/quarto-blog-production:0.0.2
     ports:
       - published: 8080
         target: 8080
