@@ -4,6 +4,8 @@ version = "0.0.1"
 description = "Quarto demo"
 authors = ["Adrian Cederberg <adrn.cederberg123@gmail.com>"]
 readme = "README.rst"
+package-mode = false
+
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -16,11 +18,20 @@ shinywidgets = "^0.3.2"
 jupyter-cache = "^1.0.0"
 shinylive = "^0.4.1"
 yaml-settings-pydantic = "^2.3.0"
+kaggle = "^1.6.17"
+kagglehub = "^0.2.9"
+pyright = "^1.1.377"
+scikit-learn = "^1.5.1"
+pyyaml = "^6.0.2"
 
 
 [tool.poetry.group.ci.dependencies]
 bumpver = "^2023.1129"
 
+
+
+[tool.poetry.group.dev.dependencies]
+python-lsp-server = "^1.11.0"
 
 [tool.bumpver]
 current_version = "0.0.1"

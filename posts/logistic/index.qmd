@@ -21,10 +21,10 @@ categories:
   - python
   - math
 date: 8-1-2024
-date-modified: 8-6-2024
+date-modified: 2024-08-27
 ---
 
-This is the first quarto blog post!
+This is my first quarto blog post!
 
 For the most part, I wanted to make this because the graphs are interesting to
 look at. Further, I wanted to test the abilities of quarto to use ``latex``,
@@ -57,7 +57,7 @@ as
 for some $x_0$ and $r$ and is defined by the **recurrence relation** 
 
 \begin{equation}
-  x = rx(1-x)
+  x_{k+1} = rx_k(1-x_k)
 \end{equation}
 
 In this case, the exponent on $\lambda_r$ is the **degree of composition**;
@@ -97,6 +97,7 @@ LOGISTIC_ITERATIONS_KEPT = int(environ.get("LOGISTIC_ITERATIONS_KEPT", "100"))
 DIR = pathlib.Path(".").resolve()
 LOGISTIC_DATA_BIFURCATION = DIR / f"logistic-bifurcation-{LOGISTIC_ITERATIONS}-{LOGISTIC_STEP_SIZE}.csv"
 LOGISTIC_DATA_COBWEB_RR = DIR / f"cobweb-{LOGISTIC_STEP_SIZE}-{LOGISTIC_STEP_SIZE_RR}.json"
+
 
 def logistic_point(
   rr: float, 
@@ -189,8 +190,6 @@ interval `[0, 4]` and completing the following process for each `rr`:
 3. Choose some final number of terminating sequence elements to plot.
 
 ```{python}
-#| fig-cap: Logistic Bifurcation Diagram
-#| label: logistic-bifurcation-diagram
 def create_bifurcation(
   *,
   start: float = float(2), 
@@ -239,8 +238,14 @@ def load_bifurcation():
 
   return data
 
-sns.scatterplot(data=load_bifurcation(), x="rr", y="xx", s=0.1)
+
+if not (_ := DIR / "./bifurcation.png").exists():
+  plot_bifurcation = sns.scatterplot(data=load_bifurcation(), x="rr", y="xx", s=0.1)
+  plot_bifurcation.figure.savefig(_)
 ```
+
+![Logistic Bifurcation Diagram](./bifurcation.png)
+
 
 A few well known facts about the logistic map are apparent from the figure:
 
@@ -386,8 +391,9 @@ converge
 
 
 ```{python}
-animation = diagram_cobweb(3.8, 0.9, frames=200, interval=50)
-animation.save(DIR / "cobweb-3.8-0.9.gif", writer="pillow")
+if not (_ := DIR / "cobweb-3.8-0.9.gif" ).exists():
+  animation = diagram_cobweb(3.8, 0.9, frames=200, interval=50)
+  animation.save(_, writer="pillow")
 ```
 
 
@@ -400,8 +406,9 @@ convergence easy to confirm visually:
 
 
 ```{python}
-animation = diagram_cobweb(2, 0.9, frames=10)
-animation.save(DIR / "cobweb-2-0.9.gif", writer="pillow")
+if not (_ := DIR / "cobweb-2-0.9.gif" ).exists():
+  animation = diagram_cobweb(2, 0.9, frames=10)
+  animation.save(_, writer="pillow")
 ```
 
 
@@ -505,8 +512,9 @@ $[0, 4]$.
 
 
 ```{python}
-animation = diagram_cobweb_rr(interval=100)
-animation.save("cobweb-rr-0.9.gif", writer="pillow")
+if not (_ := DIR / "cobweb-rr-0.9.gif").exists():
+  animation = diagram_cobweb_rr(interval=100)
+  animation.save(_, writer="pillow")
 ```
 
 

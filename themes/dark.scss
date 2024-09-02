@@ -9,3 +9,24 @@
 .anim-buttons button i .fa {
   filter: invert(1) !important;
 }
+
+.cell {
+  color: var(--bs-yellow);
+}
+
+.cell * {
+  border-color: var(--bs-yellow);
+}
+
+.cell-output {
+  background: rgba(67, 67, 67, .65);
+}
+
+.cell-output-stdout code,
+.cell-output-display code {
+  color: var(--bs-yellow) !important;
+}
+
+.dataframe .odd {
+  background: rgba(77, 77, 77, .65);
+}
