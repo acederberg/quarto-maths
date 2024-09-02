@@ -5,10 +5,10 @@ description: |
   dataset [anthonypino/melbourne-housing-market](kaggle.com/datasets/anthonypino/melbourne-housing-market). 
   Notes from the first three assignments from ``dansbecker``s course and
   exposition.
-image: thumb.png
+image: err-dist-forest.png
 extra:
   url: /kaggle/melbourne-housing-data
-  image: /kaggle/melbourne-housing-data/thumb.png
+  image: /kaggle/melbourne-housing-data/err-dist-forest.png
 keywords:
   - austrailia
   - seaborn
@@ -52,7 +52,7 @@ It may be obtained in ``python`` as follows:
 
 
 ```{python}
-from typing import Sequence, Type
+from typing import Iterable, Type
 import kagglehub
 import pathlib
 import io
@@ -374,7 +374,7 @@ def create_model_errdist(price_compare: pd.DataFrame, *, ax=None, **kwargs):
     price_compare[
       (percent <= price_compare["error_percent"])
       & (price_compare["error_percent"] < percent + 2)
-    ]["error_percent"].count() 
+    ]["error_percent"].count()  # type: ignore
     for percent in percents
   )
   data = pd.DataFrame({"percents": percents, "counts": counts})
@@ -383,7 +383,7 @@ def create_model_errdist(price_compare: pd.DataFrame, *, ax=None, **kwargs):
 
 err_dist = create_model_errdist(PRICE_COMPARE)
 err_dist.set_title("Model Out Sample Error Distribution")
-err_dist.figure.savefig("./err-dist-in-sample.png")
+err_dist.figure.savefig("./err-dist-in-sample.png") # type: ignore
 plt.close()
 ```
 
@@ -410,18 +410,19 @@ TEST_PRICE_COMPARE["error_percent"].describe()
 ```
 
 
-Nest, we can createa plot of the count per percent error:
+Nest, we can create a plot of the count per percent error:
 
 
 ```{python}
 def mnae(price_compare: pd.DataFrame):
-  return sum(cpc := abs(price_compare["error_percent"])) / (100 * len(cpc))
+  cpc = abs(price_compare["error_percent"])
+  return sum(cpc) / (100 * len(cpc)) # type: ignore
 
 
 plt.axvline(mnae(TEST_PRICE_COMPARE) * 100)
 err_dist = create_model_errdist(TEST_PRICE_COMPARE, color="red")
 err_dist.set_title("Model Out Sample Error Distribution")
-err_dist.figure.savefig(DIR / "err-dist-out-sample.png")
+err_dist.figure.savefig(DIR / "err-dist-out-sample.png") # type: ignore
 plt.close()
 ```
 
@@ -433,14 +434,14 @@ This plot does not look at all like the in sample error, which decays
 immediately with its spike contained under $5$ percent. It would indicate that 
 error is generally high on the out sample data, implying that there is some
 room for improvement. The vertical line is included to show the $mnae$, the 
-mean normalized absoluted error (as a percentage).
+mean normalized absolute error (as a percentage).
 
 
 ### Improving the Model
 
 After running the model against some out sample data, it is clear that the 
 model does not perform well right out of the box. If we were to only look at in
-sample data, this would not be appearent.
+sample data, this would not be apparent.
 
 It is possible to modify change model parameters to attempt to tune the model.
 To make comparisons, we should combine the above script into a function to 
@@ -466,7 +467,7 @@ This function then can be mapped over many different parameter sets.
 
 
 ```{python}
-def create_model_errdist_many(err_dists: list[pd.DataFrame], labels: Sequence[str]):
+def create_model_errdist_many(err_dists: list[pd.DataFrame], labels: Iterable[str]):
   fig, axs = plt.subplots(ncols=1, nrows=1)
 
   plot = None
@@ -492,7 +493,7 @@ TREES, PRICE_COMPARES = zip(
 
 err_dist = create_model_errdist_many(PRICE_COMPARES, map(str, MAX_LEAF_NODES))
 err_dist.set_title("Model Out Sample Error for Various Models")
-err_dist.figure.savefig("./err-dist-out-sample-many.png")
+err_dist.figure.savefig("./err-dist-out-sample-many.png") # type: ignore
 plt.close()
 ```
 
@@ -696,14 +697,14 @@ create_prediction_plots(DATA_COMPLETED)
 
 It is interesting to notice the stacking of identical values on the prediction 
 side. This would mean that the decision tree would follow a path down to the 
-same node each time, an inherant problem with decision trees. In the next 
+same node each time, an inherent problem with decision trees. In the next 
 section an attempt to remedy this is made.
 
 
 ## Making Predictions With an Ensemble of Trees
 
 A forest is simply many trees. To try to better the predictions made by a tree
-and resolve overfitting and underfitting with some sort of consensus many trees
+and resolve over-fitting and under-fitting with some sort of consensus many trees
 are used and their results are averaged. ``sklearn.ensemble.RandomForestRegressor``
 may be constructed and trained in exactly the same way that ``DecisionTreeRegressor``
 is, e.g.
@@ -726,8 +727,7 @@ err_dist = create_model_errdist(PRICE_COMPARE, color="red")
 err_dist.set_title("Error Distribution of Random Forest")
 
 
-err_dist.figure.savefig("./err-dist-forest.png")
-
+err_dist.figure.savefig("./err-dist-forest.png") # type: ignore
 
 plt.close()
 ```
@@ -737,4 +737,4 @@ plt.close()
 
 
 This leaves us with a mean normalize absolute error below $20$%, which is 
-absolutely an improvement 
+absolutely an improvement .

@@ -5,8 +5,16 @@ services:
       context: ..
       dockerfile: ./docker/dockerfile
       target: production
+      secrets:
+        - source: kaggle_json
     image: acederberg.io/quarto-blog-production:0.0.2
     ports:
       - published: 8080
         target: 8080
     tty: true
+
+secrets:
+  kaggle_json:
+    file: ../config/kaggle/kaggle.json
+    external: true
+
