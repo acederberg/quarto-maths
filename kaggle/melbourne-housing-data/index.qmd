@@ -25,15 +25,17 @@ date: 2024-08-27
 date-modified: 2024-08-27
 ---
 
-These notes/assignments were done along with the following parts of 
-``dansbecker``s course:
+These notes/assignments were done along with ``dansbecker``s begginer course:
 
 - [Basic Data Exploration](https://kaggle.com/code/dansbecker/basic-data-exploration)
 - [Your First ML Model](https://kaggle.com/code/dansbecker/your-first-machine-learning-model)
 - [Model Validation](https://www.kaggle.com/code/dansbecker/model-validation)
+- [Underfitting and Overfitting](https://www.kaggle.com/code/dansbecker/underfitting-and-overfitting)
 
 
-## About Using ``kaggle`` Outside of the Browser
+## Introduction
+
+### Using ``kaggle`` Outside of the Browser
 
 Since this is the first assignment, and since I would much rather automate 
 things, I would like to say that it is worth knowing that the kaggle API has a
@@ -50,7 +52,7 @@ It may be obtained in ``python`` as follows:
 
 
 ```{python}
-from typing import Sequence
+from typing import Sequence, Type
 import kagglehub
 import pathlib
 import io
@@ -63,6 +65,7 @@ import pandas as pd
 
 from IPython.display import display
 from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 
 
@@ -80,7 +83,7 @@ DATA_PATH = DATA_DIR / "Melbourne_housing_FULL.csv"
 ```
 
 
-## Describing Data
+### Loading and Describing Data
 
 Note that it is necessary to capture ``stdout`` if you want your notebook to
 look nice. The output in ``DATA_PATH`` should be a path to the data full data,
@@ -111,7 +114,7 @@ Further the assignment asked for some interpretation of the data set
 description.
 
 
-## More About Pandas
+### Pandas Refresher
 
 I will go ahead and write about pandas a little more as notes on the next 
 tutorial and for my own review. 
@@ -218,8 +221,9 @@ DATA_FEATURES_COLUMNS = ['Rooms', 'Bathroom', 'Landsize', 'Lattitude', 'Longtitu
 # DATA_FEATURES.head(10)
 #
 # DATA_TARGET = DATA_CLEAN["Price"]
-
-DATA_FEATURES, TEST_FEATURES, DATA_TARGET, TEST_TARGET = train_test_split(
+DATA_FEATURES: pd.DataFrame
+TEST_FEATURES: pd.DataFrame
+DATA_FEATURES, TEST_FEATURES, DATA_TARGET, TEST_TARGET = train_test_split( # type: ignore
   DATA_CLEAN[DATA_FEATURES_COLUMNS], 
   DATA_CLEAN["Price"],
   random_state=1,
@@ -238,7 +242,7 @@ the accuracy of the model. Finally, predictions are made for entries that
 did not have a price.
 
 
-## Predicting Prices with a Model
+## Predicting Prices with a Tree Model
 
 ### About ``scikit-learn`` Learn
 
@@ -257,8 +261,8 @@ known:
 
 
 ```{python}
-def create_model(features: pd.DataFrame, target):
-  tree = DecisionTreeRegressor(random_state=1)
+def create_model(features: pd.DataFrame, target, /, cls: Type =DecisionTreeRegressor, **kwargs):
+  tree = cls(random_state=1, **kwargs)
   tree.fit(features, target)
   return tree
 
@@ -277,7 +281,7 @@ of this notebook. The following function creates a dataframe for comparison:
 #| fig-cap: Predicted vs Actual Prices
 
 def create_price_compare(
-  tree: DecisionTreeRegressor,
+  tree,
   data: pd.DataFrame,
   *,
   price = None,
@@ -318,114 +322,212 @@ PRICE_COMPARE["error_percent"].describe()
 ```
 
 
-The description indicates that the mean error is low. It is useful to know 
-exactly how many houses have a prediction error exceeding some percent:
+
+
+<!-- ```{python} -->
+<!-- #| echo: false -->
+<!-- def create_error_plots(): -->
+<!--   sb.scatterplot( -->
+<!--     PRICE_COMPARE[PRICE_COMPARE["error_percent"] < 500], -->
+<!--     x="Longtitude", -->
+<!--     y="Lattitude", -->
+<!--     hue="error_percent", -->
+<!--     alpha=0.5, -->
+<!--     # ax=axs[0][1] -->
+<!--   ) -->
+<!---->
+<!--   # TODO: These below lines should become a histogram -->
+<!--   # sb.swarmplot( -->
+<!--   #   PRICE_COMPARE[PRICE_COMPARE["Rooms"] < 6], # type: ignore -->
+<!--   #   x="Rooms", -->
+<!--   #   y="error_percent", -->
+<!--   #   hue="actual", -->
+<!--   #   alpha=0.5, -->
+<!--   #   ax=axs[1][0] -->
+<!--   # ) -->
+<!---->
+<!--   # sb.scatterplot( -->
+<!--   #   PRICE_COMPARE, -->
+<!--   #   x="Bathroom", -->
+<!--   #   y="error_percent", -->
+<!--   # -->
+<!--   #   ax=axs[1][1], -->
+<!--   # ) -->
+<!--   plt.savefig("./errors.png") -->
+<!--   plt.close() -->
+<!---->
+<!-- create_error_plots() -->
+<!-- ``` -->
+<!---->
+
+<!-- ![Error Analysis Geospacial Plot.](./errors.png) -->
+
+
+The description indicates that the mean error is reasonably low. Let's now plot 
+the distribution of prediction errors within the in sample data:
 
 
 ```{python}
-#| fig-cap: Price comparison error analysis.
-def create_price_compare_analysis(
-  compare: pd.DataFrame, 
-  percents: Sequence = (0.1, 0.5, 1, 2, 3, 5, 10, 20, 30)
-):
-  error_percent = compare["error_percent"]
-  error_count = tuple(
-    error_percent[error_percent > percent].count() # type: ignore
+def create_model_errdist(price_compare: pd.DataFrame, *, ax=None, **kwargs):
+  percents = np.linspace(0, 100, 50)
+  counts = list(
+    price_compare[
+      (percent <= price_compare["error_percent"])
+      & (price_compare["error_percent"] < percent + 2)
+    ]["error_percent"].count() 
     for percent in percents
   )
-  df = pd.DataFrame(
-      {
-        "error_count": error_count,
-        "percent_dataset": 100 * (error_count / error_percent.count()),
-        "percent_minimum": percents
-      }
-  )
-  return df
+  data = pd.DataFrame({"percents": percents, "counts": counts})
+  return sb.lineplot(data, x="percents", y="counts", ax=ax, **kwargs)
 
 
-PRICE_COMPARE_ANALYSIS = create_price_compare_analysis(PRICE_COMPARE)
-display(PRICE_COMPARE_ANALYSIS)
+err_dist = create_model_errdist(PRICE_COMPARE)
+err_dist.set_title("Model Out Sample Error Distribution")
+err_dist.figure.savefig("./err-dist-in-sample.png")
+plt.close()
 ```
 
 
-So the model predicts within 1% for about 98.2% of the data, and
-within 0.1% for about 98% of the data, which is reasonable. However, in some 
-cases the error is particularly bad. To see this, let's make a graph of actual
-price vs prediction error.
+![In Sample Error Distribution](./err-dist-in-sample.png)
 
 
-```{python}
-#| echo: false
-def create_error_plots():
-  sb.scatterplot(
-    PRICE_COMPARE,
-    x="Longtitude",
-    y="Lattitude",
-    hue="error_percent",
-    alpha=0.5,
-    # ax=axs[0][1]
-  )
 
-  # sb.swarmplot(
-  #   PRICE_COMPARE[PRICE_COMPARE["Rooms"] < 6], # type: ignore
-  #   x="Rooms",
-  #   y="error_percent",
-  #   hue="actual",
-  #   alpha=0.5,
-  #   ax=axs[1][0]
-  # )
-
-  # sb.scatterplot(
-  #   PRICE_COMPARE,
-  #   x="Bathroom",
-  #   y="error_percent",
-  #
-  #   ax=axs[1][1],
-  # )
-  plt.savefig("./errors.png")
-  plt.close()
-
-create_error_plots()
-```
+This is good (as most of the error is distributed between $0$ and $5$ percent).
+However, as will be shown in the next section, this cannot be expected for any
+out sample data.
 
 
-![Error Analysis Geospacial Plot.](./errors.png)
+### Model Out Sample Error Analysis
 
+Conveniently, the functions above can be used for our out sample data. This is
+as easy as
 
-#### Model Out Sample Error Analysis
-
-Conveniently, the functions above can be used for our out sample data. 
 
 ```{python}
 #| fig-cap: Prediction analysis for out sample data.
 TEST_PRICE_COMPARE = create_price_compare(TREE, TEST_FEATURES, price=TEST_TARGET)
-TEST_PRICE_COMPARE_ANALYSIS = create_price_compare_analysis(TEST_PRICE_COMPARE)
-
 TEST_PRICE_COMPARE["error_percent"].describe()
 ```
 
-So far, the model would appear to be inaccurate at best and wildly inaccurate
-worst. The following is not encouraging either:
+
+Nest, we can createa plot of the count per percent error:
 
 
 ```{python}
-#| echo: false
-#| fig-cap: Price comparison error analysis.
-TEST_PRICE_COMPARE_ANALYSIS
+def mnae(price_compare: pd.DataFrame):
+  return sum(cpc := abs(price_compare["error_percent"])) / (100 * len(cpc))
+
+
+plt.axvline(mnae(TEST_PRICE_COMPARE) * 100)
+err_dist = create_model_errdist(TEST_PRICE_COMPARE, color="red")
+err_dist.set_title("Model Out Sample Error Distribution")
+err_dist.figure.savefig(DIR / "err-dist-out-sample.png")
+plt.close()
 ```
 
 
-This implies that we should probably not use the model to predict null prices
-as about 60% of the test data set can be predicted within 20%. However, it 
-is possible to better train the model.
+![Error Distribution](./err-dist-out-sample.png)
 
 
-#### Improving the Model
+This plot does not look at all like the in sample error, which decays 
+immediately with its spike contained under $5$ percent. It would indicate that 
+error is generally high on the out sample data, implying that there is some
+room for improvement. The vertical line is included to show the $mnae$, the 
+mean normalized absoluted error (as a percentage).
+
+
+### Improving the Model
 
 After running the model against some out sample data, it is clear that the 
 model does not perform well right out of the box. If we were to only look at in
 sample data, this would not be appearent.
 
+It is possible to modify change model parameters to attempt to tune the model.
+To make comparisons, we should combine the above script into a function to 
+get the analysis dataframe for each tree.
+
+
+```{python}
+def create_tree_analysis(
+  features: pd.DataFrame, 
+  features_test: pd.DataFrame,
+  target, 
+  target_test,
+  /,
+  **kwargs
+):
+  tree = create_model(features, target, **kwargs)
+  tree_price_compare = create_price_compare(tree, features_test, price=target_test)
+  return tree, tree_price_compare
+```
+
+
+This function then can be mapped over many different parameter sets.
+
+
+```{python}
+def create_model_errdist_many(err_dists: list[pd.DataFrame], labels: Sequence[str]):
+  fig, axs = plt.subplots(ncols=1, nrows=1)
+
+  plot = None
+  for dist, label in zip(err_dists, labels):
+    plot = create_model_errdist(dist, ax=axs, label=label)
+
+  assert plot is not None
+  axs.legend()
+  return plot
+
+
+MAX_LEAF_NODES = list(map(lambda k: 5 * 10 ** k,  range(5)))
+TREES, PRICE_COMPARES = zip(
+  *(
+    create_tree_analysis(
+      DATA_FEATURES, TEST_FEATURES, DATA_TARGET, TEST_TARGET,
+      max_leaf_nodes=max_leaf_nodes,
+    )
+    for max_leaf_nodes in MAX_LEAF_NODES
+  )
+)
+
+
+err_dist = create_model_errdist_many(PRICE_COMPARES, map(str, MAX_LEAF_NODES))
+err_dist.set_title("Model Out Sample Error for Various Models")
+err_dist.figure.savefig("./err-dist-out-sample-many.png")
+plt.close()
+```
+
+
+![Whatever](./err-many.png)
+
+
+
+The best curves should have a strong peak towards the front (implying that 
+error tends to lower for more entries) and decay rapidly. The initial model 
+would appear to be reasonable fit because it matches the best curves (where 
+``max_leaf_nodes`` is $5000$ and $50000$). 
+
+It would appear that there is not much room for improvement of the model 
+along parameter of ``max_leaf_nodes``. An objective choice of the number of 
+leaf nodes can be done by minimizing the mean normalized absolute error:
+
+
+```{python}
+def min_mae(items, price_compares):
+  maes = map( mnae, price_compares)
+  best, candidate_mae = min(zip(items, maes), key = lambda pair: pair[1])
+  return best, candidate_mae
+
+
+BEST, BEST_MAE = min_mae(MAX_LEAF_NODES, PRICE_COMPARES)
+print(f"The minimized mnae (`{BEST_MAE}`) has `max_leaf_nodes = {BEST}`.")
+```
+
+From this we will take the corresponding tree as the best model:
+
+
+```{python}
+TREE = TREES[MAX_LEAF_NODES.index(BEST)]
+```
 
 
 ### Making Predictions with the Model 
@@ -561,25 +663,25 @@ def create_prediction_plots(data_completed):
     bathrooms_plot.figure.savefig(_) # type: ignore
     plt.close()
 
-  if not (_ := DIR / "geospacial-scatterplot.png").exists() or True:
-    geospacial_plot = sb.scatterplot(
-      DATA_COMPLETED,
-      x="Longtitude",
-      y="Lattitude",
-      hue="Price",
-      alpha=0.5,
-    )
-    # geospacial_plot = sb.histplot(
-    #   DATA_COMPLETED,
-    #   x=DATA_COMPLETED["Longtitude"],
-    #   y=DATA_COMPLETED["Lattitude"],
-    #   bins=25,
-    #   cmap="mako",
-    #   hue="Price"
-    # )
-
-    geospacial_plot.figure.savefig(_)
-    plt.close()
+  # if not (_ := DIR / "geospacial-scatterplot.png").exists() or True:
+  #   geospacial_plot = sb.scatterplot(
+  #     DATA_COMPLETED,
+  #     x="Longtitude",
+  #     y="Lattitude",
+  #     hue="Price",
+  #     alpha=0.5,
+  #   )
+  #   # geospacial_plot = sb.histplot(
+  #   #   DATA_COMPLETED,
+  #   #   x=DATA_COMPLETED["Longtitude"],
+  #   #   y=DATA_COMPLETED["Lattitude"],
+  #   #   bins=25,
+  #   #   cmap="mako",
+  #   #   hue="Price"
+  #   # )
+  #
+  #   geospacial_plot.figure.savefig(_)
+  #   plt.close()
 
 create_prediction_plots(DATA_COMPLETED)
 ```
@@ -589,4 +691,50 @@ create_prediction_plots(DATA_COMPLETED)
 
 ![Swarm Plot by Bathrooms.](./bathrooms-stripplot.png)
 
-![Geospacial Scatterplot](./geospacial-scatterplot.png)
+<!-- ![Geospacial Scatterplot](./geospacial-scatterplot.png) -->
+
+
+It is interesting to notice the stacking of identical values on the prediction 
+side. This would mean that the decision tree would follow a path down to the 
+same node each time, an inherant problem with decision trees. In the next 
+section an attempt to remedy this is made.
+
+
+## Making Predictions With an Ensemble of Trees
+
+A forest is simply many trees. To try to better the predictions made by a tree
+and resolve overfitting and underfitting with some sort of consensus many trees
+are used and their results are averaged. ``sklearn.ensemble.RandomForestRegressor``
+may be constructed and trained in exactly the same way that ``DecisionTreeRegressor``
+is, e.g.
+
+
+```{python}
+FOREST = create_model(DATA_FEATURES, DATA_TARGET, cls=RandomForestRegressor)
+```
+
+
+and now we may compare to some out sample data:
+
+
+```{python}
+PRICE_COMPARE = create_price_compare(FOREST, TEST_FEATURES, price=TEST_TARGET)
+MNAE = mnae(PRICE_COMPARE) * 100
+
+plt.axvline(MNAE)
+err_dist = create_model_errdist(PRICE_COMPARE, color="red")
+err_dist.set_title("Error Distribution of Random Forest")
+
+
+err_dist.figure.savefig("./err-dist-forest.png")
+
+
+plt.close()
+```
+
+
+![Random Forest Error Distribution](./err-dist-forest.png)
+
+
+This leaves us with a mean normalize absolute error below $20$%, which is 
+absolutely an improvement 
