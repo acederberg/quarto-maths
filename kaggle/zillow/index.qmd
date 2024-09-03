@@ -1,0 +1,69 @@
+---
+title: Analysis of the Zillow Home Value Index
+filters:
+  - include-code-files
+---
+
+
+I found a fun US housing dataset published by ``robikscube`` on kaggle. It is a 
+compilation of data from zillows estimates and can be found [on kaggle](https://www.kaggle.com/datasets/robikscube/zillow-home-value-index)
+
+```{python}
+#| echo: false
+%run ./index.py
+```
+
+```{.python include="index.py" snippet="setup"}
+```
+
+
+With this the data can be obtained and we can take a quick peek. Let's look at
+some states in the southwest:
+
+
+```{python}
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+
+data_path, _ = get_data()
+data = load_data(data_path)
+data[["New Mexico", "Arizona", "Colorado", "Utah", "Texas"]].tail()
+```
+
+
+The data is already sorted by datetimes, which are the index. The 
+``clean_data`` function will add ``year`` and ``month`` and rename the columns
+to lower snake case so that they may be accessed as dataframe attributes:
+
+
+```{python}
+data_train, data_test = split_data(clean_data(data))
+data_test[["month", "year", "new_mexico", "arizona"]].tail() 
+```
+
+i
+Now we can create a plot of a few selected states:
+
+
+```{python}
+def plot_selected(*states: str):
+  if not states:
+    states = ["new_mexico", "colorado", "arizona", "utah", "texas"] 
+
+  figure, ax = plt.subplots()
+  data_train[states].plot(ax=ax)
+  plt.close()
+  figure.savefig("./prices-selected-train.png")
+
+  return
+
+plot_selected()
+
+```
+
+
+![Price Indexes of Selected Items](./prices-selected-train.png)
+
+
+
