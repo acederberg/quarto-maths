@@ -24,6 +24,8 @@ pyright = "^1.1.377"
 scikit-learn = "^1.5.1"
 pyyaml = "^6.0.2"
 pyarrow = "^17.0.0"
+torch = {version = "^2.4.1+cpu", source = "pytorch_cpu"}
+torchvision = {version = "^0.19.1+cpu", source = "pytorch_cpu"}
 
 
 [tool.poetry.group.ci.dependencies]
@@ -33,6 +35,12 @@ bumpver = "^2023.1129"
 
 [tool.poetry.group.dev.dependencies]
 python-lsp-server = "^1.11.0"
+
+
+[[tool.poetry.source]]
+name = "pytorch_cpu"
+url = "https://download.pytorch.org/whl/cpu"
+priority = "explicit"
 
 [tool.bumpver]
 current_version = "0.0.2"
