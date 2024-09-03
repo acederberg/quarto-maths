@@ -1,4 +1,5 @@
 ---
+draft: true
 title: Analysis of the Zillow Home Value Index
 filters:
   - include-code-files

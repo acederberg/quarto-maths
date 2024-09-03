@@ -1,0 +1,112 @@
+---
+draft: true
+title: Intro To Deep Learning Notes
+filters:
+  - include-code-files
+---
+
+
+These notes will follow along with the [kaggle 'Intro to Deep Learning'](https://www.kaggle.com/learn/intro-to-deep-learning)
+course. 
+
+
+## Which Library?
+
+I have heard of two popular options: ``pytorch`` and ``tensorflow``. It would
+appear that ``pytorch`` is much more popular now due to its relative 
+simplicity.
+
+Installing is a bit tricky, as the compiled code depends on your os and compute
+platform. In my case, I am working on my laptop in a docker container, so I
+am using (respectively) ``linux`` and ``cpu``. I added this my quarto notebook
+where dependencies are managed by ``poetry`` using the following command:
+
+```sh
+# pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+poetry source add --priority explicit pytorch_cpu https://download.pytorch.org/whl/cpu
+poetry add --source pytorch_cpu torch torchvision
+```
+
+The particular ``index-url`` required was determined using [the official pytorch installation page](
+https://pytorch.org/get-started/locally/) and these commands were suggested in 
+[a stack exchange thread](https://stackoverflow.com/questions/59158044/installing-a-specific-pytorch-build-f-e-cpu-only-with-poetry).
+
+Futher, since I am doing this in docker I made sure to keep my virtual 
+environment as a persistent volume as this install time is very long.
+
+
+## A Simple Neuron: Neurons with Scalar Colors
+
+Let $M$ be a **directed graph** and $m$ a **node** in the directed weighted 
+graph with the (weights and outputs) colors of the vertices and edges exist in 
+a field $F$.
+
+Let $l_m: F^n \to V$ be a function of the colors from other inward nodes and 
+their edges called the output of $m$. A neuron is this pair $(m, l_m)$ that 
+maps the colors of the edges (weights) and the colors of the input nodes 
+(signals) to the color of the node.
+
+
+### The Ideal Case: Linear Nerons
+
+In the ideal case the color (output) of a node is linearly determined by the 
+colors (input) of inward directed nodes the and the color of their edges 
+(weights of input nodes edges).
+
+That is, $l_m$ is linearly determined by the input edge weights $a_k \in F$,
+the inputs $x_k \in F$, and some bias $b \in F$. 
+More precisely the color (output) of $m$ can be written as an affine map 
+$l_m: F^n \to F$:
+
+\begin{equation}
+  L_m: x \mapsto a_kx_k + b
+\end{equation}
+
+in the tensor notation. 
+
+
+### Neural Networks as a Coloring Problem
+
+Of course, I do not know much about neural networks since I am taking these 
+notes. However, it is interesting to view neural networks as a coloring 
+problem. That is, we probably start with some nodes that do not accept any 
+inputs and assign them colors and then attempt to determine the colors of the 
+remaining nodes.
+
+
+
+## What is a Neural Network?
+
+This section of notes follows along with part [two of the course](
+https://www.kaggle.com/code/ryanholbrook/deep-neural-networks). 
+
+Often neural networks are made of **layers**, have an **initial layer** (
+where the node colors are initially defined) and a **terminal layer** (aka 
+output) which is the final output of the network. 
+
+I would give a more rigorous definition, such
+as equivalence classes of **neurons** determined by their minimal depth from 
+the initial layer. 
+
+
+
+## Stocastic Gradient Descent
+
+This section of notes follows along with [part three of the course](
+https://www.kaggle.com/code/ryanholbrook/stochastic-gradient-descent).
+
+Training a model entails predictions of values, a measure of the accuracy of 
+the prediction, and a means to determine how to modify the network for future 
+predictions. The measure of accuracy or **loss function** can be mean absolute 
+error, mean squared error, or Hubber loss; the function telling the network how
+to adjust is called the **optimization function** and is usually some form of
+**stocacstic gradient descent**. The gradient is the direction in which loss in
+minimized and this is choosen *stocastically* (not randomly) depending on the 
+training sample. 
+
+A cycle of training is as simple as:
+
+1. Choose a subset of the data to train on.
+2. Use the loss function to determine how bad the output is.
+3. Use the optimization function to determine how the model ought to adjust.
+
