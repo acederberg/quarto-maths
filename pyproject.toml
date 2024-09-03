@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "quarto-demo"
-version = "0.0.2"
+version = "0.0.3"
 description = "Quarto demo"
 authors = ["Adrian Cederberg <adrn.cederberg123@gmail.com>"]
 readme = "README.rst"
@@ -43,7 +43,7 @@ url = "https://download.pytorch.org/whl/cpu"
 priority = "explicit"
 
 [tool.bumpver]
-current_version = "0.0.2"
+current_version = "0.0.3"
 version_pattern = "MAJOR.MINOR.PATCH"
 commit_message  = "chore(version): Bump version {old_version} -> {new_version}"
 commit          = true
