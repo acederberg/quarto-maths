@@ -7,7 +7,7 @@ services:
       target: production
       secrets:
         - source: kaggle_json
-    image: acederberg.io/quarto-blog-production:0.0.2
+    image: acederberg.io/quarto-blog-production:0.0.3
     ports:
       - published: 8080
         target: 8080
