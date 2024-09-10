@@ -74,3 +74,11 @@ input[type='radio']:checked {
 .cell-output-display code {
   color: var(--bs-indigo) !important;
 }
+
+
+.apple-logo {
+  width: calc(0.84 * 512px);
+  height: 512px;
+  filter: invert(1) !important;
+  opacity: 0.1;
+}

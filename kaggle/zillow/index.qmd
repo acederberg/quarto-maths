@@ -43,7 +43,7 @@ data_train, data_test = split_data(clean_data(data))
 data_test[["month", "year", "new_mexico", "arizona"]].tail() 
 ```
 
-i
+
 Now we can create a plot of a few selected states:
 
 
