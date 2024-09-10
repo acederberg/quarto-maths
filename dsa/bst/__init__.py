@@ -1,9 +1,11 @@
 import json
 import random
 import secrets
-from typing import Any
+from typing import Any, Generator, Iterable
 
 from typing_extensions import Iterator, Self
+
+from dsa import queue
 
 
 class Node:
@@ -189,3 +191,49 @@ class Node:
                 diff_best = diff
 
         return best
+
+    def _depth(self, depth_last: int = 0, depth_best: int = 0) -> int:
+
+        depth_last += 1
+        if depth_last > depth_best:
+            depth_best = depth_last
+
+        if self.left is not None:
+            depth_best = self.left._depth(depth_last, depth_best)
+
+        if self.right is not None:
+            depth_best = self.right._depth(depth_last, depth_best)
+
+        return depth_best
+
+    def depth(self):
+        return self._depth(0, 0)
+
+    @classmethod
+    def _iter_layers(cls, prev_layer: Iterable[Self]) -> queue.Queue[Self]:
+        """Provided the previous layer of nodes, get the next."""
+
+        queue_next = queue.Queue[Self]()
+        for node in prev_layer:
+            if node.left is not None:
+                queue_next.enqueue(node.left)
+            if node.right is not None:
+                queue_next.enqueue(node.right)
+
+        return queue_next
+
+    def iter_layers(self) -> Generator[tuple[int, tuple[Self, ...]], None, None]:
+        queue_current = queue.Queue[Self]()
+        queue_current.enqueue(self)
+
+        depth = -1
+        while queue_current:
+            # NOTE: Do not spent the queue here!
+            yield (depth := depth + 1, tuple(queue_current.values()))
+
+            # NOTE: Because the queue is spent here.
+            queue_current = self._iter_layers(queue_current)
+
+    def iter_bredth(self) -> Generator[Self, None, None]:
+        for _, layer in self.iter_layers():
+            yield from layer

@@ -1,9 +1,12 @@
+import pathlib
 import secrets
 
 import pytest
 
 from dsa.bst import Node
 
+DIR = pathlib.Path(__file__).resolve().parent
+ASSETS = DIR / "assets"
 STASHKEY_TREE = pytest.StashKey[dict[str, Node]]()
 STASHKEY_TREE_KEYS = list(secrets.token_hex(8) for _ in range(10))
 
