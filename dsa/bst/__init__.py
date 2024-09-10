@@ -3,7 +3,6 @@ import random
 import secrets
 from typing import Any
 
-import pytest
 from typing_extensions import Iterator, Self
 
 
@@ -42,19 +41,44 @@ class Node:
         if self.right is not None:
             yield from self.right.__iter__()
 
-    def dict(self) -> dict[str, Any]:
+    # ----------------------------------------------------------------------- #
+    # NOTE: For play and tests.
+
+    def values(self) -> list[int]:
+        return list(item.value for item in self)
+
+    def to_dict(self) -> dict[str, Any]:
         out: dict[str, Any] = {"value": self.value}
         if self.right is not None:
-            out["right"] = self.right.dict()
+            out["right"] = self.right.to_dict()
         if self.left is not None:
-            out["left"] = self.left.dict()
+            out["left"] = self.left.to_dict()
 
         return out
 
-    def json(self):
-        return json.dumps(self.dict(), indent=2)
+    @classmethod
+    def from_dict(cls, raw: dict[str, Any]):
+
+        out: dict[str, Any] = {"value": raw["value"]}
+        if "left" in raw:
+            out["left"] = Node.from_dict(raw["left"])
+        if "right" in raw:
+            out["right"] = Node.from_dict(raw["right"])
+
+        return Node(**out)
+
+    def dump_json(self, **kwargs):
+        return json.dumps(self.to_dict(), **kwargs)
+
+    @classmethod
+    def load_json(cls, raw: str):
+        return Node.from_dict(json.loads(raw))
+
+    # ----------------------------------------------------------------------- #
+    # NOTE: Methods that might show up in a test/interview.
 
     def add(self, value: int) -> Self:
+        """Add a node."""
         if value < self.value:
             if self.left is None:
                 self.left = self.__class__(value)
@@ -70,12 +94,13 @@ class Node:
             return self
 
     def check(self) -> Self:
-        """Assess integrity of the bst."""
+        """Is this tree a binary search tree?"""
         for node in self:
             if node.left is not None:
                 assert node.left.value < node.value
             if node.right is not None:
                 assert node.right.value > node.value
+
         return self
 
     # NOTE: This is done from intuition, but it would appear to work.
@@ -136,7 +161,7 @@ class Node:
         """Compute the size of the tree."""
         return self._size()
 
-    def min(self) -> Self | None:
+    def min(self) -> Self:
         """Minimum should be the leftmost node on the tree.
 
         Obviously, we could just use ``__iter__`` and take the minimum of

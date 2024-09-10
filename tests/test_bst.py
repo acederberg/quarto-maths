@@ -99,7 +99,6 @@ def test_find_parent(tree):
 
 @pytest.mark.parametrize("tree", STASHKEY_TREE_KEYS, indirect=["tree"])
 def test_pop(tree):
-    tree = Node.mk(100).check()
     tree_has = list(map(lambda item: item.value, tree))
     tree_has.remove(tree.value)
 
@@ -118,22 +117,63 @@ def test_pop(tree):
         size -= 1
 
 
-@pytest.mark.parametrize("_", range(10))
-def test_approximate(_):
+@pytest.mark.parametrize("tree", STASHKEY_TREE_KEYS, indirect=["tree"])
+def test_approximate(tree: Node):
 
-    root = Node.mk(100)
-    has = sorted(map(lambda item: item.value, root))
-    ans = min(has, key=lambda item: abs(item - 500))
+    # NOTE: Make ints, remove root value.
+    has = map(
+        lambda item: item.value,
+        filter(lambda item: item.value != tree.value, tree),
+    )
+    answers = sorted(has, key=lambda item: abs(item - 500))
 
-    soln = root.approximate(500)
-    assert abs(ans - 500) == abs(soln.value - 500)
+    assert tree.value not in answers
+
+    def gen_solution():
+        size = tree.size()
+        while size > 1:
+            assert size == tree.size()
+
+            soln = tree.approximate(500)
+            if soln.value == tree.value:
+                break
+
+            yield soln.value
+
+            if tree.pop(soln.value) is None:
+                raise ValueError(f"Could not pop ``{soln.value}``.")
+
+            size -= 1
+
+    soln = list(gen_solution())
+    assert answers[: len(soln)] == soln
 
 
-def test_min():
-    root = Node.mk(100).check()
-    root_has = sorted(map(lambda item: item.value, root))
+@pytest.mark.parametrize("tree", STASHKEY_TREE_KEYS, indirect=["tree"])
+def test_min(tree: Node):
+    answers = sorted(
+        map(
+            lambda item: item.value,
+            filter(lambda item: item.value != tree.value, tree),
+        )
+    )
+    assert tree.value not in answers
 
-    root_min_ez = root_has[0]
-    root_min = root.min()
-    assert root_min is not None
-    assert root_min_ez == root_min.value
+    def gen_solution():
+        size = tree.size()
+        while size > 1:
+            assert size == tree.size()
+
+            soln = tree.min()
+            if soln.value == tree.value:
+                break
+
+            yield soln.value
+
+            if tree.pop(soln.value) is None:
+                raise ValueError(f"Could not pop ``{soln.value}``.")
+
+            size -= 1
+
+    soln = list(gen_solution())
+    assert answers[: len(soln)] == soln
