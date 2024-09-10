@@ -1,0 +1,271 @@
+---
+title: Apple Interview Notes
+---
+
+
+
+
+![*Image from wikipedia*](https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg){.apple-logo}
+
+
+-------------------------------------------------------------------------------
+
+# Job Posting
+
+The job posting, if it still exists, may be found [here](https://jobs.apple.com/en-us/details/200560434/software-engineer-devops-retail-engineering).
+
+Since it will not be up in perpetuity, I will go ahead and copy and paste some 
+of the sections for my convenience for future analysis:
+
+
+## Description
+
+We are seeking a skilled DevOps Engineer who is passionate about operational
+excellence through automation and engineering processes. As a DevOps Engineer,
+you will play a crucial role in ensuring the seamless integration of 
+development and operations processes, to deliver best in class and highly 
+available systems.
+
+You will work with the application development teams to understand 
+infrastructure requirements, while promoting efficiency, scalability, security, 
+and reliability throughout the software lifecycle. Your expertise in cloud 
+platforms, automation, and infrastructure management will be crucial to the 
+success of our projects.
+
+You love building system software, solving what is sometimes thought to be 
+impossible problems, and you have a deep passion for the customer experience.
+You will go beyond the industry norm and demonstrate creativity in problem 
+solving, ability to think dynamically, and adapt quickly to new technical 
+areas.
+
+
+## Minimum Qualifications
+
+- Working experience operating and developing infrastructure and services in 
+  public cloud environments (``AWS``, or ``GCP``).
+- Working experience with containers and container orchestration platforms such 
+  as ``Docker``, ``Kubernetes`` or equivalent.
+- Proficiency with programming and scripting languages such as ``Bash``, 
+  ``Python``, ``Golang`` and ``Rust``.
+
+
+## Preferred Qualifications
+
+- 2+ years experience operating and developing infrastructure and services in 
+  public cloud environments (``AWS``, or ``GCP``).
+- 2+ years experience with containers and container orchestration platforms 
+  such as ``Docker``, ``Kubernetes`` or equivalent.
+- 2+ years proficiency with ``Helm`` and ``Kustomize`` for managing 
+  ``Kubernetes`` applications and configurations through GitOps practices
+- 2+ years experience with configuration management or Infrastructure as Code 
+  (IaC) tools such as ``Ansible``, ``Terraform``, and Crossplane is desired.
+- Experience working with Cloud Native software to architect innovative 
+  solutions. Making upstream contributions back to have a meaningful and 
+  positive impact on the ecosystem.
+- Strong knowledge of ``Linux`` in respect to security, networking, filesystem 
+  I/O, process modeling, and compute resource management.
+- Excellent problem solving skills, possessing the ability to communicate with 
+  the team on triage, remediation, root cause, and possible long term 
+  improvements.
+- Should be highly proactive with a keen focus on improving the uptime 
+  availability of our mission-critical services.
+- Excellent verbal and written communication skills, able to collaborate 
+  cross-functionally with program managers and engineering partners.
+- Comfortable working in a fast-paced environment while continuously evaluating 
+  emerging technologies.
+- Familiarity with logging and observability technologies such as ``Open telemetry`` 
+  and ``Prometheus`` or similar.
+- Validated software engineering experience and field in design, testing, 
+  source code management, and ``CI/CD`` practices.
+- Bachelors Degree in Computer Science, Engineering, or equivalent experience 
+  developing apps
+
+
+-------------------------------------------------------------------------------
+
+
+# Interviewers Questions
+
+It would appear that standard interview questions will be asked, however since
+this was a week point in my last interview with amazon I think it is worth 
+taking the time to write these out and give them some thought.
+
+
+## From Apple Official `Interview Tips` Page
+
+https://www.apple.com/careers/us/interview_tips.html
+
+
+### Q: What was my day to day like in my previous job?
+
+**S**. The average day would start with addressing software features, bugs, and 
+optimizations. After a few hours, myself and some of my other coworkers would 
+go get a cup of coffee at the nearby coffee shop and talk about our current 
+work, other projects/software topics, and shoot the shit.
+
+**T**. We would often whiteboard to draw up plans when we came back, discuss 
+particulars of implementation, and longer term plans in developing the product.
+The remainder of the day could possibly consist of team lunch or meetings, 
+and would almost invariably consist of more implementation. 
+
+**A**. As far as implementation goes, my roles at Mountain Vector were quite 
+varied, and included
+
+- Implementation, review, and testing of API services.
+- Implementation of pipelines with bitbucket for various services.
+- Implementation of IaC and containerization through Helm.
+
+My workflow tends to be roughly the following:
+
+- If a tool/solution has not been decided upon:
+  - Research and discuss tools/solutions to the problem by looking at examples 
+    on github, stack exchange, and github.
+  - Propose the tool/solution to implement the solution.
+
+- Draw up a plan either on whiteboard, on paper, or using comments in code and 
+  consider the implementation of the solution in particular. This would serve
+  also a means to generate ideas for which tests the new fix/feature ought to 
+  pass.
+
+- Implement the solution using the tool/solution of choice. I like to use the
+  terminal for almost all of my editing work since my focus and flow are 
+  expedited. 
+
+- Test the solution using a framework like ``pytest`` (or in the case of
+  ``helm`` hooks and ``pytest``, or in the case of pipelines, I used 
+  [](https://github.com/ktomk/pipelines) to run my pipelines locally) and 
+  iterate.
+
+- Show the solution to other developers (usually Sam and/or David) and collect 
+  feedback.
+
+- Iterate and test again. Gather feedback again.
+
+- Attempt to use changes in dev (preview) environment, merge into the 
+  development branch:
+  - If API/UI code changes, build a docker image (using bitbucket pipelines), 
+    run changes in the preview site, do manual tests.
+  - If IaC changes, deployed, otherwise deploy new features to the development 
+    site.
+
+- If issues in development, iterate by branching from the development branch 
+  and keep deploying changes to the development branch. 
+
+- Create/update documentation. If great detail is required, I would draw up a 
+  diagram in [``draw.io``](https://draw.io).
+
+**R**. Finally, a pull request would be made to the main branch of the 
+repository in question and the changes would be deployed to production for the 
+customers. Of course, yet another round of manual review and monitoring would 
+take place.
+
+
+### Q: Specific examples of projects from last job?
+
+**S/T**. When I started, the previous product of Mountain Vector was to be 
+replaced with a more complete product. The previous CTO had deserted the 
+company after taking his vacation time and had left a (very minimal) prototype. 
+
+**A**. At this point, David and I siezed the reigns and began to work on the 
+new and improved product. My work in particular included:
+
+- Cufflink API from scratch.
+- Cufflink IaC from scratch.
+- Built and maintained pipelines CI/CD for all repositories.
+- Cufflink Helm Chart from scratch.
+- Cufflink admin dashboard.
+
+**R**. All of this work 
+
+- Enhanced developer productivity (they did not have to worry about getting 
+  their code in the 'preview' site).
+- Ensured uptime. The project was robust enough that, with the code on 
+  bitbucket and data in hand, everything on ``azure`` could be burnt down and 
+  brought back up and function fully. Further, the development site allowed for
+  the simulation of deploying to production with none of the consequences.
+- Ensured configurability. Helm charts made it such that ``services`` and 
+  ``cronjobs`` could reliably be configured and deployed and changes failing
+  in production could be rolled back.
+
+
+### Q: Tell me about when you had to work with a team to accomplish a goal?
+
+As a devops engineer, almost every task at my previous job required teamwork.
+
+On the smaller scale, creating pipelines for builds required that I know enough 
+about the project and its requirements. Since many of the projects were owned 
+by a single developer, I had to understand the needs and workflow of those 
+developers. When there were bugs in builds beyond my comprehension I would need
+to inform myself by inquiry of the projects owner, and when bugs were found 
+myself and the owner would need to rely on one another to eliminate the bug.
+
+On a larger scale, features needed to be added to Cufflink. Customers would 
+give feedback or use cases. The entire team would discuss what features/fixes
+were required in the dashboard, and then the dev team would discuss the 
+particulars of implementation. Next a plan would be drawn up and the 
+features/fixes would be implemented and the iteration discussed above would 
+occur. At the end of it, the customer would have the feature/fix they desired.
+
+
+### Q: Give me an example about a time you worked under pressure to meet a deadline?
+
+**S**. In my final semester of undergraduate schooling, on October 31, 2019, 
+I was working on plasma and propulsion project as a researcher. This research 
+involved some very strong neodynium magnets which we needed to 
+characterize/verify the magnetic fields of. As a part of this, we needed to 
+label the magnets as they all had the same form factor (an annulus six inches 
+inner diameter, four inches outer diameter, and half an inch in depth). So 
+myself and my PI, Craig Davidson of Dark Seas Industries, were working to do so 
+on opposite sides of the room. Eventually, I heard a snap.
+
+*"The magnets have got me!"*, Craig exclaimed.
+
+**T**. I turned around, and I recall that about a total of four magnets were 
+stuck on either side of Craig's index finger of his right hand, some still with
+a wooden mount holding them from previous experiments. Needless to say, this 
+was intensely painful for Craig and most alarming for myself. 
+
+**A**. I attempted to pull them apart myself to no avail and to Craig's dismay.
+I then decided we needed a better plan, and my plan was to loop some cargo 
+straps onto the magnets either side of his finger and attempt to pull them 
+apart. For this, I recruited help from the machine shop for the race car 
+building team down the hall. With three others in hand, we directed Craig to 
+the hallway and played tug of war until his finger was free.
+
+**R**. Craig then drove himself to the hospital with his flat finger. 
+Fortunately, UNM Hospital was close by - he got to keep his finger, with only 
+a few fractures in the bones which constituted it, and still has it to this 
+day.
+
+## From the Internet in General
+
+A few of the sources used here are:
+
+- https://topinterview.com/interview-advice/apple-interview-questions-with-answers
+
+### Q: What is your favorite Apple device and why? 
+### Q: Tell me about a time you failed and how you bounced back from it.
+### Q: Tell me about a time you disagreed with your manager and how you managed that situation.
+### Q: What is something you have done in this life that you are particularly proud of, and why?
+### Q: Tell me about a time you dealt with a situation where you had an employee give you pushback on a suggestion. How did you respond?
+### Q: Describe an interesting problem you've faced. How did you solve it?
+### Q: Why do you want to work for apple?
+
+
+# Questioning the Interviewer
+
+I would like to summarize what I would like to ask.
+
+- What in particular do you enjoy about work at Apple?
+- How does Apple handle layoffs?
+- Is it possible to change roles internally?
+- Do you enjoy living in Austin, Texas?
+- What exciting projects have you worked on lately?
+
+
+-------------------------------------------------------------------------------
+
+# Additional Resources:
+
+
+https://www.geeksforgeeks.org/apple-sde-sheet-interview-questions-and-answers/#System

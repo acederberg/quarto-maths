@@ -58,6 +58,7 @@ import pathlib
 import io
 import contextlib
 
+from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 import seaborn as sb
 import numpy as np
@@ -223,6 +224,8 @@ DATA_FEATURES_COLUMNS = ['Rooms', 'Bathroom', 'Landsize', 'Lattitude', 'Longtitu
 # DATA_TARGET = DATA_CLEAN["Price"]
 DATA_FEATURES: pd.DataFrame
 TEST_FEATURES: pd.DataFrame
+DATA_TARGET: pd.Series
+TEST_TARGET: pd.Series
 DATA_FEATURES, TEST_FEATURES, DATA_TARGET, TEST_TARGET = train_test_split( # type: ignore
   DATA_CLEAN[DATA_FEATURES_COLUMNS], 
   DATA_CLEAN["Price"],
@@ -231,6 +234,8 @@ DATA_FEATURES, TEST_FEATURES, DATA_TARGET, TEST_TARGET = train_test_split( # typ
 
 DATA_FEATURES.head(10)
 ```
+
+
 
 Note that ``sklearn.model_.train_test_split`` is used to chunk up the data so 
 that we can compute error in predictions of the model outside of the data that 
@@ -241,6 +246,34 @@ this notebook. In the section after that, 'Out Sample' data is used to assess
 the accuracy of the model. Finally, predictions are made for entries that 
 did not have a price.
 
+It is also useful to look at the price distribution of both the training and 
+testing datasets. This is easy to do with ``pd.DataFrame.hist``:
+
+
+```{python}
+def plot_price_dist():
+  bins = np.linspace(
+    bin_start := DATA_TARGET.quantile(0), 
+    bin_stop := DATA_TARGET.quantile(.99), 
+    50
+  )
+  subplot: Axes = DATA_TARGET.hist(bins=bins, label="Training Dataset")
+  subplot = TEST_TARGET.hist(bins=bins, label="Testing Dataset")
+  subplot.set_title("Distribution of Prices")
+  subplot.set_xlabel("Price")
+  subplot.set_xlim(bin_start, bin_stop)
+  subplot.set_ylabel("Count")
+  subplot.legend()
+  return subplot
+
+
+subplot = plot_price_dist()
+subplot.figure.savefig("./plot-price-dist.png")
+plt.close()
+```
+
+
+![Distribution of prices in test and training datasets.](./plot-price-dist.png)
 
 ## Predicting Prices with a Tree Model
 
@@ -265,6 +298,7 @@ def create_model(features: pd.DataFrame, target, /, cls: Type =DecisionTreeRegre
   tree = cls(random_state=1, **kwargs)
   tree.fit(features, target)
   return tree
+
 
 TREE = create_model(DATA_FEATURES, DATA_TARGET)
 ```
@@ -322,47 +356,6 @@ PRICE_COMPARE["error_percent"].describe()
 ```
 
 
-
-
-<!-- ```{python} -->
-<!-- #| echo: false -->
-<!-- def create_error_plots(): -->
-<!--   sb.scatterplot( -->
-<!--     PRICE_COMPARE[PRICE_COMPARE["error_percent"] < 500], -->
-<!--     x="Longtitude", -->
-<!--     y="Lattitude", -->
-<!--     hue="error_percent", -->
-<!--     alpha=0.5, -->
-<!--     # ax=axs[0][1] -->
-<!--   ) -->
-<!---->
-<!--   # TODO: These below lines should become a histogram -->
-<!--   # sb.swarmplot( -->
-<!--   #   PRICE_COMPARE[PRICE_COMPARE["Rooms"] < 6], # type: ignore -->
-<!--   #   x="Rooms", -->
-<!--   #   y="error_percent", -->
-<!--   #   hue="actual", -->
-<!--   #   alpha=0.5, -->
-<!--   #   ax=axs[1][0] -->
-<!--   # ) -->
-<!---->
-<!--   # sb.scatterplot( -->
-<!--   #   PRICE_COMPARE, -->
-<!--   #   x="Bathroom", -->
-<!--   #   y="error_percent", -->
-<!--   # -->
-<!--   #   ax=axs[1][1], -->
-<!--   # ) -->
-<!--   plt.savefig("./errors.png") -->
-<!--   plt.close() -->
-<!---->
-<!-- create_error_plots() -->
-<!-- ``` -->
-<!---->
-
-<!-- ![Error Analysis Geospacial Plot.](./errors.png) -->
-
-
 The description indicates that the mean error is reasonably low. Let's now plot 
 the distribution of prediction errors within the in sample data:
 
@@ -382,7 +375,7 @@ def create_model_errdist(price_compare: pd.DataFrame, *, ax=None, **kwargs):
 
 
 err_dist = create_model_errdist(PRICE_COMPARE)
-err_dist.set_title("Model Out Sample Error Distribution")
+err_dist.set_title("Model In Sample Error Distribution")
 err_dist.figure.savefig("./err-dist-in-sample.png") # type: ignore
 plt.close()
 ```
@@ -427,7 +420,7 @@ plt.close()
 ```
 
 
-![Error Distribution](./err-dist-out-sample.png)
+![Out sample error distribution.](./err-dist-out-sample.png)
 
 
 This plot does not look at all like the in sample error, which decays 
@@ -498,7 +491,8 @@ plt.close()
 ```
 
 
-![Whatever](./err-many.png)
+![Out sample error distributions for models with various ``max_leaf_node`` 
+values.](./err-dist-out-sample-many.png)
 
 
 
