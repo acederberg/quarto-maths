@@ -4,7 +4,9 @@ version = "0.0.3"
 description = "Quarto demo"
 authors = ["Adrian Cederberg <adrn.cederberg123@gmail.com>"]
 readme = "README.rst"
-package-mode = false
+packages = [
+  {include="dsa"}
+]
 
 
 [tool.poetry.dependencies]
@@ -36,6 +38,10 @@ bumpver = "^2023.1129"
 [tool.poetry.group.dev.dependencies]
 python-lsp-server = "^1.11.0"
 
+
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.3.3"
 
 [[tool.poetry.source]]
 name = "pytorch_cpu"

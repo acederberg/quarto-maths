@@ -1,0 +1,10 @@
+---
+freeze: true
+author: Adrian Cederberg
+toc: true
+toc-depth: 3
+format:
+  html:
+    code-fold: false
+execute:
+  cache: true
