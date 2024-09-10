@@ -1,9 +1,10 @@
+import json
 import random
 
 import pytest
 
 from dsa.bst import Node
-from tests.conftest import STASHKEY_TREE_KEYS
+from tests.conftest import ASSETS, STASHKEY_TREE, STASHKEY_TREE_KEYS
 
 
 def test_basic():
@@ -177,3 +178,35 @@ def test_min(tree: Node):
 
     soln = list(gen_solution())
     assert answers[: len(soln)] == soln
+
+
+# NOTE: Tree is not bst.
+def test_iter_bredth():
+    with open(ASSETS / "bt-bfs-ordered.json") as file:
+        root = Node.from_dict(json.load(file))
+
+    assert list(map(lambda item: item.value, root.iter_bredth())) == list(range(1, 16))
+
+
+@pytest.mark.parametrize("tree", STASHKEY_TREE_KEYS, indirect=["tree"])
+def test_depth(tree: Node):
+
+    layers = list(tree.iter_layers())
+    layers.reverse()
+
+    # Since leaves are removed on every iteration, every node should be a leaf.
+    depth_bft_last = len(layers)
+
+    for depth_bft, layer in layers:
+        if depth_bft == 1:
+            break
+
+        for node in layer:
+            assert node.left is None and node.right is None
+            assert tree.pop(node.value) is not None
+
+        depth_dfs = tree.depth()
+        assert depth_bft == depth_dfs
+        assert depth_bft == depth_bft_last - 1
+
+        depth_bft_last = depth_bft
