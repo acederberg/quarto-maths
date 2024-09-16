@@ -1,0 +1,167 @@
+---
+title: Zigzag
+description: Efficiently solving the 'zigzag'-ification of a string.
+filters:
+  - include-code-files
+---
+
+See [the problem here](https://leetcode.com/problems/zigzag-conversion).
+
+
+## Mathematical Analysis
+
+Let $s: N \to X$ where $X$ is some set. 
+The following base cases for induction define a 'zig zag' $\sigma(s)$ of $s$:
+
+```default
+--> numRows = 2
+
+    +------+------+
+    | j=0  | j=1  |
+----+------+------+                                    \sigma_2(s)
+k=0 | s(0) | s(3) |                                 -> s(0)s(3)...
+k=1 | s(1) | s(4) |                                      + s(1)s(4)...
+----+-------------+
+
+
+--> numRows = 3
+
+    +-----------+-----------+
+    | j=0       | j=1       |
+----+-----------+-----------+                         \sigma_3(s)=
+k=0 | s(0)      | s(4)      |                      -> s(0)s(4)...
+k=1 | s(1) s(3) | s(5) s(7) |                           + s(1)s(3)s(5)s(7)...
+k=2 | s(2)      | s(6)      |                           + s(2)s(6)...
+----+-----------+-----------+
+
+
+--> numRows=4
+
+    +----------------+------------------+
+    | j=0            | j=1              |
+----+----------------+------------------+            \sigma_4(s)=
+k=0 | s(0)           | s(6)             |         -> s(0)s(6)...
+k=1 | s(1)      s(5) | s(7)       s(11) |              + s(1)s(5)s(7)s(11)...
+k=2 | s(2) s(4)      | s(8) s(10)       |              + s(2)s(4)s(8)s(10)...
+k=3 | s(3)           | s(9)             |              + s(3)s(9)...
+----+----------------+------------------+
+```
+
+
+From this we can determine the zigzag of order ``n`` and see easily that the
+$j$th cell contains $s(\{2Nj + k: 0 <= k < 2N\})$, so there are $2N$ entries in
+each cell. 
+
+
+```default
+----> numRows=n, N=n-1
+
+      +-----------------------------+-----------------------------------+
+      | j=0                         | j=1                               |
+------+-----------------------------+-----------------------------------+
+k=0   | s(0)                        | s(2N)                             |
+k=1   | s(1)              s(2N - 1) | s(2N + 1)               s(3N - 1) |
+...   | ...           ...           | ...                 ...           |
+k=N-1 | s(N-1) s(N+1)               | s(3N - 1) s(3N + 1)               |
+k=N   | s(N)                        | s(3N)                             |
+------+-----------------------------+-----------------------------------+
+
+      +-------------------------------------------+------------------
+      | j=m                                       |
+------+-------------------------------------------+------------------
+k=0   | s(mN)                                     | s((m+1)N)
+k=1   | s(mN+1)                     s((m+1)N - 1) | s((m+1)N+1)
+...   | ...             .        ..               | ...
+k=N-1 | s(mN-1) s((m+1)N-(N-1))                   | s((m+1)N-1)
+k=N   | s(mN)                                     | s
+------+-------------------------------------------+------------------
+```
+
+
+so $\sigma_n$ should look like (read from left to right, top to bottom):
+
+
+```default
+N = n - 1
+sigma_n(s) = 
+  j=0                     j=1             j=2
+
+  s(0)                    s(2N)           s(4N)           ...
+  s(1)        s(2N-1)     s(2N+1) s(4N-1) s(4N+1) s(5N-1) ...
+  s(2)        s(2N-2)     s(2N+2) s(4N-2) s(4n+2) s(5N-2) ...
+
+  ...         ...         ...     ...     ...     ...     ...
+
+  s(k)        s(2N-k)     s(2N+k) s(4N-k) s(4N+k) s(4N-k) ...
+
+  ...         ...         ...     ...     ...     ...     ...
+
+  s(2N-(N-2)) s(2N-(N-2)) s(3N-2) s(3N+2) s(5N-2) s(5n+2) ...
+  s(2N-(N-1)) s(2N-(N-1)) s(3N-1) s(3N+1) s(5N-1) s(5n+1) ...
+  s(N)                    s(3N)           s(5N)           ...
+
+```
+
+
+Finally, if the string is $m$ long, then the total number of cells required 
+should be $1 + (m - m \% 2N) / 2N)$, better written as $floor(m, 2N) + 1$.
+
+
+## Solution
+
+The objective is to iterate the coordinates found above and then inject these
+into the solution function (called ``covert``):
+
+
+```{.python include="zigzag.py" snippet="solution"}
+```
+
+This solution beats about $50\%$ of the other entries in runtime and $60\%$ in
+memory usage. A few subtleties are worth noting:
+
+1. Filtering inside of ``coords`` is faster than using ``filter`` to check the
+   outputs. In my opinion the code is more elegant using ``filter`` but it is 
+   objectively less performant.
+
+2. If instead ``aa`` and ``bb`` are incremented inside the second ``for`` loop
+   of ``coords`` like 
+
+   ```python
+   for kk in range(1, n - 1):
+    aa = kk
+    bb = incr - kk
+    for jj in range(jj_max):
+
+        if aa < m:
+            yield aa
+        if bb < m:
+            yield bb
+
+        
+        aa += incr
+        bb += incr
+   ```
+
+   the memory usage beats about $85\%$ of submissions, but only $29\%$ in 
+   regard to run time.
+
+3. The ``yield from`` statements could be moved within the outer ``for`` loop
+   however this puts more logic within the foor loop and has no performance
+   benefit.
+
+
+The time complexity is linear for a fixed numer of rows and linear for a fixed
+size of string, so it is $O(N * m)$. 
+
+
+## Better Solutions
+
+I went and looked at other solutions - I always find this useful as often there
+is a way to approach the problem that makes my solution appear to be so much 
+more complicated than it needed to be. I found 
+
+Many of the more optimal solutions use an array to store the substring per row
+and keep track of where to go next, these look like
+
+```{.python include="zigzag.py" snippet="solution_better"}
+```
