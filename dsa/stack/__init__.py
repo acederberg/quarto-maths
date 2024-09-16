@@ -1,6 +1,6 @@
 import secrets
 from collections.abc import Iterable
-from typing import Generator, Generic, Sequence, TypeVar
+from typing import Generator, Generic, TypeVar
 
 from typing_extensions import Self
 
