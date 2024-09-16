@@ -1,0 +1,39 @@
+---
+title: Median of Two Sorted Arrays
+description: Finding the median value of two sorted arrays.
+filters:
+  - include-code-files
+---
+
+## Analysis of the Problem
+
+The basics of the algorithm are actually very straightforward - it is the edge
+cases and implementation that made this quite tricky. Given the finite subsets 
+$\{a_j\}$ and $\{b_k\}$ of $N$ indexed in monotonic order, the algorithm is  
+
+1. Take $j_{start} = max(j)$ and $j_{stop} = min(j)$, and likewise for $k_{start}$
+   and $k_{stop}$.
+2. If $j_{start} <= j_{stop}$ and $k_{start} <= k_{stop}$, look at the repective elements
+   for the starts and choose the lesser element - for this element increment 
+   the corresponding value of $j_{start}$ or $k_{start}$ and record the lesser 
+   element $r$ - then look at the respective elements of the stops and choose 
+   the greater and save it as $l$ - for this element decrement the 
+   corresponding value of $j_{stop}$ or $k_{stop}$. 
+
+   If one array has been expended, just do this for just the remaining array.
+   If both have been expended, stop.
+
+3. Repeat step 2 until $j_{start} > j_{stop}$ and $k_{start} > k_{stop}$.
+4. Take the mean of $l$ and $r$.
+
+
+## Implementation
+
+My initial solution is
+
+
+```{.python include="median_two_sorted_arrays.py" snippet="solution"}
+```
+
+  
+

@@ -1,6 +1,6 @@
 ---
-title: Data Structures and Algorithms Problems
-description: "@_acederberg's data structures and Algorithms problems."
+title: Leetcode Problems
+description: "@_acederberg's leetcode problems and notes."
 extra:
   url: /posts
   image: https://avatars.githubusercontent.com/u/77076023?v=4
@@ -14,3 +14,4 @@ listing: default
 page-layout: full
 title-block-banner: false
 ---
+
