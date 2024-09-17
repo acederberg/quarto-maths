@@ -1,0 +1,58 @@
+---
+title: Minimum Time Difference
+description: |
+  Given an array of ``HH:MM`` times, find the least difference.
+filters:
+  - include-code-files
+---
+
+
+To view the problem statement, [view it on leetcode](https://leetcode.com/problems/minimum-time-difference/submissions/1392581225/?envType=daily-question&envId=2024-09-16).
+
+
+## Analysis
+
+A few things were immediately clear. First, there are only ``1440`` minutes in 
+a day, so there were only ``1440`` timestamps that could be provided in any
+array. Further, if a timestamp occured more than twice in an input array, then 
+the minimum difference was zero.
+
+The stratagy I used was to first convert the timestamps into minutes - if the 
+same timestamp appeared after being seen once the minumum difference was $0$. 
+If no exact matches were found, then adjacent values could be sorted out by
+iterating through all of the minutes, which would have a constant time 
+complexity.
+
+
+## Solution
+
+The solution does what is described above:
+
+```{.python include="__init__.py" snippet="solution"}
+```
+
+and was in the $95\%$ quantile for runtime and $79\%$ quantile for memory 
+usage. The time complexity of the solution should be $O(N^0)$ for the iteration
+over the minutes, and $O(N^0) + \epsilon N$ for the parsing part. $\epsilon$
+is the constant time factor for checking ``tp in visited`` above, this is 
+constant because ``visited`` is a set, which uses hashing. The overall upper 
+bound for the time complexity of this solution is 
+
+\begin{equation}
+  2880 + \epsilon N
+\end{equation}
+
+where $\epsilon$ is really small.
+
+
+## Possible Optomizations
+
+Since this solution did pretty well and I'd like to do another problem I will 
+only speculate that having the local ``parsed`` of ``findMinDifference`` as a 
+global should help take some of the string parsing time off. 
+
+Further, using ``sorted`` could make might be fast enough to make it more 
+efficient than using the second ``for`` loop.
+
+
+
