@@ -113,7 +113,7 @@ The objective is to iterate the coordinates found above and then inject these
 into the solution function (called ``covert``):
 
 
-```{.python include="zigzag.py" snippet="solution"}
+```{.python include="__init__.py" snippet="solution"}
 ```
 
 This solution beats about $50\%$ of the other entries in runtime and $60\%$ in
@@ -163,5 +163,5 @@ more complicated than it needed to be. I found
 Many of the more optimal solutions use an array to store the substring per row
 and keep track of where to go next, these look like
 
-```{.python include="zigzag.py" snippet="solution_better"}
+```{.python include="__init__.py" snippet="solution_better"}
 ```

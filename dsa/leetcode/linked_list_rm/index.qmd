@@ -6,6 +6,8 @@ filters:
 ---
 
 
+The problem may be found [on leetcode](https://leetcode.com/problems/delete-nodes-from-linked-list-present-in-array).
+
 ## Analysis
 
 First, if the head has a bad value it must be removed and the head should be 

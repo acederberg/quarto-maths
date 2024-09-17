@@ -1,0 +1,88 @@
+---
+title: Binary Search Tree from Descriptions
+filters:
+  - include=code-files
+---
+
+
+[The full problem statement can be found on leetcode](https://leetcode.com/problems/create-binary-tree-from-descriptions/description/?envType=daily-question&envId=2024-09-16).
+
+The descriptions are provided as an array arrays, where each element has three 
+items:
+
+- In the 0 position: The value of the parent node.
+- In the 1 position: The value of the node.
+- In the 2 position: If the node is to the left or right of its parent.
+
+All nodes in the tree have unique values. 
+
+
+## Analysis
+
+There are probably a few different ways to do this, I decided to start with a 
+more straightforward solution and then see if I could cook up something better.
+
+
+### Initial Algorithm
+
+First, the nodes are constructed without any linkages and saved in a hash by 
+their value alongside their respective instruction. Then these values are 
+iterated through - each node uses its description to be linked with its parent.
+
+Since the root node is not given an instruction but only refered to in index 
+`0` and since the root is unique, when the hash of nodes does not contain a 
+value it is certain that the value is that of the root node.
+
+
+### Another Algorithm
+
+Two hashes are created. Every node is saved into the first hash using its 
+color, any node whose parent is not known is saved into the second hash in a
+subhash where it is indexed by ``is_left``, using its parents color.
+
+The current node is then inspected for any matching entries in the second hash 
+that need a parent with its value. If this is found then the links are created 
+and the entry is removed from the second hash.
+
+
+## Solutions
+
+All of these solutions have linear time complexity, as they all have one 
+recursion over ``descriptions``.
+
+
+### Initial Solution
+
+My initial solution performed reasonably, but was not ideal. It placed in the 
+$59\%$ quantile for runtime and the $52\%$ quantile for memory. This is okay, 
+but not great. The solution is presented bellow:
+
+```{.python include="__init__.py" snippet="solution_initial"}
+```
+
+The appearent reason for this slowness is that there are two loops of 
+approximately the size of the descriptions input.
+
+
+### Another Solution
+
+My second solution performed worse in runtime at the $40\%$ quantile but 
+excellently in memory in the $98\%$ quantile.
+
+```{.python include="__init__.py" snippet="solution"}
+```
+
+The speed tradeoff is likely the result of all of the logic in the loop.
+
+
+### Yet Another Solution
+
+I decided to take a look at some other solutions and saw that some created both 
+nodes when neither existed. It turns out that this solution was about as good 
+as the above - I was very confused as the spoiler solution ranked very well. 
+Then I changed one thing, the unpacking of ``desc`` in the for loop statement, 
+which I moved into the body. The following is said solution, it ranked $92\%$ in 
+runtime and $70\%$ in memory.
+
+```{.python include="__init__.py" snippet="solution_spoiled"}
+```

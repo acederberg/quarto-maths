@@ -1,0 +1,42 @@
+---
+title: Uncommon Words from Two Sentences
+filter:
+  - include-code-files
+---
+
+[See the explanation on leetcode](https://leetcode.com/problems/uncommon-words-from-two-sentences).
+
+
+This problem is almost trivial - there are just some strange things about 
+non-deterministic runtimes and test cases. For instance, I found that the 
+following solution scored very well on some runs but terribly in other runs
+
+```python
+class Solution:
+    def uncommonFromSentences(self, s1: str, s2: str) -> list[str]:
+
+        if s1 == s2:
+            return list()
+            
+        all = s1.split(" ") + s2.split(" ")
+
+        counts = dict()
+
+        for word in all:
+            counts[word] = counts.get(word, 0) + 1
+
+        return list(word for word, count in counts.items() if count == 1)
+```
+
+Futher the garding statement results in an incredible increase in performance,
+which says more about the test cases than anything. 
+
+```{.python include="__init__.py" snippet="solution_initial"}
+```
+
+After seeing how poorly this performed, I looked at a number of submissions
+and the submissions did not appear to apply much different algorithms. I then
+decided to rerun another submission to find that it did not perform as well as 
+on the submission.
+
+

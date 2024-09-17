@@ -1,0 +1,79 @@
+---
+title: Length of Longest Substring
+---
+
+
+[The problem may be found on leetcode](https://leetcode.com/problems/longest-substring-without-repeating-characters/).
+
+
+## Analysis
+
+
+A basic example of a search with **linear time complexity** is
+
+```default
+abcabcbb -> abcabcbb --> abcabcbb --> abcabcbb --> abcabcbb --> abcabcbb
+^           ^^           ^^^           ^^^           ^^^           ^^^ 
+k=0         k=1          k=2          k=3          k=4          k=5
+start=0     start=0      start=0      start=1      start=2      start=3
+```
+
+It would appear that 
+
+1. the end of the range should be incrremented on every loop,
+2. when a character in the selected range is encoutered again, the start of the 
+   range should be incremented from its last occurance.
+
+However, with strings with many repeats, it is appearent that there are some
+subtleties to this approach:
+
+```default
+foofoofiifii --> foofoofiifii --> foofoofiifii --> foofoofiifii --> foofoofiifii 
+^                ^^                 ^               ^^^^              ^^^^
+k=0              k=1              k=2              k=3              k=4
+start=0          start=0          start=2          start=1          start=4
+
+lastseen:        lastseen:        lastseen:
+  f: 0             f: 0             f: 0
+                   o: 1             o: 2
+```
+
+The step where ``k=3`` makes it clear that backtracking ``start`` is not an 
+option, and that
+
+
+```default
+foofoofiifii --> foofoofiifii --> foofoofiifii --> foofoofiifii --> foofoofiifii 
+^                ^^                 ^                ^^                 ^
+k=0              k=1              k=2              k=3              k=4
+start=0          start=0          start=2          start=2          start=4
+```
+
+A modification to this fixes the problem:
+
+2. when a character in the selected range is encoutered again, the start of the 
+   range should be incremented from its last occurance unless this new value is
+   less than the current value of ``start``, in which case ``start`` should be
+   maintained.
+
+
+## Implementation
+
+My initial solution was
+
+```{.python include="__init__.py" snippet="solution_initial"}
+```
+
+which performed reasonably well in runtime ($75\%$ quantile) and an abysmal
+$8\%$ quantile in memory. Some small modifications made my solution much more
+performant, with $93\%$ quantile runtime and $39\%$ runtime:
+
+```{.python include="__init__.py" snippet="solution"}
+```
+
+It would appear that ``seen`` is the main issue with memory usage, however 
+other options probably have performance costs for searching (for instance 
+maintaining a copy of the longest nonrepeating substring instead of its 
+bounds).
+
+
