@@ -1,0 +1,62 @@
+---
+title: Two Sum
+description: |
+  Given an array, find two numbers that add up to a target number and return 
+  their indices.
+filters:
+  - include-code-files
+---
+
+
+## Analysis
+
+This problem can be solved by trying to add every number within the array. This
+approach is naive and has quadratic time complexity. It would look like
+
+
+```{.python include="__init__.py" snippet="solution_trivial"}
+```
+
+
+There is a memoization that can be done to make this much faster, however it 
+does have a large memory drawback. **If we have a hash table where, ``target - num``,
+the difference required to complete the current number, ``num``, is stored with 
+the index as its value, we can look for the difference in this hash table for 
+a very low time cost**. For instance, the following steps would do so:
+
+```yaml
+nums: [1,2,3,4]
+target: 5
+iterations:
+  - k: 0
+    num: 1
+    diff: 4 # 5 - 1
+    num_in_map: false
+    map:
+      4: 0
+      # diff: index
+  - k: 1
+    num: 2
+    diff: 3 # 5 - 2
+    num_in_map: false
+    map:
+      4: 0
+      3: 1
+  - k: 2
+    num: 3
+    diff: 2 # 5 - 3
+    num_in_map: true
+    map:
+      4: 0
+      3: 1
+      2: 2
+```
+
+Better yet, this has at worst linear time complexity. An implementation of this
+is the following:
+
+```{.python include="__init__.py" snippet="solution"}
+```
+
+
+

@@ -24,12 +24,7 @@ class Solution:
 
         while True:
             # If both, decide which one to decrement/increment
-            if (
-                start_1 <= stop_1
-                and start_2 <= stop_2
-                # or (start_1 < stop_1 and start_2 == stop_2)
-                # or (start_2 < stop_2 and start_1 == stop_1)
-            ):
+            if start_1 <= stop_1 and start_2 <= stop_2:
                 a, b = nums1[start_1], nums2[start_2]
                 if a <= b:
                     left = a
@@ -45,11 +40,6 @@ class Solution:
                 else:
                     right = b
                     stop_2 -= 1
-            # elif start_1 == stop_1 and start_2 == stop_2:
-            #     left = max(nums1[start_1], nums2[start_2])
-            #     right = min(nums1[stop_1], nums2[stop_2])
-            #     break
-            # If one remains, find its median
             elif start_1 < stop_1:
                 left = nums1[start_1]
                 right = nums1[stop_1]
@@ -75,6 +65,61 @@ class Solution:
 
 
 # end snippet solution_initial
+
+
+# start snippet solution_2
+class Solution2:
+
+    def findMedianSortedArrays(
+        self,
+        nums1: list[int],
+        nums2: list[int],
+    ) -> float:
+
+        n1, n2 = len(nums1), len(nums2)
+        start_1, start_2 = 0, 0
+        stop_1, stop_2 = n1 - 1, n2 - 1
+        left, right = None, None
+
+        while True:
+            # If both, decide which one to decrement/increment
+            if start_1 <= stop_1 and start_2 <= stop_2:
+                a, b = nums1[start_1], nums2[start_2]
+                if a <= b:
+                    left = a
+                    start_1 += 1
+                else:
+                    left = b
+                    start_2 += 1
+
+                a, b = nums1[stop_1], nums2[stop_2]
+                if a >= b:
+                    right = a
+                    stop_1 -= 1
+                else:
+                    right = b
+                    stop_2 -= 1
+
+            # If one remains, find its median
+            elif start_1 <= stop_1:
+                left = nums1[start_1]
+                right = nums1[stop_1]
+
+                stop_1 -= 1
+                start_1 += 1
+            elif start_2 <= stop_2:
+                left = nums2[start_2]
+                right = nums2[stop_2]
+
+                stop_2 -= 1
+                start_2 += 1
+            else:
+                break
+
+        return (left + right) / 2
+
+
+# end snippet solution_2
 
 
 @pytest.fixture

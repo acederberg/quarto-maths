@@ -1,0 +1,80 @@
+---
+title: Delete Node from Linked List
+description: Delete nodes from a linked list with certain values.
+filters:
+  - include-code-files
+---
+
+
+## Analysis
+
+First, if the head has a bad value it must be removed and the head should be 
+updated to the next value. This process should repeat until a head with an 
+acceptable value is found. This head is saved to be returned.
+
+Once an acceptable head is found, unacceptable elements should be removed from 
+the remainder of the array. This involves delinking the inadmissible node from 
+its prior node, and linking the prior node to current nodes next node.
+
+When delinking, the prior node (``lastnode``) will not be updated on the loop, 
+as the current node (``node``) just delinked was the prior node. This is best 
+explained visually:
+
+
+```default
+Iteration before delinking of 2
+
+--> 1 ----------> 2 -----------> 3 ----------> 4
+    ^lastnode     ^node          ^node.next
+                   =lastnode.next
+
+
+Iteration after delinking of 2
+
+--> 1 ----------> 3 -----------> 4
+    ^lastnode     ^node          ^node.next
+
+
+Iteration after checking 3
+
+--> 1 ----------> 3 -----------> 4
+                  ^lastnode      ^node
+```
+
+
+## Solution
+
+First, it is necessary to implement a linked list. This was done in the prompt, 
+however I decided to add a bit more for my own tests:
+
+```{.python include="__init__.py" snippet="node"}
+```
+
+
+Then I implemented a solution roughly as described above. 
+
+
+```{.python include="__init__.py" snippet="solution"}
+```
+
+
+This solution had $99\%$ quantile runtime and a pathetic $21\%$ quantile memory
+usage. This is likely due to using ``set`` to make it easier to search for
+illegal node values - completing the delinks improved the memory performance 
+to the $44\%$ quantile, a drastic improvement - however it was at the cost of 
+one quantile of runtime. Removing the use of ``set`` resulted in the submission
+exceeding the time limit. The following solution includes delinking and 
+combines both loops into a single while loop:
+
+
+```{.python include="__init__.py" snippet="solution_2"}
+```
+
+This did drastically improve the memory usage - all the way to the $71\%$ 
+quantile - however this reduces the runtime quantile to a sad $27\%$.
+
+
+## Time Complexity
+
+This solution has linear time complexity, as each node is inspected exactly 
+once.
