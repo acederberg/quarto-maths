@@ -1,0 +1,39 @@
+---
+title: Determine if a Binary Tree is Balanced.
+---
+
+
+## Solutions
+
+## Initial Solution
+
+
+My initial solution did not rank very well. It ranked in the $15\%$ quantile 
+for runtime and $22\%$ for memory.
+
+
+```{.python include="__init__.py" snippet="solution_initial"}
+```
+
+
+Submission can be seen [here](https://leetcode.com/problems/balanced-binary-tree/submissions/1394467889/).
+
+
+## Improved Solution
+
+A few obvious optomizations can be made - for instance if the left tree is not
+balanced, then it is not necessary to check if the right tree is also balanced.
+
+I decided to look at some other solutions to see what optimizations could be 
+made. One in particular that I liked returned ``-1`` to indicate that a subtree
+was not balanced - this simplified the return type of the function and made it 
+necessary to compute the height at node only once the heights of both children
+were known and once it was known that the tree was balanced.
+
+
+This solution was far more performant in its runtime in the $79\%$ quantile but 
+with memory still at a sad $22\%$.
+
+
+```{.python include="__init__.py" snippet="solution"}
+```

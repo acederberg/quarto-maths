@@ -6,5 +6,7 @@ toc-depth: 3
 format:
   html:
     code-fold: false
+filters:
+  - include-code-files
 execute:
   cache: true

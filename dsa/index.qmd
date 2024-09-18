@@ -6,11 +6,25 @@ extra:
   image: https://avatars.githubusercontent.com/u/77076023?v=4
 keywords:
   - acederberg
-  - captura
-  - python
+  - datastructures
+  - algorithms
   - blog
+  - interview
   - quarto
-listing: default
+listing: 
+  contents:
+    - leetcode/index.qmd
+    - bst/index.qmd
+    - graph/index.qmd
+    - queue/index.qmd
+    - start/index.qmd
 page-layout: full
 title-block-banner: false
 ---
+
+
+Here I share my notes on data structures an algorithms. Such problems are 
+common part of technical interviews for software developers and can provide
+insight into how to write performant code. Some subsections here are actually
+collections of articles, for instance the ``leetcode`` section.
+
