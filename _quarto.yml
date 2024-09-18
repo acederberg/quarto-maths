@@ -34,6 +34,8 @@ website:
         href: /kaggle
       - text: Posts
         href: /posts
+      - text: Algorithms
+        href: /dsa
       - text: Resume
         href: https://acederberg.io/resume
 theme:

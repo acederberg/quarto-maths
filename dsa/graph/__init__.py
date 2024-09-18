@@ -1,7 +1,6 @@
 import secrets
-from typing import Any, Callable, Generator
+from typing import Any, Generator
 
-import yaml
 from typing_extensions import Self
 
 from dsa import queue

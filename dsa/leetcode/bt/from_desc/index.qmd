@@ -1,7 +1,5 @@
 ---
 title: Binary Search Tree from Descriptions
-filters:
-  - include=code-files
 ---
 
 

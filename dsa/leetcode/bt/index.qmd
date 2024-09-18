@@ -1,6 +1,6 @@
 ---
-title: Leetcode Problems
-description: "@_acederberg's leetcode problems and notes."
+title: "Leetcode Problems: Binary Trees."
+description: "@_acederberg's leetcode problems and notes pertaining to binary trees."
 extra:
   url: /posts
   image: https://avatars.githubusercontent.com/u/77076023?v=4
@@ -10,10 +10,8 @@ keywords:
   - algorithms
   - leetcode
   - interview
-listing: 
-  contents:
-    - "bt/index.qmd"
-    - "*.qmd"
+listing: default
 page-layout: full
+title-block-banner: true
 ---
 
