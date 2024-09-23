@@ -1,0 +1,109 @@
+---
+# Note: This will run every time that a new release is published because of
+# `on`. Releasing can be controller through the github CLI like
+#
+name: Version.
+on:
+  workflow_dispatch:
+    inputs:
+      kind:
+        default: patch
+        required: true
+        description: |
+          Segment of the version to increment. A value of `tag` indicates 
+          that only the tag should be updated.
+        options:
+          - tag
+          - patch
+          - minor
+          - major
+
+      kind_tag:
+        default: alpha
+        required: true
+        description: | 
+          Tag of the new version. Cannot go backwards, ordered like
+          ``final > beta > alpha``. ``final`` indicates no tag.
+        options:
+          - final
+          - alpha
+          - beta
+      tag_message:
+        required: true
+        description: |
+          Tag message an release body.
+jobs:
+  bumpver:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout.  
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ensure Python is Installed.
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Cache Pip
+        uses: actions/cache@v3
+        id: bumpver-venv
+        with:
+          path: .venv
+          key: ${{ runner.os }}-venv-release
+
+      - name: Install Dependencies.
+        id: bumpver-depends
+        run: |
+          python3 -m venv .venv
+
+          source .venv/bin/activate
+          python3 -m pip install poetry bumpver
+
+      # NOTE: This will not be published so it is fine that it happens at this
+      #       stage.
+      - name: Build and Verify.
+        id: bumpver-build-and-verify
+        run: |
+          source .venv/bin/activate
+
+          echo "## Build\n\n~~~stdout" >> $GITHUB_STEP_SUMMARY
+          poetry build >> $GITHUB_STEP_SUMMARY
+          echo "~~~\n\n## Twine Check\n\n~~~stdout" >> $GITHUB_STEP_SUMMARY
+          poetry check >> $GITHUB_STEP_SUMMARY
+          echo "~~~" >> $GITHUB_STEP_SUMMARY
+
+      # NOTE: Poetry does have versioning capabilities however they do not 
+      #       appear to have much of an advantage over bumpver.
+      - name: Increment Version.
+        id: bumpver-update
+        run: |
+          source .venv/bin/activate
+
+          echo "## Bumpver Data\n\n" >> $GITHUB_STEP_SUMMARY
+          echo "- kind: ${{ github.event.inputs.kind }}" >> $GITHUB_STEP_SUMMARY
+          echo "- kind_tag: ${{ github.event.inputs.kind_tag }}" >> $GITHUB_STEP_SUMMARY
+
+          git config user.name "github-actions"
+          git config user.email "<>"
+
+          if [[ "${{ github.event.inputs.kind}}" == "tag" ]];
+          then
+            python -m bumpver update \
+              --tag "${{ github.event.inputs.kind_tag }}" \
+              --tag-message "${{ github.event.inputs.tag_message }}" \
+              --commit
+          else
+            python -m bumpver update "--${{ github.event.inputs.kind }}" \
+              --tag "${{ github.event.inputs.kind_tag }}" \
+              --tag-message "${{ github.event.inputs.tag_message }}" \
+              --commit
+          fi
+            
+          git push
+          git push --tags
+
+
