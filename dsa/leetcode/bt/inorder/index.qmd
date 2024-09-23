@@ -1,0 +1,117 @@
+---
+title: Binary Tree Inorder Traversal
+decsription: Traverse a binary tree in inorder order.
+---
+
+
+[The prompt may be found on leetcode](https://leetcode.com/problems/binary-tree-inorder-traversal/description/).
+
+
+1. Iterate over the current nodes left subtree,
+2. Iterate the node itself,
+3. Iterate the nodes right subtree.
+
+
+## Analysis
+
+The recursive solution is trivial, what is more tricky is the iterative 
+solution, which would likely involve a queue or a stack. The solution with the 
+stack is somewhat tricky to implement, but a drawing can help:
+
+```
+
+Iteration 1:
+  Left until no further left to go. 
+  Stack all nodes traversed going left.
+
+  stack = [A, B]
+
+    A 
+   /^\
+  B 0 C
+  ^  / \
+  1 D   E
+   / \
+  F   G
+
+  Unstack and  yield B, and choose its right node as the current node. 
+  
+Iteration 2:
+  There is no current node, and therefore nothing to add to the stack.
+
+  stack = []
+
+  So take ``A`` from the stack instead since the current node is none.
+  Yield A, and choose its right node as the current node. 
+
+Iteration 3:
+  The current node is C. Go left and C, D, and F to the stack.
+
+  stack = [C, D]
+
+    A 
+   / \
+  B   C
+     /^\
+    D 0 E
+   /^\
+  F 1 G
+  ^
+  2
+
+  Take F off of the stack, and yield it.
+  Now there is no current node.
+
+Iteration 4:
+  The current node does not exist, so we take D from the top of the stack.
+  Now G is the current node.
+  
+  stack = [C]
+
+Iteration 4.
+  The current node G is added to the stack, then removed and yielded since 
+  there is nothing to the left of it. 
+
+  There is nothing right of G, so the current node is none.
+  
+  stack = [C]
+
+Iteration 5:
+  There is no current node so C is take from the top of the stack.
+  C is yielded and the current node is E.
+
+  stack = []
+
+Iteration 6:
+  There is nothing left of E so nothing is added to the stack and E is yielded.
+  There is nothing right of E either, so the recursion should stop.
+```
+
+
+## Solutions
+
+### The Trival Solution
+
+I did two variations of the trivial solution. One using an iterator and another
+using a list to append to. I did this mostly to gain insights into performance.
+
+The iterator solution placed an an acceptable $80\%$ in runtime and $68\%$ in 
+memory usage.
+
+```{.python include="__init__.py" snippet="solution_trivial"}
+```
+
+The appending solution placed at an yucky $42\%$ in runtime and an abbominable 
+$18\%$ in memory usage.
+
+
+### The Nontrivial Solution
+
+The nontrivial solution was not nearly as performant as the trivial solution,
+with $64\%$ quantile in runtime and $18\%$ quantile in memory. However it is a 
+good exercise in using stacks.
+
+```{.python include="__init__.py" snippet="solution_nontrivial"}
+```
+
+

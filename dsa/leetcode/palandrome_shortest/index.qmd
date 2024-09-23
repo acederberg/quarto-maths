@@ -1,0 +1,142 @@
+---
+title: Palindrome Completion
+description: Completing a string to a palindrome with the minimal numer of characters.
+---
+
+
+This was meant to address the [Shortest Palindrome](https://leetcode.com/problems/shortest-palindrome/?envType=daily-question&envId=2024-09-20)
+question on stack exchange, however I did not notice that completions by adding
+to the back of the string were not permitted. There will be another post 
+detailing my solution to that problem. Here, the details of any completion are
+discussed.
+
+
+## Analysis
+
+### A few cases
+
+I have the thought that only terminal and initial palindromes are worth 
+searching for. To this end, I want to inspect a few cases first.
+
+
+#### Case 1: No Nontrivial Palindromes.
+
+```default
+abcd -----> abcd -----> abcd -----> abcd
+^            ^            ^            ^
+size=0      size=0      size=0    size=0
+biggest=a
+
+
+so complete around 'a' since it is the biggest initial palindrome.
+```
+
+
+#### Case 2: Significant Terminating Palindrome
+
+```default
+aaca ----> aaca ----> aaca ----> aaca
+^           ^           ^           ^
+size=0     size=0     size=1        size=0
+best_start=0          best_start=1
+best_stop=0           best_stop=3
+biggest=a             biggest=aca
+
+
+complete around index 2 since it is the biggest, i.e
+
+best[0 : start] + best[start: stop + 1]
+  = 'a' + 'aca' + 'a'
+```
+
+
+#### Case 3: No Significant Initial/Terminal Palindrome
+
+```default
+faacaab 
+ ^^^^^
+```
+
+
+#### Case 4: Significant Initial and Terminal Palindrome
+
+```default
+abbacdefgfedca
+^^^^ 
+   ^^^^^^^^^^^
+```
+
+
+### Algorithm
+
+In this case, it is clearly best to use the terminal palindrome.
+The algorithm I will try initially will go like
+
+1. Search the string for initial and terminal palindromes - ignore internal 
+   palindromes - and if the entire string is a palindrome return it.
+2. Reflect around the terminal or initial palindrome, whichever is larger. 
+   There will always be such a palindrome, because a single character is 
+   trivially a palindrome.
+
+To elaborate on 2, if $s=a_0a_1a_2a_3...a_n$, and $a_k...a_n$ is bigger than the 
+initial palindrome, then the completion is
+
+\begin{equation}
+  \color{green}a_0a_1...a_{k-1} \color{red}a_k...a_n \color{blue} a_{k-1}..a_1a_0
+\end{equation}
+
+otherwise if the initial palindrome $a_0...a_j$ is the bigger palindrome, then
+
+\begin{equation}
+  \color{blue}a_na{n-1}...a{j+1}\color{red}a_0...a_j\color{green}a_{j+1}...a{n-1}a_n
+\end{equation}
+
+Note that in the above, the uncolored section is the compliment of the 
+palindrome in $s$, the red section is the best palindrome in $s$, and the blue 
+section is the reflection of the compliment of the palindrome.
+
+
+The next question is how to find a palindrome efficiently. It is easy to find
+an odd/even palindrome starting from some character in the string, however 
+could optimizations be made to look for both simultaniously.
+
+
+### Finding the Initial/Terminal Palindrome
+
+My initial solution looks at every character in $s$ - this is rather expensive
+in terms of runtime and will likely find many useless palindromes *(those which
+are neither terminal nor initial)*.
+
+To look for an initial palindrome, the initial character should be looked for 
+elsewhere in the string and its locations recorded. For each such location, a
+palindrome of that particular radius should be searched for. Further, since the
+locations of such characters are known, it is immediatly known if the candidate
+string will be an even/odd palindrome - and, in fact, this has no bearing on 
+the check. 
+
+
+## Solutions
+
+### Initial Solution
+
+My initial solution passed almost all of the test cases, but was rather slow 
+and timed out on one of the final test cases.
+
+```{.python include="__init__.py" snippet="solution_initial"}
+```
+
+This is because ``searchPalindrome`` is terribly slow, and does not leverage
+the builtin functionality of python. Further, as mentioned in the section about
+finding the initial and terminal palandromes, there is a great deal of wasted
+effort looking for palandromes that cannot be used to complete in any efficient
+way.
+
+
+### Improved Solution
+
+My improved solution used 
+
+
+```{.python include="__init__.py" snippit="solution"}
+```
+

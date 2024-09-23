@@ -1,0 +1,22 @@
+---
+title: Palindrome Completion
+description: Completing a string to a palindrome with the minimal numer of characters.
+---
+
+For [the leetcode daily 'shortest palindrome'](https://leetcode.com/problems/shortest-palindrome/submissions/1399931966/) question.
+
+
+## Analysis
+
+It is relatively easy to find a trivial solution - first, check is the entire
+string is a palindrome, then the ``n-1`` substring, and so on. Whenever a 
+palandrome is found, reverse the remainder of the string and throw it in front.
+
+
+## Solutions
+
+### The Trivial Solution
+
+```{.python include="actual.py" snippet="solution_trivial"}
+```
+
