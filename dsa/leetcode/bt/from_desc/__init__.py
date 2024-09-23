@@ -21,7 +21,12 @@ class TreeNode:
         self.right = right
 
     @classmethod
-    def fromDict(cls, values: dict[str, Any]) -> Self:
+    def fromDict(cls, values: dict[str, Any] | int | None) -> Self | None:
+        if values is None:
+            return None
+        elif isinstance(values, int):
+            return cls(values)
+
         args = dict(val=values["value"])
         if "left" in values:
             args["left"] = cls.fromDict(values["left"])

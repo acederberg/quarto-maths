@@ -1,0 +1,44 @@
+
+Divide and conquer! A big subproblem can be made into many subproblems.
+
+
+```default
+Main problem becomes subproblems
+
+      2+3*5-4 -> 2+3*(5-4)
+     /       \
+(2+3)*5-4    2+(3*5)-4
+
+The subproblems become complete expressions:
+
+
+         (2+3)*5-4           
+          /     \             
+(2+3)*(5-4)    ((2+3)*5)-4
+ 
+         2+(3*5)-4        
+          /     \             
+(2+(3*5))-4     2+((3*5)-4)
+                ^^^^^^^^^^^ A
+
+
+         2+3*(5-4) 
+        /         \
+2+(3*(5-4))       2+(3*(5-4))
+^^^^^^^^^^^ A
+
+
+some answers match and are ommited.
+
+(2+3)*(5-4)     = 5 * 1
+((2+3)*5)-4     = 25 - 4
+(2+(3*5))-4     = 17 - 4
+2+((3*5)-4)     = 2 + 11
+
+2+(3*(5-4))     = 6
+2+(3*(5-4))
+
+```
+
+
+The next question is how to parse this.
