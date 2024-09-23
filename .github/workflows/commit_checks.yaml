@@ -90,7 +90,7 @@ jobs:
 
       - run: |
           if ( \
-            [ "${{ steps.mypy_check_tests.outcome }}" != "success" ] \
+            [ "${{ steps.mypy_check.outcome }}" != "success" ] \
             || [ "${{ steps.ruff.outcome }}" != 'success' ]
           ); then
             echo "One or more checks failed. See the summary for details."
