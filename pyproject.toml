@@ -28,23 +28,16 @@ pyyaml = "^6.0.2"
 pyarrow = "^17.0.0"
 torch = {version = "^2.4.1+cpu", source = "pytorch_cpu"}
 torchvision = {version = "^0.19.1+cpu", source = "pytorch_cpu"}
+pytest = "^8.3.3"
 
 
 [tool.poetry.group.ci.dependencies]
 bumpver = "^2023.1129"
 mypy = "^1.11.2"
 ruff = "^0.6.7"
-
-
-
-[tool.poetry.group.dev.dependencies]
 python-lsp-server = "^1.11.0"
 pandas-stubs = "^2.2.2.240909"
 
-
-
-[tool.poetry.group.test.dependencies]
-pytest = "^8.3.3"
 
 [[tool.poetry.source]]
 name = "pytorch_cpu"
