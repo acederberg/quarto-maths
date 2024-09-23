@@ -18,7 +18,7 @@ class SolutionTrivial:
 class Solution:
     def twoSum(self, nums: list[int], target: int) -> list[int]:
 
-        memo = dict()
+        memo: dict[int, int] = dict()
         for k, num in enumerate(nums):
 
             diff = target - num

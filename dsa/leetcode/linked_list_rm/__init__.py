@@ -55,7 +55,7 @@ class Solution:
                 break
 
             nodelast = node
-            node = node.next
+            node = node.next  # type: ignore[assignment]
 
         head_final = node
         if head_final is None or head_final.next is None:
@@ -67,10 +67,10 @@ class Solution:
 
             if node.val in hashed:
                 nodelast.next = node.next
-                node = node.next
+                node = node.next  # type: ignore[assignment]
             else:
                 nodelast = node
-                node = node.next
+                node = node.next  # type: ignore[assignment]
 
         return head_final
         # end snippet solution
@@ -99,16 +99,16 @@ class Solution2:
                     continue
 
                 nodelast = node
-                node = node.next
+                node = node.next  # type: ignore[assignment]
                 nodelast.next = None
             elif node.val in hashed:
                 nodelast.next = node.next
                 node.next = None
 
-                node = nodelast.next
+                node = nodelast.next  # type: ignore[assignment]
             else:
                 nodelast = node
-                node = node.next
+                node = node.next  # type: ignore[assignment]
 
         return head_final
         # end snippet solution_2

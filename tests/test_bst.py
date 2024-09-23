@@ -4,7 +4,7 @@ import random
 import pytest
 
 from dsa.bst import Node
-from tests.conftest import ASSETS, STASHKEY_TREE, STASHKEY_TREE_KEYS
+from tests.conftest import ASSETS, STASHKEY_TREE_KEYS
 
 
 def test_basic():

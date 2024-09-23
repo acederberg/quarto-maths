@@ -51,7 +51,7 @@ class Solution:
         # NOTE: Order matters since ``abs`` is not applied.
         # NOTE: Compare the first and final entries since the will not be
         #       compared in the above loop.
-        if diff_best > (diff := self.evalBest(minutes_first, minutes_current)):
+        if diff_best > (diff := self.evalBest(minutes_first, minutes_current)):  # type: ignore
             diff_best = diff
 
         return diff_best

@@ -41,7 +41,7 @@ class SolutionInitial:
 
     def diffWaysToCompute(self, expression: str) -> list[int]:
         pieces = self.parse(expression)
-        self.conquer(pieces, answers := set())
+        self.conquer(pieces, answers := set())  # type: ignore[var-annotated]
         return list(eval(thing) for thing in answers)
         # end snippet solution_initial
 
@@ -89,7 +89,7 @@ class Solution:
 
     def diffWaysToCompute(self, expression: str) -> list[int]:
 
-        answers = set()
+        answers: set[str] = set()
         return list(self.conquer(*self.parse(expression), answers=answers))
         # end snippet solution_initial
 
