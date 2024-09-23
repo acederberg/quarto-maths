@@ -37,7 +37,7 @@ class SolutionTrivial2:
             self._inorderTraversal(root.right, nodes)
 
     def inorderTraversal(self, root: TreeNode | None) -> list[int]:
-        vals = list()
+        vals: list[int] = list()
         if root is None:
             return vals
 
@@ -51,8 +51,8 @@ class SolutionTrivial2:
 class Solution:
     def _inorderTraversal(self, root: TreeNode):
 
-        stack = []
-        node = root
+        stack: list[TreeNode] = []
+        node: TreeNode | None = root
         while stack or node is not None:
             # If left is found, keep going left
             while node is not None:

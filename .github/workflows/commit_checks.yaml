@@ -68,23 +68,13 @@ jobs:
           python -m pip install poetry mypy ruff
           poetry install
 
-      - name: MyPy Check Source.
-        id: mypy_check_src
+      - name: MyPy Check.
+        id: mypy_check
         run: |
           source .venv/bin/activate
 
           echo -e "## MyPy \`./src\`\n\n~~~stdout" >> $GITHUB_STEP_SUMMARY
-          poetry run mypy --config-file pyproject.toml --pretty ./src >> $GITHUB_STEP_SUMMARY
-          echo -e "~~~\n" >> $GITHUB_STEP_SUMMARY
-        continue-on-error: true
-
-      - name: MyPy Check Tests.
-        id: mypy_check_tests
-        run: |
-          source .venv/bin/activate
-
-          echo -e "## MyPy \`./tests\`\n\n~~~stdout" >> $GITHUB_STEP_SUMMARY
-          poetry run mypy --config-file pyproject.toml --pretty ./tests >> $GITHUB_STEP_SUMMARY
+          poetry run mypy --config-file pyproject.toml --pretty . >> $GITHUB_STEP_SUMMARY
           echo -e "~~~\n" >> $GITHUB_STEP_SUMMARY
         continue-on-error: true
 
@@ -100,8 +90,7 @@ jobs:
 
       - run: |
           if ( \
-            [ "${{ steps.mypy_check_src.outcome }}" != "success" ] \
-            || [ "${{ steps.mypy_check_tests.outcome }}" != "success" ] \
+            [ "${{ steps.mypy_check_tests.outcome }}" != "success" ] \
             || [ "${{ steps.ruff.outcome }}" != 'success' ]
           ); then
             echo "One or more checks failed. See the summary for details."

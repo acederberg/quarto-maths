@@ -116,7 +116,7 @@ class Node:
             out["weight"] = _weight
 
         if _depth < depth:
-            out["neighbors"] = [
+            out["neighbors"] = [  # type: ignore[assignment]
                 node._to_dict(visited, depth, _weight=_weight, _depth=_depth + 1)
                 for _weight, node in self.neighbors
                 if node not in visited
@@ -128,8 +128,8 @@ class Node:
 def dijkstra(node_start: Node, node_stop: Node):
 
     def key(node: Node, weight: int, next_node: Node):
-        next_node.color = weight + node.color
-        return weight + node.color
+        next_node.color = weight + node.color  # type: ignore[operator]
+        return weight + node.color  # type: ignore[operator]
 
     node = node_start
     node.color = 0

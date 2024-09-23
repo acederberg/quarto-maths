@@ -128,6 +128,8 @@ class SolutionGoodmem:
                 root.left = items[1]
 
             return root
+
+        return None
         # end snippet solution
 
 
@@ -168,6 +170,8 @@ class Solution:
         for value in nodes:
             if value not in children:
                 return nodes[value]
+
+        return None
         # end snippet solution_spoiled
 
 
@@ -217,6 +221,7 @@ cases = (
 def test_tree():
 
     root = TreeNode.fromDict(treedict)
+    assert root is not None
     assert root.val == 50
 
     assert root.toDict() == treedict
@@ -231,6 +236,7 @@ def test_solution(
 
     got = solution.createBinaryTree(question)
     answer_root = TreeNode.fromDict(answer)
+    assert answer_root is not None and got is not None
 
     print("======================================")
     print("answer")

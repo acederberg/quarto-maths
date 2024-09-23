@@ -1,7 +1,6 @@
 from typing import Any, Iterator
 
 import pytest
-from typing_extensions import Self
 
 from dsa.leetcode.bt import is_balanced
 from dsa.leetcode.bt.from_desc import TreeNode
@@ -57,6 +56,8 @@ def test_solution(
     question: dict[str, Any],
 ):
     root = TreeNode.fromDict(question)
+    assert root is not None
+
     root_answer = solution.balanceBST(root)
 
     assert solution.isBalanced(root_answer)
