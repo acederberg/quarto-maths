@@ -1,0 +1,32 @@
+---
+title: 'Daily Question 9/24/2024: Longest Common Prefix.'
+description: ''
+---
+
+The problem statement may be found [here](https://leetcode.com/problems/find-the-length-of-the-longest-common-prefix).
+
+
+## Solutions
+
+### Trivial Solution
+
+The trivial solution was terribly slow and timed out. Here it is.
+
+```{.python include="__init__.py" snippet="solution_trivial"}
+```
+
+
+### Trie Solution
+
+Using a trie is very effective since it takes linear time to build the trie
+and linear time to search it. First, below is the trie implementation:
+
+
+```{.python include="__init__.py" snippet="trie"}
+```
+
+
+This places in the $59\%$ for runtime $30\%$ quantile for memory. 
+
+
+<!-- ### Other Solutions -->
