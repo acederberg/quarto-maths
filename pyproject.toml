@@ -60,8 +60,8 @@ push            = false
 
 [tool.bumpver.file_patterns]
 "pyproject.toml" = ['current_version = "{version}"', 'version = "{version}"']
-"docker/compose.yaml" = ["image: acederberg.io/quarto-blog-development:{version}"]
-"docker/compose.prod.yaml" = ["image: acederberg.io/quarto-blog-production:{version}"]
+"docker/compose.yaml" = ["image: acederberg/blog-dev:{version}"]
+"docker/compose.prod.yaml" = ["image: acederberg/blog:{version}"]
 
 
 [tool.mypy]
