@@ -1,0 +1,100 @@
+---
+title: 'Daily Question 09/25/2024: Sum of Prefix Scores of Strings'
+description: ''
+---
+
+
+The problem statement may be found [on leetcode](https://leetcode.com/problems/sum-of-prefix-scores-of-strings).
+
+
+## Analysis
+
+### Dynamic Programming Solution
+
+This is pretty clearly a situation where using a trie is very helpful. I 
+already implemented a trie for yesterdays problem but decided to update the 
+``terminates`` attribute to keep count of repeated additions since repeats may 
+show up in the list. More or less, the answer is the sum  of ``terminates`` on 
+the subtree for each prefix for each word. For instance
+
+```yaml
+words: ["ab", "abc", "abf", "b", "bc"]
+drawing: |
+             a  b
+            /   ^\
+           b      c
+          /^\     ^
+         c   f
+         ^   ^
+solution: [6, 7, 1, 2, 3]
+#[3 + 3, 3 + 3 + 1, 3 + 3 + 1, 2, 2 + 1]
+```
+
+
+#### Counting the Number of Entries for a Subtree.
+
+1. Given a prefix, the tree should be traversed until this prefix is matched. 
+   If it is not, then return 0.
+
+2. Count the number of terminating nodes on the subtrees.
+
+
+#### Counting the Number of Entries for a Subree for a Word
+
+1. Start with the longest prefix. Count all entries bellow and memoize or use 
+   memoized result. 
+2. Truncate the prefix by one. Count all entries bellow that. This will involve
+   calculating entries in any sibling trees, which should be remembered.
+3. Repeat 2.
+
+
+#### Repeated Words
+
+When a word is repeated, it is useful to use the ``terminates`` attribute as an 
+integer.
+
+
+### Improved Solution
+
+Since the ``terminates`` value is incremented every time a value that has 
+occured is reinserted, then it makes since to make a trie of prefixes, e.g.
+
+```
+  a   ->       a   ->    a
+ /^           /^        /^
+b 1          b 2       b 3
+^           /^        /^\
+1          c 2       c 3 f
+           ^         ^   ^
+           1         1   1
+```
+
+
+and determine the sum over the path to each word.
+
+
+## Solution
+
+The trie implementation is as follows:
+
+```{.python include="../longest_pfx/__init__.py" snippet="trie_min"}
+
+```
+
+### The Top Down Dynamic Programming Solution
+
+The following solution works, but can be optimized. Unfortunately, in one case 
+the solution ran out of memory. This goes to show that dynamic programming is
+not always the solution.
+
+```{.python include="__init__.py" snippet="solution_initial"}
+```
+
+
+### The Improved Solution
+
+This solution placed in the $50\%$ quantile of runtime and $70\%$ quantile of
+runtime:
+
+```{.python include="__init__.py" snippet="solutiond"}
+```

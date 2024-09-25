@@ -1,0 +1,46 @@
+---
+title: "Extra Characters in String: Daily Challenge 09/24/2024"
+description: ""
+---
+
+See the leetcode problem statement [here](https://leetcode.com/problems/extra-characters-in-a-string/submissions/1400883479).
+
+I am doing this one the day after. I cannot lie - I was stumped when I saw this
+question yesterday and so I read the editorial today. This post will serve as 
+my notes.
+
+
+## Analysis
+
+The algorithm is roughly:
+
+1. Start from the beginning of the string. Assume that the first character is
+   bad and recursively check for substrings in the dictionary as follows: 
+
+   - When the trivial substring is reached, there is nothing to look through,
+     so there are no extra characters, otherwise go do 1.
+   - Then for each such substring, iterate through the substring's substrings 
+     in increasing order - when a word is found, do this for the remaining part 
+     of the string and keep the number of extra characters from this start 
+     point as the number of extra characters if it beats that found by 1.
+
+
+<!-- This can be done because it is easy to check very small cases, for instance if -->
+<!-- the dictionary only has words of lengths two: -->
+<!---->
+<!-- - If the question is the empty string, then there are no extra characters. -->
+<!-- - If the question is a single character, then there is either $1$ or $0$ extra -->
+<!--   characters. -->
+<!-- - If the question is two characters, then only words of length two will fit in. -->
+<!-- - If the question is three characters, we can check the  -->
+
+
+
+## Solution
+
+My implementation is very much inspired by the editorial. So it is no surprise
+that it did reasonably well with $76\%$ quartile in runtime and $58\%$ in 
+memory.
+
+```{.python include="__init__.py" snippet="solution"}
+```
