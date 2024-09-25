@@ -26,27 +26,27 @@ pyright = "^1.1.377"
 scikit-learn = "^1.5.1"
 pyyaml = "^6.0.2"
 pyarrow = "^17.0.0"
+pytest = "^8.3.3"
+
+
+[tool.poetry.group.torch.dependencies]
 torch = {version = "^2.4.1+cpu", source = "pytorch_cpu"}
 torchvision = {version = "^0.19.1+cpu", source = "pytorch_cpu"}
 
 
 [tool.poetry.group.ci.dependencies]
 bumpver = "^2023.1129"
-
-
-
-[tool.poetry.group.dev.dependencies]
+mypy = "^1.11.2"
+ruff = "^0.6.7"
 python-lsp-server = "^1.11.0"
+pandas-stubs = "^2.2.2.240909"
 
-
-
-[tool.poetry.group.test.dependencies]
-pytest = "^8.3.3"
 
 [[tool.poetry.source]]
 name = "pytorch_cpu"
 url = "https://download.pytorch.org/whl/cpu"
 priority = "explicit"
+
 
 [tool.bumpver]
 current_version = "0.0.3"
@@ -62,6 +62,11 @@ push            = false
 "docker/compose.yaml" = ["image: acederberg.io/quarto-blog-development:{version}"]
 "docker/compose.prod.yaml" = ["image: acederberg.io/quarto-blog-production:{version}"]
 
+
+[tool.mypy]
+overrides = [
+  {module = "kagglehub",ignore_missing_imports=true},
+]
 
 [build-system]
 requires = ["poetry-core"]

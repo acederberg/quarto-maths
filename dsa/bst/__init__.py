@@ -190,7 +190,7 @@ class Node:
                 best = node
                 diff_best = diff
 
-        return best
+        return best  # type: ignore[return-value]
 
     def _depth(self, depth_last: int = 0, depth_best: int = 0) -> int:
 

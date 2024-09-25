@@ -61,7 +61,7 @@ class Solution:
             else:
                 break
 
-        return (left + right) / 2
+        return (left + right) / 2  # type: ignore[operator]
 
 
 # end snippet solution_initial
@@ -116,7 +116,7 @@ class Solution2:
             else:
                 break
 
-        return (left + right) / 2
+        return (left + right) / 2  # type: ignore[operator]
 
 
 # end snippet solution_2

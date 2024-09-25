@@ -4,7 +4,6 @@ import pathlib
 
 import kagglehub
 import pandas as pd
-from pandas.api.types import CategoricalDtype
 
 DATASET_ID = "robikscube/zillow-home-value-index"
 
@@ -29,7 +28,7 @@ def load_data(data_dir: pathlib.Path) -> pd.DataFrame:
 
 def clean_data(data: pd.DataFrame) -> pd.DataFrame:
 
-    data.columns = [column.lower().replace(" ", "_") for column in data.columns]
+    data.columns = [column.lower().replace(" ", "_") for column in data.columns]  # type: ignore[assignment]
     data.index = pd.to_datetime(data.index)
     data["year"] = data.index.year
     data["month"] = data.index.month
@@ -39,7 +38,7 @@ def clean_data(data: pd.DataFrame) -> pd.DataFrame:
 
 def split_data(data: pd.DataFrame):
     """Want to try to predict the final 5 years of data."""
-    return data[:"2019-07-01"], data["2019-07-01":]
+    return data[:"2019-07-01"], data["2019-07-01":]  # type: ignore[misc]
 
 
 # end snippet setup
