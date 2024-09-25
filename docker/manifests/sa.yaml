@@ -1,0 +1,110 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: blog
+  annotations:
+    kubernetes.io/enforce-mountable-secrets: "true"
+  labels:
+    acederberg.io/tier: browser
+    acederberg.io/from: kubectl
+    acederberg.io/component: blog
+
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: blog-gh-act
+  namespace: blog
+  labels:
+    acederberg.io/tier: browser
+    acederberg.io/from: kubectl
+    acederberg.io/component: blog
+
+
+--- 
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: blog-gh-act
+  namespace: blog
+rules:
+  - apiGroups:
+      - ''
+      - apps
+    resourceNames:
+      - blog
+    resources:
+      - deployments
+      - replicasets
+    verbs:
+      - create
+      - get
+      - update
+      - watch
+
+
+--- 
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: blog-gh-act
+  namespace: blog
+roleRef: 
+  kind: ClusterRole
+  name: blog-gh-act 
+subjects:
+  - kind: ServiceAccount
+    name: blog-gh-act
+    namespace: blog
+  
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blog
+  namespace: blog
+  labels:
+    acederberg.io/tier: browser
+    acederberg.io/from: kubectl
+    acederberg.io/component: blog
+spec:
+  selector:
+    acederberg.io/tier: browser
+    acederberg.io/from: kubectl
+    acederberg.io/component: blog
+  ports:
+    - targetPort: 8080
+      port: 80
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: blog
+  namespace: blog
+  labels:
+    acederberg.io/tier: browser
+    acederberg.io/from: kubectl
+    acederberg.io/component: blog
+spec:
+  tls:
+    certResolver: letsencrypt
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: HOST(`blog.acederberg.io`)
+      middlewares:
+        - name: traefik-ratelimit
+          namespace: traefik
+        - name: traefik-error-pages
+          namespace: traefik
+      services:
+        - kind: Service
+          name: blog
+          namespace: blog
+          port: 80
