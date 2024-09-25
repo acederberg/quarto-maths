@@ -7,7 +7,7 @@ services:
       target: production
       secrets:
         - source: kaggle_json
-    image: acederberg/blog:0.0.3
+    image: acederberg/blog:0.0.4
     ports:
       - published: 8080
         target: 8080
