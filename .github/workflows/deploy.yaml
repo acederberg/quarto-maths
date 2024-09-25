@@ -34,6 +34,8 @@ jobs:
           load: true
 
   kube:
+    needs:
+      - build
     name: Deploy to Kubernetes
     runs-on: ubuntu-latest
     permissions:   
