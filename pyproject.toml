@@ -40,6 +40,7 @@ mypy = "^1.11.2"
 ruff = "^0.6.7"
 python-lsp-server = "^1.11.0"
 pandas-stubs = "^2.2.2.240909"
+types-pyyaml = "^6.0.12.20240917"
 
 
 [[tool.poetry.source]]
