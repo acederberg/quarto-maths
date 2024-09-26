@@ -60,6 +60,15 @@ subjects:
     namespace: blog
   
 
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: blog-gh-act-token
+  annotations:
+    kubernetes.io/service-account.name: blog-gh-act
+type: kubernetes.io/service-account-token
+
 
 ---
 apiVersion: v1
