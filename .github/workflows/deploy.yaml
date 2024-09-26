@@ -27,7 +27,7 @@ jobs:
           context: .
           file: ./docker/dockerfile
           target: builder
-          tags: acederberg/blog:latest
+          tags: 'acederberg/blog:${{ github.ref }}' 
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -64,5 +64,8 @@ jobs:
       #       used.
       - uses: Azure/k8s-deploy@v5
         with:
-           namespace: blog
-           manifests: docker/manifests/ci.yaml
+          namespace: blog
+          manifests: |
+            docker/manifests/ci.yaml
+          images: |
+            acederberg/blog:${{ github.ref }}
