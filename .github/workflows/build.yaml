@@ -26,7 +26,7 @@ jobs:
         with:
           context: .
           file: ./docker/dockerfile
-          target: builder
+          target: production
           tags: 'acederberg/blog:${{ github.ref_name }}' 
           push: true
           cache-from: type=gha

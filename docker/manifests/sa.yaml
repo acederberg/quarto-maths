@@ -33,16 +33,20 @@ rules:
   - apiGroups:
       - ''
       - apps
-    resourceNames:
-      - blog
-    resources:
+    resources: 
+      - namespaces
       - deployments
       - replicasets
+      - services
+      - secrets
     verbs:
-      - create
       - get
-      - update
+      - list 
       - watch
+      - create
+      - update
+      - patch
+      - delete
 
 
 --- 
@@ -65,6 +69,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: blog-gh-act-token
+  namespace: blog
   annotations:
     kubernetes.io/service-account.name: blog-gh-act
 type: kubernetes.io/service-account-token
