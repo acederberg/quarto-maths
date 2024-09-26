@@ -2,9 +2,6 @@ name: Commit Checks.
 on:
   workflow_dispatch:
   pull_request:
-    paths-ignore:
-      - '**.rst'
-  push:
 jobs:
   # NOTE: https://commitlint.js.org/guides/ci-setup.html
   lint-commit:

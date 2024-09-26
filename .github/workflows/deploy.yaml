@@ -27,7 +27,7 @@ jobs:
           context: .
           file: ./docker/dockerfile
           target: builder
-          tags: 'acederberg/blog:${{ github.ref }}' 
+          tags: 'acederberg/blog:${{ github.ref_name }}' 
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -56,6 +56,8 @@ jobs:
           method: serviceaccount
           k8s-url: ${{ secrets.K8S_URL }}
           k8s-secret: ${{ secrets.K8S_SA_TOKEN }}
+          secrets: |
+            kaggle_json=${{ secrets.KAGGLE_JSON }}
         id: setcontext
 
       # NOTE: Correct imagePullPolicy is necessary for this step to work. 
@@ -68,4 +70,4 @@ jobs:
           manifests: |
             docker/manifests/ci.yaml
           images: |
-            acederberg/blog:${{ github.ref }}
+            acederberg/blog:${{ github.ref_name }}
