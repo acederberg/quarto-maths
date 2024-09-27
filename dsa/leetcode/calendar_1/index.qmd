@@ -1,0 +1,223 @@
+---
+title: 'Daily Challenge 09/26/2024: Calendar 1.'
+description: '' 
+---
+
+
+The problem statement may be found [here](https://leetcode.com/problems/my-calendar-i).
+
+
+## Analysis
+
+
+### Definition: Schedulable
+
+Let all of the sorted start times be $\{a_n\}$ and stop times be $\{b_n\}$ for 
+$n\in \mathbb{N}$ where $0 \le n \le N$. If $[a, b]$ is the range in which 
+the event is to be scheduled, then it is necessary that, when there are at 
+least two scheduled items, $[a, b]$ is **internally schedulable** if there 
+exists an $j \in \mathbb{N}$ such that
+
+\begin{equation}
+  b_j \leq a \land b \leq a_{j+1} 
+\end{equation}
+
+Alternatively, $[a, b]$ is **externally schedulable** if $b < a_0$ or 
+$a > b_n$. An event is **schedulable** if it is internally or externally 
+schedulable.
+
+
+### Examples: Schedulable
+
+For instance, if $a_n = [10, 30, 50, 70]$ and $b_n = [20, 40, 60, 80]$ then 
+the item $[20, 30]$ satifies that $b_0 = 20 \leq a = 20 \leq 30 = a_1$. 
+
+When an item does fit it should not satify the equality, but instead its 
+negation. The negation is simply that, for all $n \in S$,
+
+\begin{equation}
+  b_j > a \lor b > a_{j+1}
+\end{equation}
+
+
+For instance for $a_n$ and $b_n$ as above, the item $[15, 25]$ has the 
+following values
+
+|$n$    | $b_n < 15$  | $a_{n+1} > 25$ | 
+|-------|-------------|----------------|
+|$0$    | $10 < 15$   | $20 > 25$      |
+|$1$    | $30 < 15$   | $40 > 25$      |
+|$2$    | $50 < 15$   | $60 > 25$      |
+|$3$    | $70 < 15$   | $80 > 25$      |
+
+: Evaluations {.striped .hover .dark}
+
+meaning that for any $j \in S$, one of the statements is false. However, 
+evaulating this statement clearly has linear run time, which is less than 
+desirable. 
+
+If instead the nearest left neighbor, $10$ of $15$ is found, then it is clear 
+that it cannot be scheduled since the events corresponding end is at $20$.
+
+
+### Proposition: Nearest Left Neighbor
+
+**The event $[a, b]$ is internally schedulable if and only if there is an 
+$n \in S$ such that $a - b_j$ is positive and minimal and $b \le a_{j+1}$.**
+
+
+$a - b_j$ positive and minimal implies that for all $k < j$
+
+\begin{equation}
+  0 \le a - b_j \lt a - b_k
+\end{equation}
+
+since $k < j$ implies $b_k \lt b_j$ (monotonicity). This further implies that
+
+\begin{multline}
+  \begin{split}
+    -a \le - b_j \lt -b_k \\
+    a \ge b_j \ge b_k 
+  \end{split}
+\end{multline}
+
+for all $k < j$. Combining this with $b \le a_{j+1}$ and $a < b$ we have
+
+\begin{equation}
+  b_j \le a \lt b \le a_{j+1}
+\end{equation}
+
+which implies that $[a, b]$ is internally schedulable. Conversly, $k < j$ 
+implies $b_k \lt b_j$ by monotonicity. Then 
+
+\begin{equation}
+  \begin{split}
+    b_k \lt b_j \le a \\
+    b_k - a \lt b_j - a \le 0 \\
+    a - b_k \gt a - b_j \ge 0
+  \end{split}
+\end{equation}
+
+so $a - b_j$ is minimal. The remainder of the properties are trivially true as 
+the result of definitions.
+
+
+### Algorithm: Schedulable
+
+The result above makes it easy to find a place to determine schedulability of
+an event $[a, b]$ in the amount of time required to find its left neighbor.
+
+The algorithm I propose is:
+
+0. (Trivially schedulable) If the schedule is empty, just insert the event and 
+   return ``True``.
+1. (Externally schedulable) If the end of the event is less than the earliest 
+   scheduled event, add the event to the begining and return ``True``. 
+2. (Externally schedulable) If the start of the event is after the end of the 
+   latest scheduled event, add the event to end and return ``True``.
+3. (Internally schedulable) Look for the closest left neighbor $b_j$ of $a$ 
+   using bisection. Check that $a$ happens after $b_j$ - if not return 
+   ``False``. If $j+1$ does not exceed the length of the schedule and 
+   $b \ge a_{j+1}$, then return ``False``. Otherwise, the event is schedulable
+   and should be inserted at index $j$.
+
+
+### Examples: Bisection
+
+Find 71s closest left neighbor in the following array of numbers:
+
+
+```default
+0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15
+
+10, 20, 25, 30, 33, 40, 49, 50, 54, 60, 53, 70, 72, 80, 81, 82
+^                           ^                               ^      
+st                          m                               sp
+
+10, 20, 25, 30, 33, 40, 49, 50, 54, 60, 53, 70, 72, 80, 81, 82
+                                ^           ^               ^
+                                st          m               sp
+
+10, 20, 25, 30, 33, 40, 49, 50, 54, 60, 53, 70, 72, 80, 81, 82
+                                            ^       ^       ^
+                                            st      m       st
+
+10, 20, 25, 30, 33, 40, 49, 50, 54, 60, 53, 70, 72, 80, 81, 82
+                                            ^   ^   ^
+                                            st  m   sp
+
+10, 20, 25, 30, 33, 40, 49, 50, 54, 60, 53, 70, 72, 80, 81, 82
+                                            ^   ^
+                                            st  sp, m = 11
+```
+
+
+Find 16s closest left neighbor:
+
+
+```default
+0   1   2   3   4   5   6
+
+1   7   15  31  63  127 255
+^           ^             ^
+st          m             sp
+
+1   7   15  31  63  127 255
+^   ^       ^
+st  m       sp
+
+1   7   15  31  63  127 255
+    ^   ^   ^
+    st  m   sp
+
+1   7   15  31  63  127 255
+        ^   ^
+        st sp, m=2
+```
+
+### Algorithm: Bisection
+
+Let $a_{start}$, $a_{middle}$, and $a_{end}$ be the start, middle, and end of 
+the range to be searched in the monotonic sequence $\{a_n\}_{n\inS}$. 
+$a_{middle}$ is to found by floor division of the sum of $a_{start}$ and 
+$a_end$. Let $a_{start} \le \xi \le a_{end}$ be the value we are trying to find 
+the left neighbor of.
+
+Finding the closest left neighbor of $a$ can be done as follows:
+
+1. Compute $b$ and find. If $\xi < b$ then look on the left side of $b$ and 
+   let $b=a$, otherwise look on the right side and let $b=c$.
+2. Repeat ``1`` until there is nothing between $a_{start}$ and $a_{stop}$.
+
+
+### Proposition: Bisection Complexity
+
+Let $\{a_n\}_{n\in S}$ be a monotonic sequence and $\xi$ be the target which 
+we must find the leftmost neighbor $a_j$ of. Bisection will find $a_j$ in 
+at most $log_2(|S|)$ time.
+
+Let $N = |S|$. On the zeroeth iteration the numer of points to inspect is $N$,
+on the first iteration it is reduced to $N / 2$ in the worst case. On the 
+$k$th iteration there will only be $N / 2^{k}$ entries to inspect. Further, 
+there must be at least two entries to inspect, so
+
+\begin{equation}
+  \begin{split}
+    \frac{N}{2 ^ k} > 2 \\
+      \implies N > 2 ^ {k+1} \\
+      \implies log_2(N) > k + 1
+  \end{split}
+\end{equation}
+
+
+## Implementation
+
+With all of the above in mind it was easy to put together a solution with 
+decent runtime. It placed in the $88\%$ quantile for runtime and $89\%$ 
+quantile for memory.
+
+
+```{.python include="__init__.py" snippet="solution"}
+```
+
+
