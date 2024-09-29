@@ -12,12 +12,15 @@ keywords:
   - interview
   - quarto
 listing: 
+  type: grid
   contents:
-    - leetcode/index.qmd
+    - path: leetcode/index.qmd
+      image: leetcode/icons/default.svg
     - bst/index.qmd
     - graph/index.qmd
     - queue/index.qmd
     - start/index.qmd
+  image-height: 256px
 page-layout: full
 title-block-banner: false
 ---

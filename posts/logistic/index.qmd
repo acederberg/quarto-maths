@@ -1,7 +1,7 @@
 ---
 title: "The Logistic Map and Chaos"
 description: "The logistic map: Animations and properties."
-image: thumb.png
+image: ./cobweb-rr-0.9.gif
 extra:
   url: /posts/logistic
   image: /posts/logistic/thumb.png

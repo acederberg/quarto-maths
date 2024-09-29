@@ -1,0 +1,74 @@
+---
+title: 'Daily Challenge 09/27/2024: Calendar 2.'
+description: ''
+image: ../leetcode.svg
+listing:
+  image-height: 128px
+draft: true
+---
+
+The problem statement may be found [here](https://leetcode.com/problems/my-calendar-ii).
+
+
+## Analysis
+
+See [yesterdays notes to catch up](../calendar_1).
+
+
+### Algorithm
+
+This is the same as yesterdays problem except that the implementation should 
+remember which times are certainly double booked. Let $P$ be all intervals 
+which are at least booked once and $Q$ be all intervals that are certainly
+booked twice. Let $\xi = [a, b]$ be the event to be scheduled.
+
+
+1. If there exists an interval $q \in Q$ such that $q \subset \xi$ then the
+   event may not be booked. This may be done for looking for the leftmost 
+   neighbor of $a \in Q$ and then checking the intervals where all points 
+   are less than $b$. This requirement is only that $\xi$ is $Q$ schedulable.
+
+2. Look for all intervals $p_k = (a_k, b_k) \in P$ such that $p_k \cap \xi \not = \emptyset$.
+   Insert $\xi \cap (\cup_k p_k)$ into $Q$ and insert $(a, a_1), (b_1, a_2), ..., (b_n, b)$ 
+   into $P$.
+   Alternatively, replace $p_k$ with $(a_0, a), (a, b), (b, b_n)$ or $(a_0, b_n)$
+   in $P$ and insert $(a, b_0), (a_1, b_1), ..., (a_n, b)$ to $Q$.
+
+
+### Example
+
+Lets try to schedule the events $[[10, 20], [50, 60], [10, 40], [5, 15], [5, 10], [25, 55]]$ 
+using the above algorithm. The first two items have no intersection so it 
+should be fine to put them all in $P$, some of the third item should go into $Q$:
+
+
+```default
+Iteration 2
+
+P: [10, 20], [50, 60]
+Q: []
+
+
+Iteration 3
+P: [10, 40], [50, 60]
+Q: [10, 20]
+
+Iteration 4
+Cannot insert [5, 15], it intersects with something in Q.
+
+Iteration 5
+P: [5, 10], [10, 40], [50, 60]
+Q: [10, 20]
+
+
+Iteration 6
+[25, 55] intersects with [10, 40] and [50, 60]. We can replace these with
+[10, 25], [25, 40], and [40, 60] or [10, 60]. 
+
+Using the formula, [25, 40] and [50, 55] should be inserted into Q.
+
+P: [5, 10], [10, 60]
+Q: [10, 20], [25, 40], [50, 55]
+```
+
+

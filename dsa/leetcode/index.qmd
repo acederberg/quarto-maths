@@ -2,8 +2,8 @@
 title: Leetcode Problems
 description: "@_acederberg's leetcode problems and notes."
 extra:
-  url: /posts
-  image: https://avatars.githubusercontent.com/u/77076023?v=4
+  url: /dsa/leetcode
+  image: ./leetcode.svg
 keywords:
   - acederberg
   - datastructures
@@ -14,6 +14,18 @@ listing:
   contents:
     - "bt/index.qmd"
     - "*.qmd"
+  type: grid
+  image-placeholder: ./icons/default.svg
+  image-height: 256px
+  # field-required:
+  #   - title
+  #   - description
+  #   - date
+  #   - date-modified
 page-layout: full
+image: ./leetcode.svg
 ---
 
+
+Here I have my solutions to many leetcode problems that I solve to practice and
+learn more about data structures and algorithms.

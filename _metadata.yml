@@ -1,6 +1,10 @@
 ---
 freeze: true
-author: Adrian Cederberg
+author: 
+  - name: Adrian Cederberg
+    url: acederberg.io
+    email: adrn.cederberg123@gmail.com
+    # degrees: BS
 toc: true
 toc-depth: 3
 format:

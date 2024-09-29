@@ -74,12 +74,12 @@ $a - b_j$ positive and minimal implies that for all $k < j$
 
 since $k < j$ implies $b_k \lt b_j$ (monotonicity). This further implies that
 
-\begin{multline}
+\begin{equation}
   \begin{split}
     -a \le - b_j \lt -b_k \\
     a \ge b_j \ge b_k 
   \end{split}
-\end{multline}
+\end{equation}
 
 for all $k < j$. Combining this with $b \le a_{j+1}$ and $a < b$ we have
 
@@ -178,7 +178,7 @@ st  m       sp
 ### Algorithm: Bisection
 
 Let $a_{start}$, $a_{middle}$, and $a_{end}$ be the start, middle, and end of 
-the range to be searched in the monotonic sequence $\{a_n\}_{n\inS}$. 
+the range to be searched in the monotonic sequence $\{a_n\}_{n\in S}$. 
 $a_{middle}$ is to found by floor division of the sum of $a_{start}$ and 
 $a_end$. Let $a_{start} \le \xi \le a_{end}$ be the value we are trying to find 
 the left neighbor of.

@@ -82,3 +82,13 @@ input[type='radio']:checked {
   filter: invert(1) !important;
   opacity: 0.1;
 }
+
+
+.quarto-grid-item p.card-img-top>img {
+  object-fit: fill !important;
+}
+
+/* .card-img-top img, */
+/* .card-img-top { */
+/*   height: 256px; */
+/* } */

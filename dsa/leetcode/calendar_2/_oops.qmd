@@ -1,0 +1,138 @@
+---
+title: 'Daily Challenge 09/27/2024: Calendar 2.'
+description: ''
+---
+
+The problem statement may be found [here](https://leetcode.com/problems/my-calendar-ii).
+
+
+## Analysis
+
+See [yesterdays notes to catch up](../calendar_1).
+
+
+### Definition: Triple Booked
+
+Let $S = [0, 1, ..., N]$, $T = [0, 1, ..., N]$ and suppose that 
+$P = \{(a_j, b_j): j\in S\}$ and $Q = \{(c_k, d_k): k\in T\}$ are such that
+
+<!--  $A = \{a_n: n \in S\}$,  -->
+<!-- $B = \{b_n: n \in S\}$, $C = \{c_n: n \in T\}$, and $D = \{d_n: n \in T\}$ -->
+<!-- be monotonic sequences where -->
+
+\begin{equation}
+  \begin{split}
+    a_0 \lt b_0 \le .. \le a_j \lt b_j \le ... \le a_N < b_N \\
+    c_0 \lt d_0 \le .. \le c_j \lt d_j \le ... \le c_M < d_N
+  \end{split}
+\end{equation}
+
+and for all $k \in T$ there is a $j \in S$ such that $[c_k, d_k] \cap [a_j, b_j] \not = \emptyset$.
+
+The event is **triply booked** if there exists a $j \in S$ and $k \in T$
+such that 
+
+\begin{equation}
+  [a_j, b_j) \cap [c_k, d_k) \cap [a, b) \not = \emptyset
+\end{equation}
+
+
+### Proposition
+
+An event $[a, b]$ is triply booked if and only if it is not schedulable in 
+$P$ or $Q$ with $[a_j, b_j) \cap [c_k, d_k) \not\equal\emptyset$.
+
+If $[a, b]$ is triply booked then there is a $k \in T$ and $j \in S$ such that
+$[a, b] \cap [a_j, b_j] \cap [c_k, d_k] \not \equal \emptyset$ thus
+
+\begin{equation}
+  \begin{split}
+    [a, b] \cap [a_j, b_j] \not \equal \emptyset 
+    [a, b] \cap [c_k, d_k] \not \equal \emptyset
+  \end{split}
+\end{equation}
+
+meaning that the event is not schedulable in either $P$ or $Q$. This should 
+hold the other way because of the condition that every event in $P$ should 
+intersect with an event in $Q$.
+
+
+### Algorithm
+
+This is essentially the same as the last, so checking of an event being 
+schedulable or not should be done as detailed in [calendar 1](../calendar_1).
+
+1. Check that $[a, b]$ is schedulable in $P$ - if it is, then schedule it.
+   If not, remember the conflict $[a_j, b_j]$.
+2. Check that $[a, b]$ is schedulable in $Q$ - if it is, then schedule it.
+   If not, remember the conflict $[c_k, d_k]$.
+3. Since there have been conflicts in both, check if the intersection of the 
+   conflicts is empty - if it is, then break the event in two and place the 
+   pieces where they fit. Otherwise, return ``False``.
+
+
+For step $3$, if the event must be broken apart
+
+
+```default
+Case 1:
+
+        in p                      in q
++------------------+      +-----------------+
+|                  |      |                 |
++---------+--------+------+--------+--------+
+a_j       a        b_j    c_k      b        d_k
+          ^^^^^^^^^^^^^^^^^
+          Into q          ^^^^^^^^^^
+                          Into p
+
+
+Case 2:
+
+        in q                      in p
++------------------+      +-----------------+
+|                  |      |                 |
++---------+--------+------+--------+--------+
+c_k       a        d_k    a_j      b        b_j
+          ^^^^^^^^^^^^^^^^^
+          Into p          ^^^^^^^^^^
+                          Into q
+```
+
+
+
+
+### Examples 
+
+Lets try to schedule the events $[[10, 20], [50, 60], [10, 40], [5, 15], [5, 10], [25, 55]]$ 
+using the above algorithm. The first two items have no intersection so it 
+should be fine to put them all in $P$, the third item should go into $Q$:
+
+```default
+P = [[10, 20], [50, 60]]
+Q = [[10, 40]]
+Out = [True, True, True]
+```
+
+The event $[5, 15]$ is not schedulable - it is not schedulable in $P$ or $Q$.
+However the event $[5, 10]$ has empty intersection in both $P$ and $Q$ (since
+we are using its half open interval).
+
+```default
+P = [[5, 10], [10, 20], [50, 60]]
+Q = [[10, 40]]
+Out = [True, True, True, False, True]
+```
+
+Final the event $[25, 55]$ has nonempty intersection in $P$ with $[50, 60]$ and 
+nonempty intersection in $Q$ with $[10, 40]$, however $[50, 60) \cap [10, 40] \eq \emptyset$,
+
+This gets the result ``[True, True, False, True, True]``, and the final values 
+of $P$ and $Q$ are
+
+```default
+P = [[5, 10], [10, 20], [25, 50], [50, 60]]
+Q = [[10, 40], [50, 55]]
+```
+
+

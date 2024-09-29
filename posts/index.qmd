@@ -10,7 +10,9 @@ keywords:
   - python
   - blog
   - quarto
-listing: default
+listing: 
+  type: grid
+  image-height: 256px;
 page-layout: full
 title-block-banner: false
 ---

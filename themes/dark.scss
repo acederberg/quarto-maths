@@ -1,8 +1,12 @@
 /*-- scss:rules --*/
 .animation img,
+.quarto-grid-item p.card-img-top>img,
 .figure img {
   filter: invert(0.87) hue-rotate(180deg) saturate(2)
 }
+
+
+
 
 .anim-controls button i,
 .anim-buttons button i .fa-flip-horizontal,
