@@ -1,0 +1,12 @@
+- size: 3
+  methods: ["push","push","pop","push","push","push","increment","increment","pop","pop","pop","pop"]
+  args: [[1],[2],[],[2],[3],[4],[5,100],[2,100],[],[],[],[]]
+  result: [null,null,2,null,null,null,null,null,103,202,201,-1]
+- size: 1
+  methods: ["push", "push", "push", "pop", "pop", "pop", "increment", "pop"]
+  args: [[1], [2], [3], [], [], [], [100, 100], []]
+  result: [null, null, null, 1, -1, -1, null, -1]
+- size: 12
+  methods: ["push","increment","increment","increment","push","push","push","increment","push","push","increment","pop","pop","push"]
+  args: [[83],[2,60],[9,61],[1,60],[82],[21],[58],[8,8],[22],[80],[1,64],[],[],[24]]
+  result: [null,null,null,null,null,null,null,null,null,null,null,80,22,null]

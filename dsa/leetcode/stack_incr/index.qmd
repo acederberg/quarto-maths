@@ -1,0 +1,95 @@
+---
+title: 'Daily Challenge 09/30/2024: Design a Stack With Increment Operation.'
+description: |
+  Design a stack that supports increment operations on its elements.
+extra:
+  leetcode:
+    url: https://leetcode.com/problems/design-a-stack-with-increment-operation
+    day: 2024-09-30
+    difficulty: medium
+    submissions: [1407482315, 1407537768]
+image: /icons/leetcode/medium-daily.svg
+date-created: 2024-09-30
+date-modified: 2024-09-30
+---
+
+
+Find [the problem statement on leetcode](https://leetcode.com/problems/design-a-stack-with-increment-operation).
+There will be no analysis on todays post as this problem was trivial and likely
+should have had a difficulty of ``easy`` instead of medium.
+
+
+## Solutions
+
+
+### Initial Solution
+
+My initial solution was a bit slow, ranking in the $40\%$ quantile for runtime 
+- however it did well in memory in the $87\%$ quantile.
+
+
+```{.python include="__init__.py" snippet="not_lazy"}
+
+```
+
+
+### Improved Solution
+
+Obviously the above solution has linear runtime with respect to the number of 
+elements incremented. I decided to read the editorial to see if there was a
+clever solution. This solution was so clever that in fact it reduced the time
+complexity of incrementing to be linear. This is done by maintaining only one
+entry for the increment and lazily computing the incremented value.
+
+The drawing bellow attempts to demonstrate this:
+
+```default
+
+stack = Stack(5)
+
+
+After stack.push(1), stack.push(2), stack.push(3), stack.push(4)
+
+Stack      | 1  | 2  | 3  | 4  | -1 |
+Increments | 0  | 0  | 0  | 0  | 0  |
+Pop        | 1  | 2  | 3  | 4  |
+
+
+After stack.increment(5, 5). Put 5 in the highest available index.
+
+Stack      | 1  | 2  | 3  | 4  | -1 |
+Increments | 0  | 0  | 0  | 5  | 0  |
+Pop        | 6  | 7  | 8  | 9  |
+
+
+After stack.increment(3, 5). Put 5 in the index for the third item.
+
+Stack      | 1  | 2  | 3  | 4  | -1 |
+Increments | 0  | 0  | 5  | 5  | 0  |
+Pop        | 11 | 12 | 13 | 9  |
+
+
+After stack.pop() should get 9 by adding the top to the increment. The 
+increment should be added to its left neighbor.
+
+Stack      | 1  | 2  | 3  | -1 | -1 |
+Increments | 0  | 0  | 10 | 0  | 0  |
+Pop        | 11 | 12 | 13 |
+
+
+stack.pop()
+Stack      | 1  | 2  | -1 | -1 | -1 |
+Increments | 0  | 10 | 0  | 0  | 0  |
+Pop        | 11 | 12 |
+```
+
+This solution performed much better in runtime, and placed in the $98\%$ for 
+runtime and a sad $18\%$ for memory. However, the memory used only increased by
+``1 MB``, so the decrease in memory performance is less sad than is apparent.
+
+
+```{.python include="__init__.py" snippet="solution"}
+
+```
+
+

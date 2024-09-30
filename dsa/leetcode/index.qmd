@@ -13,6 +13,8 @@ keywords:
   - leetcode
   - interview
 listing: 
+  sort:
+    - date-created
   contents:
     - "bt/index.qmd"
     - "*.qmd"

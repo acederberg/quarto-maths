@@ -1,6 +1,17 @@
 ---
 title: 'Daily Question 9/24/2024: Longest Common Prefix.'
-description: ''
+description: 'Use a trie to find the longest common prefix shared by elements in the product of two arrays.'
+image: /icons/leetcode/medium-daily.svg
+extra:
+  image: /icons/leetcode/medium-daily.svg
+  url: /dsa/leetcode/longest_pfx/
+  leetcode:
+    url: /problems/find-the-length-of-the-longest-common-prefix
+    difficulty: medium
+    day: 2024-9-24
+    submissions: [1401071203, 1401074114, 1401079635, 1401083162, 1401100343]
+date-created: 2024-09-24
+date-modified: 2024-09-24
 ---
 
 The problem statement may be found [here](https://leetcode.com/problems/find-the-length-of-the-longest-common-prefix).

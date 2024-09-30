@@ -1,8 +1,16 @@
 ---
 title: Zigzag
 description: Efficiently solving the 'zigzag'-ification of a string.
-filters:
-  - include-code-files
+image: /icons/leetcode/medium.svg
+extra:
+  image: /icons/leetcode/medium.svg
+  url: dsa/leetcode/zigzag/
+  leetcode:
+    url: /problems/zigzag-conversion/description/
+    difficulty: medium
+    submissions: [1392151458, 1392159214, 1392164303, 1392172591, 1392189767, 1392195457, 1392196200, 1392212005]
+date-created: 09-16-2024
+date-modified: 09-16-2024
 ---
 
 See [the problem here](https://leetcode.com/problems/zigzag-conversion).
