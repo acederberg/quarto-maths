@@ -2,8 +2,7 @@
 title: Minimum Time Difference
 description: |
   Given an array of ``HH:MM`` times, find the least difference.
-filters:
-  - include-code-files
+icons: /icons/leetcode/medium-daily.svg
 ---
 
 

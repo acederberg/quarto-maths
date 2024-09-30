@@ -1,7 +1,7 @@
 ---
 title: "Animations in Quarto Using Python"
 description: "About animations in quarto."
-image: thumb.png
+image: ./sine.gif
 extra:
   url: /posts/python-animation
   image: /posts/python-animation/thumb.png

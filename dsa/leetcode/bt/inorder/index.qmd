@@ -1,6 +1,7 @@
 ---
 title: Binary Tree Inorder Traversal
 decsription: Traverse a binary tree in inorder order.
+image: /icons/leetcode/easy.svg
 ---
 
 

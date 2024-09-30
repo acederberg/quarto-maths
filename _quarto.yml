@@ -4,7 +4,6 @@ project:
   resources:
     - ./robots.txt
     - ./posts/**/*.png
-
   output-dir: build
   preview:
     host: 0.0.0.0
@@ -15,7 +14,6 @@ website:
   title: "acederberg.io"
   site-url: https://quarto.acederberg.io
   description: "acederberg's quarto projects"
-
   # NOTE: https://icons.getbootstrap.com/
   navbar:
     background: success

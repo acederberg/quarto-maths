@@ -1,6 +1,8 @@
 ---
 title: Leetcode Problems
-description: "@_acederberg's leetcode problems and notes."
+description: |
+  Here I have my solutions to many leetcode problems that I solve to practice and
+  learn more about data structures and algorithms.
 extra:
   url: /dsa/leetcode
   image: ./leetcode.svg
@@ -15,7 +17,7 @@ listing:
     - "bt/index.qmd"
     - "*.qmd"
   type: grid
-  image-placeholder: ./icons/default.svg
+  image-placeholder: /icons/leetcode/default.svg
   image-height: 256px
   # field-required:
   #   - title
@@ -23,9 +25,8 @@ listing:
   #   - date
   #   - date-modified
 page-layout: full
-image: ./leetcode.svg
+image: /icons/leetcode/default.svg
+title-block-banner: true
 ---
 
 
-Here I have my solutions to many leetcode problems that I solve to practice and
-learn more about data structures and algorithms.

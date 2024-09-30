@@ -1,10 +1,10 @@
 ---
 title: How to Include Python Code From Files in Quarto
 description: Make it possible to import outside code into your quarto nodebooks.
-image: thumb.png
+image: /icons/quarto.svg
 extra:
   url: /examples/include-code-files
-  image: /examples/include-code-files/thumb.png
+  image: /icons/quarto.svg
 keywords:
   - quarto
   - python
@@ -13,18 +13,16 @@ keywords:
   - datascience
   - data
   - science
-filters: 
-  - include-code-files
 date: 2024-08-31
 date-modified: 2024-08-31
 ---
 
 
-It is possible to include code files using the [include-code-files](
-https://github.com/quarto-ext/include-code-files) extension for quarto. I 
-started doing this [from this stack exchange post](
-https://stackoverflow.com/questions/75751478/how-can-i-include-external-python-scripts-while-executing-their-codes-in-quarto). 
+It is possible to include code files using the [include-code-files]( https://github.com/quarto-ext/include-code-files) extension for quarto.
 For more on adding extensions, see [the documentation about extensions management](https://quarto.org/docs/extensions/managing.html).
+
+
+## Including Files
 
 First, in the front matter of your quarto document, add 
 
@@ -35,17 +33,14 @@ filters:
 ```
 
 
-Next, create ``example.py`` like
+Next, create ``example.py``  with the contents
 
 
-```sh
-echo "def main():" > example.py
-echo "  print(\"It works!\")" >> example.py
-echo "" >> example.py
-echo "if __name__ == \"__main__\": main()" >> example.py
+```{.python include="example.py"}
 ```
 
-and ensure it works using
+and ensure that ``example.py`` works using
+
 
 ```sh
 python ./example.py
@@ -68,19 +63,53 @@ which should render to
 ```
 
 
-``example.py`` can be run using the ``run`` jupyter magic commands:
+## Running Files
+
+``example.py`` can be run using the ``run`` jupyter magic commands like:
 
 
+````quarto
 ```{python}
-#| echo: false
 %run example.py
 ```
+````
 
 
 More about magic commands is available in the [jupyter documentation](https://ipython.readthedocs.io/en/stable/interactive/magics.html).
 Finally, with ``main`` in the local python globals, we can execute ``main``.
 
 
+````quarto
 ```{python}
 main()
 ```
+````
+
+
+## Including Snippets From Files
+
+Often, including the whole file is not desirable and only a part of the file 
+should be included. For instance if the conents of ``example.py`` are modified
+to make it
+
+
+```python
+# start snippet main
+def main():
+    print("It works!")
+    # end snippet main
+
+
+if __name__ == "__main__":
+    main()
+```
+
+
+the following code block in quarto will only include the ``main`` function 
+definition.
+
+
+````quarto
+```{.python include="eample.py" snippet="print"}
+```
+````

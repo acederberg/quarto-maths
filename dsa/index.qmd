@@ -1,6 +1,10 @@
 ---
 title: Data Structures and Algorithms Problems
-description: "@_acederberg's data structures and Algorithms problems."
+description: |
+  Here I share my notes on data structures an algorithms. Such problems are 
+  common part of technical interviews for software developers and can provide
+  insight into how to write performant code. Some subsections here are actually
+  collections of articles, for instance the ``leetcode`` section.
 extra:
   url: /posts
   image: https://avatars.githubusercontent.com/u/77076023?v=4
@@ -15,19 +19,15 @@ listing:
   type: grid
   contents:
     - path: leetcode/index.qmd
-      image: leetcode/icons/default.svg
+      image: /icons/leetcode/default.svg
     - bst/index.qmd
     - graph/index.qmd
     - queue/index.qmd
     - start/index.qmd
   image-height: 256px
 page-layout: full
-title-block-banner: false
+title-block-banner: true
 ---
 
 
-Here I share my notes on data structures an algorithms. Such problems are 
-common part of technical interviews for software developers and can provide
-insight into how to write performant code. Some subsections here are actually
-collections of articles, for instance the ``leetcode`` section.
 

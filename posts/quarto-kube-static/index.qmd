@@ -3,8 +3,8 @@ title: "Deploying Quarto To Kubernetes"
 description: An in depth guide for deploying quarto to kubernetes suitable for begginers.
 extra:
   url: /posts/quarto-kube-static
-  image: ../../dsa/leetcode/icons/kube.svg
-image: ../../dsa/leetcode/icons/kube-red.svg
+  image: /leetcode/icons/kube.svg
+image: /icons/kube.svg
 keywords:
   - kubernetes
   - manifest

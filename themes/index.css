@@ -88,6 +88,19 @@ input[type='radio']:checked {
   object-fit: fill !important;
 }
 
+
+.quarto-title-banner,
+.quarto-title-banner .quarto-title h1 {
+  color: var(--bs-white) !important;
+  background: var(--bs-success-text-emphasis) !important;
+}
+
+
+.quarto-title-meta,
+.keywords {
+  display: none !important;
+}
+
 /* .card-img-top img, */
 /* .card-img-top { */
 /*   height: 256px; */

@@ -1,6 +1,6 @@
 ---
 title: Blog Posts
-description: "@_acederberg's blog posts"
+description: "Primary blog posts."
 extra:
   url: /posts
   image: https://avatars.githubusercontent.com/u/77076023?v=4
@@ -12,7 +12,9 @@ keywords:
   - quarto
 listing: 
   type: grid
-  image-height: 256px;
+  image-height: 256px
 page-layout: full
-title-block-banner: false
+title-block-banner: true
 ---
+
+

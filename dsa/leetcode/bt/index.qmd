@@ -10,7 +10,10 @@ keywords:
   - algorithms
   - leetcode
   - interview
-listing: default
+listing: 
+  type: grid
+  image-placeholder: /icons/leetcode/default.svg
+  image-height: 256px
 page-layout: full
 title-block-banner: true
 ---

@@ -1,6 +1,11 @@
 ---
 title: Determine if a Binary Tree is Balanced.
+description: Determine if a binary tree is balanced.
+image: /icons/leetcode/easy.svg
 ---
+
+
+Submission can be seen [here](https://leetcode.com/problems/balanced-binary-tree).
 
 
 ## Solutions

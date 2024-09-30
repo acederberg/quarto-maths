@@ -1,6 +1,7 @@
 ---
 title: Kaggle Assignments
-description: "@_acederberg's kaggle course assignments"
+description: |
+  Blog posts about my kaggle assignments and competitions.
 extra:
   url: /posts
   image: https://avatars.githubusercontent.com/u/77076023?v=4
@@ -13,10 +14,20 @@ keywords:
   - python
   - blog
   - quarto
-listing: default
+listing: 
+  type: grid
+  image-height: 256px
 page-layout: full
-title-block-banner: false
+title-block-banner: true
 ---
 
-This page should contain some assignments I've been playing with from 
-[kaggle](kaggle.com).
+<div class="quarto-figure quarto-figure-center">
+  <figure class="figure">
+    <p>
+      <a href="https://kaggle.com">
+        <img src="/icons/kaggle.svg" class="img-fluid figure-img"></img>
+      </a>
+    </p>
+  </figure>
+</div>
+

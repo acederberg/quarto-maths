@@ -5,21 +5,25 @@ listing:
   type: grid
   contents:
   - title: The default leetcode svg.
-    image: default.svg
+    image: ./leetcode/default.svg
   - title: The default daily leetcode svg.
-    image: default.svg
+    image: ./leetcode/default.svg
   - title: The svg for hard leetcode problems.
-    image: hard.svg
+    image: ./leetcode/hard.svg
   - title: The svg for hard daily leetcode problems.
-    image: hard-daily.svg
+    image: ./leetcode/hard-daily.svg
   - title: The svg for medium leetcode problems.
-    image: medium.svg
+    image: ./leetcode/medium.svg
   - title: The svg for medium daily leetcode problems.
-    image: medium-daily.svg
+    image: ./leetcode/medium-daily.svg
   - title: The svg for easy leetcode problems.
-    image: easy.svg
+    image: ./leetcode/easy.svg
   - title: The svg for easy daily leetcode problems.
-    image: easy-daily.svg
+    image: ./leetcode/easy-daily.svg
+  - title: The svg for kubernetes.
+    image: ./kube.svg
+  - title: Kaggle
+    image: ./kaggle.svg
   image-height: 256px
 ---
 
@@ -27,8 +31,9 @@ listing:
 These ``svg`` icons are sourced from the ``svgrepo``:
 
 
-- [For the leetcode item](https://www.svgrepo.com/svg/533393/calendar-lines)
-- [For the calendar item](https://www.svgrepo.com/svg/306328/leetcode)
+- [kaggle](https://www.svgrepo.com/svg/330763/kaggle?edit=true)
+- [leetcode](https://www.svgrepo.com/svg/306328/leetcode)
+- [calendar](https://www.svgrepo.com/svg/533393/calendar-lines)
 
 
 the variations are enumerated below:

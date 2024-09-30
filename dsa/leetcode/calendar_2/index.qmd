@@ -1,10 +1,8 @@
 ---
 title: 'Daily Challenge 09/27/2024: Calendar 2.'
 description: ''
-image: ../leetcode.svg
-listing:
-  image-height: 128px
-draft: true
+image: /icons/leetcode/medium-daily.svg
+# draft: true
 ---
 
 The problem statement may be found [here](https://leetcode.com/problems/my-calendar-ii).

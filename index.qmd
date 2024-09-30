@@ -30,10 +30,10 @@ about:
 
 ---
 
-This is my quarto blog! It is just one part of 
-[my website](https://acederberg.io). Here I will write blog posts about 
+This is my quarto blog! Here I will write blog posts about 
 ``python``, containerization, infrastructure as code, numerical mathematics, 
-and (eventually) data science.
+data structures and algorithms, and data science.
 
 For inquiries, please reach out to me at ``adrn.cederberg123@gmail.com`` or ``@_acederberg``
-on twitter. 
+on twitter. If you find any errors in my blog posts, please make an issue on
+[the github repository for this wibsite](https://github.com/acederberg/quarto-maths).
