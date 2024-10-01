@@ -1,9 +1,21 @@
 ---
 title: Median of Two Sorted Arrays
 description: Finding the median value of two sorted arrays.
-filters:
-  - include-code-files
+image: /icons/leetcode/hard.svg
+extra:
+  image: /icons/leetcode/hard.svg
+  url: /dsa/leetcode/median_two_sorted_arrays
+  leetcode:
+    url: /problems/median-of-two-sorted-arrays
+    difficulty: hard
+    submissions: [1392374237, 1392371571, 1392328615, 1392326412, 1392325232, 1392321446, 1392318871, 1392316265, 1392314607]
+date-created: 09-16-2024
+date-updated: 09-16-2024
 ---
+
+
+[The problem statement may be found on leetcode](https://leetcode.com/problems/median-of-two-sorted-arrays/description).
+
 
 ## Analysis of the Problem
 

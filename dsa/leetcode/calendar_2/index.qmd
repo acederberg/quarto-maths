@@ -2,7 +2,7 @@
 title: 'Daily Challenge 09/27/2024: Calendar 2.'
 description: ''
 image: /icons/leetcode/medium-daily.svg
-# draft: true
+draft: true
 ---
 
 The problem statement may be found [here](https://leetcode.com/problems/my-calendar-ii).

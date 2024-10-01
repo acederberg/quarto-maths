@@ -1,6 +1,16 @@
 ---
 title: Palindrome Completion
 description: Completing a string to a palindrome with the minimal numer of characters.
+image: /icons/leetcode/hard.svg
+extra:  
+  image: /icons/leetcode/hard.svg
+  url: /dsa/leetcode/palandrome_shortest
+  leetcode: 
+    url: /problems/shortest-palindrome
+    difficulty: hard
+    submissions: [1399766945, 1399774299, 1399931966, 1399939087]
+date-created: 09-23-2024
+date-modified: 09-23-2024
 ---
 
 For [the leetcode daily 'shortest palindrome'](https://leetcode.com/problems/shortest-palindrome/submissions/1399931966/) question.

@@ -2,7 +2,17 @@
 title: Minimum Time Difference
 description: |
   Given an array of ``HH:MM`` times, find the least difference.
-icons: /icons/leetcode/medium-daily.svg
+image: /icons/leetcode/medium-daily.svg
+extra:
+  url: /dsa/leetcode/minimum_time_difference/
+  image: /icons/leetcode/medium-daily.svg
+  leetcode:
+    day: 09-16-2024
+    url: /problems/minimum-time-difference
+    difficulty: medium
+    submissions: [1392581225]
+date-created: 09-16-2024
+date-submitted: 09-16-2024
 ---
 
 

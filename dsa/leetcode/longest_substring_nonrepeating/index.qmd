@@ -1,5 +1,17 @@
 ---
 title: Length of Longest Substring
+description: |
+  Find the longest non-repeating substring of an input string.
+image: /icons/leetcode/medium.svg
+extra:
+  url: /dsa/leetcode/longest_substring_nonrepeating/
+  image: /icons/leetcode/medium.svg
+  leetcode:
+    url: problems/longest-substring-without-repeating-characters
+    difficulty: medium
+    submissions: [1392794812, 1392800860, 1392805602, 1393298642, 1393330624]
+date-created: 09-17-2024
+date-updated: 09-17-2024
 ---
 
 

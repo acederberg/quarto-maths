@@ -3,16 +3,15 @@ title: 'Daily Question 09/25/2024: Sum of Prefix Scores of Strings'
 description: 'Use a trie to count the numer of occurances of a prefix in a list.'
 image: /icons/leetcode/hard-daily.svg
 extra:
-  url: ./dsa/leetcode/sum_of_prefix_scores 
+  url: /dsa/leetcode/sum_of_prefix_scores 
   image: /icons/leetcode/hard-daily.svg
   leetcode:
     url: https://leetcode.com/problems/sum-of-prefix-scores-of-strings
     difficulty: hard
-    day: 2024-9-25
+    day: 9-25-2024
     submissions: [1402143127, 1402151135]
-date-created: 2024-09-25
-date-modified: 2024-09-25
-
+date-created: 09-25-2024
+date-modified: 09-25-2024
 ---
 
 

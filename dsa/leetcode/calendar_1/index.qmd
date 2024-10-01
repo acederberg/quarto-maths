@@ -2,6 +2,15 @@
 title: 'Daily Challenge 09/26/2024: Calendar 1.'
 description: '' 
 image: /icons/leetcode/medium-daily.svg
+extra:
+  url: /dsa/leetcode/calendar_1/ 
+  image: /icons/leetcode/medium-daily.svg
+  leetcode:
+    url: /problems/my-calendar-i
+    difficulty: medium
+    submissions: [1403486605]
+date-created: 09-26-2024
+date-updated: 09-26-2024
 ---
 
 

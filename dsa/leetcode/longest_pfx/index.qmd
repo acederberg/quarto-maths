@@ -8,10 +8,10 @@ extra:
   leetcode:
     url: /problems/find-the-length-of-the-longest-common-prefix
     difficulty: medium
-    day: 2024-9-24
+    day: 09-24-2024
     submissions: [1401071203, 1401074114, 1401079635, 1401083162, 1401100343]
-date-created: 2024-09-24
-date-modified: 2024-09-24
+date-created: 09-24-2024
+date-modified: 09-24-2024
 ---
 
 The problem statement may be found [here](https://leetcode.com/problems/find-the-length-of-the-longest-common-prefix).

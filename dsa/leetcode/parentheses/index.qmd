@@ -1,5 +1,21 @@
+---
+title: Parenthesis
+description: |
+  Determine how many different results can be made from a simple equation
+  by changing the order of opperations.
+extra:
+  leetcode: 
+    url: problems/different-ways-to-add-parentheses
+    difficulty: medium
+    submissions: [1395540465, 1395553386]
+draft: true
+---
 
-Divide and conquer! A big subproblem can be made into many subproblems.
+
+## Analysis
+
+
+Divide and conquer! This is obviously a dynamic programming question.
 
 
 ```default
@@ -9,36 +25,26 @@ Main problem becomes subproblems
      /       \
 (2+3)*5-4    2+(3*5)-4
 
+
 The subproblems become complete expressions:
 
 
          (2+3)*5-4           
           /     \             
 (2+3)*(5-4)    ((2+3)*5)-4
+          =5             =21
  
          2+(3*5)-4        
           /     \             
 (2+(3*5))-4     2+((3*5)-4)
-                ^^^^^^^^^^^ A
+          =13             =13
 
 
          2+3*(5-4) 
         /         \
-2+(3*(5-4))       2+(3*(5-4))
-^^^^^^^^^^^ A
+2+(3*(5-4))       (2+3)*(5-4)
+          =5                =5
 
-
-some answers match and are ommited.
-
-(2+3)*(5-4)     = 5 * 1
-((2+3)*5)-4     = 25 - 4
-(2+(3*5))-4     = 17 - 4
-2+((3*5)-4)     = 2 + 11
-
-2+(3*(5-4))     = 6
-2+(3*(5-4))
 
 ```
 
-
-The next question is how to parse this.

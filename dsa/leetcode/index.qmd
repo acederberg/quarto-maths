@@ -14,10 +14,9 @@ keywords:
   - interview
 listing: 
   sort:
-    - date-created
+    - date-created desc
   contents:
-    - "bt/index.qmd"
-    - "*.qmd"
+    - "**/index.qmd"
   type: grid
   image-placeholder: /icons/leetcode/default.svg
   image-height: 256px

@@ -2,6 +2,15 @@
 title: Binary Tree Inorder Traversal
 decsription: Traverse a binary tree in inorder order.
 image: /icons/leetcode/easy.svg
+extra:
+  image: /icons/leetcode/easy.svg
+  url: /dsa/leetcode/bt/inorder
+  leetcode:
+    url: /problems/binary-tree-inorder-traversal/
+    difficulty: easy
+    submissions: [1394598143, 1394601627, 1394603504, 1394612642, 1394700463]
+date-created: 09-18-2024
+date-updated: 09-18-2024
 ---
 
 

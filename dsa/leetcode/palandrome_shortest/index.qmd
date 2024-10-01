@@ -21,6 +21,10 @@ detailing my solution to that problem. Here, the details of any completion are
 discussed.
 
 
+It turns out that I misread the question, so see [the subsequent article 
+detailing my actual submissions](./actual.qmd).
+
+
 ## Analysis
 
 ### A few cases

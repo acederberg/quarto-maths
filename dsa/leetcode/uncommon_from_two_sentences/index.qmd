@@ -1,7 +1,16 @@
 ---
 title: Uncommon Words from Two Sentences
-filter:
-  - include-code-files
+description: Given two sentances, find the words that occur only once.
+image: /icons/leetcode/medium.svg
+extra:
+  image: /icons/leetcode/medium.svg
+  url: /dsa/leetcode/uncommon_from_two_sentences/
+  leetcode:
+    url: problems/uncommon-words-from-two-sentences
+    difficulty: medium
+    submissions: [1393575642, 1393583384, 1393612205, 1393625315, 1393626103, 1393628192, 1393628810]
+date-created: 09-17-2024
+date-updated: 09-17-2024
 ---
 
 [See the explanation on leetcode](https://leetcode.com/problems/uncommon-words-from-two-sentences).

@@ -3,14 +3,16 @@ title: 'Daily Challenge 09/30/2024: Design a Stack With Increment Operation.'
 description: |
   Design a stack that supports increment operations on its elements.
 extra:
+  image: /icons/leetcode/medium-daily.svg
+  url: /dsa/leetcode/stack_incr/
   leetcode:
     url: https://leetcode.com/problems/design-a-stack-with-increment-operation
-    day: 2024-09-30
+    day: 09-30-2024
     difficulty: medium
     submissions: [1407482315, 1407537768]
 image: /icons/leetcode/medium-daily.svg
-date-created: 2024-09-30
-date-modified: 2024-09-30
+date-created: 09-30-2024
+date-modified: 09-30-2024
 ---
 
 

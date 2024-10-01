@@ -5,13 +5,13 @@ extra:
   url: /dsa/leetcode/extra_characters/
   image: /icons/leetcode/medium-daily.svg
   leetcode:
-    url: https://leetcode.com/problems/extra-characters-in-a-string/description/
+    url: /problems/extra-characters-in-a-string
     difficulty: medium
-    day: 2024-09-23
+    day: 09-23-2024
     submissions: [1400883479, 1400895713]
 image: /icons/leetcode/medium-daily.svg
-date-created: 2024-09-23
-date-modified: 2024-09-23
+date-created: 09-23-2024
+date-modified: 09-23-2024
 ---
 
 See the leetcode problem statement [here](https://leetcode.com/problems/extra-characters-in-a-string/submissions/1400883479).
