@@ -11,6 +11,7 @@ extra:
     difficulty: medium
     submissions: [1407482315, 1407537768]
 image: /icons/leetcode/medium-daily.svg
+date: 09-30-2024
 date-created: 09-30-2024
 date-modified: 09-30-2024
 ---

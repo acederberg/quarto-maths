@@ -1,13 +1,5 @@
 ---
-# title: About
-# description: "@_acederberg's blog posts"
 image: https://avatars.githubusercontent.com/u/77076023?v=4
-# keywords:
-#   - acederberg
-#   - captura
-#   - python
-#   - blog
-#   - quarto
 about:
   template: jolla
   links: 
@@ -20,15 +12,44 @@ about:
     - icon: twitter
       text: Twitter
       href: https://x.com/_acederberg
+listing:
+  - id: categories
+    fields:
+      - title
+      - date
+      - image
+      - author
+    type: grid
+    image-height: 256px
+    sort:
+      - date desc
+    contents:
+      - ./posts/index.qmd
+      - ./dsa/leetcode/index.qmd
+      - ./kaggle/index.qmd
+  - id: posts
+    fields:
+      - title
+      - date
+      - image
+      - author
+    type: grid
+    image-height: 256px
+    sort:
+      - date desc
+    contents:
+      - ./posts/logistic
+      - ./posts/python-animation
+      - ./posts/quarto-kube-static
+      - ./posts/include-code-files
 
-# listing:
-#   type: grid
-#   # image-height: 256px
-#   contents:
-#     - ./posts/logistic/index.qmd
-  
-
+date-updated: 10-01-2024
 ---
+
+
+## About
+
+:::{#jolla}
 
 This is my quarto blog! Here I will write blog posts about 
 ``python``, containerization, infrastructure as code, numerical mathematics, 
@@ -37,3 +58,16 @@ data structures and algorithms, and data science.
 For inquiries, please reach out to me at ``adrn.cederberg123@gmail.com`` or ``@_acederberg``
 on twitter. If you find any errors in my blog posts, please make an issue on
 [the github repository for this wibsite](https://github.com/acederberg/quarto-maths).
+:::
+
+
+## Categories
+
+:::{#categories}
+:::
+
+
+## Posts
+
+:::{#posts}
+:::

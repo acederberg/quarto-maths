@@ -9,6 +9,7 @@ extra:
     url: /problems/median-of-two-sorted-arrays
     difficulty: hard
     submissions: [1392374237, 1392371571, 1392328615, 1392326412, 1392325232, 1392321446, 1392318871, 1392316265, 1392314607]
+date: 09-16-2024
 date-created: 09-16-2024
 date-updated: 09-16-2024
 ---

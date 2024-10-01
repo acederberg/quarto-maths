@@ -13,7 +13,7 @@ jupyter: python3
 website:
   title: "acederberg.io"
   site-url: https://quarto.acederberg.io
-  description: "acederberg's quarto projects"
+  description: "acederberg's blog."
   # NOTE: https://icons.getbootstrap.com/
   navbar:
     background: success
@@ -27,15 +27,15 @@ website:
         href: https://x.com/_acederberg
     left:
       - text: Home
-        href: https://acederberg.io
+        href: /
       - text: Kaggle
         href: /kaggle
       - text: Posts
         href: /posts
-      - text: Algorithms
-        href: /dsa
-      - text: Resume
-        href: https://acederberg.io/resume
+      - text: Leetcode
+        href: /dsa/leetcode
+      # - text: Resume
+      #   href: https://acederberg.io/resume
 theme:
   dark: [darkly, themes/index.css, themes/dark.scss, themes/dark-default.scss]
   light: [flatly, themes/index.css]

@@ -12,7 +12,14 @@ keywords:
   - algorithms
   - leetcode
   - interview
+# NOTE: https://quarto.org/docs/websites/website-listings.html
 listing: 
+  fields: 
+    - image
+    - date
+    - title
+    - description
+    - author
   sort:
     - date-created desc
   contents:
@@ -20,11 +27,6 @@ listing:
   type: grid
   image-placeholder: /icons/leetcode/default.svg
   image-height: 256px
-  # field-required:
-  #   - title
-  #   - description
-  #   - date
-  #   - date-modified
 page-layout: full
 image: /icons/leetcode/default.svg
 title-block-banner: true

@@ -9,6 +9,7 @@ extra:
     url: /problems/create-binary-tree-from-descriptions
     difficulty: medium
     submissions: [1393554624, 1393544731, 1393539601, 1393523977, 1393503518, 1393461880]
+date: 09-17-2024
 date-created: 09-17-2024
 date-updated: 09-17-2024
 ---

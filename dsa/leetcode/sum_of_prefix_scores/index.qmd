@@ -10,6 +10,7 @@ extra:
     difficulty: hard
     day: 9-25-2024
     submissions: [1402143127, 1402151135]
+date: 09-25-2024
 date-created: 09-25-2024
 date-modified: 09-25-2024
 ---

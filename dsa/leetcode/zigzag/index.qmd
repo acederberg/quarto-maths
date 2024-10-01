@@ -9,6 +9,7 @@ extra:
     url: /problems/zigzag-conversion/description/
     difficulty: medium
     submissions: [1392151458, 1392159214, 1392164303, 1392172591, 1392189767, 1392195457, 1392196200, 1392212005]
+date: 09-16-2024
 date-created: 09-16-2024
 date-modified: 09-16-2024
 ---

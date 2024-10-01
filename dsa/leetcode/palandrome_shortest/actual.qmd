@@ -9,6 +9,7 @@ extra:
     url: /problems/shortest-palindrome
     difficulty: hard
     submissions: [1399766945, 1399774299, 1399931966, 1399939087]
+date: 09-23-2024
 date-created: 09-23-2024
 date-modified: 09-23-2024
 ---

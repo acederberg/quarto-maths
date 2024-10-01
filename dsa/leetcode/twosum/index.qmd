@@ -11,6 +11,7 @@ extra:
     url: /problems/two-sum
     difficulty: easy
     submissions: [1392501039, 1392514006, 1392514205, 1392522407]
+date: 09-16-2024
 date-created: 09-16-2024
 date-updated: 09-16-2024
 ---

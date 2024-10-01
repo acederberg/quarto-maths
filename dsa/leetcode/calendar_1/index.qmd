@@ -1,6 +1,6 @@
 ---
 title: 'Daily Challenge 09/26/2024: Calendar 1.'
-description: '' 
+description: 'Implement a calendar using a class.' 
 image: /icons/leetcode/medium-daily.svg
 extra:
   url: /dsa/leetcode/calendar_1/ 
@@ -9,6 +9,7 @@ extra:
     url: /problems/my-calendar-i
     difficulty: medium
     submissions: [1403486605]
+date: 09-26-2024
 date-created: 09-26-2024
 date-updated: 09-26-2024
 ---

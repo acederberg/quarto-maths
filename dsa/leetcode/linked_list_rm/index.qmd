@@ -9,6 +9,7 @@ extra:
     url: delete-nodes-from-linked-list-present-in-array/description
     difficulty: medium
     submissions: [1392635336, 1392653963, 1392660106]
+date: 09-16-2024
 date-created: 09-16-2024
 date-submitted: 09-16-2024
 ---

@@ -9,6 +9,7 @@ extra:
     url: /problems/balanced-binary-tree/
     difficulty: easy
     submissions: [1394467889, 1394473205, 1394490454]
+date: 09-18-2024
 date-created: 09-18-2024
 date-updated: 09-18-2024
 ---

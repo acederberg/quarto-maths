@@ -1,6 +1,6 @@
 ---
 title: Blog Posts
-description: "Primary blog posts."
+description: "One-off blog posts."
 extra:
   url: /posts
   image: https://avatars.githubusercontent.com/u/77076023?v=4
@@ -15,6 +15,7 @@ listing:
   image-height: 256px
 page-layout: full
 title-block-banner: true
+image: ./logistic/cobweb-rr-0.9.gif
 ---
 
 
