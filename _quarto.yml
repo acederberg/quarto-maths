@@ -37,8 +37,8 @@ website:
       # - text: Resume
       #   href: https://acederberg.io/resume
 theme:
-  dark: [darkly, themes/index.css, themes/dark.scss, themes/dark-default.scss]
-  light: [flatly, themes/index.css]
+  dark: [darkly, themes/commits.css, themes/index.css, themes/dark.scss, themes/dark-default.scss]
+  light: [flatly, themes/commits.css, themes/index.css]
 format:
   html:
     embed-resources: false

@@ -47,17 +47,18 @@ date-updated: 10-01-2024
 ---
 
 
-## About
-
 :::{#jolla}
+I am Adrian Cederberg and this is my blog powered by [quarto](https://quarto.org).
+I have a Bachelors of Science in Applied Mathematics from the University of New Mexico and a wide range of experience including teaching, research, and software development. 
+My technical interests include mathematics, physics, and software.
+Lately I am interested in writing software as I have found it to be an indispensable skill in the various topics which interest me.
 
-This is my quarto blog! Here I will write blog posts about 
-``python``, containerization, infrastructure as code, numerical mathematics, 
-data structures and algorithms, and data science.
+Blog posts will vary in subject matter, but invariably pertain to topics in computer science.
+Some things I will write about are ``python``, data structures and algorithms, containerization, infrastructure as code, numerical mathematics, and data science.
+For inquiries, please reach out to me at ``adrn.cederberg123@gmail.com`` or ``@_acederberg`` on twitter. 
+If you find any errors in my blog posts, please make an issue on [the github repository for this wibsite](https://github.com/acederberg/quarto-maths).
 
-For inquiries, please reach out to me at ``adrn.cederberg123@gmail.com`` or ``@_acederberg``
-on twitter. If you find any errors in my blog posts, please make an issue on
-[the github repository for this wibsite](https://github.com/acederberg/quarto-maths).
+
 :::
 
 
@@ -71,3 +72,24 @@ on twitter. If you find any errors in my blog posts, please make an issue on
 
 :::{#posts}
 :::
+
+
+## Github Statistics
+
+
+<div id="commits">
+  <script src="https://cdn.rawgit.com/IonicaBizau/github-calendar/gh-pages/dist/github-calendar.min.js"></script>
+  <div class="calendar"></div>
+  <script>
+      new GitHubCalendar(".calendar", "acederberg", {global_stats: false, summary_text: null});
+  </script>
+</div>
+
+
+
+## Where is the Old Blog?
+
+This site deprecates my previous blog, for which I made the [captura-text](https://github.com/acederberg/captura-text) plugin.
+The content on the deprecated site can be found in [another repo](https://github.com/acederberg/captura-text-portfolio-assets).
+
+
