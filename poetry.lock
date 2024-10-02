@@ -1996,6 +1996,20 @@ files = [
 ]
 
 [[package]]
+name = "meta-tags-parser"
+version = "1.3.0"
+description = "Fast and modern meta tags parser (og, twitter, title, description, etc) with snippet support"
+optional = false
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "meta_tags_parser-1.3.0-py3-none-any.whl", hash = "sha256:1ce39c39572ed865714c282c7724f68ecffc54e9ffb13ac131378c3746b9c18c"},
+    {file = "meta_tags_parser-1.3.0.tar.gz", hash = "sha256:791f9e4d6ade3a9c197eb21caf28d0653a5109a72725639d9caed919ddbc63e7"},
+]
+
+[package.dependencies]
+httpx = "*"
+
+[[package]]
 name = "mistune"
 version = "3.0.2"
 description = "A sane and fast Markdown parser with useful plugins and renderers"
@@ -4650,4 +4664,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "8fb27a71f62bbd14a7ef432fd91e4fc20693bfb16b897cdbedb90601dcca5ed9"
+content-hash = "2f80471ce6177b28d7dcfe02703a0aa2aa577f4ded597a96ccbcd846bb02db48"

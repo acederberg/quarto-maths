@@ -6,6 +6,7 @@ description: |
 image: /icons/leetcode/easy-daily.svg
 extra:
   image: /icons/leetcode/easy-daily.svg
+  url: /dsa/leetcode/rank_transform
   leetcode:
     url: problems/rank-transform-of-an-array
     day: 10-02-2024

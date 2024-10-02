@@ -5,7 +5,7 @@ description: |
   learn more about data structures and algorithms.
 extra:
   url: /dsa/leetcode
-  image: ./leetcode.svg
+  image: /icons/leetcode/hard.svg
 keywords:
   - acederberg
   - datastructures
