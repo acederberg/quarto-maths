@@ -1,0 +1,43 @@
+---
+title: Rank Transform of an Array
+description: |
+  Given an array, turn its elements into their respective indices in the sorted
+  version of the array.
+image: /icons/leetcode/easy-daily.svg
+extra:
+  image: /icons/leetcode/easy-daily.svg
+  leetcode:
+    url: problems/rank-transform-of-an-array
+    day: 10-02-2024
+    difficulty: easy
+    submissions: []
+date: 10-02-2024
+date-created: 10-02-2024
+date-updated: 10-02-2024
+---
+
+
+The problem statement may be found [on leetcode](https://leetcode.com/problems/rank-transform-of-an-array/description/?envType=daily-question&envId=2024-10-02).
+
+
+## Analysis
+
+A trivial solution would just take all values in the input, sort all unique 
+values, define their rank as their positions in the array, and return the 
+initial array as the image of these.
+
+
+## Solution
+
+### Trivial Solution
+
+The trivial solution performs shockingly well. Over two submissions it 
+performed both very well and very poorly - it would appear that the 
+distribution is stocastic. The best submission got a $98\%$ in terms of 
+runtime and a $26\%$ in terms of memory. The worst got $24\%$ in terms of 
+runtime and a $45\%$ in terms of memory. The solution is as follows:
+
+
+```{.python include="__init__.py" snippet="solution_trivial"}
+```
+
