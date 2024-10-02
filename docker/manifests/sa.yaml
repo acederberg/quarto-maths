@@ -111,7 +111,7 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      match: HOST(`blog.acederberg.io`)
+      match: HOST(`blog.acederberg.io`) || Host(`acederberg.io`)
       middlewares:
         - name: traefik-ratelimit
           namespace: traefik

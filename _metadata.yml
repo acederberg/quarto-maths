@@ -5,7 +5,7 @@ author:
     url: acederberg.io
     email: adrn.cederberg123@gmail.com
     # degrees: BS
-toc: true
+toc: false
 toc-depth: 3
 format:
   html:
