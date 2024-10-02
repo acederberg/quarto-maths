@@ -1,5 +1,5 @@
 ---
-image: https://avatars.githubusercontent.com/u/77076023?v=4
+image: "https://avatars.githubusercontent.com/u/77076023?v=4"
 about:
   template: jolla
   links: 
@@ -12,6 +12,9 @@ about:
     - icon: twitter
       text: Twitter
       href: 'https://x.com/_acederberg'
+extra:
+  image: "https://avatars.githubusercontent.com/u/77076023?v=4"
+  url: /
 listing:
   # - id: links
   #   fields:

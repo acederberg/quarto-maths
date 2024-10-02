@@ -3,7 +3,7 @@ title: Blog Posts
 description: "One-off blog posts."
 extra:
   url: /posts
-  image: https://avatars.githubusercontent.com/u/77076023?v=4
+  image: /posts/logistic/cobweb-rr-0.9.gif
 keywords:
   - acederberg
   - captura

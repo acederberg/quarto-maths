@@ -4,7 +4,7 @@ description: "The logistic map: Animations and properties."
 image: ./cobweb-rr-0.9.gif
 extra:
   url: /posts/logistic
-  image: /posts/logistic/thumb.png
+  image: /posts/logistic/cobweb-rr-0.9.gif
 keywords: 
   - logistic map
   - logistic
@@ -242,6 +242,7 @@ def load_bifurcation():
 if not (_ := DIR / "./bifurcation.png").exists():
   plot_bifurcation = sns.scatterplot(data=load_bifurcation(), x="rr", y="xx", s=0.1)
   plot_bifurcation.figure.savefig(_)
+  plot_bifurcation.close()
 ```
 
 ![Logistic Bifurcation Diagram](./bifurcation.png)
