@@ -24,6 +24,20 @@ listing:
     image: ./kube.svg
   - title: Kaggle
     image: ./kaggle.svg
+  - title: Github
+    image: ./github.svg
+  - title: Database
+    image: ./database.svg
+  - title: About
+    image: ./about.svg
+  - title: Git
+    image: ./git.svg
+  - title: Github
+    image: ./github.svg
+  - title: Copy
+    image: ./copy.svg
+  - title: Document
+    image: ./document.svg
   image-height: 256px
 ---
 

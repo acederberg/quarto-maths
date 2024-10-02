@@ -1,5 +1,25 @@
 /*-- scss:rules --*/
 
+
+#jolla,
+#links,
+#categories,
+#posts,
+#where-is-the-old-blog,
+#github-statistics {
+  padding-bottom: 256px;
+}
+
+#listing-links .quarto-grid-item {
+  border: none !important;
+}
+
+#listing-links .quarto-grid-item:hover {
+  background: var(--bs-success);
+}
+
+
+
 /* ------------------------------------------------------------------------- */
 /* NOTE: The following is included so that dataframes/tables are easier to 
 *        distinguish from the surrounding text. 
