@@ -68,12 +68,15 @@ jobs:
 
       - continue-on-error: true
         run: |
+          set +e
           source .venv/bin/activate
-          black --check .
-          echo "BLACK_FIX=$?" >> $GITHUB_ENV
+          black --check --quiet .
+          BLACK_FIX=$?
+          echo "BLACK_FIX=$BLACK_FIX" >> $GITHUB_ENV
+          echo $BLACK_FIX
 
       - name: Black Fix.
-        if: ${{ github.env.BLACK_FIX }}
+        if: env.BLACK_FIX == 1
         id: bumpver-black-fix
         run: |
           source .venv/bin/activate
@@ -81,6 +84,7 @@ jobs:
 
           git add . 
           git commit -m "chore(fix): Black fix."
+
 
       # NOTE: This will not be published so it is fine that it happens at this
       #       stage.
