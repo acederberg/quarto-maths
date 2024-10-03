@@ -1,0 +1,51 @@
+---
+title: Make Sum Divisible by ``p``
+description: Find a maximal subarray of an integer array whose modulus by ``p`` is ``0``.
+image: /icons/leetcode/medium-daily.svg
+extra:
+  image: /icons/leetcode/medium-daily.svg
+  url: /dsa/leetcode/make_sum_divisible 
+  leetcode:
+    url: /problems/make-sum-divisible-by-p
+    day: 10-03-2024
+    difficulty: medium
+    submissions: [1410975890, 1410976301, 1410976581]
+date: 10-03-2024
+date-created: 10-03-2024
+date-updated: 10-03-2024
+---
+
+
+The full problem may be found [on leetcode](https://leetcode.com/problems/make-sum-divisible-by-p/submissions/1410976581/?envType=daily-question&envId=2024-10-03).
+
+
+## Analysis
+
+The trivial solution is to look at every possible sub-array, which will have 
+quadratic time complexity. This solution looks like
+
+```{.python include="__init__.py"}
+```
+
+and (obviously) exceeded the allowed runtime.
+
+A better solution is to remember calculate the sums modulus and check if the 
+complimenting modulus could be found. I got close, but I eventually confused 
+myself into oblivion and decided to read the editorial.
+
+
+## Solution
+
+The editorial presented a solution with linear time complexity. This solution
+used the 'Two Sum' memoization trick. I found a few optimizations that can be
+made: 
+
+- ``needed`` does not need to be ``(s - target + p) % p`` since the modulus is commutative,
+- ``target`` can be computed just by taking the modulus of the sum.
+
+In the end, this solution performed very well, beating $89\%$ of submissions
+in its best run.
+
+```{.python include="__init__.py" snippet=solution}
+```
+

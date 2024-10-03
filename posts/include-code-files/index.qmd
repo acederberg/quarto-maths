@@ -68,22 +68,18 @@ which should render to
 ``example.py`` can be run using the ``run`` jupyter magic commands like:
 
 
-````quarto
 ```{python}
 %run example.py
 ```
-````
 
 
 More about magic commands is available in the [jupyter documentation](https://ipython.readthedocs.io/en/stable/interactive/magics.html).
 Finally, with ``main`` in the local python globals, we can execute ``main``.
 
 
-````quarto
 ```{python}
 main()
 ```
-````
 
 
 ## Including Snippets From Files
