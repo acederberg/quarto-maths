@@ -30,12 +30,69 @@ jobs:
           tags: |
             acederberg/blog:${{ github.ref_name }}
             acederberg/blog:${{ github.sha }}
+            acederberg/blog:latest
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
           load: true
           secrets: |
             kaggle_json=${{ secrets.KAGGLE_JSON }}
+
+      - name: Run Server Image.
+        run: |
+          SERVER_VERSION=latest docker compose \
+            --file docker/compose.prod.yaml \
+            up --detach
+
+          docker compose \
+            --file docker/compose.prod.yaml \
+            cp server:/app build
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # NOTE: Probably won't need all, but cached so it probably does not matter.
+      - name: Cache Pip.
+        uses: actions/cache@v3
+        id: venv
+        with:
+          path: .venv
+          key: ${{ runner.os }}-venv-${{ hashFiles('poetry.lock') }}
+
+      - name: Venv and Setup .
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          python -m pip install poetry
+          poetry install
+
+      - name: Check MetaTags.
+        id: metatags
+        continue-on-error: true
+        run: |
+          echo -e "## MetaTags Report\n\n~~~yaml" >> $GITHUB_STEP_SUMMARY
+          poetry run python ./scripts/meta.py >> $GITHUB_STEP_SUMMARY
+          echo -e "~~~\n" >> $GITHUB_STEP_SUMMARY
+
+      - name: Check Spelling.
+        id: spell
+        continue-on-error: true
+        run: |
+          echo Placeholder
+          # echo -e "## Spell Report\n\n~~~yaml" >> $GITHUB_STEP_SUMMARY
+          # poetry run python ./scripts/spell.py >> $GITHUB_STEP_SUMMARY
+          # echo -e "~~~\n" >> $GITHUB_STEP_SUMMARY
+
+      - run: |
+          if ( \
+            [ "${{ steps.spell.outcome }}" != "success" ] \
+            || [ "${{ steps.metatags.outcome }}" != 'success' ]
+          ); then
+            echo "One or more checks failed. See the summary for details."
+            exit 1
+          fi
+          
 
   # NOTE: Read [this](https://nicwortel.nl/blog/2022/continuous-deployment-to-kubernetes-with-github-actions).
   kube:

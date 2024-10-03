@@ -65,7 +65,7 @@ push            = false
 [tool.bumpver.file_patterns]
 "pyproject.toml" = ['current_version = "{version}"', 'version = "{version}"']
 "docker/compose.yaml" = ["image: acederberg/blog-dev:{version}"]
-"docker/compose.prod.yaml" = ["image: acederberg/blog:{version}"]
+"docker/compose.prod.yaml" = ["SERVER_VERSION-{version}"]
 
 
 [tool.pytest.ini_options]

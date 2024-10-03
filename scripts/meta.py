@@ -3,8 +3,8 @@ from os import environ
 import os
 import pathlib
 from typing import Any
-from kagglehub.config import json
-from kagglehub.gcs_upload import logging
+import json
+import logging
 import meta_tags_parser as mtp
 import meta_tags_parser.structs as structs
 import yaml
