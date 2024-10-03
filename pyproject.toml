@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "quarto-demo"
-version = "0.1.1"
+version = "0.1.2"
 description = "Quarto demo"
 authors = ["Adrian Cederberg <adrn.cederberg123@gmail.com>"]
 readme = "README.rst"
@@ -54,7 +54,7 @@ priority = "explicit"
 
 
 [tool.bumpver]
-current_version = "0.1.1"
+current_version = "0.1.2"
 version_pattern = "MAJOR.MINOR.PATCH"
 commit_message  = "chore(version): Bump version {old_version} -> {new_version}"
 commit          = true
