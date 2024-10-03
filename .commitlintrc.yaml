@@ -5,5 +5,5 @@ rules:
   type-enum: 
     - 2
     - always
-    - ['build', 'chore', 'ci', 'docs', 'feature', 'fix', 'revert', 'wip']
+    - ['build', 'chore', 'ci', 'docs', 'feature', 'fix', 'revert', 'wip', 'refactor']
 

@@ -151,7 +151,7 @@ def test_trie():
     assert not root.get("a")
 
     root.insert("a")
-    assert root.contains("a")
+    assert root.get("a")
     assert "a" in root.children
     assert not len(root.children["a"].children)
 
@@ -159,9 +159,9 @@ def test_trie():
     root.insert("alameda")
     root.insert("alphabetical")
 
-    assert root.contains("a") and root.contains("aardvark")
-    assert root.contains("alameda") and root.contains("alphabetical")
-    assert not root.contains("aa") and not root.contains("al")
+    assert root.get("a") and root.get("aardvark")
+    assert root.get("alameda") and root.get("alphabetical")
+    assert not root.get("aa").terminates and not root.get("al").terminates
 
-    assert root.prefix("alaverga") == "ala"
-    assert root.prefix("aa") == "aa"
+    assert root.prefix("alaverga") == 3
+    assert root.prefix("aa") == 2

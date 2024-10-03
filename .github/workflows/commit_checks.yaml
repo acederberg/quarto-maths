@@ -55,10 +55,6 @@ jobs:
 
       - name: Venv and Setup 
         run: |
-          echo -e "## Python Info\n" >> $GITHUB_STEP_SUMMARY
-          echo "- Python Version: \`$( python --version )\`" >> $GITHUB_STEP_SUMMARY
-          echo "- Python Binary: \`$( which python )\`" >> $GITHUB_STEP_SUMMARY
-
           python -m venv .venv
           source .venv/bin/activate
 
@@ -93,4 +89,36 @@ jobs:
             echo "One or more checks failed. See the summary for details."
             exit 1
           fi
+
+
+  pytest:
+    name: Pytest.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache Pip
+        uses: actions/cache@v3
+        id: venv
+        with:
+          path: .venv
+          key: ${{ runner.os }}-venv-${{ hashFiles('poetry.lock') }}
+
+      - name: Venv and Setup 
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+
+          python -m pip install poetry
+          poetry install
+
+      - name: test
+        run: |
+          pytest
 
