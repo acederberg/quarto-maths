@@ -46,16 +46,23 @@ def load_item(item: pathlib.Path):
     return content
 
 
-def check_taggroup(build_dir: pathlib.Path, tags: list[structs.OneMetaTag], expect: set[str]):
+def check_taggroup(
+    build_dir: pathlib.Path, tags: list[structs.OneMetaTag], expect: set[str]
+):
     parsed = {item.name: item.value for item in tags}
-    parsed_needs: list[Any] = [item for item in expect if item not in parsed or not parsed[item]]
+    parsed_needs: list[Any] = [
+        item for item in expect if item not in parsed or not parsed[item]
+    ]
 
-    if "image" in expect and "image" in parsed and not parsed["image"].startswith("https://"):
+    if (
+        "image" in expect
+        and "image" in parsed
+        and not parsed["image"].startswith("https://")
+    ):
         image_path = (build_dir / parsed["image"].replace("/", "", 1)).resolve()
 
         if not os.path.exists(image_path):
             parsed_needs.append({"image_not_valid": {"path": str(image_path)}})
-
 
     if len(parsed_needs):
         return parsed_needs
@@ -68,10 +75,14 @@ def check_item(build_dir: pathlib.Path, item_path: pathlib.Path):
     report = mtp.parse_meta_tags_from_source(item_content)
 
     out = dict()
-    if (twitter_missing := check_taggroup(build_dir, report.twitter, EXPECT_TWITTER)) is not None:
+    if (
+        twitter_missing := check_taggroup(build_dir, report.twitter, EXPECT_TWITTER)
+    ) is not None:
         out["twitter"] = twitter_missing
 
-    if (og_missing := check_taggroup(build_dir, report.open_graph, EXPECT_OPEN_GRAPH)) is not None:
+    if (
+        og_missing := check_taggroup(build_dir, report.open_graph, EXPECT_OPEN_GRAPH)
+    ) is not None:
         out["open_graph"] = og_missing
 
     if not len(out):
@@ -91,8 +102,7 @@ def check_listing(build_dir: pathlib.Path, listing_item: dict[str, Any]):
         for item in listing_item["items"]
         if (
             report := check_item(
-                build_dir,
-                item_path := (build_dir / item.replace("/", "", 1)).resolve()
+                build_dir, item_path := (build_dir / item.replace("/", "", 1)).resolve()
             )
         )
         is not None
