@@ -41,9 +41,9 @@ schedulable.
 ### Examples: Schedulable
 
 For instance, if $a_n = [10, 30, 50, 70]$ and $b_n = [20, 40, 60, 80]$ then 
-the item $[20, 30]$ satifies that $b_0 = 20 \leq a = 20 \leq 30 = a_1$. 
+the item $[20, 30]$ satisfies that $b_0 = 20 \leq a = 20 \leq 30 = a_1$. 
 
-When an item does fit it should not satify the equality, but instead its 
+When an item does fit it should not satisfy the equality, but instead its 
 negation. The negation is simply that, for all $n \in S$,
 
 \begin{equation}
@@ -64,7 +64,7 @@ following values
 : Evaluations {.striped .hover .dark}
 
 meaning that for any $j \in S$, one of the statements is false. However, 
-evaulating this statement clearly has linear run time, which is less than 
+evaluating this statement clearly has linear run time, which is less than 
 desirable. 
 
 If instead the nearest left neighbor, $10$ of $15$ is found, then it is clear 
@@ -98,7 +98,7 @@ for all $k < j$. Combining this with $b \le a_{j+1}$ and $a < b$ we have
   b_j \le a \lt b \le a_{j+1}
 \end{equation}
 
-which implies that $[a, b]$ is internally schedulable. Conversly, $k < j$ 
+which implies that $[a, b]$ is internally schedulable. Conversely, $k < j$ 
 implies $b_k \lt b_j$ by monotonicity. Then 
 
 \begin{equation}
@@ -123,7 +123,7 @@ The algorithm I propose is:
 0. (Trivially schedulable) If the schedule is empty, just insert the event and 
    return ``True``.
 1. (Externally schedulable) If the end of the event is less than the earliest 
-   scheduled event, add the event to the begining and return ``True``. 
+   scheduled event, add the event to the beginning and return ``True``. 
 2. (Externally schedulable) If the start of the event is after the end of the 
    latest scheduled event, add the event to end and return ``True``.
 3. (Internally schedulable) Look for the closest left neighbor $b_j$ of $a$ 
@@ -207,7 +207,7 @@ Let $\{a_n\}_{n\in S}$ be a monotonic sequence and $\xi$ be the target which
 we must find the leftmost neighbor $a_j$ of. Bisection will find $a_j$ in 
 at most $log_2(|S|)$ time.
 
-Let $N = |S|$. On the zeroeth iteration the numer of points to inspect is $N$,
+Let $N = |S|$. On the zeroeth iteration the number of points to inspect is $N$,
 on the first iteration it is reduced to $N / 2$ in the worst case. On the 
 $k$th iteration there will only be $N / 2^{k}$ entries to inspect. Further, 
 there must be at least two entries to inspect, so

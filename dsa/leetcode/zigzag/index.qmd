@@ -1,6 +1,6 @@
 ---
 title: Zigzag
-description: Efficiently solving the 'zigzag'-ification of a string.
+description: Efficiently solving the zigzagification of a string.
 image: /icons/leetcode/medium.svg
 extra:
   image: /icons/leetcode/medium.svg
@@ -155,11 +155,11 @@ memory usage. A few subtleties are worth noting:
    regard to run time.
 
 3. The ``yield from`` statements could be moved within the outer ``for`` loop
-   however this puts more logic within the foor loop and has no performance
+   however this puts more logic within the for loop and has no performance
    benefit.
 
 
-The time complexity is linear for a fixed numer of rows and linear for a fixed
+The time complexity is linear for a fixed number of rows and linear for a fixed
 size of string, so it is $O(N * m)$. 
 
 

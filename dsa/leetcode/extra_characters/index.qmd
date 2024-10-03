@@ -51,7 +51,7 @@ The algorithm is roughly:
 ## Solution
 
 My implementation is very much inspired by the editorial. So it is no surprise
-that it did reasonably well with $76\%$ quartile in runtime and $58\%$ in 
+that it did reasonably well with $76\%$ quantile in runtime and $58\%$ in 
 memory.
 
 ```{.python include="__init__.py" snippet="solution"}

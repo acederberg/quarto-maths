@@ -1,6 +1,6 @@
 ---
 title: How to Include Python Code From Files in Quarto
-description: Make it possible to import outside code into your quarto nodebooks.
+description: Make it possible to import outside code into your quarto notebooks.
 image: /icons/quarto.svg
 extra:
   url: /examples/include-code-files

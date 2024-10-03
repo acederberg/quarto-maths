@@ -25,7 +25,7 @@ date: 2024-08-27
 date-modified: 2024-08-27
 ---
 
-These notes/assignments were done along with ``dansbecker``s begginer course:
+These notes/assignments were done along with ``dansbecker``s beginner course:
 
 - [Basic Data Exploration](https://kaggle.com/code/dansbecker/basic-data-exploration)
 - [Your First ML Model](https://kaggle.com/code/dansbecker/your-first-machine-learning-model)
@@ -527,7 +527,7 @@ TREE = TREES[MAX_LEAF_NODES.index(BEST)]
 
 ### Making Predictions with the Model 
 
-The goal here is to plot and compare price preditions on the rows of ``DATA``
+The goal here is to plot and compare price predictions on the rows of ``DATA``
 that did not have a price and make some pretty plots. Rows with null columns
 can be found like follows:
 

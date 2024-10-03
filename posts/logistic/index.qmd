@@ -302,7 +302,7 @@ sequence, then we are just plotting
 \}
 \end{equation}
 
-If $\lambda_r$ is ploted along with $x \mapsto x$, the elements of the cobweb 
+If $\lambda_r$ is plotted along with $x \mapsto x$, the elements of the cobweb 
 sequence should lie on either line, alternating between them. This 
 visualization can be plotted using the following ``python`` code:
 

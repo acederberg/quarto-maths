@@ -24,11 +24,11 @@ To view the problem statement, [view it on leetcode](https://leetcode.com/proble
 
 A few things were immediately clear. First, there are only ``1440`` minutes in 
 a day, so there were only ``1440`` timestamps that could be provided in any
-array. Further, if a timestamp occured more than twice in an input array, then 
+array. Further, if a timestamp occurred more than twice in an input array, then 
 the minimum difference was zero.
 
-The stratagy I used was to first convert the timestamps into minutes - if the 
-same timestamp appeared after being seen once the minumum difference was $0$. 
+The strategy I used was to first convert the timestamps into minutes - if the 
+same timestamp appeared after being seen once the minimum difference was $0$. 
 If no exact matches were found, then adjacent values could be sorted out by
 iterating through all of the minutes, which would have a constant time 
 complexity.
@@ -55,7 +55,7 @@ bound for the time complexity of this solution is
 where $\epsilon$ is really small.
 
 
-## Possible Optomizations
+## Possible Optimizations
 
 Since this solution did pretty well and I'd like to do another problem I will 
 only speculate that having the local ``parsed`` of ``findMinDifference`` as a 

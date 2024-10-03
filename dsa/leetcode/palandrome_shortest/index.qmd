@@ -1,10 +1,10 @@
 ---
 title: Palindrome Completion
-description: Completing a string to a palindrome with the minimal numer of characters.
+description: Completing a string to a palindrome with the minimal number of characters.
 image: /icons/leetcode/hard.svg
 extra:  
   image: /icons/leetcode/hard.svg
-  url: /dsa/leetcode/palandrome_shortest
+  url: /dsa/leetcode/palindrome_shortest
   leetcode: 
     url: /problems/shortest-palindrome
     difficulty: hard
@@ -113,7 +113,7 @@ section is the reflection of the compliment of the palindrome.
 
 The next question is how to find a palindrome efficiently. It is easy to find
 an odd/even palindrome starting from some character in the string, however 
-could optimizations be made to look for both simultaniously.
+could optimizations be made to look for both simultaneously.
 
 
 ### Finding the Initial/Terminal Palindrome
@@ -125,7 +125,7 @@ are neither terminal nor initial)*.
 To look for an initial palindrome, the initial character should be looked for 
 elsewhere in the string and its locations recorded. For each such location, a
 palindrome of that particular radius should be searched for. Further, since the
-locations of such characters are known, it is immediatly known if the candidate
+locations of such characters are known, it is immediately known if the candidate
 string will be an even/odd palindrome - and, in fact, this has no bearing on 
 the check. 
 
@@ -142,8 +142,8 @@ and timed out on one of the final test cases.
 
 This is because ``searchPalindrome`` is terribly slow, and does not leverage
 the builtin functionality of python. Further, as mentioned in the section about
-finding the initial and terminal palandromes, there is a great deal of wasted
-effort looking for palandromes that cannot be used to complete in any efficient
+finding the initial and terminal palindromes, there is a great deal of wasted
+effort looking for palindromes that cannot be used to complete in any efficient
 way.
 
 

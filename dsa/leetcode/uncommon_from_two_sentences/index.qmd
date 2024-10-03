@@ -1,6 +1,6 @@
 ---
 title: Uncommon Words from Two Sentences
-description: Given two sentances, find the words that occur only once.
+description: Given two sentences, find the words that occur only once.
 image: /icons/leetcode/medium.svg
 extra:
   image: /icons/leetcode/medium.svg
@@ -38,7 +38,7 @@ class Solution:
         return list(word for word, count in counts.items() if count == 1)
 ```
 
-Futher the garding statement results in an incredible increase in performance,
+Further the gaurding statement results in an incredible increase in performance,
 which says more about the test cases than anything. 
 
 ```{.python include="__init__.py" snippet="solution_initial"}

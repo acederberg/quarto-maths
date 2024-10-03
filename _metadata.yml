@@ -4,12 +4,14 @@ author:
   - name: Adrian Cederberg
     url: acederberg.io
     email: adrn.cederberg123@gmail.com
-    # degrees: BS
 toc: false
 toc-depth: 3
 format:
   html:
     code-fold: false
+# NOTE: https://github.com/pandoc/lua-filters/tree/master/spellcheck
+filters:
+  - include-code-files
 execute:
   cache: true
 

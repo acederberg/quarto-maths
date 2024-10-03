@@ -33,11 +33,11 @@ start=0     start=0      start=0      start=1      start=2      start=3
 
 It would appear that 
 
-1. the end of the range should be incrremented on every loop,
-2. when a character in the selected range is encoutered again, the start of the 
-   range should be incremented from its last occurance.
+1. the end of the range should be incremented on every loop,
+2. when a character in the selected range is encountered again, the start of the 
+   range should be incremented from its last occurrence.
 
-However, with strings with many repeats, it is appearent that there are some
+However, with strings with many repeats, it is apparent that there are some
 subtleties to this approach:
 
 ```default
@@ -65,7 +65,7 @@ start=0          start=0          start=2          start=2          start=4
 A modification to this fixes the problem:
 
 2. when a character in the selected range is encoutered again, the start of the 
-   range should be incremented from its last occurance unless this new value is
+   range should be incremented from its last occurrence unless this new value is
    less than the current value of ``start``, in which case ``start`` should be
    maintained.
 

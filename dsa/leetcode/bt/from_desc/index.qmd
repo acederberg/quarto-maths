@@ -39,7 +39,7 @@ First, the nodes are constructed without any linkages and saved in a hash by
 their value alongside their respective instruction. Then these values are 
 iterated through - each node uses its description to be linked with its parent.
 
-Since the root node is not given an instruction but only refered to in index 
+Since the root node is not given an instruction but only referred to in index 
 `0` and since the root is unique, when the hash of nodes does not contain a 
 value it is certain that the value is that of the root node.
 
@@ -70,7 +70,7 @@ but not great. The solution is presented bellow:
 ```{.python include="__init__.py" snippet="solution_initial"}
 ```
 
-The appearent reason for this slowness is that there are two loops of 
+The apparent reason for this slowness is that there are two loops of 
 approximately the size of the descriptions input.
 
 
@@ -82,7 +82,7 @@ excellently in memory in the $98\%$ quantile.
 ```{.python include="__init__.py" snippet="solution"}
 ```
 
-The speed tradeoff is likely the result of all of the logic in the loop.
+The speed trade-off is likely the result of all of the logic in the loop.
 
 
 ### Yet Another Solution

@@ -84,7 +84,7 @@ web applications. At this time, I learned how to use libraries like
 `flask` and `sqlalchemy`, databases like `mysql` and `mongodb`,
 deployment tools such as `ansible`, `docker`, and `kubernetes` by
 putting together a portfolio to have proof of ability. *Said code isn\'t
-available publicly, however if you truely want to see it ask me for a
+available publicly, however if you want to see it ask me for a
 link and odds are that you\'ll be provided access.*
 
 At the age of 24, I was living off what little saving I had from college
@@ -131,7 +131,7 @@ engineers, even greener than I at the time, who required extensive
 assistance). After prototyping, the API I\'d developed was in acceptable
 state (tested, with pipelines for CI, and working on a prototype URL for
 our UI developer) I decided that it would be worth while to deploy with
-a more reproducible and scalible means.
+a more reproducible and scalable means.
 
 To this end, I designed and implemented an actual production
 infrastructure using `terraform`. This had quite a learning curve, as

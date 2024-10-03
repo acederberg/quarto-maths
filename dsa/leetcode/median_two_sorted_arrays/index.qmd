@@ -26,7 +26,7 @@ $\{a_j\}$ and $\{b_k\}$ of $\mathbb{N}$ indexed in monotonic order, the algorith
 
 1. Take $j_{start} = max(j)$ and $j_{stop} = min(j)$, and likewise for $k_{start}$
    and $k_{stop}$.
-2. If $j_{start} <= j_{stop}$ and $k_{start} <= k_{stop}$, look at the repective elements
+2. If $j_{start} <= j_{stop}$ and $k_{start} <= k_{stop}$, look at the respective elements
    for the starts and choose the lesser element - for this element increment 
    the corresponding value of $j_{start}$ or $k_{start}$ and record the lesser 
    element $r$ - then look at the respective elements of the stops and choose 

@@ -1,6 +1,6 @@
 ---
 title: "Deploying Quarto To Kubernetes"
-description: An in depth guide for deploying quarto to kubernetes suitable for begginers.
+description: An in depth guide for deploying quarto to kubernetes suitable for beginners.
 extra:
   url: /posts/quarto-kube-static
   image: /icons/kube.svg
@@ -67,7 +67,7 @@ However, a few good places to start are:
   seeing if it is possible to deploy your quarto site, then I would recommend 
   this as it is the cheapest. *(all you need is electricity!)*
 
-- [Linode Kuberenetes Engine](https://www.linode.com/products/kubernetes/) - By 
+- [Linode Kubernetes Engine](https://www.linode.com/products/kubernetes/) - By 
   far the cheapest cloud based option. It is as complete as any of the other 
   cloud options mentioned here. The only drawback is that you might have to
   deploy your own ingress controller (for instance [traefik](https://doc.traefik.io/traefik/providers/kubernetes-ingress/) 
@@ -162,7 +162,7 @@ CURRENT   NAME            CLUSTER     AUTHINFO          NAMESPACE
 
 ## Kubernetes Manifests
 
-A ``kubernetes`` manifest is just a ``YAML`` file that is interpretted by the 
+A ``kubernetes`` manifest is just a ``YAML`` file that is interpreted by the 
 ``kubectl`` client and transformed into API calls. This will result in the 
 creation of resources on your ``kubernetes`` cluster.
 

@@ -1,10 +1,10 @@
 ---
 title: Palindrome Completion
-description: Completing a string to a palindrome with the minimal numer of characters.
+description: Completing a string to a palindrome with the minimal number of characters.
 image: /icons/leetcode/hard.svg
 extra:  
   image: /icons/leetcode/hard.svg
-  url: /dsa/leetcode/palandrome_shortest
+  url: /dsa/leetcode/palindrome_shortest
   leetcode: 
     url: /problems/shortest-palindrome
     difficulty: hard
@@ -21,7 +21,7 @@ For [the leetcode daily 'shortest palindrome'](https://leetcode.com/problems/sho
 
 It is relatively easy to find a trivial solution - first, check is the entire
 string is a palindrome, then the ``n-1`` substring, and so on. Whenever a 
-palandrome is found, reverse the remainder of the string and throw it in front.
+palindrome is found, reverse the remainder of the string and throw it in front.
 
 
 ## Solutions

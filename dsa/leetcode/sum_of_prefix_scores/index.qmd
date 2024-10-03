@@ -1,6 +1,6 @@
 ---
 title: 'Daily Question 09/25/2024: Sum of Prefix Scores of Strings'
-description: 'Use a trie to count the numer of occurances of a prefix in a list.'
+description: 'Use a trie to count the number of occurrences of a prefix in a list.'
 image: /icons/leetcode/hard-daily.svg
 extra:
   url: /dsa/leetcode/sum_of_prefix_scores 
@@ -51,7 +51,7 @@ solution: [6, 7, 1, 2, 3]
 2. Count the number of terminating nodes on the subtrees.
 
 
-#### Counting the Number of Entries for a Subree for a Word
+#### Counting the Number of Entries for a Subtree for a Word
 
 1. Start with the longest prefix. Count all entries bellow and memoize or use 
    memoized result. 
@@ -69,7 +69,7 @@ integer.
 ### Improved Solution
 
 Since the ``terminates`` value is incremented every time a value that has 
-occured is reinserted, then it makes since to make a trie of prefixes, e.g.
+occurred is reinserted, then it makes since to make a trie of prefixes, e.g.
 
 ```
   a   ->       a   ->    a

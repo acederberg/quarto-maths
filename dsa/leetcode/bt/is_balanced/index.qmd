@@ -36,7 +36,7 @@ Submission can be seen [here](https://leetcode.com/problems/balanced-binary-tree
 
 ## Improved Solution
 
-A few obvious optomizations can be made - for instance if the left tree is not
+A few obvious optimizations can be made - for instance if the left tree is not
 balanced, then it is not necessary to check if the right tree is also balanced.
 
 I decided to look at some other solutions to see what optimizations could be 

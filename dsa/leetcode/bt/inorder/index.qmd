@@ -1,12 +1,12 @@
 ---
-title: Binary Tree Inorder Traversal
-description: Traverse a binary tree in inorder order.
+title: Binary Tree In-Order Traversal
+description: Traverse a binary tree in in-order order.
 image: /icons/leetcode/easy.svg
 extra:
   image: /icons/leetcode/easy.svg
-  url: /dsa/leetcode/bt/inorder
+  url: /dsa/leetcode/bt/in-order
   leetcode:
-    url: /problems/binary-tree-inorder-traversal/
+    url: /problems/binary-tree-in-order-traversal/
     difficulty: easy
     submissions: [1394598143, 1394601627, 1394603504, 1394612642, 1394700463]
 date: 09-18-2024
@@ -15,7 +15,7 @@ date-updated: 09-18-2024
 ---
 
 
-[The prompt may be found on leetcode](https://leetcode.com/problems/binary-tree-inorder-traversal/description/).
+[The prompt may be found on leetcode](https://leetcode.com/problems/binary-tree-in-order-traversal/description/).
 
 
 1. Iterate over the current nodes left subtree,
@@ -101,7 +101,7 @@ Iteration 6:
 
 ## Solutions
 
-### The Trival Solution
+### The Trivial Solution
 
 I did two variations of the trivial solution. One using an iterator and another
 using a list to append to. I did this mostly to gain insights into performance.
@@ -112,7 +112,7 @@ memory usage.
 ```{.python include="__init__.py" snippet="solution_trivial"}
 ```
 
-The appending solution placed at an yucky $42\%$ in runtime and an abbominable 
+The appending solution placed at an yucky $42\%$ in runtime and an abominable 
 $18\%$ in memory usage.
 
 

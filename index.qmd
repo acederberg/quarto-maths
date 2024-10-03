@@ -67,7 +67,7 @@ Lately I am interested in writing software as I have found it to be an indispens
 Blog posts will vary in subject matter, but invariably pertain to topics in computer science.
 Some things I will write about are ``python``, data structures and algorithms, containerization, infrastructure as code, numerical mathematics, and data science.
 For inquiries, please reach out to me at ``adrn.cederberg123@gmail.com`` or ``@_acederberg`` on twitter. 
-If you find any errors in my blog posts, please make an issue on [the github repository for this wibsite](https://github.com/acederberg/quarto-maths).
+If you find any errors in my blog posts, please make an issue on [the github repository for this website](https://github.com/acederberg/quarto-maths).
 :::
 
 

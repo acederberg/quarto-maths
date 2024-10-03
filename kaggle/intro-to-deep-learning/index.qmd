@@ -101,7 +101,7 @@ predictions. The measure of accuracy or **loss function** can be mean absolute
 error, mean squared error, or Hubber loss; the function telling the network how
 to adjust is called the **optimization function** and is usually some form of
 **stocacstic gradient descent**. The gradient is the direction in which loss in
-minimized and this is choosen *stocastically* (not randomly) depending on the 
+minimized and this is choosen *stochastically* (not randomly) depending on the 
 training sample. 
 
 A cycle of training is as simple as:

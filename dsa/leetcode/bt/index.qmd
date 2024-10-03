@@ -1,6 +1,6 @@
 ---
 title: "Leetcode Problems: Binary Trees."
-description: "@_acederberg's leetcode problems and notes pertaining to binary trees."
+description: "Leetcode problems and notes pertaining to binary trees."
 extra:
   url: /posts
   image: https://avatars.githubusercontent.com/u/77076023?v=4
