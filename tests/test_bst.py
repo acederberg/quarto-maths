@@ -1,7 +1,7 @@
-import json
 import random
 
 import pytest
+import yaml
 
 from dsa.bst import Node
 from tests.conftest import ASSETS, STASHKEY_TREE_KEYS
@@ -182,8 +182,8 @@ def test_min(tree: Node):
 
 # NOTE: Tree is not bst.
 def test_iter_bredth():
-    with open(ASSETS / "bt-bfs-ordered.json") as file:
-        root = Node.from_dict(json.load(file))
+    with open(ASSETS / "bt-bfs-ordered.yaml") as file:
+        root = Node.from_dict(yaml.safe_load(file))
 
     assert list(map(lambda item: item.value, root.iter_bredth())) == list(range(1, 16))
 

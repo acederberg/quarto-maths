@@ -119,6 +119,7 @@ jobs:
 
       - name: Pytest.
         run: |
+          source .venv/bin/activate
           poetry run pytest
 
 
