@@ -37,10 +37,13 @@ jobs:
           load: true
           secrets: |
             kaggle_json=${{ secrets.KAGGLE_JSON }}
+            google_tracking_id=${{ secrets.GOOGLE_TRACKING_ID }} 
 
       - name: Run Server Image.
         run: |
-          SERVER_VERSION=latest docker compose \
+          ACEDERBERG_IO_SERVER_VERSION='latest' \
+          ACEDERBERG_IO_GOOGLE_TRACKING_ID='${{ secrets.GOOGLE_TRACKING_ID }}' \
+          docker compose \
             --file docker/compose.prod.yaml \
             up --detach
 
@@ -93,6 +96,8 @@ jobs:
             exit 1
           fi
           
+      - if: always()
+        run: docker compose --file docker/compose.yaml down
 
   # NOTE: Read [this](https://nicwortel.nl/blog/2022/continuous-deployment-to-kubernetes-with-github-actions).
   kube:
