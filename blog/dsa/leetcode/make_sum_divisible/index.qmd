@@ -24,7 +24,7 @@ The full problem may be found [on leetcode](https://leetcode.com/problems/make-s
 The trivial solution is to look at every possible sub-array, which will have 
 quadratic time complexity. This solution looks like
 
-```{.python include="__init__.py"}
+```{.python include="__init__.py" snippet=trivial}
 ```
 
 and (obviously) exceeded the allowed runtime.
