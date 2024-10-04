@@ -5,7 +5,7 @@ description = "Quarto demo"
 authors = ["Adrian Cederberg <adrn.cederberg123@gmail.com>"]
 readme = "README.rst"
 packages = [
-  {include="dsa"}
+  {include="dsa", from="blog"}
 ]
 
 
@@ -71,7 +71,7 @@ push            = false
 [tool.pytest.ini_options]
 python_files = [
   "tests/*.py",
-  "dsa/**/__init__.py",
+  "site/dsa/**/__init__.py",
 ]
 
 [tool.mypy]

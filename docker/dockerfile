@@ -55,22 +55,19 @@ FROM quarto AS builder
 
 # NOTE: Assumes that build is occuring at the project root.
 WORKDIR /quarto/app
-COPY . /quarto/app
-
 ENV ACEDERBERG_IO_VENV=/quarto/.venv \
   ACEDERBERG_IO_WORKDIR=/quarto/app \
   ACEDERBERG_IO_BUILD_LOG=/quarto/app/build/build.log \
   KAGGLE_CONFIG_DIR=/quarto
 
-RUN mkdir $ACEDERBERG_IO_WORKDIR/build \
-  && bash $ACEDERBERG_IO_WORKDIR/docker/docker.sh >> $ACEDERBERG_IO_BUILD_LOG
-# ENV PATH=$PATH:$ACEDERBERG_IO_VENV/bin
-# RUN echo $PATH >> $ACEDERBERG_IO_BUILD_LOG
-# RUN which python3 >> $ACEDERBERG_IO_BUILD_LOG
 
-RUN bash -c "\
-  source $ACEDERBERG_IO_VENV/bin/activate \
-  && quarto add quarto-ext/include-code-files --no-prompt" >> $ACEDERBERG_IO_BUILD_LOG
+# NOTE: Keep building steps after this point. The steps above should only rerun
+#       when ``poetry-lock.toml``, ``pyproject.toml``, or ``docker`` changes.
+COPY ./pyproject.toml ./poetry.lock ./docker/docker.sh /quarto/app
+RUN mkdir $ACEDERBERG_IO_WORKDIR/build && \
+  bash $ACEDERBERG_IO_WORKDIR/docker.sh >> $ACEDERBERG_IO_BUILD_LOG
+
+
 
 # NOTE: A build time secret is required for the kaggle stuff, which is kind of 
 #       a pain ngl.
@@ -84,10 +81,13 @@ RUN bash -c "\
 #         --file ./docker/dockerfile \
 #         --secret id=kaggle_json,src=./config/kaggle/kaggle.json . 
 #       ```
+COPY ./blog /quarto/app/blog
 RUN --mount=type=secret,id=kaggle_json,target=/quarto/kaggle.json bash -c "\ 
   source $ACEDERBERG_IO_VENV/bin/activate \
   && ls /quarto/kaggle.json \
-  && quarto render /quarto/app" >> $ACEDERBERG_IO_BUILD_LOG
+  && cd /quarto/app/blog \
+  && quarto add quarto-ext/include-code-files --no-prompt \
+  && quarto render" >> $ACEDERBERG_IO_BUILD_LOG
 
 
 # --------------------------------------------------------------------------- #
@@ -98,8 +98,8 @@ FROM node:lts-alpine3.20 AS production
 USER node
 
 WORKDIR /app
-COPY --from=builder /quarto/app/build /app
 RUN npm install http-server
+COPY --from=builder /quarto/app/blog/build /app
 
 CMD ["npx", "http-server", "--port", "8080", "--proxy", "https://errors.acederberg.io/404.html", "/app"]
 
