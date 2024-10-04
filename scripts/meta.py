@@ -1,5 +1,4 @@
 import sys
-from os import environ
 import os
 import pathlib
 from typing import Any
@@ -8,24 +7,17 @@ import logging
 import meta_tags_parser as mtp
 import meta_tags_parser.structs as structs
 import yaml
+from scripts import env
 
 
 logger = logging.getLogger("scripts.meta")
 
 
-ENV_PREFIX = "ACEDERBERG_IO"
-BUILD_DIR = pathlib.Path(__file__).resolve().parent.parent / "build"
+
 EXPECT_TWITTER = {"description", "title", "image", "card"}
 EXPECT_OPEN_GRAPH = {"description", "title", "image", "type", "url"}
 
 
-def get(varname: str, *, default: str | None = None) -> str:
-    logger.debug("Getting variable `%s`.", varname)
-    out = environ.get(f"{ENV_PREFIX}_{varname.upper()}", default)
-    if out is None:
-        raise ValueError(f"Could not resolve for variable `{varname}`.")
-
-    return out
 
 
 def load_listings(build_dir: pathlib.Path) -> list[dict[str, Any]]:
@@ -63,6 +55,12 @@ def check_taggroup(
 
         if not os.path.exists(image_path):
             parsed_needs.append({"image_not_valid": {"path": str(image_path)}})
+
+    if "url" in expect and "url" in parsed:
+        url_path = (build_dir / parsed["url"].replace("/", "", 1)).resolve()
+
+        if not os.path.exists(url_path):
+            parsed_needs.append({"url_not_valid": {"path": str(url_path)}})
 
     if len(parsed_needs):
         return parsed_needs
@@ -109,8 +107,13 @@ def check_listing(build_dir: pathlib.Path, listing_item: dict[str, Any]):
     ]
 
 
-def main(_build_dir: str = "build"):
-    build_dir = pathlib.Path(get(ENV_PREFIX, default=_build_dir)).resolve()
+def main(_build_dir: pathlib.Path = env.BUILD) -> int:
+    if (build_dir_env := env.get("build", required=False)) is not None:
+        build_dir = pathlib.Path(build_dir_env).resolve() 
+    else:
+        build_dir = _build_dir
+
+
     logger.info("Checking build in `%s`.", build_dir)
 
     report = [
@@ -120,10 +123,12 @@ def main(_build_dir: str = "build"):
         for item in report_item
     ]
     if report:
-
         print(yaml.safe_dump(report, indent=2))
-        sys.exit(1)
+        return 1
+
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    code = main()
+    sys.exit(code)

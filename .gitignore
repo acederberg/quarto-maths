@@ -18,3 +18,5 @@ logistic_files
 !thumb.png
 _extensions
 .secrets
+.coverage
+.coverage-report

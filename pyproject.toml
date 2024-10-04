@@ -5,7 +5,8 @@ description = "Quarto demo"
 authors = ["Adrian Cederberg <adrn.cederberg123@gmail.com>"]
 readme = "README.rst"
 packages = [
-  {include="dsa", from="blog"}
+  {include="dsa", from="blog"},
+  {include="scripts"},
 ]
 
 
@@ -41,6 +42,7 @@ ruff = "^0.6.7"
 python-lsp-server = "^1.11.0"
 pandas-stubs = "^2.2.2.240909"
 types-pyyaml = "^6.0.12.20240917"
+pytest-cov = "^5.0.0"
 
 
 [tool.poetry.group.qa.dependencies]
@@ -69,15 +71,27 @@ push            = false
 
 
 [tool.pytest.ini_options]
-python_files = [
-  "tests/*.py",
-  "site/dsa/**/__init__.py",
-]
+python_files = ["tests/*.py", "blog/dsa/**/__init__.py"]
+
+
+[tool.coverage.report]
+fail_under = 60 
+include = ["./blog/**/*.py"]
+skip_covered = true
+skip_empty = true
+sort = "-cover" # NOTE: Sort from least to greatest coverage.
+
+
+[tool.coverage.html]
+directory = ".coverage-report"
+title = "Captura PyTest Coverage Report"
+
 
 [tool.mypy]
 overrides = [
   {module = "kagglehub.*",ignore_missing_imports=true},
 ]
+
 
 [build-system]
 requires = ["poetry-core"]

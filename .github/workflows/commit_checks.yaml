@@ -115,11 +115,32 @@ jobs:
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install poetry
-          poetry install
+          poetry install --with ci
 
       - name: Pytest.
         run: |
           source .venv/bin/activate
-          poetry run pytest
+          poetry run coverage run -m pytest
+          poetry run coverage html
 
+      - name: Upload Coverage Report.
+        id: blog-coverage-report-upload
+        if: refs/heads/main == github.ref
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './coverage-report'
+
+        
+  coverage:
+    name: PyTest Coverage
+    if: refs/heads/main == github.ref
+    needs: pytest
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    steps: 
+      - name: Deploy to GitHub Pages
+        id: blog-coverage-report-pages
+        uses: actions/deploy-pages@v4
 
