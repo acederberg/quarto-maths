@@ -1,3 +1,4 @@
+import pathlib
 import logging
 import sys
 import yaml
@@ -9,9 +10,9 @@ logger = logging.getLogger(__name__)
 QUARTO = env.BLOG / "_quarto.yaml"
 
 
-def main(quarto: str = QUARTO, _google_tracking_id: str | None = None, _dry: str = "1"):
+def main(quarto: pathlib.Path = QUARTO, _google_tracking_id: str | None = None, _dry: str = "1",):
 
-    google_tracking_id = env.get("google_tracking_id", _google_tracking_id)
+    google_tracking_id = env.get("google_tracking_id", _google_tracking_id, required=True,)
     dry = int(env.get("dry") or _dry)
 
     logger.debug("Loading `%s`.", quarto)
