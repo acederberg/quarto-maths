@@ -1,5 +1,5 @@
 ---
-title: Rank Transform of an Array
+title: 'Daily Problem 10/02/2024: Rank Transform of an Array'
 description: |
   Given an array, turn its elements into their respective indices in the sorted
   version of the array.

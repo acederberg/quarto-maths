@@ -1,0 +1,182 @@
+---
+title: 'Daily Problem 10/04/2024: Divide Players Into Teams of Equal Skill.'
+description: ''
+image: /icons/leetcode/medium-daily.svg
+extra:
+  image: /icons/leetcode/medium-daily.svg
+  url: /dsa/leetcode/divide_players
+  leetcode:
+    url: /problems/divide-players-into-teams-of-equal-skill
+    difficult: medium
+    submissions: []
+    day: 10-04-2024
+date: 10-04-2024
+date-created: 10-04-2024
+date-updated: 10-04-2024
+---
+
+
+Find the full problem [on leetcode](https://leetcode.com/problems/divide-players-into-teams-of-equal-skill/description/?envType=daily-question&envId=2024-10-04).
+
+
+## Restatement
+
+Let $S = \{k: 0 \lt k \lt n\}$ for some $n \in \mathbb{N}$ where $n \% 2 = 0$, and
+$\phi: S \to \mathbb{N}$ be an array. Find an algorithm to determine how to 
+find $n / 2$ distinct pairs $\{(a_k, b_k)\}$ for $a_k, b_k\in S$ such that
+
+\begin{equation}
+  \begin{split}
+    \cup_{k=1}^{n / 2} \{a_k, b_k\} = S \\
+    \land a_k + b_k = a_j + b_j \forall j,k\in S
+  \end{split}
+\end{equation}
+
+and compute
+
+\begin{equation}
+  \sum_{k=1}^{n} a_k * b_k
+\end{equation}
+
+
+## Analysis
+
+If the array is $n$ long and has a sum of $s$, then each element must add up
+to $s / n$. If $s % n != 0$ then there is no point in checking since the
+division is not into $\mathbb{N}$.
+
+Using a hash to remember the numbers seen and their completions is 
+required to lookup a match for any completion.
+
+
+```default
+3 2 5 1 3 4
+
+sum = 18, len / 2 = 3  =>  each pair should add up to 18 / 3 = 6.
+
+
+Iteration 1:
+  3 not in memo, add (6 - 3) to memo.
+  {3: 0}
+
+Iteration 2:
+  2 not in memo, so add (6 - 2) to memo.
+  {3: 0, 4: 1}
+
+Iteration 3:
+  5 not in memo, so add (6 - 5) to memo.
+  {3: 0, 4: 1, 1: 2}
+
+Iteration 4:
+  1 is in memo, yield the pair (5, 1), remove `1` from memo.
+  {3: 0, 4: 1}
+
+Iteration 5:
+  3 is in memo, yield (3, 3), remove `3` from memo.
+  {4: 1}
+
+Iteration 6:
+  4 is in memo, yield (4, 2), remove `4` from memo.
+```
+
+
+```default
+1 1 2 3
+
+sum = 7, len / 2 = 2 => 7 % 2 != 0, so there is no way to group.
+```
+
+
+```default
+3 4
+
+sum = 7, len / 2 = 1 => 7 % 1 = 0, each pair should add up to 7 / 1 = 7.
+
+Iteration 1: 
+  3 not in memo. So add (7 - 3) = 4 to memo
+  {3: 0}
+
+Iteration 2: 
+  4 in memo, yield (3, 4)
+  {}
+```
+
+It is important to consider the case where there is an element $k\in S$ such 
+that 
+
+\begin{equation}
+  \frac{\sum_{k=1}^n \phi(k)}{ n / 2} < \phi(k)
+\end{equation}
+
+
+In such a case, since all of the elements of $\phi(S)$ are positive, there is
+no value that can be added to $\phi(k)$ to complete it.
+
+
+When something is already in the hash, it should not be reinserted. 
+
+```default
+2 3 4 2 5 5,  sum = 21, 21 % 3 = 0, 21 / 7 = 3.
+
+Iteration 1:
+  2 not in memo, 7 - 2
+  {5: 0}
+
+Iteration 2:
+  3 not in memo, 7 - 3
+  {5: 0, 4: 1}
+
+Iteration 3:
+  4 in memo, yield (3, 4)
+  {5: 0}
+
+Iteration 4:
+  2 not in memo, 7 - 2
+  {5: 3}
+
+...
+```
+
+What I am now noticing is that at no point the index has been used. The values 
+of the hash could be used to store a value to resolve the above issue. Finally,
+if memo is not empty after all iterations, then there is no way to combine 
+everything into equal teams.
+
+To summarize:
+
+1. Check that the sum of the array is divisible by half its size. If not, 
+   return $-1$. Define the target value as the sum of the array divided by half
+   its size.
+2. For each value: 
+   - If the value exceeds the target, then no match can be made. Return $-1$.
+   - either save its completion in the hash and increment the hash value, or 
+     decrement the hash value and accumulate the product of the pair in the output value.
+3. If there is still something in the hash, then everything could not be paired
+   up, return $-1$.
+4. Return the accumulated output.
+
+Further, the time complexity of this algorithm is $O(n)$ since it takes linear 
+time to compute the sum and iterate over the items.
+
+
+## Solution
+
+Unfortunately I was too optimistic about my initial solution had a few failed 
+submissions finding edge cases. In the end my solution performed better than
+$89\%$ of solutions in runtime and $31\%$ in memory.
+
+```{.python include="__init__.py" snippet="solution"}
+```
+
+
+## Sorting Solution
+
+After I solved this I went ahead and looked at the discussion. I found it funny
+that a sorting method worked, and just assumes that the target is the least
+element plus the greatest element. This looks like
+
+```{.python include="__init__.py" snippet="sort"}
+```
+
+It performed better in memory but worse in runtime, beating $53\%$ in runtime 
+and $68\%$ in memory.

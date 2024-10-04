@@ -1,5 +1,5 @@
 ---
-title: Make Sum Divisible by ``p``
+title: 'Daily Problem 10/03/2024: Make Sum Divisible by ``p``'
 description: Find a maximal subarray of an integer array whose modulus by ``p`` is ``0``.
 image: /icons/leetcode/medium-daily.svg
 extra:
