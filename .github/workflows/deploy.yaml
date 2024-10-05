@@ -1,6 +1,11 @@
 name: Build
 on:
   workflow_dispatch:
+    inputs:
+      preview:
+        required: true
+        description: "Deploy to the preview site when true."
+        default: "1"
 jobs:
   # NOTE: See [the example](https://github.com/marketplace/actions/build-and-push-docker-images).
   build:
@@ -79,15 +84,6 @@ jobs:
           poetry run python -m scripts.meta >> $GITHUB_STEP_SUMMARY
           echo -e "~~~\n" >> $GITHUB_STEP_SUMMARY
 
-      # - name: Check Spelling.
-      #   id: spell
-      #   continue-on-error: true
-      #   run: |
-      #     echo Placeholder
-      #     # echo -e "## Spell Report\n\n~~~yaml" >> $GITHUB_STEP_SUMMARY
-      #     # poetry run python ./scripts/spell.py >> $GITHUB_STEP_SUMMARY
-      #     # echo -e "~~~\n" >> $GITHUB_STEP_SUMMARY
-
       - run: |
           if ( \
             [ "${{ steps.metatags.outcome }}" != 'success' ]
@@ -124,6 +120,15 @@ jobs:
           k8s-secret: ${{ secrets.K8S_SECRET }}
         id: setcontext
 
+      - name: Determine Deploy Enivornment.
+        run: |
+          if [[ '${{ github.event.inputs.preview }}' == '0' ]]; then
+            echo "MANIFEST_USED=ci.yaml" >> $GITHUB_ENVIRON
+          else
+            echo "MANIFEST_USED=ci.prod.yaml" >> $GITHUB_ENVIRON
+          fi
+        
+
       # NOTE: Correct imagePullPolicy is necessary for this step to work. 
       #       Specifying the image version requires special permissions so that
       #       the action can modify workflow files, thus the latest tag is 
@@ -132,7 +137,7 @@ jobs:
         with:
           namespace: blog
           manifests: |
-            docker/manifests/ci.yaml
+            docker/manifests/${{ env.MANIFEST_USED }}
           images: |
             acederberg/blog:${{ github.sha }}
 

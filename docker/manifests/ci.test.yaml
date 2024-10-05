@@ -2,9 +2,9 @@
 apiVersion: apps/v1
 metadata:
   namespace: blog
-  name: blog
+  name: blog-preview
   labels: &labels
-    acederberg.io/environment: production
+    acederberg.io/environment: preview
     acederberg.io/tier: browser
     acederberg.io/from: kubectl
     acederberg.io/component: blog
@@ -34,7 +34,4 @@ spec:
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 1
-
-
-
 

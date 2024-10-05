@@ -52,14 +52,19 @@ CMD ["bash"]
 
 # --------------------------------------------------------------------------- #
 FROM quarto AS builder
+ARG GIT_COMMIT=development 
+ARG GIT_REF=main
+
 
 # NOTE: Assumes that build is occuring at the project root.
 WORKDIR /quarto/app
-ENV ACEDERBERG_IO_VENV=/quarto/.venv \
-  ACEDERBERG_IO_DRY=0 \
-  ACEDERBERG_IO_WORKDIR=/quarto/app \
-  ACEDERBERG_IO_BUILD_LOG=/quarto/app/build/build.log \
-  KAGGLE_CONFIG_DIR=/quarto
+ENV ACEDERBERG_IO_VENV="/quarto/.venv" \
+  ACEDERBERG_IO_GIT_COMMIT="${GIT_COMMIT}" \
+  ACEDERBERG_IO_GIT_REF="${GIT_REF}" \
+  ACEDERBERG_IO_DRY="0" \
+  ACEDERBERG_IO_WORKDIR="/quarto/app" \
+  ACEDERBERG_IO_BUILD_LOG="/quarto/app/build/build.log" \
+  KAGGLE_CONFIG_DIR="/quarto"
 
 
 # NOTE: Keep building steps after this point. The steps above should only rerun
