@@ -19,12 +19,15 @@ class Context:
     quarto: pathlib.Path
     google_tracking_id: str
 
-    def __init__(self, *, 
-         git_commit: str, git_ref: str,
-         google_tracking_id: str,
-         quarto: pathlib.Path = QUARTO, 
-         quarto_variables: pathlib.Path = QUARTO_VARIABLES,
-     ):
+    def __init__(
+        self,
+        *,
+        git_commit: str,
+        git_ref: str,
+        google_tracking_id: str,
+        quarto: pathlib.Path = QUARTO,
+        quarto_variables: pathlib.Path = QUARTO_VARIABLES,
+    ):
 
         self.git_commit = git_commit
         self.git_ref = git_ref
@@ -32,7 +35,6 @@ class Context:
         self.quarto = quarto
         self.quarto_variables = quarto_variables
         self.google_tracking_id = google_tracking_id
-
 
     def set_tracking_id(self, dry: bool) -> int:
         logger.debug("Loading `%s`.", self.quarto)
@@ -63,8 +65,11 @@ class Context:
 
     def spawn_variables(self, dry: bool) -> int:
 
-        data =   {"build_git_commit": self.git_commit, "build_git_ref": self.git_ref,
-                  "build_timestamp": datetime.timestamp(datetime.now())}
+        data = {
+            "build_git_commit": self.git_commit,
+            "build_git_ref": self.git_ref,
+            "build_timestamp": datetime.timestamp(datetime.now()),
+        }
 
         if dry:
             print("---")
@@ -78,19 +83,29 @@ class Context:
         return 0
 
 
-def main(_google_tracking_id: str | None = None, _dry: str = "1",):
+def main(
+    _google_tracking_id: str | None = None,
+    _dry: str = "1",
+):
 
-    google_tracking_id: str = env.get("google_tracking_id", _google_tracking_id, required=True,) # type: ignore
+    google_tracking_id: str = env.get(
+        "google_tracking_id",
+        _google_tracking_id,
+        required=True,
+    )  # type: ignore
 
-    git_commit : str = env.get("git_commit", required=True) # type: ignore
-    git_ref: str = env.get("git_ref", required=True) # type: ignore
+    git_commit: str = env.get("git_commit", required=True)  # type: ignore
+    git_ref: str = env.get("git_ref", required=True)  # type: ignore
 
     dry = int(env.get("dry") or _dry) != 0
 
-    context = Context(google_tracking_id=google_tracking_id, git_commit=git_commit, git_ref=git_ref,)
-    if (out := context.set_tracking_id(dry)): 
+    context = Context(
+        google_tracking_id=google_tracking_id,
+        git_commit=git_commit,
+        git_ref=git_ref,
+    )
+    if out := context.set_tracking_id(dry):
         return out
-
 
     return context.spawn_variables(dry)
 
@@ -98,7 +113,3 @@ def main(_google_tracking_id: str | None = None, _dry: str = "1",):
 if __name__ == "__main__":
     code = main()
     sys.exit(code)
-
-
-
-

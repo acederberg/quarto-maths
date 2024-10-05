@@ -13,11 +13,8 @@ from scripts import env
 logger = logging.getLogger("scripts.meta")
 
 
-
 EXPECT_TWITTER = {"description", "title", "image", "card"}
 EXPECT_OPEN_GRAPH = {"description", "title", "image", "type", "url"}
-
-
 
 
 def load_listings(build_dir: pathlib.Path) -> list[dict[str, Any]]:
@@ -109,10 +106,9 @@ def check_listing(build_dir: pathlib.Path, listing_item: dict[str, Any]):
 
 def main(_build_dir: pathlib.Path = env.BUILD) -> int:
     if (build_dir_env := env.get("build", required=False)) is not None:
-        build_dir = pathlib.Path(build_dir_env).resolve() 
+        build_dir = pathlib.Path(build_dir_env).resolve()
     else:
         build_dir = _build_dir
-
 
     logger.info("Checking build in `%s`.", build_dir)
 

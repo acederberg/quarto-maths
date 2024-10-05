@@ -1,7 +1,7 @@
 import pytest
 
 
-# start snippet trivial 
+# start snippet trivial
 class SolutionTrivial:
     def minSubarray(self, nums: list[int], p: int) -> int:
 
@@ -13,15 +13,15 @@ class SolutionTrivial:
 
         best = n
         for k in range(n):
-            s =0 
+            s = 0
             for j in range(k, n):
 
                 s += nums[j]
-                if s % p == total_remainder and j + 1  - k < best:
-                    best = j + 1 - k 
+                if s % p == total_remainder and j + 1 - k < best:
+                    best = j + 1 - k
 
         return best
-        # end snippet trivial 
+        # end snippet trivial
 
 
 # start snippet solution
@@ -40,9 +40,9 @@ class Solution:
         for k in range(n):
 
             s = (s + nums[k]) % p
-            needed = ( s - target ) % p
+            needed = (s - target) % p
             if needed in mem:
-                out = min(out, k - mem[needed]) 
+                out = min(out, k - mem[needed])
 
             mem[s] = k
 
@@ -51,19 +51,21 @@ class Solution:
 
 
 @pytest.fixture
-def solution(): return Solution()
-
+def solution():
+    return Solution()
 
 
 @pytest.mark.parametrize(
     "question_nums, question_p, answer",
     (
-        ([3, 1,  4, 2], 6, 1),
-        ([6,3,5,2], 9, 2),
+        ([3, 1, 4, 2], 6, 1),
+        ([6, 3, 5, 2], 9, 2),
         ([1, 2, 3], 3, 0),
     ),
 )
-def test_solution(solution: SolutionTrivial, question_nums: list[int], question_p: int, answer: int):
+def test_solution(
+    solution: SolutionTrivial, question_nums: list[int], question_p: int, answer: int
+):
 
     answer_computed = solution.minSubarray(question_nums, question_p)
     assert answer == answer_computed
