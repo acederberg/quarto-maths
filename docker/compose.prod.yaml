@@ -8,7 +8,7 @@ services:
       secrets:
         - source: kaggle_json
         - source: google_tracking_id
-    image: acederberg/blog:${ACEDERBERG_IO_SERVER_VERSION-0.1.3}
+    image: acederberg/blog:${ACEDERBERG_IO_SERVER_VERSION-0.2.0}
     ports:
       - published: 8080
         target: 8080
