@@ -3,7 +3,7 @@ name = "quarto-demo"
 version = "0.2.0"
 description = "Quarto demo"
 authors = ["Adrian Cederberg <adrn.cederberg123@gmail.com>"]
-readme = "README.rst"
+readme = "README.md"
 packages = [
   {include="dsa", from="blog"},
   {include="scripts"},

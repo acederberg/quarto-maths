@@ -1,6 +1,6 @@
 ---
 title: 'Daily Problem 10/04/2024: Divide Players Into Teams of Equal Skill.'
-description: ''
+description: 'Divide an array into distinct pairs of equal sum.'
 image: /icons/leetcode/medium-daily.svg
 extra:
   image: /icons/leetcode/medium-daily.svg

@@ -4,7 +4,7 @@ description: Traverse a binary tree in in-order order.
 image: /icons/leetcode/easy.svg
 extra:
   image: /icons/leetcode/easy.svg
-  url: /dsa/leetcode/bt/in-order
+  url: /dsa/leetcode/bt/inorder
   leetcode:
     url: /problems/binary-tree-in-order-traversal/
     difficulty: easy

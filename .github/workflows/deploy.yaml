@@ -54,7 +54,7 @@ jobs:
 
           docker compose \
             --file docker/compose.prod.yaml \
-            cp server:/app build
+            cp server:/app blog/build
 
       - uses: actions/setup-python@v5
         with:
@@ -123,9 +123,9 @@ jobs:
       - name: Determine Deploy Enivornment.
         run: |
           if [[ '${{ github.event.inputs.preview }}' == '0' ]]; then
-            echo "MANIFEST_USED=ci.yaml" >> $GITHUB_ENVIRON
+            echo "MANIFEST_USED=ci.yaml" >> $GITHUB_ENV
           else
-            echo "MANIFEST_USED=ci.prod.yaml" >> $GITHUB_ENVIRON
+            echo "MANIFEST_USED=ci.preview.yaml" >> $GITHUB_ENV
           fi
         
 

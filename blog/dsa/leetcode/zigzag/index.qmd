@@ -4,7 +4,7 @@ description: Efficiently solving the zigzagification of a string.
 image: /icons/leetcode/medium.svg
 extra:
   image: /icons/leetcode/medium.svg
-  url: dsa/leetcode/zigzag/
+  url: /dsa/leetcode/zigzag/
   leetcode:
     url: /problems/zigzag-conversion/description/
     difficulty: medium
