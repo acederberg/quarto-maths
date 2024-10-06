@@ -1,10 +1,9 @@
 ---
-title: Build data.
+title: Build Data
 description: Build data.
-draft: true
 ---
 
-Build data:
+## Build Data
 
 ```yaml
 build_git_ref: {{< var build_git_ref >}}

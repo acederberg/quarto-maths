@@ -117,7 +117,7 @@ USER node
 
 WORKDIR /app
 RUN npm install http-server
-COPY --from=builder /quarto/app/blog/build /app
+COPY --from=builder /quarto/app/blog/build /app/build
 
-CMD ["npx", "http-server", "--port", "8080", "--proxy", "https://errors.acederberg.io/404.html", "/app"]
+CMD ["npx", "http-server", "--port", "8080", "--proxy", "https://errors.acederberg.io/404.html", "/app/build"]
 

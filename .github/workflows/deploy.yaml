@@ -54,7 +54,7 @@ jobs:
 
           docker compose \
             --file docker/compose.prod.yaml \
-            cp server:/app blog/build
+            cp server:/app/build blog/build
 
       - uses: actions/setup-python@v5
         with:
