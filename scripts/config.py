@@ -13,8 +13,9 @@ QUARTO_VARIABLES = env.BLOG / "_variables.yaml"
 
 
 class Context:
-    git_commit: str
-    git_ref: str
+    build_git_commit: str
+    build_git_ref: str
+
     quarto_variables: pathlib.Path
     quarto: pathlib.Path
     google_tracking_id: str
@@ -22,15 +23,15 @@ class Context:
     def __init__(
         self,
         *,
-        git_commit: str,
-        git_ref: str,
+        build_git_commit: str,
+        build_git_ref: str,
         google_tracking_id: str,
         quarto: pathlib.Path = QUARTO,
         quarto_variables: pathlib.Path = QUARTO_VARIABLES,
     ):
 
-        self.git_commit = git_commit
-        self.git_ref = git_ref
+        self.build_git_commit = build_git_commit
+        self.build_git_ref = build_git_ref
 
         self.quarto = quarto
         self.quarto_variables = quarto_variables
@@ -58,6 +59,7 @@ class Context:
             return 0
 
         logger.debug("Dumping updated `%s`.", self.quarto)
+
         with open(self.quarto, "w") as file:
             yaml.safe_dump(data, file)
 
@@ -65,9 +67,10 @@ class Context:
 
     def spawn_variables(self, dry: bool) -> int:
 
+        logger.debug("Adding variables to ``_variables.yaml``.")
         data = {
-            "build_git_commit": self.git_commit,
-            "build_git_ref": self.git_ref,
+            "build_git_commit": self.build_git_commit,
+            "build_git_ref": self.build_git_ref,
             "build_timestamp": datetime.timestamp(datetime.now()),
         }
 
@@ -88,22 +91,15 @@ def main(
     _dry: str = "1",
 ):
 
-    google_tracking_id: str = env.get(
-        "google_tracking_id",
-        _google_tracking_id,
-        required=True,
-    )  # type: ignore
 
-    git_commit: str = env.get("git_commit", required=True)  # type: ignore
-    git_ref: str = env.get("git_ref", required=True)  # type: ignore
 
     dry = int(env.get("dry") or _dry) != 0
-
     context = Context(
-        google_tracking_id=google_tracking_id,
-        git_commit=git_commit,
-        git_ref=git_ref,
+        google_tracking_id=env.require("google_tracking_id", _google_tracking_id),
+        build_git_commit=env.require("build_git_commit"),
+        build_git_ref=env.require("build_git_ref"),
     )
+
     if out := context.set_tracking_id(dry):
         return out
 

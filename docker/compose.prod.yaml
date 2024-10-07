@@ -8,12 +8,15 @@ services:
       secrets:
         - source: kaggle_json
         - source: google_tracking_id
+      args:
+        ACEDERBERG_IO_GOOGLE_TRACKING_ID: ${ACEDERBERG_IO_GOOGLE_TRACKING_ID}
+        ACEDERBERG_IO_BUILD_GIT_COMMIT: ${ACEDERBERG_IO_BUILD_GIT_COMMIT}
+        ACEDERBERG_IO_BUILD_GIT_REF: ${ACEDERBERG_IO_BUILD_GIT_REF}
     image: acederberg/blog:${ACEDERBERG_IO_SERVER_VERSION-0.2.0}
     ports:
       - published: 8080
         target: 8080
     tty: true
-
 secrets:
   kaggle_json:
     file: ../config/kaggle/kaggle.json
@@ -21,4 +24,3 @@ secrets:
   google_tracking_id:
     environment: ACEDERBERG_IO_GOOGLE_TRACKING_ID
     external: true
-

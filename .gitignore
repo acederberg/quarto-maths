@@ -20,3 +20,4 @@ _extensions
 .secrets
 .coverage
 .coverage-report
+.env
