@@ -9,4 +9,5 @@ description: Build data.
 build_git_ref: {{< var build_git_ref >}}
 build_git_commit: {{< var build_git_commit >}}
 build_timestamp: {{< var build_timestamp >}}
+build_isoformat: {{< var build_isoformat >}}
 ```

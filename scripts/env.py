@@ -16,10 +16,8 @@ def get(
     varname: str, default: str | None = None, *, required: bool = False
 ) -> str | None:
 
-    out = environ.get(f"{ENV_PREFIX}_{varname.upper()}", default)
-    print(out)
-
     logger.debug("Getting variable `%s`.", varname)
+    out = environ.get(f"{ENV_PREFIX}_{varname.upper()}", default)
     if out is None and required:
         raise ValueError(f"Could not resolve for variable `{varname}`.")
 

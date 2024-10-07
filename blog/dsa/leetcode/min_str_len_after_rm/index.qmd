@@ -1,6 +1,7 @@
 ---
 title: "Daily Challenge 10/07/2024: Minimum String Length After Removing Substrings"
-decription: "Remove nested substrings from a string."
+description: "Remove nested substrings from a string."
+image: /icons/leetcode/easy-daily.svg
 extra: 
   image: /icons/leetcode/easy-daily.svg
   url: /dsa/leetcode/min_str_len_after_rm
@@ -103,3 +104,6 @@ My initial solution always retreated to the very start, which caused some
 terrible performance (only beat $7\%$ in both runtime and memory). I fixed it 
 to retreat only to the character before those matched and beat $78\%$ in 
 runtime.
+
+```{.python include="__init__.py" snippet="solution"}
+```
