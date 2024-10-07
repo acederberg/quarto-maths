@@ -68,12 +68,12 @@ class Context:
     def spawn_variables(self, dry: bool) -> int:
 
         logger.debug("Adding variables to ``_variables.yaml``.")
-        now = datetime.now() 
+        now = datetime.now()
         data = {
             "build_git_commit": self.build_git_commit,
             "build_git_ref": self.build_git_ref,
             "build_timestamp": datetime.timestamp(now),
-            "build_isoformat": now.isoformat()
+            "build_isoformat": now.isoformat(),
         }
 
         if dry:
