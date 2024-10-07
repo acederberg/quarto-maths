@@ -8,7 +8,7 @@ services:
     container_name: quarto-server
     environment:
       KAGGLE_CONFIG_DIR: "/home/docker/app/config/kaggle"
-    image: acederberg/blog-dev:0.2.1
+    image: acederberg/blog-dev:0.2.2
     # NOTE: Because dipping into swap memory can crash a standard laptop these
     #       limitations are imposed.
     mem_swappiness: 0
