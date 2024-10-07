@@ -21,7 +21,7 @@ listing:
     - description
     - author
   sort:
-    - date-created desc
+    - date desc
   contents:
     - "**/index.qmd"
   type: grid

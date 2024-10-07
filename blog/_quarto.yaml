@@ -41,6 +41,18 @@ theme:
   light: [flatly, ./themes/commits.css, ./themes/index.css]
 format:
   html:
+    code-fold: false
     embed-resources: false
     template-partials:
       - templates/metadata.html
+author: 
+  - name: Adrian Cederberg
+    url: acederberg.io
+    email: adrn.cederberg123@gmail.com
+filters:
+  - include-code-files
+execute:
+  freeze: true
+  cache: true
+toc: true
+toc-depth: 3
