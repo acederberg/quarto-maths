@@ -25,7 +25,7 @@ class Solution:
         index = 0
         while index < n:
             if (radius := self.getRadius(s, n, index)) > 0:
-                s = s[:index + 1 - radius] + s[index + radius + 1:]
+                s = s[: index + 1 - radius] + s[index + radius + 1 :]
                 n -= 2 * radius
                 index -= radius - 1
             else:
@@ -61,11 +61,9 @@ def test_get_radius(solution: Solution, s: str, index: int, answer: int):
         ("ABFCACDB", 2),
         ("ACBBD", 5),
         ("CACACABDBDBDB", 1),
-        (
-            "CCDAABBDCD", 0),
-
-    )
+        ("CCDAABBDCD", 0),
+    ),
 )
 def test_solution(solution: Solution, s: str, answer: int):
-    answer_computed = solution.minLength(s) 
+    answer_computed = solution.minLength(s)
     assert answer == answer_computed

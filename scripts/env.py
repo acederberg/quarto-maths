@@ -26,10 +26,9 @@ def get(
     return out
 
 
-def require(
-    varname: str, default: str | None = None) -> str:
+def require(varname: str, default: str | None = None) -> str:
 
-    var = get(varname, default, required=True) # type: ignore
+    var = get(varname, default, required=True)  # type: ignore
     if not var:
         raise ValueError(f"Value `{var}` for `{varname}` is falsy.")
 
