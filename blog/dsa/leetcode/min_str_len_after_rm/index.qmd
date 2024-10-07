@@ -1,0 +1,97 @@
+---
+title: "Daily Challenge 10/07/2024: Minimum String Length After Removing Substrings"
+decription: ""
+extra: 
+  image: /icons/leetcode/easy-daily.svg
+  url: /dsa/leetcode/min_str_len_after_rm
+  leetcode:
+    url: problems/minimum-string-length-after-removing-substrings
+    difficulty: easy
+    day: 10-07-2024
+    submissions: []
+date: 10-07-2024
+date-created: 10-07-2024
+date-updated: 10-07-2024
+---
+
+See the full problem statement [on leetcode](https://leetcode.com/problems/minimum-string-length-after-removing-substrings/description/?envType=daily-question&envId=2024-10-07).
+
+
+## Analysis
+
+### Examples
+
+```default
+
+Iteration 1:
+ABFCACDB
+^^
+index=0
+
+Iteration 2:
+FCACDB
+^
+index=0
+
+Iteration 3:
+FCACDB
+ ^
+ index=1
+
+Iteration 4:
+FCACDB
+ ^^^^
+  index=2
+
+Iteration 5:
+
+FB
+ ^ index=2
+```
+
+```default
+CACACABDBDBDB
+     ^^ radius = 1
+CACACABDBDBDB
+    ^  ^ radius = 2
+CACACABDBDBDB
+   ^    ^ radius = 3
+CACACABDBDBDB
+  ^      ^ radius = 4
+CACACABDBDBDB
+ ^        ^ radius = 5
+CACACABDBDBDB
+^          ^ radius = 6
+```
+
+
+```default
+CCDAABBDCD
+ ^^
+ index=1, retreat by radius minus 1 (0).
+
+CAABBDCD
+ ^
+ index=1
+
+CAABBDCD
+^^^^^^ 
+  index=2, retreat by 2.
+
+CD
+^^ index=0, retreat by 1
+
+```
+
+ 
+### Algorithm
+
+1. Look at the current character. 
+   - Start with a radius of zero, and see if ``s[index + radius]`` is ``A`` or ``C``.
+     If it is not, the return zero - otherwise check that ``s[index + radius + 1]``
+     is the corresponding end. Increment the radius by one and see if this still
+     holds, and keep going until the radius brinds the indices out of bounds
+     or characters do not match.
+
+2. Remove the matched characters and go back to before the removed segment.
+3. Return the length of the string minus twice the matches.
