@@ -1,6 +1,6 @@
 ---
 title: "Daily Challenge 10/07/2024: Minimum String Length After Removing Substrings"
-decription: ""
+decription: "Remove nested substrings from a string."
 extra: 
   image: /icons/leetcode/easy-daily.svg
   url: /dsa/leetcode/min_str_len_after_rm
@@ -90,8 +90,16 @@ CD
    - Start with a radius of zero, and see if ``s[index + radius]`` is ``A`` or ``C``.
      If it is not, the return zero - otherwise check that ``s[index + radius + 1]``
      is the corresponding end. Increment the radius by one and see if this still
-     holds, and keep going until the radius brinds the indices out of bounds
+     holds, and keep going until the radius brings the indices out of bounds
      or characters do not match.
 
 2. Remove the matched characters and go back to before the removed segment.
-3. Return the length of the string minus twice the matches.
+3. Return the length of the remaining string.
+
+
+## Solution
+
+My initial solution always retreated to the very start, which caused some 
+terrible performance (only beat $7\%$ in both runtime and memory). I fixed it 
+to retreat only to the character before those matched and beat $78\%$ in 
+runtime.
