@@ -105,7 +105,6 @@ RUN \
   --mount=type=cache,target=$ACEDERBERG_IO_VENV \ 
   --mount=type=secret,id=kaggle_json,target=/quarto/kaggle.json,required \
   --mount=type=secret,id=google_tracking_id,env=ACEDERBERG_IO_GOOGLE_TRACKING_ID,required \
-
   bash -c "\ 
     source $ACEDERBERG_IO_VENV/bin/activate \
     && poetry run python -m scripts.config \
