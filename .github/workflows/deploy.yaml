@@ -26,21 +26,6 @@ jobs:
       - name: Setup Docker Buildx.
         uses: docker/setup-buildx-action@v3
 
-      - name: Cache Virtual Environment.
-        uses: actions/cache@v3
-        id: venv
-        with:
-          path: .venv
-          key: ${{ runner.os }}-venv-${{ hashFiles('poetry.lock') }}
-
-      # NOTE: https://github.com/reproducible-containers/buildkit-cache-dance
-      - name: Inject Cache Into Docker.
-        uses: reproducible-containers/buildkit-cache-dance@v3.1.0
-        with:
-          cache-map: |
-            {".venv": "/quarto/.venv"}
-          skip-extraction: ${{ steps.venv.outputs.cache-hit }}
-
       - name: Build Server Image.
         uses: docker/build-push-action@v5
         with:
@@ -83,6 +68,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
+      - name: Cache Virtual Environment.
+        uses: actions/cache@v3
+        id: venv
+        with:
+          path: .venv
+          key: ${{ runner.os }}-venv-${{ hashFiles('poetry.lock') }}
 
       - name: Venv and Setup .
         run: |
