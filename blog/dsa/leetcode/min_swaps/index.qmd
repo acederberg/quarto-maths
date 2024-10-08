@@ -1,0 +1,95 @@
+---
+title: 'Daily Challenge 10/08/2024: Minimum Number of Swaps to Make the String Balanced'
+description: 'Compute the number of moves to balance a string of brackets.'
+image: /icons/leetcode/medium-daily.svg
+extra:
+  image: /icons/leetcode/medium-daily.svg
+  url: /dsa/leetcode/
+  leetcode:
+    problem: problems/minimum-number-of-swaps-to-make-the-string-balanced
+    difficulty: medium
+    day: 10-08-2024
+    submissions: []
+date: 10-08-2024
+date-created: 10-08-2024
+date-updated: 10-08-2024
+---
+
+The full problem may be found [on leetcode](https://leetcode.com/problems/minimum-number-of-swaps-to-make-the-string-balanced/description/?envType=daily-question&envId=2024-10-08).
+
+## Analysis
+
+### Example: Literal Swapping
+
+The problem with this solution is that there must be a ledger of all unbalnced
+closing brackets and that on every iteration it must be checked if the string
+is balanced or not. This solution would have quadratic complexity.
+
+```default
+][ requires one swap
+]][[ requires one swap between 0 and 3
+]]][[[ requires two swaps 
+  - to get [[][]]
+  - between 0 and 5 
+  - between 1 and 4
+]]]][[[[
+  - to get [[]][[]]
+  - between 0 and 7 -> []]][[[]
+  - between 1 and 6 -> [[]][[]]
+```
+
+
+```default
+closing = 0
+opening = 0
+
+]]]][[[[, too many closing, swap with last opening, closing = 1
+^      *
+
+[]]][[[], too many closing, swap with last opening, closing = 1
+ ^    *
+
+[[]][[]], too many closing, swap with last opening, closing = 1
+  ^  *
+
+```
+
+### Example: Counting
+
+Another option is counting the number of unbalanced closing brackets:
+
+```default
+]]]][[[[
+   ^
+unbalanced = 4, opening = 0
+
+]]]][[[[
+   ^
+unbalanced = 4, opening = 1
+
+]]]][[[[
+     ^
+unbalanced = 4, opening = 2
+
+]]]][[[[
+      ^
+unblanced = 4, opening = 3
+
+]]]][[[[
+       ^
+unbalanced = 4, opening = 4
+```
+
+Any unbalanced brackets swapping will balance two pairs. Therefore the number 
+of swaps is ``(unbalanced + 1) // 2`` - the plus 1 results in it 
+being rounded up when ``unbalanced`` is odd.
+
+
+## Solution
+
+This is a very strange problem - it is also not true that using a stack is 
+necessary as described in the editorial. My solution beat $78\%$ of solutions
+in runtime:
+
+```{.python include=__init__.py snippet=solution}
+```
