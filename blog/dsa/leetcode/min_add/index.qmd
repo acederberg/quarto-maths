@@ -1,0 +1,73 @@
+---
+title: 'Daily Challenge 10/09/2024: Minimum Add to Make Parenthesis Valid'
+description: Determine the number of parenthesis that need to be added to a string to close all pairs.
+image: /icons/leetcode/medium-daily.svg
+extra:
+  url: /dsa/leetcode/min_add
+  image: /icons/leetcode/medium-daily.svg
+  leetcode:
+    problem: /problems/minimum-add-to-make-parentheses-valid
+    difficulty: medium
+    day: 10-09-2024
+    sinmissions: []
+date: 10-09-2024
+date-created: 10-09-2024
+date-updated: 10-09-2024
+---
+
+Find the full problem [on leetcode](https://leetcode.com/problems/minimum-add-to-make-parentheses-valid/description/?envType=daily-question&envId=2024-10-09).
+
+
+## Analysis
+
+This should be trivial, just count the number of unclosed opening parenthesis
+and closing parenthesis. This should be an easy problem.
+
+
+```default
+()) -> 1 open, 2 closed, requires 1 open.
+((( -> 3 open, 0 closed, required 3 closed. 
+()(()(( -> 5 open, 2 closed, requires 3 closed.
+```
+
+
+
+```deffault
+()))(( 
+^ n_opened_unclosed = 1, n_closed_unopened = 0
+
+()))(( 
+ ^ n_opened_unclosed = 0, n_closed_unopened = 0
+ 
+()))(( 
+  ^ n_opened_unclosed = 0, n_closed_unopened = 1
+
+()))(( 
+   ^ n_opened_unclosed = 0, n_closed_unopened = 2
+
+()))(( 
+    ^ n_opened_unclosed = 1, n_closed_unopened = 2
+
+()))(( 
+    ^ n_opened_unclosed = 2, n_closed_unopened = 2
+```
+
+
+Algorithm:
+
+1. Iterate over the elements and 
+   - Count `(` everytime one is encountered.
+   - When a `)` is encountered, count it as unopened if no opening parenthesis
+     have yet been encountered. Otherwise count some `(` closed.
+2. Return the sum of the unclosed and unopened counts.
+
+This has linear time complexity.
+
+
+## Solution
+
+My solution beat %93\%$ in terms of runtime and $71\%$ in terms of memory. 
+
+
+```{.python include=__init__.py snippet=solution}
+```
