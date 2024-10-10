@@ -66,7 +66,7 @@ This has linear time complexity.
 
 ## Solution
 
-My solution beat %93\%$ in terms of runtime and $71\%$ in terms of memory. 
+My solution beat $93\%$ in terms of runtime and $71\%$ in terms of memory. 
 
 
 ```{.python include=__init__.py snippet=solution}

@@ -1,0 +1,92 @@
+---
+title: Maximum Ramp Width
+image: /icons/leetcode/medium-daily.svg
+extra:
+  image: /icons/leetcode/medium-daily.svg
+  url: /dsa/leetcode/max_ramp_width
+  leetcode:
+    difficulty: medium
+    url: /problems/maximum-width-ramp
+    submissions: []
+    day: 10-10-2024
+date: 10-10-2024
+date-updated: 10-10-2024
+date-created: 10-10-2024
+---
+
+
+The full problem statement may be found [on leetcode](https://leetcode.com/problems/maximum-width-ramp/description/?envType=daily-question&envId=2024-10-10).
+
+
+## Analysis
+
+The phrasing of the problem is obfuscatory - the objective is to look for a 
+pair of indices $i, j$ for an array $a: S\subset \mathbb{N} \to \mathbb{N}$ such
+that $i \lt j$ and $\phi(i) \leq \phi(j)$ and $j - i$ is maximal.
+
+This is actually a rather tricky problem - I had never encountered the 
+monotonic stack approach until today.
+
+
+### Monotonic Stacks
+
+A monotonic stack is a stack where elements are ordered monotonically. *wow! what a shock that is.*
+To make this happen, when an element that does not obey the ordering is pushed,
+elements are removed from the top until the new element can be pushed and maintain monotonicity.
+
+```default
+Initial stack:             1 -> 2 -> 5
+Stack when 3 is pushed:    1 -> 2 -> 3
+Stack when 7 is pushed:    1 -> 2 -> 3 -> 7
+Stack when 4 is pushed:    1 -> 2 -> 3 -> 4
+```
+
+
+The following example will push elements onto a stack with monotonic rules:
+
+
+
+```{python}
+#|echo: false
+%run __init__.py
+```
+
+```{.python include="__init__.py" snippet=monotonic_stack_push}
+```
+
+
+and we can reproduce the above by running the following code:
+
+
+```{python}
+stack = [] 
+
+for item in [1, 2, 5, 3, 7, 4]:
+  push(stack, item)
+  print(f"After push {item}:", stack)
+```
+
+
+### Algorithm
+
+```default
+stack = [0, 1]
+nums = 6  0  8  2  1  5
+
+
+6  0  8  2  1  5
+               ^  index = 5, max_width = max(0, 5 - 1)
+
+6  0  8  2  1  5
+               ^  index = 5, max_width = max(4, 5 - 0)
+
+
+stack is empty, stop.
+```
+
+
+## Solution
+
+
+```{.python include=__init__.py snippet=solution}
+```
