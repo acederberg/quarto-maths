@@ -11,20 +11,20 @@ class Solution:
             if char == "(":
                 n_open_unclosed += 1
             else:
-                # NOTE: There is an opening bracket to close this closing 
+                # NOTE: There is an opening bracket to close this closing
                 #       bracket in the first case.
                 if n_open_unclosed > 0:
                     n_open_unclosed -= 1
                 else:
-                    n_closed_unopened+= 1
+                    n_closed_unopened += 1
 
         return n_open_unclosed + n_closed_unopened
         # end snippet solution
 
 
-
 @pytest.fixture
-def solution(): return Solution()
+def solution():
+    return Solution()
 
 
 @pytest.mark.parametrize(

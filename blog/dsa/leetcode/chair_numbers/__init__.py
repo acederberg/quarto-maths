@@ -79,7 +79,7 @@ class SolutionMinHeap:
 
     def smallestChair(self, times: list[list[int]], targetFriend: int) -> int:
         occupied: dict[int, int] = {}
-        available = []
+        available: list[int] = []
         last_time = -1
 
         final = 0
@@ -121,7 +121,7 @@ class Solution:
         events.sort(key=lambda pair: pair[0])
 
         vacant = list(range(len(times)))
-        occupied = list()
+        occupied: list[tuple[int, int]] = list()
 
         for time, pos in events:
 
@@ -155,11 +155,10 @@ def solution():
         ([[3, 10], [1, 5], [2, 6]], 0, 2),
         ([[1, 2], [2, 3]], 1, 0),
         ([[4, 5], [6, 8], [8, 10], [1, 8]], 2, 0),
-        ([[7,10],[6,7],[1,3],[2,7],[4,5]], 0, 0),
-        ([[99999,100000],[1,2]], 1, 0),
-        ([[2,4],[4,9],[3,4],[6,8],[5,10]], 4, 1),
-        ([(k, 10000) for k in range(10000) ], 9998, 9998
-         )
+        ([[7, 10], [6, 7], [1, 3], [2, 7], [4, 5]], 0, 0),
+        ([[99999, 100000], [1, 2]], 1, 0),
+        ([[2, 4], [4, 9], [3, 4], [6, 8], [5, 10]], 4, 1),
+        ([(k, 10000) for k in range(10000)], 9998, 9998),
     ),
 )
 def test_solution(

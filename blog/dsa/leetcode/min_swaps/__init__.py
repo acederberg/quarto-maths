@@ -1,7 +1,7 @@
 # stsart snippet solution
 class Solution:
     def minSwaps(self, s: str) -> int:
-        
+
         unbalanced = 0
         opening = 0
 
@@ -17,4 +17,3 @@ class Solution:
 
         return (unbalanced + 1) // 2
         # end snippet solution
-
