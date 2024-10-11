@@ -1,5 +1,6 @@
 ---
-title: Maximum Ramp Width
+title: "Daily Challenge 10/10/2024: Maximum Ramp Width"
+description: "Find the largest difference between two indices with increasing value in their corresponding array values."
 image: /icons/leetcode/medium-daily.svg
 extra:
   image: /icons/leetcode/medium-daily.svg
@@ -30,7 +31,7 @@ monotonic stack approach until today.
 
 ### Monotonic Stacks
 
-A monotonic stack is a stack where elements are ordered monotonically. *wow! what a shock that is.*
+A monotonic stack is a stack where elements are ordered monotonically. *wow! What a shock that is.*
 To make this happen, when an element that does not obey the ordering is pushed,
 elements are removed from the top until the new element can be pushed and maintain monotonicity.
 

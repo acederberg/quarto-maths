@@ -1,0 +1,101 @@
+---
+title: "Daily Challenge 10/11/2024: The Number of the Smallest Unoccupied Chair"
+description: Party seating simulation.
+image: /icons/leetcode/medium-daily.svg
+extra:  
+  image: /icons/leetcode/medium-daily.svg
+  url: /dsa/leetcode/chair_numbers
+  leetcode:
+    difficulty: medium
+    url:  /problems/the-number-of-the-smallest-unoccupied-chair
+    submissions: [1419189188, 1419205867, 1419231001]
+    day: 10-11-2024
+date: 10-11-2024
+date-updated: 10-11-2024
+date-created: 10-11-2024
+---
+
+See the full problem statement [on leetcode](https://leetcode.com/problems/the-number-of-the-smallest-unoccupied-chair/description/?envType=daily-question&envId=2024-10-11).
+
+
+## Analysis
+
+```default
+times = [[1,4], [2,3], [4,6]]
+target = 1
+
+- item: [1,4]
+  occupied: {0: 4}
+- item: [2, 3]
+  occupied: {0: 4, 1: 3}
+```
+
+
+```default
+times = [[3,10],[1,2], [1,3], [1,5],[2,6]]
+taget = 0
+
+
+sorted = [1,2],[1,3],[1,5],[2,6],[3,10]
+
+- item: [1, 2]
+  occupied: {0: 2}
+  opened: {}
+
+- item: [1, 3]
+  occupied: {0: 2, 1: 3}
+  opened: {}
+
+- item: [1, 5]
+  occupied: {0: 2, 1: 3, 2: 5}
+  opened: {}
+
+- item: [2, 6]
+  occupied: {0: 6, 1: 3, 2: 5}
+  opened: {0}
+  note: remove key 0 since its occupant has left
+
+- item: [3, 10]
+  occupied: {0: 6, 1: 10, 2: 5}
+  opened: {1}
+```
+
+
+1. Sort by arrival and create a hash table. Record the maximum 
+   seat occupied as -1.
+
+2. For all items before arrival of the target:
+   - Remove entries in the hash table with the value of the current arrival.
+     Put these values into a queue to be filled.
+   - If there are open seats fill the open seat of least value.
+
+
+## Solution
+
+My solution passed, but performed horribly due to its quadratic time 
+complexity. It beat only $5\%$ in run-time but $60\%$ in memory. Here it is
+
+
+```{.python include="__init__.py" snippet=solution}
+```
+
+I went ahead and read the editorial at this point and learned about min-heaps
+and noticed that this could optimize my current solution. Doing so only 
+improved the runtime to beat about $9\%$ and the memory to beat about $78\%$.
+
+```{.python include="__init__.py" snippet=solution_min_heap}
+```
+
+The obvious problem with the above solution is the time spent searching for 
+values to remove from ``occupied`` - this is why this solution has quadratic 
+time complexity. The editorial solution solves this by breaking each event into
+arrival and leaving events. My rendition of this solution beat about 
+$38\%$ in runtime and $60\%$ in memory.
+
+```{.python include="__init__.py" snippet=solution_editorial}
+
+```
+
+
+
+
