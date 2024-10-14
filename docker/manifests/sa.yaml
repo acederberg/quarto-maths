@@ -1,17 +1,13 @@
----
 apiVersion: v1
 kind: Namespace
 metadata:
   name: blog
   annotations:
-    kubernetes.io/enforce-mountable-secrets: "true"
-  labels: 
+    kubernetes.io/enforce-mountable-secrets: 'true'
+  labels:
     acederberg.io/tier: browser
     acederberg.io/from: kubectl
     acederberg.io/component: blog
-
-
----
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -21,9 +17,6 @@ metadata:
     acederberg.io/tier: browser
     acederberg.io/from: kubectl
     acederberg.io/component: blog
-
-
---- 
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -37,7 +30,7 @@ rules:
   - apiGroups:
       - ''
       - apps
-    resources: 
+    resources:
       - namespaces
       - deployments
       - replicasets
@@ -45,15 +38,12 @@ rules:
       - secrets
     verbs:
       - get
-      - list 
+      - list
       - watch
       - create
       - update
       - patch
       - delete
-
-
---- 
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -63,16 +53,13 @@ metadata:
     acederberg.io/tier: browser
     acederberg.io/from: kubectl
     acederberg.io/component: blog
-roleRef: 
+roleRef:
   kind: ClusterRole
-  name: blog-gh-act 
+  name: blog-gh-act
 subjects:
   - kind: ServiceAccount
     name: blog-gh-act
     namespace: blog
-  
-
----
 apiVersion: v1
 kind: Secret
 metadata:
@@ -85,9 +72,6 @@ metadata:
     acederberg.io/from: kubectl
     acederberg.io/component: blog
 type: kubernetes.io/service-account-token
-
-
----
 apiVersion: v1
 kind: Service
 metadata:
@@ -107,8 +91,6 @@ spec:
   ports:
     - targetPort: 8080
       port: 80
-
----
 apiVersion: v1
 kind: Service
 metadata:
@@ -127,8 +109,6 @@ spec:
   ports:
     - targetPort: 8080
       port: 80
-
----
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
@@ -157,9 +137,6 @@ spec:
           name: blog
           namespace: blog
           port: 80
-
-
----
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
@@ -188,4 +165,3 @@ spec:
           name: blog-preview
           namespace: blog
           port: 80
-

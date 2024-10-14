@@ -1,4 +1,3 @@
----
 services:
   server:
     build:
@@ -7,21 +6,21 @@ services:
       target: develop
     container_name: quarto-server
     environment:
-      KAGGLE_CONFIG_DIR: "/home/docker/app/config/kaggle"
+      KAGGLE_CONFIG_DIR: /home/docker/app/config/kaggle
     image: acederberg/blog-dev:0.2.2
     # NOTE: Because dipping into swap memory can crash a standard laptop these
     #       limitations are imposed.
     mem_swappiness: 0
     mem_reservation: 4G
     mem_limit: 4G
-    ports: 
+    ports:
       - target: 3000
         published: 3000
     tty: true
     volumes:
-      - '.venv:/home/docker/.venv'
+      - .venv:/home/docker/.venv
       # - '.kaggle-cache:/home/docker/.cache/kagglehub'
-      - '..:/home/docker/app'
+      - ..:/home/docker/app
       # NOTE: Because don't want to overwrite local and don't want to reinstall
       #       every time. If there are permissions issues with the volume, just
       #       do ``rm -r ./docker/.venv`` on the host system.

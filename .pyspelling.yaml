@@ -3,15 +3,13 @@ matrix:
   - name: quarto
     pipeline:
       - pyspelling.filters.markdown
-    sources: 
+    sources:
       - '**/*.qmd'
-
   - name: python
     pipeline:
       - pyspelling.filters.python
     sources:
       - '**/*.py'
-
   - name: build
     pipeline:
       - pyspelling.filters.html:
@@ -20,5 +18,3 @@ matrix:
             - pre
     sources:
       - '**/*.py'
-      
-
