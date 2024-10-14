@@ -21,3 +21,4 @@ _extensions
 .coverage
 .coverage-report
 .env
+node_modules

@@ -741,6 +741,17 @@ files = [
 ]
 
 [[package]]
+name = "distro"
+version = "1.9.0"
+description = "Distro - an OS platform information API"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "distro-1.9.0-py3-none-any.whl", hash = "sha256:7bffd925d65168f85027d8da9af6bddab658135b840670a223589bc0c8ef02b2"},
+    {file = "distro-1.9.0.tar.gz", hash = "sha256:2fa77c6fd8940f116ee1d6b94a2f90b13b5ea8d019b98bc8bafdcabcdd9bdbed"},
+]
+
+[[package]]
 name = "docstring-to-markdown"
 version = "0.15"
 description = "On the fly conversion of Python docstrings to markdown"
@@ -1883,6 +1894,21 @@ files = [
 future = ">=0.14.0"
 
 [[package]]
+name = "maison"
+version = "2.0.0"
+description = "Read settings from config files"
+optional = false
+python-versions = "<4.0.0,>=3.9.1"
+files = [
+    {file = "maison-2.0.0-py3-none-any.whl", hash = "sha256:e684fbab833f0f049d6e3556a127b8c5abe7cd18620f5b751a483e103dc4cbb5"},
+    {file = "maison-2.0.0.tar.gz", hash = "sha256:f5dafbbf4ce57bdb7cae128e075f457434b2cc9573b4f4bb4535f16d2ebd1cc5"},
+]
+
+[package.dependencies]
+click = ">=8.0.1,<9.0.0"
+toml = ">=0.10.2,<0.11.0"
+
+[[package]]
 name = "markdown-it-py"
 version = "3.0.0"
 description = "Python port of markdown-it. Markdown parsing, done right!"
@@ -2479,9 +2505,9 @@ files = [
 
 [package.dependencies]
 numpy = [
-    {version = ">=1.26.0", markers = "python_version >= \"3.12\""},
     {version = ">=1.22.4", markers = "python_version < \"3.11\""},
     {version = ">=1.23.2", markers = "python_version == \"3.11\""},
+    {version = ">=1.26.0", markers = "python_version >= \"3.12\""},
 ]
 python-dateutil = ">=2.8.2"
 pytz = ">=2020.1"
@@ -2865,8 +2891,8 @@ files = [
 annotated-types = ">=0.6.0"
 pydantic-core = "2.23.4"
 typing-extensions = [
-    {version = ">=4.12.2", markers = "python_version >= \"3.13\""},
     {version = ">=4.6.1", markers = "python_version < \"3.13\""},
+    {version = ">=4.12.2", markers = "python_version >= \"3.13\""},
 ]
 
 [package.extras]
@@ -3643,6 +3669,24 @@ files = [
     {file = "ruff-0.6.9-py3-none-win_arm64.whl", hash = "sha256:a9641e31476d601f83cd602608739a0840e348bda93fec9f1ee816f8b6798b93"},
     {file = "ruff-0.6.9.tar.gz", hash = "sha256:b076ef717a8e5bc819514ee1d602bbdca5b4420ae13a9cf61a0c0a4f53a2baa2"},
 ]
+
+[[package]]
+name = "ruyaml"
+version = "0.91.0"
+description = "ruyaml is a fork of ruamel.yaml"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "ruyaml-0.91.0-py3-none-any.whl", hash = "sha256:50e0ee3389c77ad340e209472e0effd41ae0275246df00cdad0a067532171755"},
+    {file = "ruyaml-0.91.0.tar.gz", hash = "sha256:6ce9de9f4d082d696d3bde264664d1bcdca8f5a9dff9d1a1f1a127969ab871ab"},
+]
+
+[package.dependencies]
+distro = ">=1.3.0"
+setuptools = ">=39.0"
+
+[package.extras]
+docs = ["Sphinx"]
 
 [[package]]
 name = "scikit-learn"
@@ -4748,6 +4792,23 @@ pydantic-settings = ">=2.3.4,<3.0.0"
 pyyaml = ">=6.0.1,<7.0.0"
 
 [[package]]
+name = "yamlfix"
+version = "1.17.0"
+description = "A simple opionated yaml formatter that keeps your comments!"
+optional = false
+python-versions = ">=3.9.1"
+files = [
+    {file = "yamlfix-1.17.0-py3-none-any.whl", hash = "sha256:0a510930a3a4f9655ca05a923594f2271849988f33f3c30363d5dee1261b6734"},
+    {file = "yamlfix-1.17.0.tar.gz", hash = "sha256:81d7220b62798d1dda580e1574b3d3d6926701ae8cd79588c4e0b33f2e345d85"},
+]
+
+[package.dependencies]
+click = ">=8.1.3"
+maison = ">=2.0.0"
+pydantic = ">=2.8.2"
+ruyaml = ">=0.91.0"
+
+[[package]]
 name = "zipp"
 version = "3.20.2"
 description = "Backport of pathlib-compatible object wrapper for zip files"
@@ -4769,4 +4830,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "d30ea9f53347eb9355b7c0aaa31bb8e1b3eaee84016fe2af8ade9b55de0bafe6"
+content-hash = "e565012dff6354537fa97599f1757c235b06fb0cc57f2f4eceeca7841a656ba4"
