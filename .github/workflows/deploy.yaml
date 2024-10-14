@@ -4,28 +4,25 @@ on:
     inputs:
       preview:
         required: true
-        description: "Deploy to the preview site when true."
-        default: "1"
+        description: Deploy to the preview site when true.
+        default: '1'
 jobs:
   # NOTE: See [the example](https://github.com/marketplace/actions/build-and-push-docker-images).
   build:
     name: Build Server
     runs-on: ubuntu-latest
-    steps: 
+    steps:
       - name: Checkout.
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
       - name: Setup Docker Buildx.
         uses: docker/setup-buildx-action@v3
-
       - name: Build Server Image.
         uses: docker/build-push-action@v5
         with:
@@ -47,42 +44,34 @@ jobs:
             ACEDERBERG_IO_BUILD_GIT_COMMIT=${{ github.sha }}
             ACEDERBERG_IO_BUILD_GIT_REF=${{ github.ref_name }}
             ACEDERBERG_IO_GOOGLE_TRACKING_ID=${{ secrets.GOOGLE_TRACKING_ID }}
-
       - name: Run Server Image.
-        run: |
-
+        run: |4
           echo ACEDERBERG_IO_SERVER_VERSION='latest' > .env
           # echo ACEDERBERG_IO_GIT_COMMIT="${{ github.sha }}" >> .env
           # echo ACEDERBERG_IO_GIT_REF="${{ github.ref_name }}" >> .env
           # echo ACEDERBERG_IO_GOOGLE_TRACKING_ID="${{ secrets.GOOGLE_TRACKING_ID }}" >> .env
-
           docker compose \
             --env-file .env \
             --file docker/compose.prod.yaml \
             up --detach
-
           docker compose \
             --file docker/compose.prod.yaml \
             cp server:/app/build blog/build
-
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
       - name: Cache Virtual Environment.
         uses: actions/cache@v3
         id: venv
         with:
           path: .venv
           key: ${{ runner.os }}-venv-${{ hashFiles('poetry.lock') }}
-
       - name: Venv and Setup .
         run: |
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install poetry meta-tags-parser
           poetry install
-
       - name: Check MetaTags.
         id: metatags
         continue-on-error: true
@@ -91,7 +80,6 @@ jobs:
           echo -e "## MetaTags Report\n\n~~~yaml" >> $GITHUB_STEP_SUMMARY
           poetry run python -m scripts.meta >> $GITHUB_STEP_SUMMARY
           echo -e "~~~\n" >> $GITHUB_STEP_SUMMARY
-
       - run: |
           if ( \
             [ "${{ steps.metatags.outcome }}" != 'success' ]
@@ -99,7 +87,6 @@ jobs:
             echo "One or more checks failed. See the summary for details."
             exit 1
           fi
-          
       - if: always()
         run: docker compose --file docker/compose.yaml down
 
@@ -108,9 +95,9 @@ jobs:
     name: Deploy to Kubernetes
     needs: [build]
     runs-on: ubuntu-latest
-    permissions:   
-      id-token: write   
-      contents: read   
+    permissions:
+      id-token: write
+      contents: read
       actions: read
     steps:
       - name: Checkout.
@@ -127,7 +114,6 @@ jobs:
           k8s-url: ${{ secrets.K8S_URL }}
           k8s-secret: ${{ secrets.K8S_SECRET }}
         id: setcontext
-
       - name: Determine Deploy Enivornment.
         run: |
           if [[ '${{ github.event.inputs.preview }}' == '0' ]]; then
@@ -135,7 +121,6 @@ jobs:
           else
             echo "MANIFEST_USED=ci.preview.yaml" >> $GITHUB_ENV
           fi
-        
 
       # NOTE: Correct imagePullPolicy is necessary for this step to work. 
       #       Specifying the image version requires special permissions so that
@@ -146,6 +131,5 @@ jobs:
           namespace: blog
           manifests: |
             docker/manifests/${{ env.MANIFEST_USED }}
-          images: |
+          images: |-
             acederberg/blog:${{ github.sha }}
-

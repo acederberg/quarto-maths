@@ -1,4 +1,3 @@
----
 # Note: This will run every time that a new release is published because of
 # `on`. Releasing can be controller through the github CLI like
 #

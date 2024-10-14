@@ -1,7 +1,7 @@
 name: Commit Checks.
 on:
-  workflow_dispatch:
-  push:
+  workflow_dispatch: null
+  push: null
 jobs:
   # NOTE: https://commitlint.js.org/guides/ci-setup.html
   lint-commit:
@@ -11,29 +11,22 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - name: Install required dependencies
         run: |
           sudo apt update && sudo apt install -y git curl
-
           curl -sL https://deb.nodesource.com/setup_20.x | sudo -E bash -
           sudo DEBIAN_FRONTEND=noninteractive apt install -y nodejs
-
           npm install conventional-changelog-conventionalcommits
           npm install commitlint@latest @commitlint/config-conventional
-
       - name: Print versions
         run: |
           echo "git version: $(git --version)" >> $GITHUB_STEP_SUMMARY
           echo "node version: $(node --version)" >> $GITHUB_STEP_SUMMARY
           echo "npm version: $(npm --version)" >> $GITHUB_STEP_SUMMARY
           echo "commitlint version: $(npx commitlint --version)" >> $GITHUB_STEP_SUMMARY
-
       - name: Validate current commit (last commit) with commitlint
         if: github.event_name == 'push'
         run: npx commitlint --last --verbose
-
-
   lint-python:
     name: Lint Python Code
     runs-on: ubuntu-latest
@@ -41,46 +34,37 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
       - name: Cache Pip
         uses: actions/cache@v3
         id: venv
         with:
           path: .venv
           key: ${{ runner.os }}-venv-${{ hashFiles('poetry.lock') }}
-
-      - name: Venv and Setup 
+      - name: Venv and Setup
         run: |
           python -m venv .venv
           source .venv/bin/activate
-
           python -m pip install poetry mypy ruff
           poetry install
-
       - name: MyPy Check.
         id: mypy_check
         run: |
           source .venv/bin/activate
-
           echo -e "## MyPy \`./src\`\n\n~~~stdout" >> $GITHUB_STEP_SUMMARY
           poetry run mypy --config-file pyproject.toml --pretty . >> $GITHUB_STEP_SUMMARY
           echo -e "~~~\n" >> $GITHUB_STEP_SUMMARY
         continue-on-error: true
-
       - name: Ruff Linting.
         id: ruff
         run: |
           source .venv/bin/activate
-
           echo -e "## Ruff\n\n~~~stdout" >> $GITHUB_STEP_SUMMARY
           poetry run ruff check --config pyproject.toml --output-format github .>> $GITHUB_STEP_SUMMARY
           echo -e "~~~\n" >> $GITHUB_STEP_SUMMARY
         continue-on-error: true
-
       - run: |
           if ( \
             [ "${{ steps.mypy_check.outcome }}" != "success" ] \
@@ -89,8 +73,6 @@ jobs:
             echo "One or more checks failed. See the summary for details."
             exit 1
           fi
-
-
   pytest:
     name: Pytest.
     runs-on: ubuntu-latest
@@ -98,40 +80,33 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
       - name: Cache Pip.
         uses: actions/cache@v3
         id: venv
         with:
           path: .venv
           key: ${{ runner.os }}-venv-${{ hashFiles('poetry.lock') }}
-
       - name: Venv and Setup .
         run: |
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install poetry
           poetry install --with ci
-
       - name: Pytest.
         run: |
           source .venv/bin/activate
           poetry run coverage run -m pytest
           poetry run coverage html
-
       - name: Upload Coverage Report.
         id: blog-coverage-report-upload
         if: github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.coverage-report'
+          path: .coverage-report
           name: blog-coverage-report
-
-        
   coverage:
     name: PyTest Coverage
     if: github.ref == 'refs/heads/main'
@@ -140,10 +115,9 @@ jobs:
     permissions:
       pages: write
       id-token: write
-    steps: 
+    steps:
       - name: Deploy to GitHub Pages
         id: blog-coverage-report-pages
         uses: actions/deploy-pages@v4
         with:
           artifact_name: blog-coverage-report
-
