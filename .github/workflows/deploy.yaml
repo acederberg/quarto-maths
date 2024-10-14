@@ -45,7 +45,7 @@ jobs:
             ACEDERBERG_IO_BUILD_GIT_REF=${{ github.ref_name }}
             ACEDERBERG_IO_GOOGLE_TRACKING_ID=${{ secrets.GOOGLE_TRACKING_ID }}
       - name: Run Server Image.
-        run: |4
+        run: |
           echo ACEDERBERG_IO_SERVER_VERSION='latest' > .env
           # echo ACEDERBERG_IO_GIT_COMMIT="${{ github.sha }}" >> .env
           # echo ACEDERBERG_IO_GIT_REF="${{ github.ref_name }}" >> .env

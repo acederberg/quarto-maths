@@ -1,10 +1,15 @@
-# Note: This will run every time that a new release is published because of
-# `on`. Releasing can be controller through the github CLI like
-#
 name: Version.
 on:
   workflow_dispatch:
     inputs:
+      dry_run:
+        default: '0'
+        description: Do not push changes, just put a diff in the step summary.
+        options: ['0', '1']
+      only_fix:
+        default: '0'
+        description: Do not increase the version, just do all of the fixing steps.
+        options: ['0', '1']
       kind:
         default: patch
         required: true
@@ -65,6 +70,8 @@ jobs:
           YAML_FIX=$?
           echo "YAML_FIX=$YAML_FIX" >> $GITHUB_ENV
           echo "YAML_FIX=$YAML_FIX" >> $GITHUB_STEP_SUMMARY
+          GIT_COMMIT_INIT=$( git log --max-count=1 | grep commit | head -n 1 | sed 's/commit \([a-f0-9]*\)/\1/' )
+          echo "GIT_COMMIT_INIT=$GIT_COMMIT_INIT" >> $GITHUB_ENV
       - name: Black Fix.
         if: env.BLACK_FIX == 1
         id: bumpver-black-fix
@@ -75,7 +82,7 @@ jobs:
           git commit -m "chore(fix): Black fix."
       - name: YamlFix Fix.
         run: |
-          source .venv/bing/activate
+          source .venv/bin/activate
           yamlfix .
           git add .
           git commit -m "chore(fix): Yaml Fix."
@@ -86,7 +93,7 @@ jobs:
         id: bumpver-build-and-verify
         run: |
           source .venv/bin/activate
-          echo "## Build\n\n~~~stdout" >> $GITHUB_STEP_SUMMARY
+          echo -e "## Build\n\n~~~stdout" >> $GITHUB_STEP_SUMMARY
           poetry build >> $GITHUB_STEP_SUMMARY
           echo "~~~\n\n## Twine Check\n\n~~~stdout" >> $GITHUB_STEP_SUMMARY
           poetry check >> $GITHUB_STEP_SUMMARY
@@ -95,10 +102,11 @@ jobs:
       # NOTE: Poetry does have versioning capabilities however they do not 
       #       appear to have much of an advantage over bumpver.
       - name: Increment Version.
+        if: github.event.inputs.only_fix == '0'
         id: bumpver-update
         run: |-
           source .venv/bin/activate
-          echo "## Bumpver Data\n\n" >> $GITHUB_STEP_SUMMARY
+          echo -e "## Bumpver Data\n\n" >> $GITHUB_STEP_SUMMARY
           echo "- kind: ${{ github.event.inputs.kind }}" >> $GITHUB_STEP_SUMMARY
           echo "- kind_tag: ${{ github.event.inputs.kind_tag }}" >> $GITHUB_STEP_SUMMARY
           if [[ "${{ github.event.inputs.kind}}" == "tag" ]];
@@ -113,6 +121,14 @@ jobs:
               --tag-message "${{ github.event.inputs.tag_message }}" \
               --commit
           fi
-            
-          git push
-          git push --tags
+      - name: Git Push.
+        run: |-
+          if [[ "${{ github.event.inputs.dry_run }}" == "1" ]];
+          then
+            git push
+            git push --tags
+          else
+            echo -e "## Dry Run Diff\n\n~~~stdout" >> $GITHUB_STEP_SUMMARY
+            git diff "${{ env.GIT_COMMIT_INIT }}" >> $GITHUB_STEP_SUMMARY
+            echo "~~~" >> $GITHUB_STEP_SUMMARY
+          fi
