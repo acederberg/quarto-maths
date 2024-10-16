@@ -33,8 +33,8 @@ website:
         href: /posts
       - text: Leetcode
         href: /dsa/leetcode
-      # - text: Resume
-      #   href: https://acederberg.io/resume
+        # - text: Resume
+        #   href: https://acederberg.io/resume
 theme:
   dark: [darkly, ./themes/commits.css, ./themes/index.css, ./themes/dark.scss, ./themes/dark-default.scss]
   light: [flatly, ./themes/commits.css, ./themes/index.css]

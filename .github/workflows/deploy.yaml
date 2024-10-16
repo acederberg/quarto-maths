@@ -39,7 +39,7 @@ jobs:
           load: true
           secrets: |
             kaggle_json=${{ secrets.KAGGLE_JSON }}
-            google_tracking_id=${{ secrets.GOOGLE_TRACKING_ID }} 
+            google_tracking_id=${{ secrets.GOOGLE_TRACKING_ID }}
           build-args: |
             ACEDERBERG_IO_BUILD_GIT_COMMIT=${{ github.sha }}
             ACEDERBERG_IO_BUILD_GIT_REF=${{ github.ref_name }}
@@ -106,7 +106,7 @@ jobs:
           fetch-depth: 0
 
       # NOTE: It is required to apply ``./docker/manifests/sa.yaml`` and then
-      #       set the secret to the output of ``kubectl get secrets -o yaml 
+      #       set the secret to the output of ``kubectl get secrets -o yaml
       #       blog-gh-act-token``.
       - uses: azure/k8s-set-context@v1
         with:
@@ -122,9 +122,9 @@ jobs:
             echo "MANIFEST_USED=ci.preview.yaml" >> $GITHUB_ENV
           fi
 
-      # NOTE: Correct imagePullPolicy is necessary for this step to work. 
+      # NOTE: Correct imagePullPolicy is necessary for this step to work.
       #       Specifying the image version requires special permissions so that
-      #       the action can modify workflow files, thus the latest tag is 
+      #       the action can modify workflow files, thus the latest tag is
       #       used.
       - uses: Azure/k8s-deploy@v5
         with:

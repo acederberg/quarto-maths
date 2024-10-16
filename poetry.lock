@@ -787,17 +787,6 @@ files = [
 ]
 
 [[package]]
-name = "distro"
-version = "1.9.0"
-description = "Distro - an OS platform information API"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "distro-1.9.0-py3-none-any.whl", hash = "sha256:7bffd925d65168f85027d8da9af6bddab658135b840670a223589bc0c8ef02b2"},
-    {file = "distro-1.9.0.tar.gz", hash = "sha256:2fa77c6fd8940f116ee1d6b94a2f90b13b5ea8d019b98bc8bafdcabcdd9bdbed"},
-]
-
-[[package]]
 name = "docstring-to-markdown"
 version = "0.15"
 description = "On the fly conversion of Python docstrings to markdown"
@@ -1938,21 +1927,6 @@ files = [
 
 [package.dependencies]
 future = ">=0.14.0"
-
-[[package]]
-name = "maison"
-version = "2.0.0"
-description = "Read settings from config files"
-optional = false
-python-versions = "<4.0.0,>=3.9.1"
-files = [
-    {file = "maison-2.0.0-py3-none-any.whl", hash = "sha256:e684fbab833f0f049d6e3556a127b8c5abe7cd18620f5b751a483e103dc4cbb5"},
-    {file = "maison-2.0.0.tar.gz", hash = "sha256:f5dafbbf4ce57bdb7cae128e075f457434b2cc9573b4f4bb4535f16d2ebd1cc5"},
-]
-
-[package.dependencies]
-click = ">=8.0.1,<9.0.0"
-toml = ">=0.10.2,<0.11.0"
 
 [[package]]
 name = "markdown-it-py"
@@ -3728,24 +3702,6 @@ files = [
 ]
 
 [[package]]
-name = "ruyaml"
-version = "0.91.0"
-description = "ruyaml is a fork of ruamel.yaml"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "ruyaml-0.91.0-py3-none-any.whl", hash = "sha256:50e0ee3389c77ad340e209472e0effd41ae0275246df00cdad0a067532171755"},
-    {file = "ruyaml-0.91.0.tar.gz", hash = "sha256:6ce9de9f4d082d696d3bde264664d1bcdca8f5a9dff9d1a1f1a127969ab871ab"},
-]
-
-[package.dependencies]
-distro = ">=1.3.0"
-setuptools = ">=39.0"
-
-[package.extras]
-docs = ["Sphinx"]
-
-[[package]]
 name = "scikit-learn"
 version = "1.5.2"
 description = "A set of python modules for machine learning and data mining"
@@ -4849,21 +4805,22 @@ pydantic-settings = ">=2.3.4,<3.0.0"
 pyyaml = ">=6.0.1,<7.0.0"
 
 [[package]]
-name = "yamlfix"
-version = "1.17.0"
-description = "A simple opionated yaml formatter that keeps your comments!"
+name = "yamllint"
+version = "1.35.1"
+description = "A linter for YAML files."
 optional = false
-python-versions = ">=3.9.1"
+python-versions = ">=3.8"
 files = [
-    {file = "yamlfix-1.17.0-py3-none-any.whl", hash = "sha256:0a510930a3a4f9655ca05a923594f2271849988f33f3c30363d5dee1261b6734"},
-    {file = "yamlfix-1.17.0.tar.gz", hash = "sha256:81d7220b62798d1dda580e1574b3d3d6926701ae8cd79588c4e0b33f2e345d85"},
+    {file = "yamllint-1.35.1-py3-none-any.whl", hash = "sha256:2e16e504bb129ff515b37823b472750b36b6de07963bd74b307341ef5ad8bdc3"},
+    {file = "yamllint-1.35.1.tar.gz", hash = "sha256:7a003809f88324fd2c877734f2d575ee7881dd9043360657cc8049c809eba6cd"},
 ]
 
 [package.dependencies]
-click = ">=8.1.3"
-maison = ">=2.0.0"
-pydantic = ">=2.8.2"
-ruyaml = ">=0.91.0"
+pathspec = ">=0.5.3"
+pyyaml = "*"
+
+[package.extras]
+dev = ["doc8", "flake8", "flake8-import-order", "rstcheck[sphinx]", "sphinx"]
 
 [[package]]
 name = "zipp"
@@ -4887,4 +4844,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "1f13db95c74455be2de92d1f3ba850f1bf95af815419bf0df1cad30831fa95ce"
+content-hash = "83c33890df493b6a616d90e5804ffed1afb10ce7badf41a15a0fced08744eaf7"

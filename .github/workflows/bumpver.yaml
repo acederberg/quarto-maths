@@ -14,7 +14,7 @@ on:
         default: patch
         required: true
         description: |
-          Segment of the version to increment. A value of `tag` indicates 
+          Segment of the version to increment. A value of `tag` indicates
           that only the tag should be updated.
         options: [tag, patch, minor, major]
       kind_tag:
@@ -55,7 +55,7 @@ jobs:
         run: |
           python3 -m venv .venv
           source .venv/bin/activate
-          python3 -m pip install poetry 
+          python3 -m pip install poetry
           poetry install --with ci
           git config user.name "github-actions"
           git config user.email "<>"
@@ -69,10 +69,10 @@ jobs:
           BLACK_FIX=$?
           echo "BLACK_FIX=$BLACK_FIX" >> $GITHUB_ENV
           echo "BLACK_FIX=$BLACK_FIX" >> $GITHUB_STEP_SUMMARY
-          yamlfix --check ./**/*.(yaml|yml)
-          YAML_FIX=$?
-          echo "YAML_FIX=$YAML_FIX" >> $GITHUB_ENV
-          echo "YAML_FIX=$YAML_FIX" >> $GITHUB_STEP_SUMMARY
+          # yamlfix --check ./**/*.(yaml|yml)
+          # YAML_FIX=$?
+          # echo "YAML_FIX=$YAML_FIX" >> $GITHUB_ENV
+          # echo "YAML_FIX=$YAML_FIX" >> $GITHUB_STEP_SUMMARY
           GIT_COMMIT_INIT=$( git log --max-count=1 | grep commit | head -n 1 | sed 's/commit \([a-f0-9]*\)/\1/' )
           echo "GIT_COMMIT_INIT=$GIT_COMMIT_INIT" >> $GITHUB_ENV
       - name: Black Fix.
@@ -81,14 +81,14 @@ jobs:
         run: |
           source .venv/bin/activate
           black .
-          git add . 
-          git commit -m "chore(fix): Black fix."
-      - name: YamlFix Fix.
-        run: |
-          source .venv/bin/activate
-          yamlfix ./blog
           git add .
-          git commit -m "chore(fix): Yaml Fix."
+          git commit -m "chore(fix): Black fix."
+      # - name: YamlFix Fix.
+      #   run: |
+      #     source .venv/bin/activate
+      #     yamlfix ./blog
+      #     git add .
+      #     git commit -m "chore(fix): Yaml Fix."
 
       # NOTE: This will not be published so it is fine that it happens at this
       #       stage.
@@ -102,7 +102,7 @@ jobs:
           poetry check >> $GITHUB_STEP_SUMMARY
           echo "~~~" >> $GITHUB_STEP_SUMMARY
 
-      # NOTE: Poetry does have versioning capabilities however they do not 
+      # NOTE: Poetry does have versioning capabilities however they do not
       #       appear to have much of an advantage over bumpver.
       - name: Increment Version.
         if: github.event.inputs.only_fix == '0'

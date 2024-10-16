@@ -11,11 +11,11 @@ kind: Deployment
 spec:
   selector:
     matchLabels:
-      <<: *labels
+      !!merge <<: *labels
   template:
     metadata:
       labels:
-        <<: *labels
+        !!merge <<: *labels
     spec:
       containers:
         - name: blog

@@ -1,0 +1,7 @@
+# NOTE: Configuration reference: https://github.com/google/yamlfmt/blob/main/docs/config-file.md
+# NOTE: Trimming must be done to avoid folding blocks starting with ``|``.
+formatter:
+  type: basic
+  # include_document_start: true
+  retain_line_breaks: true
+  scan_folded_as_literal: true
