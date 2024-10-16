@@ -86,7 +86,7 @@ jobs:
       - name: YamlFix Fix.
         run: |
           source .venv/bin/activate
-          yamlfix .
+          yamlfix ./blog
           git add .
           git commit -m "chore(fix): Yaml Fix."
 

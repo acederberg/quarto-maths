@@ -1,3 +1,4 @@
+---
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -8,6 +9,7 @@ metadata:
     acederberg.io/tier: browser
     acederberg.io/from: kubectl
     acederberg.io/component: blog
+---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -17,6 +19,7 @@ metadata:
     acederberg.io/tier: browser
     acederberg.io/from: kubectl
     acederberg.io/component: blog
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -44,6 +47,7 @@ rules:
       - update
       - patch
       - delete
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -60,6 +64,7 @@ subjects:
   - kind: ServiceAccount
     name: blog-gh-act
     namespace: blog
+---
 apiVersion: v1
 kind: Secret
 metadata:
@@ -72,6 +77,7 @@ metadata:
     acederberg.io/from: kubectl
     acederberg.io/component: blog
 type: kubernetes.io/service-account-token
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -91,6 +97,7 @@ spec:
   ports:
     - targetPort: 8080
       port: 80
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -109,6 +116,7 @@ spec:
   ports:
     - targetPort: 8080
       port: 80
+---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
@@ -132,11 +140,13 @@ spec:
           namespace: traefik
         - name: traefik-error-pages
           namespace: traefik
+        - name: blog-home
       services:
         - kind: Service
           name: blog
           namespace: blog
           port: 80
+---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
