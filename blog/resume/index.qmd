@@ -1,8 +1,11 @@
 ---
-title: Adrian Cederberg
+title: Adrian Cederberg | Resume 2024
 version: 5
 format:
+  html:
+    toc: false
   pdf:
+    toc: false
     documentclass: article
     hyperref:
       - pdfborder={0 0 0}
@@ -11,19 +14,52 @@ format:
       - urlcolor=blue
     include-before-body:
       # NOTE: It may be possible to style links using another means.
+      # NOTE: It is such a pain to remove the ugly rules around tables: https://github.com/jgm/pandoc/issues/8223
       - text: |
           \newcommand{\hreful}[2]{
               \href{#1}{
                   \textcolor{blue}{\ttfamily\underline{#2}}
               }
           }
+          \renewcommand{\toprule}[2]{}
+          \renewcommand{\bottomrule}[2]{}
     geometry:
       - margin=0.7in
     keep-tex: true
-date: 10-16-2024
+    template-partials:
+      - ./title.tex
+format-links:
+  - text: tex
+    href: ./index.tex
+date-updated: 10-16-2024
 ---
 
-:::{#contact}
+<!---------------------------------------------------------------------------->
+<!-- Contect conditional contact -->
+
+::: {.content-visible when-format="html"}
+
+<!-- Will only appear in HTML. -->
+
+::: {#resume-contact}
+
+- adrn.cederberg123@gmail.com
+- 505 589 6914
+- [blog](https://acederberg.io)
+- [github](https://github.com/acederberg)
+- [linkedin](https://www.linkedin.com/in/adrian-cederberg-b453571b9/)
+
+:::
+
+::: {.callout-tip}
+This resume is available as a `PDF`, `tex`, or `MS word` document in the side bar.
+:::
+
+:::
+
+::: {.content-visible when-format="pdf"}
+
+<!-- Will only appear in PDF. -->
 
 \begin{center}
 (505) 589 - 6914
@@ -35,23 +71,52 @@ date: 10-16-2024
 
 :::
 
+<!---------------------------------------------------------------------------->
+
 ## Education
+
+<!---------------------------------------------------------------------------->
+
+::: {.content-visible when-format="pdf"}
 
 ### University of New Mexico \hfill Spring 2015 - Fall 2019
 
-- Bachelors of Science in Applied Mathematics - Minor in chemistry.
-- Worked as a grader, tutor, and researcher. Got my first tastes of software development with `matlab` and `python`.
+:::
 
-### Self Study \hfill January 2021 - January 2022
+::: {.content-visible when-format="html"}
+
+### University of New Mexico
+
+**Spring 2015 - Fall 2019**
+:::
+
+- Bachelors of Science in Applied Mathematics - Minor in chemistry.
+- Worked as a grader, tutor, and researcher. Got my first tastes of code with `matlab` and `python`.
+
+<!---------------------------------------------------------------------------->
+
+<!-- ::: {.content-visible when-format="pdf"} -->
+<!---->
+<!-- ### Self Study \hfill January 2021 - January 2022 -->
+<!---->
+<!-- ::: -->
+
+::: {.content-visible when-format="html"}
+
+### Self Study
+
+**January 2021 - January 2022**
 
 - Built a portfolio using `flask` and deployed it with `ansible` and
   `docker-compose`. Code is available upon request.
 - Made various projects using `python`, `react`, and `docker` to further my
   understanding.
 
+:::
+
 ## Projects
 
-All of these projects have an associated `README` page on github where more information may be found.
+::: {.content-visible when-format="pdf"}
 
 |                                                                                     |
 | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -62,10 +127,37 @@ All of these projects have an associated `README` page on github where more info
 | \hreful{https://github.com/acederberg/nvim-ez}{Neovim Configuration}                | Configuration for my favorite text editor.                                                                                                                 |
 
 : {tbl-colwidths="[25, 75]" .striped .hover .borderless}
+:::
+
+::: {.content-visible when-format="html"}
+
+|                                                                              |
+| ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Captura](https://github.com/acederberg/captura)                             | A framework for building sharing into APIs, including a command line and python client, tests, and pypi package. Includes actions to test, build, version. |
+| [Blog and Captura IaC](https://github.com/acederberg/captura-deploy)         | Infrastructure as code and DNS automation for my blog and captura.                                                                                         |
+| [My Blog](https://github.com/acederberg/quarto-maths)                        | A blog powered by quarto where I routinely publish blog posts. Includes actions to test, build, version, and deploy.                                       |
+| [PydanticYamlSettings](https://github.com/acederberg/pydantic-settings-yaml) | A library I like to use for project configurations                                                                                                         |
+| [Neovim Configuration](https://github.com/acederberg/nvim-ez)                | Configuration for my favorite text editor.                                                                                                                 |
+
+: {tbl-colwidths="[25, 75]" .striped .hover .borderless}
+:::
 
 ## Employment
 
+<!---------------------------------------------------------------------------->
+
+::: {.content-visible when-format="pdf"}
+
 ### Founder \textbar{} acederberg.io \hfill January 2024 - Now
+
+:::
+
+::: {.content-visible when-format="html"}
+
+### Founder | acederberg.io
+
+**January 2024 - Now**
+:::
 
 - Designed, implemented, tested, and deployed \hreful{https://github.com/acederberg/captura}{captura}
   using `fastapi`, `sqlalchemy`, `pydantic`, and `docker`.
@@ -78,7 +170,20 @@ All of these projects have an associated `README` page on github where more info
   certificates, and `porkbun API` automation. Code is hosted on `github` but is
   only available upon request.
 
+<!---------------------------------------------------------------------------->
+
+::: {.content-visible when-format="pdf"}
+
 ### Senior Software Engineer \textbar{} Mountain Vector Energy \hfill January 2022 - December 2023
+
+:::
+
+::: {.content-visible when-format="html"}
+
+### Senior Software Engineer | Mountain Vector Energy
+
+**January 2022 - December 2023**
+:::
 
 - Collaborated with team to design, implement, maintain, and deploy `Cufflink`
   Software as a Service.
@@ -95,7 +200,20 @@ All of these projects have an associated `README` page on github where more info
 - Used `atlassian jira` to track progress, keep notes, and assign issues.
 - Performed technical interviews to hire two software engineers.
 
+<!---------------------------------------------------------------------------->
+
+::: {.content-visible when-format="pdf"}
+
 ### Research Assistant \textbar{} UNM Mechanical Engineering \hfill Summer 2019 - Winter 2020
+
+:::
+
+::: {.content-visible when-format="html"}
+
+### Research Assistant | UNM Mechanical Engineering
+
+**Summer 2019 - Winter 2020**
+:::
 
 - Collaborated with Craig Davidson of Dark Sea Industries to develop and
   document efficient air plasma production using magnetohydrodynamic methods.

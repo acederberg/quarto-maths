@@ -91,6 +91,17 @@
   display: none !important;
 }
 
+#resume-contact ul {
+  padding-left: 0px;
+  display: flex;
+  flex-direction: right;
+}
+
+#resume-contact li {
+  display: inline-block;
+  margin: 0px auto 0px 0px;
+}
+
 /* .card-img-top img, */
 /* .card-img-top { */
 /*   height: 256px; */

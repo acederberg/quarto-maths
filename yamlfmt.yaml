@@ -3,5 +3,6 @@
 formatter:
   type: basic
   # include_document_start: true
+  drop_merge_tag: true
   retain_line_breaks: true
   scan_folded_as_literal: true
