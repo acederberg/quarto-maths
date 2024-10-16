@@ -1,19 +1,21 @@
 ---
-image: "https://avatars.githubusercontent.com/u/77076023?v=4"
+image: https://avatars.githubusercontent.com/u/77076023?v=4
 about:
   template: jolla
-  links: 
+  links:
     - icon: github
       text: Github
-      href: 'https://github.com/acederberg'
+      href: https://github.com/acederberg
     - icon: linkedin
       text: LinkedIn
-      href: 'https://www.linkedin.com/in/adrian-cederberg-b453571b9/'
+      href: https://www.linkedin.com/in/adrian-cederberg-b453571b9/
     - icon: twitter
       text: Twitter
-      href: 'https://x.com/_acederberg'
+      href: https://x.com/_acederberg
+aliases:
+  - /home
 extra:
-  image: "https://avatars.githubusercontent.com/u/77076023?v=4"
+  image: https://avatars.githubusercontent.com/u/77076023?v=4
   url: /
 listing:
   # - id: links
@@ -57,31 +59,27 @@ listing:
 date-updated: 10-01-2024
 ---
 
-
 :::{#jolla}
 I am Adrian Cederberg and this is my blog powered by [quarto](https://quarto.org).
-I have a Bachelors of Science in Applied Mathematics from the University of New Mexico and a wide range of experience including teaching, research, and software development. 
+I have a Bachelors of Science in Applied Mathematics from the University of New Mexico and a wide range of experience including teaching, research, and software development.
 My technical interests include mathematics, physics, and software.
 Lately I am interested in writing software as I have found it to be an indispensable skill in the various topics which interest me.
 
 Blog posts will vary in subject matter, but invariably pertain to topics in computer science.
-Some things I will write about are ``python``, data structures and algorithms, containerization, infrastructure as code, numerical mathematics, and data science.
-For inquiries, please reach out to me at ``adrn.cederberg123@gmail.com`` or ``@_acederberg`` on twitter. 
+Some things I will write about are `python`, data structures and algorithms, containerization, infrastructure as code, numerical mathematics, and data science.
+For inquiries, please reach out to me at `adrn.cederberg123@gmail.com` or `@_acederberg` on twitter.
 If you find any errors in my blog posts, please make an issue on [the github repository for this website](https://github.com/acederberg/quarto-maths).
 :::
-
 
 ## Categories
 
 :::{#categories}
 :::
 
-
 ## Posts
 
 :::{#posts}
 :::
-
 
 ## Github Statistics
 
@@ -92,7 +90,6 @@ If you find any errors in my blog posts, please make an issue on [the github rep
       new GitHubCalendar(".calendar", "acederberg", {global_stats: false, summary_text: null});
   </script>
 </div>
-
 
 ## Where is the Old Blog?
 
