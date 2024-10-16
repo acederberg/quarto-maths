@@ -139,7 +139,6 @@ spec:
           namespace: traefik
         - name: traefik-error-pages
           namespace: traefik
-        - name: blog-home
       services:
         - kind: Service
           name: blog

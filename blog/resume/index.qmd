@@ -1,0 +1,116 @@
+---
+title: Adrian Cederberg
+version: 5
+format:
+  pdf:
+    documentclass: article
+    hyperref:
+      - pdfborder={0 0 0}
+      - breaklinks=false
+      - colorlinks=true
+      - urlcolor=blue
+    include-before-body:
+      # NOTE: It may be possible to style links using another means.
+      - text: |
+          \newcommand{\hreful}[2]{
+              \href{#1}{
+                  \textcolor{blue}{\ttfamily\underline{#2}}
+              }
+          }
+    geometry:
+      - margin=0.7in
+    keep-tex: true
+date: 10-16-2024
+---
+
+:::{#contact}
+
+\begin{center}
+(505) 589 - 6914
+\textbar{} adrn.cederberg123@gmail.com
+\hfill \hreful{https://acederberg.io}{blog}
+\textbar{} \hreful{https://github.com/acederberg}{github}
+\textbar{} \hreful{https://www.linkedin.com/in/adrian-cederberg-b453571b9/}{linkedin}
+\end{center}
+
+:::
+
+## Education
+
+### University of New Mexico \hfill Spring 2015 - Fall 2019
+
+- Bachelors of Science in Applied Mathematics - Minor in chemistry.
+- Worked as a grader, tutor, and researcher. Got my first tastes of software development with `matlab` and `python`.
+
+### Self Study \hfill January 2021 - January 2022
+
+- Built a portfolio using `flask` and deployed it with `ansible` and
+  `docker-compose`. Code is available upon request.
+- Made various projects using `python`, `react`, and `docker` to further my
+  understanding.
+
+## Projects
+
+All of these projects have an associated `README` page on github where more information may be found.
+
+|                                                                                     |
+| ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| \hreful{https://github.com/acederberg/captura}{Captura}                             | A framework for building sharing into APIs, including a command line and python client, tests, and pypi package. Includes actions to test, build, version. |
+| \hreful{https://github.com/acederberg/captura-deploy}{Blog and Captura IaC}         | Infrastructure as code and DNS automation for my blog and captura.                                                                                         |
+| \hreful{https://github.com/acederberg/quarto-maths}{My Blog}                        | A blog powered by quarto where I routinely publish blog posts. Includes actions to test, build, version, and deploy.                                       |
+| \hreful{https://github.com/acederberg/pydantic-settings-yaml}{PydanticYamlSettings} | A library I like to use for project configurations                                                                                                         |
+| \hreful{https://github.com/acederberg/nvim-ez}{Neovim Configuration}                | Configuration for my favorite text editor.                                                                                                                 |
+
+: {tbl-colwidths="[25, 75]" .striped .hover .borderless}
+
+## Employment
+
+### Founder \textbar{} acederberg.io \hfill January 2024 - Now
+
+- Designed, implemented, tested, and deployed \hreful{https://github.com/acederberg/captura}{captura}
+  using `fastapi`, `sqlalchemy`, `pydantic`, and `docker`.
+- Built my blog \hreful{https://acederberg.io}{acederberg.io} using `quarto` and
+  routinely published blog posts.
+- Implemented infrastructure as code and continuous integration and deployment
+  for \hreful{https://github.com/acederberg/captura}{captura} and my
+  \hreful{blog}{https://acederberg.io} to `linode` using `pulumi` and `python`.
+  Implemented `SSL` termination using `traefik`, \texttt{let's encrypt} ACME
+  certificates, and `porkbun API` automation. Code is hosted on `github` but is
+  only available upon request.
+
+### Senior Software Engineer \textbar{} Mountain Vector Energy \hfill January 2022 - December 2023
+
+- Collaborated with team to design, implement, maintain, and deploy `Cufflink`
+  Software as a Service.
+- Contributed to `Cufflink` client and admin dashboards within the `react`
+  and `next` frameworks.
+- Bootstrapped the `Cufflink API` using `FastAPI`, `SQLAlchemy`, and
+  `Pydantic`. Developed data pipelines, managed databases, and implemented
+  fixes and features including `Auth0` OAuth authentication.
+- Developed infrastructure as code using `terraform` on `azure` and
+  designed `helm` charts for `Cufflink` services. Managed and debugged
+  services in `kubernetes`, built `bitbucket` pipelines, and
+  implemented/maintained continuous integration and deployment.
+  Maintained service up-time and reliability.
+- Used `atlassian jira` to track progress, keep notes, and assign issues.
+- Performed technical interviews to hire two software engineers.
+
+### Research Assistant \textbar{} UNM Mechanical Engineering \hfill Summer 2019 - Winter 2020
+
+- Collaborated with Craig Davidson of Dark Sea Industries to develop and
+  document efficient air plasma production using magnetohydrodynamic methods.
+- Built and programmed sensor arrays using Raspberry and Arduino and wrote
+  drivers in `python` and `c`.
+- Processed experimental data using `python` to generate graphs. Interpreted
+  spectrometer data using `python` to increase productivity.
+
+## Skills and Tools
+
+|                    |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| Languages          | `Python`, `Javascript`, `HCL`, `Go`, and `lua`,                                                                               |
+| Tools \& Libraries | `Kubernetes`, `Docker`, `Helm`, `Traefik`, `Terraform`, `Pulumi`,`Pydantic`, `FastAPI`, `Typer`, `SQLAlchemy`, `NextJS`, Etc. |
+| Data \& Databases  | `YAML`, `JSON`, `CSS`, `HTML`, `XML`, `TOML`, `MySQL`, `MongoDB`, `Redis`.                                                    |
+| Dev Ops and Others | `Pipelines`, `Infrastructure as Code`, `CI/CD`, `Linux`, `Windows`, `Vim`, `Neovim`, `Visual Studio Code`.                    |
+
+: {tbl-colwidths="[25, 75]" .striped .hover .borderless}
