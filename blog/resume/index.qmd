@@ -2,6 +2,7 @@
 title: Adrian Cederberg
 version: 5
 format:
+  docx: default
   html:
     toc: false
   pdf:
