@@ -1,5 +1,5 @@
 ---
-title: Adrian Cederberg | Resume 2024
+title: Adrian Cederberg
 version: 5
 format:
   html:
@@ -41,19 +41,26 @@ date-updated: 10-16-2024
 
 <!-- Will only appear in HTML. -->
 
-::: {#resume-contact}
-
-- adrn.cederberg123@gmail.com
-- 505 589 6914
-- [blog](https://acederberg.io)
-- [github](https://github.com/acederberg)
-- [linkedin](https://www.linkedin.com/in/adrian-cederberg-b453571b9/)
-
-:::
-
-::: {.callout-tip}
-This resume is available as a `PDF`, `tex`, or `MS word` document in the side bar.
-:::
+```{=html}
+<section>
+  <div id="resume-contact">
+    <p>adrn.cederberg123@gmail.com</p>
+    <p>(505) 589 - 6914</p>
+    <a href=https://acederberg.io class="break">
+      <i class="bi bi-house" role="img"></i>
+      blog
+    </a>
+    <a href=https://github.com/acederberg>
+      <i class="bi bi-github" role="img"></i>
+      github
+    </a>
+    <a href=https://www.linkedin.com/in/adrian-cederberg-b453571b9/>
+      <i class="bi bi-linkedin" role="img"></i>
+      linkedin
+    </a>
+  </div>
+</section>
+```
 
 :::
 
