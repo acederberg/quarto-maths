@@ -1,0 +1,46 @@
+---
+title: My Blog
+---
+
+This is my blog that you are likely viewing this on.
+All content on this blog is authored using [quarto](https://quarto.org), an amazing markup format for websites, jupyter notebooks, books, articles, and more.
+To see coverage reports, got see [the artifacts on github pages](https://acederberg.github.io/quarto-maths/).
+
+## Why Have a Blog?
+
+I have always been really into taking notes, so I thought it would be good to get away from paper.
+Working with web pages offers much more flexibility a features than using paper notes and allows me to share them with ease.
+
+### About `leetcode`
+
+![Leetcode logo](/icons/leetcode/default.svg){fig-align="centered" width="256px"}
+
+Data structures and algorithms is a useful subject matter to be knowledgable about in computer science and software.
+Additionally, the subject matter is frequently quized in SDE technical interviews.
+Since I am currently applying for jobs and working on `leetcode` problems, I figured I should start to do some for practice.
+I also wanted to have a record of the problem which I had done and to take more extensive notes on the things that I did not understand or found interesting.
+
+### About the Resume
+
+![Quarto logo](/icons/quarto.svg){fig-align=centered width=256px}
+
+I thought it might be helpful to have all of the resumes I distribute contain a link to the most recent version of [my resume](/resume) :zap:.
+To make this possible, I would have to host it somewhere and thought my blog would be the most suitable place.
+This came with a number of benefits, such as
+
+- having version control over my resume,
+- rendering into multiple formats like `TeX`, `PDF`, and `HTML`,
+- integration of the resume into something I'd be working on frequently,
+- being able to edit in my favorite tool `nvim` instead of [overleaf](https://overleaf.com),
+- having the projects described in the resume have corresponding pages on the same website,
+- having auxilary content available for the resume when everything might not fit.
+
+### About the Projects
+
+![Github logo](/icons/github.svg){fig-align=centered width=256px}
+
+I've made a few projects (including this blog) which I wanted to showcase here.
+Each of these will have their own page dedicated them, and should be available in the sidebar.
+For some of the larger projects there might be extensive documentation.
+All of the content here is pulled from the various repositories using `git` subtrees.
+To learn more about the technical details, see the next page.

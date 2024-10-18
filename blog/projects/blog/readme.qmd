@@ -1,0 +1,123 @@
+---
+title: Blog (``acederberg.io``)
+---
+
+To view the content in all of its glory, view [the deployed instance](acederberg.io).
+
+## Running
+
+For all set ups, make the configuration dir `config` and provide your kaggle
+configuration in `config/kaggle/kaggle.json`.
+
+### With Docker Compose
+
+To run in development mode, use docker compose like
+
+```bash
+docker compose --file docker/compose.yaml
+```
+
+This will provide access to `quarto`, `python`, and `r`.
+
+### The Hard Way
+
+First, ensure that `quarto` is installed. Then setup a virtual environment and
+add install the dependencies using `poetry`:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install poetry
+poetry install
+```
+
+## Building
+
+To render the website, just
+
+```bash
+cd blog
+quarto add quarto-ext/iclude-code-files
+quarto render
+cd -
+```
+
+To build the docker image, run
+
+```bash
+export ACEDERBERG_IO_GOOGLE_TRACKING_ID="tracking id here"
+docker build --tag acederberg/quarto-blog-builder \
+    --file ./docker/dockerfile \
+    --secret id=kaggle_json,src=./config/kaggle/kaggle.json . \
+    --secret id=google_tracking_id,env=ACEDERBERG_IO_GOOGLE_TRACKING_ID
+```
+
+or use the production compose project:
+
+```bash
+export ACEDERBERG_IO_GOOGLE_TRACKING_ID="tracking id here"
+docker compose --file docker/compose.prod.yaml build
+```
+
+To verify the build metatags use `scripts.meta`.
+
+## Subtrees
+
+It is important to make sure that the subtrees are updated. This is how
+information projects are integrations.
+
+### Project Documentation Structure
+
+A few things are necessary for including a projects documentation into the blog
+in both this repository and the project repository. In either case it is
+prudent to push changes to avoid losing any work.
+
+This setup has the advantage that the changes can be merged into the project
+history nicely.
+
+#### The Project Repository
+
+Every project has a directory `docs`, which should contain its own
+`_quarto.yml` specifying a website. Usually it will contain both an indexfile
+and a readme:
+
+```
+...
+docs
+|- _quarto.yml
+|- index.qmd # The main page to be visible on the blog.
+|- readme.qmd # The readme content.
+```
+
+Once this has all been made, the documentation must be made into its own branch
+using `git-filter`:
+
+```sh
+git checkout -b docs
+git filter-branch --subdirectory-filter docs --prune-empty HEAD                                                                                                                                                                            ─╯
+```
+
+I am well aware that `filter-branch` is deprecated, however it is the best
+option I can come up with for the moment. Maintaining the documentation between
+the two branches is simple. Take commits from the main branch an cherry pick
+them into the docs branch like
+
+```sh
+git cherry-pick '<commit hash from main>'
+```
+
+#### This Repository
+
+Once the above has been done, adding the documentation to this site is fairly
+straightforward. Add a remote and create a subtree:
+
+```sh
+git remote add "<myproject>" "<project url>"
+git subtree add --prefix "blog/projects/<project>" "<project>" docs --squash
+```
+
+With this, it is possible to apply changes to and from the remote like
+
+```sh
+git subtree pull --prefix blog/projects/nvim-config nvim-config docs --squash
+```

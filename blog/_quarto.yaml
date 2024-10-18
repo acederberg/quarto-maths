@@ -10,13 +10,32 @@ project:
     browser: false
 jupyter: python3
 website:
+  page-navigation: true
   title: acederberg.io
   site-url: https://acederberg.io
   description: acederberg's blog.
+  repo-url: https://github.com/acederberg/quarto-maths
+  sidebar:
+    - id: projects
+      title: Projects
+      style: "docked"
+      contents:
+        - section: Projects
+          href: ./projects
+          contents:
+            - section: Blog
+              contents:
+                - text: About
+                  href: ./projects/blog/index.qmd
+                - text: Technical Details
+                  href: ./projects/blog/readme.qmd
+            - title: Nvim Configuration
+              href: ./projects/nvim-config/index.qmd
+
   # NOTE: https://icons.getbootstrap.com/
   navbar:
-    background: success
-    foreground: '#222'
+    # background: default
+    # foreground: '#000'
     right:
       - icon: github
         href: https://github.com/acederberg
@@ -27,17 +46,18 @@ website:
     left:
       - text: Home
         href: /
-      - text: Kaggle
-        href: /kaggle
+      - sidebar:projects
       - text: Posts
         href: /posts
+      - text: Kaggle
+        href: /kaggle
       - text: Leetcode
         href: /dsa/leetcode
-        # - text: Resume
-        #   href: https://acederberg.io/resume
+      - text: Resume
+        href: https://acederberg.io/resume
 theme:
-  dark: [darkly, ./themes/commits.css, ./themes/index.css, ./themes/dark.scss, ./themes/dark-default.scss]
-  light: [flatly, ./themes/commits.css, ./themes/index.css]
+  dark: [cyborg, ./themes/commits.css, ./themes/index.css, ./themes/dark.scss, ./themes/dark-default.scss]
+  light: [cosmo, ./themes/commits.css, ./themes/index.css]
 format:
   html:
     code-fold: false
