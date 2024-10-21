@@ -1,6 +1,7 @@
 ---
 title: Adrian Cederberg
 version: 5
+image: /icons/document.svg
 format:
   docx: default
   html:
@@ -25,7 +26,7 @@ format:
           \renewcommand{\toprule}[2]{}
           \renewcommand{\bottomrule}[2]{}
     geometry:
-      - margin=0.7in
+      - margin=1in
     keep-tex: true
     template-partials:
       - ./title.tex
@@ -47,18 +48,24 @@ date-updated: 10-16-2024
   <div id="resume-contact">
     <p>adrn.cederberg123@gmail.com</p>
     <p>(505) 589 - 6914</p>
-    <a href=https://acederberg.io class="break">
-      <i class="bi bi-house" role="img"></i>
-      blog
-    </a>
-    <a href=https://github.com/acederberg>
-      <i class="bi bi-github" role="img"></i>
-      github
-    </a>
-    <a href=https://www.linkedin.com/in/adrian-cederberg-b453571b9/>
-      <i class="bi bi-linkedin" role="img"></i>
-      linkedin
-    </a>
+    <p>
+      <a href=https://acederberg.io class="break">
+        <i class="bi bi-house" role="img"></i>
+        blog
+      </a>
+    </p>
+    <p>
+      <a href=https://github.com/acederberg>
+        <i class="bi bi-github" role="img"></i>
+        github
+      </a>
+    </p>
+    <p>
+      <a href=https://www.linkedin.com/in/adrian-cederberg-b453571b9/>
+        <i class="bi bi-linkedin" role="img"></i>
+        linkedin
+      </a>
+    </p>
   </div>
 </section>
 ```
@@ -233,10 +240,10 @@ date-updated: 10-16-2024
 ## Skills and Tools
 
 |                    |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| Languages          | `Python`, `Javascript`, `HCL`, `Go`, and `lua`,                                                                               |
-| Tools \& Libraries | `Kubernetes`, `Docker`, `Helm`, `Traefik`, `Terraform`, `Pulumi`,`Pydantic`, `FastAPI`, `Typer`, `SQLAlchemy`, `NextJS`, Etc. |
-| Data \& Databases  | `YAML`, `JSON`, `CSS`, `HTML`, `XML`, `TOML`, `MySQL`, `MongoDB`, `Redis`.                                                    |
-| Dev Ops and Others | `Pipelines`, `Infrastructure as Code`, `CI/CD`, `Linux`, `Windows`, `Vim`, `Neovim`, `Visual Studio Code`.                    |
+| ------------------ | ------------------------------------------------------------------------------------------------------------- |
+| Languages          | `Python`, `Javascript`, `HCL`, `Go`, and `lua`,                                                               |
+| Tools \& Libraries | `Kubernetes`, `Docker`, `Helm`, `Traefik`, `Terraform`, `Pulumi`, `FastAPI`, `Typer`, `SQLAlchemy`, `NextJS`. |
+| Data \& Databases  | `YAML`, `JSON`, `CSS`, `HTML`, `XML`, `TOML`, `MySQL`, `MongoDB`, `Redis`.                                    |
+| Dev Ops and Others | `Pipelines`, `IaC`, `CI/CD`, `Linux`, `Windows`, `Vim`, `Neovim`, `Visual Studio Code`.                       |
 
 : {tbl-colwidths="[25, 75]" .striped .hover .borderless}

@@ -27,11 +27,9 @@ RUN install.r \
     rmarkdown \
     quarto
 
-# ARG QUARTO_VERSION="0.9.522"
-# RUN curl -o quarto-linux-amd64.deb -L https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-amd64.deb
-RUN curl -LO https://quarto.org/download/latest/quarto-linux-amd64.deb
+ARG QUARTO_VERSION="1.6.28"
+RUN curl -o quarto-linux-amd64.deb -L https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-amd64.deb
 RUN gdebi --non-interactive quarto-linux-amd64.deb
-RUN quarto install tinytex
 
 CMD ["bash"]
 
@@ -42,8 +40,11 @@ FROM quarto AS develop
 RUN mkdir -p /home/docker /home/docker/.venv \
   && chown -R docker:docker /home/docker
 
+# NOTE: Tinytex must be installed as the docker user otherwise it will not be
+#       found.
 USER docker
 WORKDIR /home/docker
+RUN quarto install tinytex
 
 # NOTE: Assumes that build is occuring at the project root.
 COPY --chown=docker:docker ./docker/docker.sh /home/docker/.bashrc
@@ -84,6 +85,7 @@ ENV \
   ACEDERBERG_IO_DRY="0" \
   KAGGLE_CONFIG_DIR="/quarto"
 
+RUN quarto install tinytex
 COPY ./pyproject.toml ./poetry.lock /quarto/app
 COPY ./blog /quarto/app/blog
 

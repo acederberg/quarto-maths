@@ -1,8 +1,29 @@
 ---
-title: Blog (``acederberg.io``)
+title: Blog
+toc: true
+format:
+  gfm:
+    preview-mode: raw
+  html: default
+date-updated: 10-19-2024
 ---
 
+::: {.content-visible when-format="markdown"}
+
 To view the content in all of its glory, view [the deployed instance](acederberg.io).
+
+:::
+
+::: {.content-visible when-format="html"}
+
+::: {.callout-note}
+
+This is the blog repositories readme file.
+The repository is available [on github](https://github.com/acederberg/quarto-maths).
+
+:::
+
+:::
 
 ## Running
 
@@ -61,7 +82,7 @@ docker compose --file docker/compose.prod.yaml build
 
 To verify the build metatags use `scripts.meta`.
 
-## Subtrees
+## Project Subtrees
 
 It is important to make sure that the subtrees are updated. This is how
 information projects are integrations.

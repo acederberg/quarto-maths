@@ -1,0 +1,36 @@
+---
+title: How is the Blog Deployed?
+format:
+  html:
+    include-in-header:
+      - file: ./mermaid_setup.html
+---
+
+The blog is deployed onto infrastructure provisioned by another project listed
+here, [see the automation project](./projects/automation). To provide a nice
+diagram:
+
+```{=html}
+
+<pre class="mermaid">
+architecture-beta
+  group linode(logos:linode)[Linode]
+  service blog_deployment(k8s:svc)[Blog Service and Deployment] in linode
+  service kubernetes(k8s:svc)[Kubernetes] in linode
+</pre>
+
+```
+
+```
+  %% service load_balancer(server)[Traefik Ingress] in linode
+  %% group github(logos:github-icon)[Github]
+  %% group github_actions(logos:github-actions) in github
+  %% service actions_check(gitlab:document)[Check Code] in github_actions
+  %% service actions_build(gitlab:document)[CI/CD] in github_actions
+  %% service actions_entity(gitlab:user)[Developer] in github_actions
+
+  %% service github_actions_check(logi
+```
+
+By the way, this diagram was made possible using [`mermaid` architecture diagrams](https://mermaid.js.org/syntax/architecture.html).
+Also, these diagrams can be written directly in `quarto` documents, yet another reason why `quarto` is great.
