@@ -60,7 +60,6 @@ listing:
 date-updated: 10-01-2024
 ---
 
-ffooo
 :::{#jolla}
 I am Adrian Cederberg and this is my blog powered by [quarto](https://quarto.org).
 I have a Bachelors of Science in Applied Mathematics from the University of New Mexico and a wide range of experience including teaching, research, and software development.

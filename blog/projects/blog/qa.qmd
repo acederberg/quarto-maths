@@ -1,0 +1,18 @@
+---
+title: How is the Blog Deployed?
+format:
+  html:
+    include-in-header:
+      - file: ./mermaid_setup.html
+---
+
+## Versioning and Fixing Workflow
+
+Versioning is done pretty loosly. So far I mostly use it for
+
+1. Tagging points in the git <span class="iconify" data-icon="logos:git"></span>
+   history where substantial changes to the structure of the project are made.
+2. Substantial changes to github actions <span class="iconify" data-icon="logo:github-actions"></span>
+   or containerization <span class="iconify" data-icon="logo:docker"></span>.
+
+## Checking

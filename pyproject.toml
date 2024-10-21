@@ -29,6 +29,7 @@ pyyaml = "^6.0.2"
 pyarrow = "^17.0.0"
 pytest = "^8.3.3"
 yamllint = "^1.35.1"
+watchdog = "^5.0.3"
 
 
 [tool.poetry.group.torch.dependencies]
