@@ -3,16 +3,15 @@ title: How is the Blog Deployed?
 format:
   html:
     include-in-header:
-      - file: ../../includes/mermaid_setup.html
+      - file: ../../includes/mermaid.html
 ---
 
 ## {{< iconify logos linode >}} Infrastructure
 
 The blog is deployed onto infrastructure provisioned in linode
-by another project listed
-here, [see the automation project](./projects/automation).
+by another project listed here, [see the automation project](./projects/automation).
 
-## {{< iconify logos git >}} Deployment Workflow
+## {{< iconify devicon git >}} Deployment Workflow
 
 The workflow is pretty straigtforward since collaboration is not required:
 
@@ -34,7 +33,7 @@ The workflow is pretty straigtforward since collaboration is not required:
 ### {{< iconify exploding-head >}} Architecture
 
 ```{mermaid}
-%%| fig-cap: By the way, this diagram was made possible using [`mermaid` architecture diagrams](https://mermaid.js.org/syntax/architecture.html).
+%%| fig-cap: By the way, this diagram was made possible using [`mermaid` architecture diagrams](https://mermaid.js.org/syntax/architecture.html) {{< iconify misc mermaid >}}.
 
 architecture-beta
   group linode(logos:linode)[Linode]

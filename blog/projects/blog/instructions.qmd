@@ -29,7 +29,7 @@ To see coverage reports, got see [the artifacts on github pages](https://acederb
 ## Dear Reader
 
 _This is the blog repositories readme file and it is here primarily for the sake of completeness._
-_If you are interested in the raw code, the repository is available [on github](https://github.com/acederberg/quarto-maths)._
+_If you are interested in the raw code you should probably read this - the repository is available [on github](https://github.com/acederberg/quarto-maths)._
 
 The subsequent posts (in the sidebar) detail more aspects of the blog.
 More than anything, these are instructions for my future self and anyone curious about my workflow in developing the blog.

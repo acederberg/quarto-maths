@@ -18,12 +18,6 @@ website:
   description: acederberg's blog.
   repo-url: https://github.com/acederberg/quarto-maths
   sidebar:
-    # NOTE: Too messy!
-    # - id: leetcode
-    #   section: LeetCode
-    #   href: ./dsa/leetcode
-    #   contents: ./dsa/leetcode
-
     - id: projects
       title: Projects
       style: "docked"
@@ -38,13 +32,14 @@ website:
                   href: ./projects/blog/index.qmd
                 - section: Subprojects
                   contents:
-                    - text: 'Resume Hosted on the Blog'
+                    - text: 'Resume'
                       href: ./resume/index.qmd
+                    - text: 'Building A Custom Iconset for Kubernetes'
+                      href: ./posts/iconify/index.qmd
                     - text: 'Leetcode Problems'
                       href: ./dsa/leetcode/index.qmd
-                    - text: 'Building A Custom Iconify Iconset'
-                      href: ./posts/iconify/index.qmd
-                - section: My Blog Posts About the Blog
+
+                - section: Technical Details
                   contents:
                     - text: 'Blog ReadMe'
                       href: ./projects/blog/instructions.qmd
@@ -58,8 +53,16 @@ website:
                       href: ./posts/quarto-kube-static/index.qmd
 
             - text: '---'
-            - title: Nvim Configuration
-              href: ./projects/nvim-config/index.qmd
+            - text: Nvim Configuration
+              contents:
+                - title: Why Even Use Neovim?
+                  href: ./projects/nvim-config/index.qmd
+                - title: Gallery
+                  href: ./projects/nvim-config/gallery.qmd
+                - title: Configuration ReadMe
+                  href: ./projects/nvim-config/instructions.qmd
+
+
 
             - text: '---'
             - section: Blog and Demo Automation
@@ -92,7 +95,7 @@ website:
       - text: Leetcode
         href: /dsa/leetcode
 theme:
-  dark: [cyborg, ./themes/commits.css, ./themes/index.css, ./themes/dark.scss, ./themes/dark-default.scss]
+  # dark: [cyborg, ./themes/commits.css, ./themes/index.css, ./themes/dark.scss, ./themes/dark-default.scss]
   light: [cosmo, ./themes/commits.css, ./themes/index.css]
 format:
   html:
@@ -100,6 +103,9 @@ format:
     embed-resources: false
     template-partials:
       - templates/metadata.html
+    include-in-header:
+      - file: ./includes/iconify.html
+
 author:
   - name: Adrian Cederberg
     url: acederberg.io

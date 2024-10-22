@@ -4,10 +4,10 @@ image: /icons/kubernetes.svg
 format:
   html:
     include-in-header:
-      - file: ../../includes/mermaid_setup.html
+      - file: ../../includes/mermaid.html
 ---
 
-## {{< iconify logos kubernetes >}} Use Case
+## {{< iconify misc mermaid >}} Use Case
 
 Recently I wanted to use [mermaid.js <span class="iconify" data-icon="misc:mermaid"></span>](https://mermaid.js.org) to make an
 [architecture diagram](https://mermaid.js.org/syntax/architecture.html) to
@@ -57,6 +57,8 @@ architecture-beta
   service github_actions(logos:github-actions)[Github Actions]
   github_actions:R -- L:blog_gha_sa{group}
 ```
+
+and icons like that seen in the header of this section (the {{< iconify misc mermaid >}} ``mermaid.js`` symbol).
 
 ## {{< iconify hugeicons question >}} Objective
 
@@ -226,9 +228,9 @@ Then write out the declarative code for your diagram inside of some `pre` tags w
 ### With Mermaid Inside Of Quarto
 
 It is as simple as adding something like the script tags from above to `quarto` `HTML`
-output, e.g. make a file `./includes/mermaid_setup.html` that calles `mermaid.registerIconPacks`:
+output, e.g. make a file `./includes/mermaid.html` that calles `mermaid.registerIconPacks`:
 
-```{.html include="../../includes/mermaid_setup.html" snippet="script"}
+```{.html include="../../includes/mermaid.html" snippet="script"}
 
 ```
 
@@ -239,7 +241,7 @@ and include it in the html output by using `format.html.include-in-header`:
 format:
   html:
     include-in-header:
-      - file: ./includes/mermaid_setup.html
+      - file: ./includes/mermaid.html
 ---
 
 This is an example, and the following diagram should be rendered by mermaid

@@ -12,9 +12,9 @@ keywords:
   - algorithms
   - leetcode
   - interview
-# NOTE: https://quarto.org/docs/websites/website-listings.html
-listing: 
-  fields: 
+listing:
+  id: problems
+  fields:
     - image
     - date
     - title
@@ -29,7 +29,30 @@ listing:
   image-height: 256px
 page-layout: full
 image: /icons/leetcode/default.svg
-title-block-banner: true
 ---
 
+## What is Leetcode?
 
+Leetcode is a platform for data structures and algorithms problem solving competitions.
+When a solution is submitted, it is run against many test cases and data on runtime and memory usage are collected.
+Competitors can see how their solutions ranked in runtime and memory as compared to all submitted solutions.
+
+## Why Even Keep Notes About Leetcode Problems?
+
+Data structures and algorithms is an essential problem in computer science and I find them to be quite fun.
+I wanted to keep notes on the problems I solve because I have always found that taking notes has allowed me to fully analyze a problem.
+I also think that much of the work in solving these problems is in the analysis.
+
+Few people sit down and immediately understand what they are going to implement without some planning and analysis.
+In fact, I would argue that it is bad practice to not consider the solution before implementation.
+
+On top of this, there are a few more reasons worth listing here:
+
+1. I like to edit in `vim`, and writing out my code in vim is preferable,
+2. As I improve, I can come back and look at my solutions and analyses to improve (analyzing my analysis - _meta-analysis_),
+3. All solutions are tested and it is easy to setup `pytest` cases for each problem to avoid having to work in `leetcode`'s editor.
+
+## My Solutions
+
+::: {#problems}
+:::

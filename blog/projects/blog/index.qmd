@@ -1,5 +1,9 @@
 ---
 title: My Blog
+format:
+  html:
+    include-in-header:
+      - file: ../../includes/mermaid.html
 ---
 
 In the section of my blog content, I discuss the implementation of this blog
@@ -12,14 +16,14 @@ All content on this blog is authored using quarto.
 In this time, I have also had quite some fun figuring out how to to implement
 
 - continuous integration and continuous deployment for this project using github actions {{< iconify logos github-actions>}},
-- a docker image that accomodates kaggle api calls and mounting of other secrets duing the build using secrets,
-- and how to create diagrams with [mermaid](https://mermaid.js.org) and [iconify](https://iconify.design).
+- a `docker` image that accomodates `kaggle` api calls and mounting of other secrets duing the build using secrets,
+- and how to create diagrams with [mermaid <span data-icon="misc:mermaid" class="iconify"></span>](https://mermaid.js.org) and [iconify](https://iconify.design).
 
 Further, there are associated projects (in the sidebar) that support this project.
+For instance
 
-For instance, the [my neovim configuration](../nvim-config/index.qmd) is designed
-to make editing `quarto` documents very easy. The same is true of the
-[infrastructure and automation project](../automation).
+- the [my neovim configuration](../nvim-config/index.qmd) is designed to make editing `quarto` documents very easy,
+- and the [infrastructure and automation project](../automation) is used to [deploy](./deploy.qmd) the infrastructure to linode {{< iconify logos linode >}}.
 
 ## Why Have a Blog?
 

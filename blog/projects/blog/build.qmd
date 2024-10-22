@@ -1,5 +1,33 @@
 ---
-title: Docker Builds
+title: Docker Builds with Quarto
+format:
+  html:
+    include-in-header:
+      - file: ../../includes/mermaid.html
 ---
 
-In this document, I will describe the dockerfile of this project.
+Here I would like to describe how I have automated builds for [my blog](https://acederberg.io).
+If you know me, you know I love containerization and linux - lately I've also been quite obsessed with quarto.
+
+## {{< iconify logo docker >}} The Dockerfile
+
+I have written a multistage `dockerfile` so that the final container is relatively
+lightweight and does not contain all quarto and all of its dependencies.
+The only responsibility of the final image produced is to serve the static files
+rendered by `quarto`, including this very blog post.
+
+```{mermaid}
+architecture-beta
+  group builder()[Build Stage]
+  group production(devicon:nodejs)[Production Stage]
+
+
+```
+
+### {{< iconify misc quarto >}} The `quarto` Stage
+
+### {{< iconify hammer >}} The `builder` Stage
+
+### {{< iconify  server >}} The `production` Stage
+
+## {{< iconify logos github-actions >}} Github Actions

@@ -1,0 +1,33 @@
+<script type="module">
+  async function setupMermaid() {
+    mermaid.registerIconPacks([
+      {
+        name: 'k8s',
+        loader: () => fetch('/icons/kubernetes.json').then(response => response.json())
+      },
+      // NOTE: The CDN is not great. Build should expect these to be added into image, hopefully when cdn does not suck.
+      // https://unpkg.com/@iconify-json/logos/icons.json
+      // wget -O ./blog/icons/devicon-plain.json https://unpkg.com/@iconify-json/devicon-plain/icons.json
+      {
+        name: 'logos',
+        loader: () => fetch("/icons/logos.json").then(response => response.json())
+      },
+      {
+        name: 'plain',
+        loader: () => fetch("/icons/devicons-plain.json").then(response => response.json())
+      },
+      {
+        name: 'devicon',
+        loader: () => fetch("/icons/devicons.json").then(response => response.json())
+      },
+      {
+        name: 'hugeicons',
+        loader: () => fetch("/icons/hugeicons.json").then(response => response.json())
+      }
+    ])
+  }
+  setupMermaid()
+</script>
+
+
+

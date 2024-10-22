@@ -1,6 +1,8 @@
 # NOTE: Borrowed from https://github.com/analythium/quarto-docker-examples/blob/main/Dockerfile.base
 #       This is not optimal for CI, the image is huge and will be slow af in actions/pipelines.
 #       Further, installing pip and venv is horrendous on ubuntu. *(It should work out of the box!)*
+
+# start snippet quarto
 FROM eddelbuettel/r2u:22.04 AS quarto
 
 RUN apt-get update \
@@ -32,9 +34,11 @@ RUN curl -o quarto-linux-amd64.deb -L https://github.com/quarto-dev/quarto-cli/r
 RUN gdebi --non-interactive quarto-linux-amd64.deb
 
 CMD ["bash"]
+# end snippet quarto
 
 
 # --------------------------------------------------------------------------- #
+# start snippet develop
 FROM quarto AS develop
 
 RUN mkdir -p /home/docker /home/docker/.venv \
@@ -50,6 +54,7 @@ RUN quarto install tinytex
 COPY --chown=docker:docker ./docker/docker.sh /home/docker/.bashrc
 
 CMD ["bash"]
+# end snippet develop
 
 
 # --------------------------------------------------------------------------- #
@@ -71,6 +76,7 @@ CMD ["bash"]
 # NOTE: https://github.com/moby/buildkit/issues/1512
 # NOTE: Assumes that build is occuring at the project root.
 
+# start snippet builder
 FROM quarto AS builder
 WORKDIR /quarto/app
 ARG ACEDERBERG_IO_BUILD_GIT_COMMIT
@@ -105,11 +111,13 @@ RUN \
     && cd /quarto/app/blog \
     && quarto add quarto-ext/include-code-files --no-prompt \
     && quarto render" 
+# end snippet builder
 
 
 # --------------------------------------------------------------------------- #
 # https://hub.docker.com/_/node/tags
 
+# start snippet production
 FROM node:lts-alpine3.20 AS production
 
 USER node
@@ -119,4 +127,5 @@ RUN npm install http-server
 COPY --from=builder /quarto/app/blog/build /app/build
 
 CMD ["npx", "http-server", "--port", "8080", "--proxy", "https://errors.acederberg.io/404.html", "/app/build"]
+# end snippet production
 

@@ -15,6 +15,7 @@ class HandleWrite:
     tt_tolerance = 3
     tt_last = dict()
     memo: dict[str, pathlib.Path] = dict()
+    ignored = {"build", ".quarto", "_freeze", "site_libs"}
 
     def check_conform(self, path: pathlib.Path):
         """Check for sequential write events, e.g. from ``conform.nvim``
@@ -33,13 +34,16 @@ class HandleWrite:
     def dispatch(self, event: FileSystemEvent) -> None:
 
         if event.event_type == "modified" and not event.is_directory:
-            if "build" in event.src_path:
-                return
 
             if event.src_path not in self.memo:
                 self.memo[event.src_path] = pathlib.Path(event.src_path).resolve()
 
             path = self.memo[event.src_path]
+
+            path_rel = os.path.relpath(path, path_here)
+            top = path_rel.split("/")[0]
+            if top in self.ignored:
+                return
 
             if path.suffix == ".qmd" and self.check_conform(path):
                 out = subprocess.run(
