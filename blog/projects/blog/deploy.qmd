@@ -3,7 +3,7 @@ title: How is the Blog Deployed?
 format:
   html:
     include-in-header:
-      - file: ./mermaid_setup.html
+      - file: ../../includes/mermaid_setup.html
 ---
 
 ## {{< iconify logos linode >}} Infrastructure

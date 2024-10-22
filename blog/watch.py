@@ -1,16 +1,20 @@
+import os
 import pathlib
+import shutil
 import subprocess
 import time
 
-from watchdog.events import FileSystemEvent, FileSystemEventHandler
+from watchdog.events import FileSystemEvent
 from watchdog.observers import Observer
 
-memo: dict[str, pathlib.Path] = dict()
+path_here = pathlib.Path(__file__).parent.resolve()
+path_build = path_here / "build"
 
 
 class HandleWrite:
     tt_tolerance = 3
     tt_last = dict()
+    memo: dict[str, pathlib.Path] = dict()
 
     def check_conform(self, path: pathlib.Path):
         """Check for sequential write events, e.g. from ``conform.nvim``
@@ -29,23 +33,31 @@ class HandleWrite:
     def dispatch(self, event: FileSystemEvent) -> None:
 
         if event.event_type == "modified" and not event.is_directory:
+            if "build" in event.src_path:
+                return
 
-            if event.src_path not in memo:
-                memo[event.src_path] = pathlib.Path(event.src_path).resolve()
+            if event.src_path not in self.memo:
+                self.memo[event.src_path] = pathlib.Path(event.src_path).resolve()
 
-            path = memo[event.src_path]
+            path = self.memo[event.src_path]
 
-            if path.suffix == ".qmd":
+            if path.suffix == ".qmd" and self.check_conform(path):
                 out = subprocess.run(
                     ["quarto", "render", str(path)],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                 )
-                if out.stdout:
-                    print(out.stdout)
 
-                if out.stderr:
+                print(int(self.tt_last[path]), path)
+                if out.stderr and out.returncode != 0:
+                    print(out.stdout)
                     print(out.stderr.decode())
+
+            # NOTE: Pain in the ass because of transient quarto html files.
+            # elif path.suffix == ".html":
+            #     dest = path_build / os.path.relpath(path, path_here)
+            #     print(f"{path} -> {dest}")
+            #     shutil.copy(path, dest)
 
 
 def main():

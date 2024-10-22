@@ -11,6 +11,14 @@ date-updated: 10-19-2024
 ::: {.content-visible when-format="markdown"}
 
 To view the content in all of its glory, view [the deployed instance](acederberg.io).
+Also, see some of the blog posts about the blog on the blog:
+
+- [Docker and Quarto](./build.qmd)
+- [Quarto Blog Quality Assurance](./qa.qmd)
+- [Quarto Blog Deployment](./deploy.qmd)
+- [Static Quarto Websites in Kubernetes](./posts/quarto-kube-static/index.qmd)
+
+To see coverage reports, got see [the artifacts on github pages](https://acederberg.github.io/quarto-maths/).
 
 :::
 
@@ -18,8 +26,15 @@ To view the content in all of its glory, view [the deployed instance](acederberg
 
 ::: {.callout-note}
 
-This is the blog repositories readme file.
-The repository is available [on github](https://github.com/acederberg/quarto-maths).
+## Dear Reader
+
+_This is the blog repositories readme file and it is here primarily for the sake of completeness._
+_If you are interested in the raw code, the repository is available [on github](https://github.com/acederberg/quarto-maths)._
+
+The subsequent posts (in the sidebar) detail more aspects of the blog.
+More than anything, these are instructions for my future self and anyone curious about my workflow in developing the blog.
+
+Subject matter content here is brief compared to that in the subsequnt blog posts.
 
 :::
 
@@ -100,6 +115,7 @@ history nicely.
 
 Every project has a directory `docs`, which should contain its own
 `_quarto.yml` specifying a website. Usually it will contain both an indexfile
+
 and a readme:
 
 ```

@@ -2,9 +2,24 @@
 title: My Blog
 ---
 
+In the section of my blog content, I discuss the implementation of this blog
+itself as it has been quite a project to do so.
 This is my blog that you are likely viewing this on.
-All content on this blog is authored using [quarto](https://quarto.org), an amazing markup format for websites, jupyter notebooks, books, articles, and more.
-To see coverage reports, got see [the artifacts on github pages](https://acederberg.github.io/quarto-maths/).
+In my time making this, I have learned quite a bit about [quarto](https://quarto.org),
+an amazing markup format for websites, jupyter notebooks, books, articles, and more.
+All content on this blog is authored using quarto.
+
+In this time, I have also had quite some fun figuring out how to to implement
+
+- continuous integration and continuous deployment for this project using github actions {{< iconify logos github-actions>}},
+- a docker image that accomodates kaggle api calls and mounting of other secrets duing the build using secrets,
+- and how to create diagrams with [mermaid](https://mermaid.js.org) and [iconify](https://iconify.design).
+
+Further, there are associated projects (in the sidebar) that support this project.
+
+For instance, the [my neovim configuration](../nvim-config/index.qmd) is designed
+to make editing `quarto` documents very easy. The same is true of the
+[infrastructure and automation project](../automation).
 
 ## Why Have a Blog?
 

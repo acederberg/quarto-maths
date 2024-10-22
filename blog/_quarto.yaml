@@ -4,8 +4,7 @@ project:
   resources:
     - ./robots.txt
     - ./posts/**/*.png
-    - ./icons/test.json
-    - ./icons/kubernetes.json
+    - ./icons/**/*.json
   output-dir: build
   preview:
     host: 0.0.0.0
@@ -37,19 +36,25 @@ website:
               contents:
                 - text: Why Even Have a Blog?
                   href: ./projects/blog/index.qmd
-                - text: '---'
-                - text: 'Subproject: Resume Hosted on the Blog'
-                  href: ./resume/index.qmd
-                - text: 'Subproject: Leetcode Problems'
-                  href: ./dsa/leetcode/index.qmd
-                - text: '---'
-                - text: 'Details: Blog ReadMe'
-                  href: ./projects/blog/instructions.qmd
-                - text: 'Details: How is the Blog Deployed?'
-                  href: ./projects/blog/deploy.qmd
-                  # NOTE: These contents should supplimental blog posts.
+                - section: Subprojects
                   contents:
-                    - text: Static Sites in Kubernetes
+                    - text: 'Resume Hosted on the Blog'
+                      href: ./resume/index.qmd
+                    - text: 'Leetcode Problems'
+                      href: ./dsa/leetcode/index.qmd
+                    - text: 'Building A Custom Iconify Iconset'
+                      href: ./posts/iconify/index.qmd
+                - section: My Blog Posts About the Blog
+                  contents:
+                    - text: 'Blog ReadMe'
+                      href: ./projects/blog/instructions.qmd
+                    - text: 'Docker and Quarto'
+                      href: ./projects/blog/build.qmd
+                    - text: 'Quality Assurence'
+                      href: ./projects/blog/qa.qmd
+                    - text: 'How is the Blog Deployed?'
+                      href: ./projects/blog/deploy.qmd
+                    - text: Static Quarto Websites in Kubernetes
                       href: ./posts/quarto-kube-static/index.qmd
 
             - text: '---'
@@ -95,7 +100,6 @@ format:
     embed-resources: false
     template-partials:
       - templates/metadata.html
-
 author:
   - name: Adrian Cederberg
     url: acederberg.io
