@@ -3,16 +3,20 @@ so that icons are available for use with tools [mermaid](https://mermaid.js.org)
 that load the svg from json.
 """
 
+import base64
 import json
 import os
 import pathlib
 from typing import Any, Iterable, Optional
 from xml.dom import minidom
 
+import requests
 import rich.console
 import typer
 
-path_here = pathlib.Path(__file__).resolve().parent.parent
+from scripts import env
+
+path_here = pathlib.Path(__file__).resolve().parent
 path_icons_json = path_here / "icons.json"
 path_svg = path_here / "svg"
 DELIM = "_"
@@ -163,6 +167,63 @@ abbr = {
     "user": "user",
     "netpol": "network-policy",
 }
+
+
+@cli.command("pull")
+def pull(gh_token: Optional[str] = None):
+
+    url_icons = "https://api.github.com/repos/kubernetes/community/contents/icons"
+    gh_token = env.require("gh_token", gh_token)
+    headers = {"Authorization": f"Bearer {gh_token}"}
+
+    def get(url: str):
+        response = requests.get(url, headers=headers)
+        if response.status_code != 200:
+            print(
+                f"Bad status code `{response.status_code}` from `{response.request.url}`."
+            )
+            if response.content:
+                print(response.json())
+            raise typer.Exit(5)
+
+        return response.json()
+
+    def walk_clone(directory_relpath: str):
+
+        directory_path = path_here / directory_relpath
+        directory_url = url_icons + "/" + directory_relpath
+
+        if not os.path.exists(directory_path):
+            print(f"Making directory `{directory_path}`.")
+            os.mkdir(directory_path)
+
+        print(f"Checking contents of `{directory_path}`.")
+        data = get(directory_url)
+
+        for item in data:
+
+            # NOTE: If it is a directory, recurse and inspect content.
+            item_relpath = directory_relpath + "/" + item["name"]
+            item_url = directory_url + "/" + item["name"]
+            if item["type"] == "dir":
+                walk_clone(item_relpath)
+                continue
+
+            # NOTE: If it is not a directory, then just put it into the file
+            #       with its respective name.
+            # NOTE: Content is in base64 form. There is the option to use the
+            #       download_url field, however it is probably faster to do
+            #       this.
+            item_path = directory_path / item["name"]
+            print(f"Inspecting `{item_relpath}`.")
+            if not os.path.exists(item_path) and item_path.suffix == ".svg":
+                print(f"Dumping content to `{item_path}`.")
+
+                item_data = get(item_url)
+                with open(item_path, "w") as file:
+                    file.write(base64.b64decode(item_data["content"]).decode())
+
+    walk_clone("svg")
 
 
 @cli.command("make")

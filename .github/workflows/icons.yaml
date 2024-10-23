@@ -1,0 +1,60 @@
+name: Kubernetes Icons
+on:
+  push:
+    tags:
+      - iconify-*
+jobs:
+  build_kubernetes_icons:
+    name: Build Icons
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout.
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache Virtual Environment.
+        uses: actions/cache@v3
+        id: venv
+        with:
+          path: .venv
+          key: ${{ runner.os }}-venv-${{ hashFiles('poetry.lock') }}
+
+      - name: Venv and Setup .
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --with scripts
+
+      # NOTE: Monthly cache key.
+      - name: Set cache key
+        id: cache-key
+        run: echo "SVG_CACHE_KEY=$(date +'%Y-%m')" >> $GITHUB_ENV
+
+      - name: Cache SVG Content.
+        uses: actions/cache@v3
+        id: kubesvgs
+        with:
+          path: ./script/svgs
+          key: "${{ env.SVG_CACHE_KEY }}"
+
+      - name: Build the Svgs
+        run: |
+          mkdir kubernetes
+
+          poetry run python -m scripts.iconify pull --gh-token $GITHUB_TOKEN
+          poerty run python -m scripts.iconify make --output ./kubernetes/icons.json
+
+      - name: Upload the Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: kubernetes
+          name: kubernetes_iconify
+          retention-days: 30
+
+
+
