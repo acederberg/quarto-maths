@@ -1,9 +1,9 @@
 import os
 import pathlib
-import shutil
 import subprocess
 import time
 
+import typer
 from watchdog.events import FileSystemEvent
 from watchdog.observers import Observer
 
@@ -13,7 +13,7 @@ path_build = path_here / "build"
 
 class HandleWrite:
     tt_tolerance = 3
-    tt_last = dict()
+    tt_last: dict[pathlib.Path, float] = dict()
     memo: dict[str, pathlib.Path] = dict()
     ignored = {"build", ".quarto", "_freeze", "site_libs"}
 
@@ -35,10 +35,11 @@ class HandleWrite:
 
         if event.event_type == "modified" and not event.is_directory:
 
+            _path_str = str(event.src_path)
             if event.src_path not in self.memo:
-                self.memo[event.src_path] = pathlib.Path(event.src_path).resolve()
+                self.memo[_path_str] = pathlib.Path(_path_str).resolve()
 
-            path = self.memo[event.src_path]
+            path = self.memo[_path_str]
 
             path_rel = os.path.relpath(path, path_here)
             top = path_rel.split("/")[0]
@@ -52,7 +53,7 @@ class HandleWrite:
                     stderr=subprocess.PIPE,
                 )
 
-                print(int(self.tt_last[path]), path)
+                typer.print(int(self.tt_last[path]), path)
                 if out.stderr and out.returncode != 0:
                     print(out.stdout)
                     print(out.stderr.decode())

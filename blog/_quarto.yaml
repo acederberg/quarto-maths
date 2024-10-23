@@ -87,7 +87,7 @@ website:
         href: /
       - sidebar:projects
       - text: Resume
-        href: https://acederberg.io/resume
+        href: /resume
       - text: Posts
         href: /posts
       - text: Kaggle

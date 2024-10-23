@@ -241,7 +241,7 @@ def main(include: list[str] = list(), out: Optional[pathlib.Path] = None):
 
 @cli.command("aliases")
 def aliases(include: list[str] = list()):
-    names = map(create_name, walk(path_svg))
+    names: Any = map(create_name, walk(path_svg))
     if include:
         _include = set(include)
         names = filter(lambda item: item in _include, names)

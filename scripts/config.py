@@ -3,7 +3,6 @@ import json
 import logging
 import os
 import pathlib
-import sys
 from datetime import datetime
 from typing import Annotated, Any, Optional
 
@@ -120,9 +119,7 @@ class Context:
         )
 
     async def get_iconset(self, url: str, config: dict[str, str]):
-        destination = config["destination"]
-        destination = env.ICONS_SETS / f"{destination}.json"
-
+        destination = env.ICONS_SETS / f"{config['destination']}.json"
         if os.path.exists(destination):
             return
 
