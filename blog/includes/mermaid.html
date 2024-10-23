@@ -2,6 +2,10 @@
   async function setupMermaid() {
     mermaid.registerIconPacks([
       {
+        name: 'misc',
+        loader: () => fetch('/icons/misc.json').then(response => response.json())
+      },
+      {
         name: 'k8s',
         loader: () => fetch('/icons/kubernetes.json').then(response => response.json())
       },
@@ -14,11 +18,11 @@
       },
       {
         name: 'plain',
-        loader: () => fetch("/icons/devicons-plain.json").then(response => response.json())
+        loader: () => fetch("/icons/devicon-plain.json").then(response => response.json())
       },
       {
         name: 'devicon',
-        loader: () => fetch("/icons/devicons.json").then(response => response.json())
+        loader: () => fetch("/icons/devicon.json").then(response => response.json())
       },
       {
         name: 'hugeicons',

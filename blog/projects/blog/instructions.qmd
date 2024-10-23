@@ -10,7 +10,7 @@ date-updated: 10-19-2024
 
 ::: {.content-visible when-format="markdown"}
 
-To view the content in all of its glory, view [the deployed instance](acederberg.io).
+To view the content in all of its glory, view [the deployed instance](https://acederberg.io).
 Also, see some of the blog posts about the blog on the blog:
 
 - [Docker and Quarto](./build.qmd)
@@ -28,7 +28,7 @@ To see coverage reports, got see [the artifacts on github pages](https://acederb
 
 ## Dear Reader
 
-_This is the blog repositories readme file and it is here primarily for the sake of completeness._
+_This is the blog repository's readme file and it is here primarily for the sake of completeness._
 _If you are interested in the raw code you should probably read this - the repository is available [on github](https://github.com/acederberg/quarto-maths)._
 
 The subsequent posts (in the sidebar) detail more aspects of the blog.

@@ -1,0 +1,19 @@
+<div id="overlay">
+  <div id="overlay-content">
+  </div>
+</div>
+<script>
+  function showOverlay() {
+    document.getElementById("overlay").style.display = "flex";
+    document.getElementById("overlay-content").style.display = "block";
+
+  }
+
+  function hideOverlay() {
+    document.getElementById("overlay").style.display = "none";
+    document.getElementById("overlay-content").style.display = "none";
+  }
+
+  document.getElementById("overlay").addEventListener("click", hideOverlay)
+</script>
+

@@ -28,7 +28,7 @@ website:
             - text: '---'
             - section: Blog
               contents:
-                - text: Why Even Have a Blog?
+                - text: About the Blog
                   href: ./projects/blog/index.qmd
                 - section: Subprojects
                   contents:
@@ -45,15 +45,15 @@ website:
                       href: ./projects/blog/instructions.qmd
                     - text: 'Docker and Quarto'
                       href: ./projects/blog/build.qmd
-                    - text: 'Quality Assurence'
-                      href: ./projects/blog/qa.qmd
+                    # - text: 'Quality Assurence'
+                    #   href: ./projects/blog/qa.qmd
                     - text: 'How is the Blog Deployed?'
                       href: ./projects/blog/deploy.qmd
                     - text: Static Quarto Websites in Kubernetes
                       href: ./posts/quarto-kube-static/index.qmd
 
             - text: '---'
-            - text: Nvim Configuration
+            - section: Nvim Configuration
               contents:
                 - title: Why Even Use Neovim?
                   href: ./projects/nvim-config/index.qmd
@@ -75,6 +75,7 @@ website:
 
   # NOTE: https://icons.getbootstrap.com/
   navbar:
+    pinned: true
     right:
       - icon: github
         href: https://github.com/acederberg
@@ -96,7 +97,7 @@ website:
         href: /dsa/leetcode
 theme:
   # dark: [cyborg, ./themes/commits.css, ./themes/index.css, ./themes/dark.scss, ./themes/dark-default.scss]
-  light: [cosmo, ./themes/commits.css, ./themes/index.css]
+  light: [cosmo, ./themes/commits.css, ./themes/index.css, ./themes/overlay.css]
 format:
   html:
     code-fold: false
@@ -105,6 +106,7 @@ format:
       - templates/metadata.html
     include-in-header:
       - file: ./includes/iconify.html
+      - file: ./includes/extrenal_links.html
 
 author:
   - name: Adrian Cederberg

@@ -3,27 +3,152 @@ title: My Blog
 format:
   html:
     include-in-header:
-      - file: ../../includes/mermaid.html
+      - file: ../../includes/overlay.html
 ---
 
-In the section of my blog content, I discuss the implementation of this blog
-itself as it has been quite a project to do so.
+Here I discuss the implementation of this blog itself as it has been quite a project to do so.
 This is my blog that you are likely viewing this on.
-In my time making this, I have learned quite a bit about [quarto](https://quarto.org),
-an amazing markup format for websites, jupyter notebooks, books, articles, and more.
-All content on this blog is authored using quarto.
+In my time making this, I have learned quite a bit about [quarto](https://quarto.org) {{< iconify misc quarto >}},
+an amazing markup and notebook format for websites, jupyter notebooks, books, articles, and more.
+Almost all blog pages and navigation in this blog is authored using quarto.
 
 In this time, I have also had quite some fun figuring out how to to implement
 
 - continuous integration and continuous deployment for this project using github actions {{< iconify logos github-actions>}},
-- a `docker` image that accomodates `kaggle` api calls and mounting of other secrets duing the build using secrets,
-- and how to create diagrams with [mermaid <span data-icon="misc:mermaid" class="iconify"></span>](https://mermaid.js.org) and [iconify](https://iconify.design).
+- a `docker` {{< iconify logos docker-icon >}} image that accomodates `kaggle` {{< iconify logos kaggle >}} api calls and mounting of other secrets duing the build using secrets,
+- and how to create diagrams with [mermaid {{< iconify misc mermaid >}}](https://mermaid.js.org) and [iconify](https://iconify.design).
 
 Further, there are associated projects (in the sidebar) that support this project.
 For instance
 
 - the [my neovim configuration](../nvim-config/index.qmd) is designed to make editing `quarto` documents very easy,
-- and the [infrastructure and automation project](../automation) is used to [deploy](./deploy.qmd) the infrastructure to linode {{< iconify logos linode >}}.
+- and the [infrastructure and automation project](../automation) where [pulumi {{< iconify logos pulumi-icon >}}](https://pulumi.com/) and `python` {{< iconify logos python >}} are used to [deploy](./deploy.qmd) the infrastructure to linode {{< iconify logos linode >}}.
+
+## The Tools That Make it Possible
+
+Thank you to all of the contributors to the tools I have used that made this possible at all!
+I cannot emphasize enought that without the tremendous efforts of the open source community (in particular) that this would not be possible at all.
+Click on any of the icons below to see a brief description of how each tool is utilitized here.
+
+```{=html}
+<style>
+
+#blog-thank-you-tools ul,
+#blog-thank-you ul {
+  padding: 0px;
+  align-items: center;
+  justify-content: center;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+#blog-thank-you-tools li iconify-icon,
+#blog-thank-you li img {
+  height: 192px;
+  width: 192px;
+}
+
+#overlay iconify-icon,
+#blog-thank-you li img,
+#blog-thank-you-tools li iconify-icon {
+  padding: 32px;
+  transition: all 1s;
+}
+
+#blog-thank-you-tools li iconify-icon:hover,
+#blog-thank-you li img:hover{
+  transform: scale(1.1);
+  filter: drop-shadow(8px 8px 16px rgba(0, 0, 0, 0.5));
+}
+
+#overlay iconify-icon,
+#blog-thank-you-tools li iconify-icon,
+#blog-thank-you li img {
+  filter: drop-shadow(8px 8px 4px rgba(0, 0, 0, 0.5));
+}
+
+</style>
+```
+
+::: {#blog-thank-you-tools}
+
+- {{< iconify misc quarto size=128px label=Quarto title=Quarto >}}
+- {{< iconify devicon tex size=128px label=Latex title=Latex >}}
+- {{< iconify devicon pulumi size=128px label=Pulumi title=Pulumi >}}
+- {{< iconify logos github-icon size=128px label=Github title=Github >}}
+- {{< iconify devicon git size=128px label=Git title=Git >}}
+- {{< iconify devicon neovim size=128px label=Neovim title=Neovim >}}
+- {{< iconify devicon python-wordmark size=128px label=Python title=Python >}}
+- {{< iconify devicon nodejs-wordmark size=128px label=Nodejs title=Nodejs >}}
+- {{< iconify misc mermaid size=128px label=Mermaidjs title=Mermaidjs >}}
+- {{< iconify logos linode size=128px label=Linode title=Linode >}}
+- {{< iconify logos kubernetes size=128px label=Kubernetes title=Kubernetes >}}
+- {{< iconify devicon pandas-wordmark size=128px label=Pandas title=Pandas >}}
+- {{< iconify devicon kaggle-wordmark size=128px label=Kaggle title=Kaggle >}}
+- {{< iconify devicon docker-wordmark size=128px label=Docker title=Docker >}}
+
+:::
+
+<script>
+  let overlay_content_data = {
+    Pulumi: `Pulumi is a great infrastructure as code tool available in most popular lanugages.`
+  }
+  let overlay = document.getElementById("overlay")
+  let overlay_content = document.getElementById("overlay-content")
+
+  function createOnClickIcon(item)
+  {
+    let paragraphs = Array.from(item.getElementsByTagName("p"))
+
+    return function onClickSvg()
+    {
+      // https://stackoverflow.com/questions/3955229/remove-all-child-elements-of-a-dom-node-in-javascript
+      overlay_content.innerHTML = ''
+      paragraphs.map(paragraph => {
+        // Add the wrapped icon, get the iconify icon and use ``ariaLabel`` to
+        // recover the content to be put below the icon.
+        overlay_content.appendChild(paragraph.cloneNode(true))
+
+        let icon = Array.from(overlay_content.getElementsByTagName("iconify-icon"))[0]
+
+        let head = document.createElement("h1")
+        head.innerHTML = icon.ariaLabel
+        overlay_content.appendChild(head)
+
+        let content = document.createElement("p")
+        let content_data = overlay_content_data[icon.ariaLabel] 
+        if (content_data) content.innerHTML = content_data
+        overlay_content.appendChild(content)
+
+
+        // overlay_content.add("h1")
+
+      })
+      showOverlay()
+    }
+  }
+
+  Array.from(
+    document
+      .getElementById("blog-thank-you-tools")
+      .getElementsByTagName("li")
+  )
+    .map(
+      item => item.addEventListener("click", createOnClickIcon(item))
+    )
+</script>
+
+## Thank You to the Reviewers
+
+Thank you to all of my reviewers for their hard work in reviewing and consulting:
+
+:::
+
+- [Chris "that Chris" Sanchez]()
+- John "Bud" Poston
+
+:::
 
 ## Why Have a Blog?
 
@@ -43,7 +168,7 @@ I also wanted to have a record of the problem which I had done and to take more 
 
 ![Quarto logo](/icons/quarto.svg){fig-align=center width=256px}
 
-I thought it might be helpful to have all of the resumes I distribute contain a link to the most recent version of [my resume](/resume) :zap:.
+I thought it might be helpful to have all of the resumes I distribute contain a link to the most recent version of [my resume](/resume).
 To make this possible, I would have to host it somewhere and thought my blog would be the most suitable place.
 This came with a number of benefits, such as
 
@@ -61,5 +186,5 @@ This came with a number of benefits, such as
 I've made a few projects (including this blog) which I wanted to showcase here.
 Each of these will have their own page dedicated them, and should be available in the sidebar.
 For some of the larger projects there might be extensive documentation.
-All of the content here is pulled from the various repositories using `git` subtrees.
-To learn more about the technical details, see the next page.
+
+To learn more about the technical details, see the subsequent pages.
