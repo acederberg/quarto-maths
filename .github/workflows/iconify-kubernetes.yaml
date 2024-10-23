@@ -46,8 +46,8 @@ jobs:
         run: |
           mkdir kubernetes
 
-          poetry run python -m scripts.iconify pull --gh-token $GITHUB_TOKEN
-          poerty run python -m scripts.iconify make --output ./kubernetes/icons.json
+          poetry run python -m scripts.iconify_kubernetes pull --gh-token $GITHUB_TOKEN
+          poerty run python -m scripts.iconify_kubernetes make --output ./kubernetes/icons.json
 
       - name: Upload the Artifact
         uses: actions/upload-pages-artifact@v3

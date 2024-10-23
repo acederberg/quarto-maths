@@ -12,7 +12,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 BLOG = ROOT / "blog"
 BUILD = BLOG / "build"
 ICONS = BLOG / "icons"
-ICONS_SETS = BLOG / "sets"
+ICONS_SETS = ICONS / "sets"
 
 
 def get(

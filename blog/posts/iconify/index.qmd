@@ -58,7 +58,7 @@ architecture-beta
   github_actions:R -- L:blog_gha_sa{group}
 ```
 
-and icons like that seen in the header of this section (the {{< iconify misc mermaid >}} ``mermaid.js`` symbol).
+and icons like that seen in the header of this section (the {{< iconify misc mermaid >}} `mermaid.js` symbol).
 
 ## {{< iconify hugeicons question >}} Objective
 
@@ -164,7 +164,7 @@ pip install typer
 
 and the final step is as easy as copying and pasting the script below:
 
-```{.python include="../../../scripts/iconify.py"}
+```{.python include="../../../scripts/iconify_kubernetes.py"}
 
 ```
 

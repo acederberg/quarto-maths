@@ -61,22 +61,28 @@ priority = "explicit"
 [tool.acederbergio.icons]
 origin = "https://unpkg.com"
 
-  [[tool.acederbergio.icons.sets]]
-  origin = "https://"
-  name = "kubernetes"
+  # [[tool.acederbergio.icons.sets]]
+  # origin = "https://"
+  # name = "kubernetes"
 
   [[tool.acederbergio.icons.sets]]
-  name = "@iconify/devicon"
-  version = "2.16.0"
+  destination = "devicon"
+  name = "@iconify-json/devicon"
+  version = "1.2.4"
 
   [[tool.acederbergio.icons.sets]]
-  name = "@iconify/devicon-plain"
-  version = "2.16.0"
+  destination = "devicon-plain"
+  name = "@iconify-json/devicon-plain"
+  version = "1.2.4"
+
   [[tool.acederbergio.icons.sets]]
-  name = "@iconify/hugeicons"
-  version = ""
+  destination = "hugeicons"
+  name = "@iconify-json/hugeicons"
+  version = "1.2.1"
+
   [[tool.acederbergio.icons.sets]]
-  name="@iconify/logos"
+  destination = "logos"
+  name="@iconify-json/logos"
   version = "1.2.3"
 
 

@@ -1,10 +1,11 @@
 import asyncio
 import json
 import logging
+import os
 import pathlib
 import sys
 from datetime import datetime
-from typing import Annotated, Optional
+from typing import Annotated, Any, Optional
 
 import httpx
 import toml
@@ -46,9 +47,9 @@ class Context:
             print(f"`{QUARTO}` does not contain required key `website`.")
             raise typer.Exit(101)
 
-        if website.get("google-analytics") is not None:
-            print(f"`{QUARTO}` already has a value for `website.google-analytics`.")
-            raise typer.Exit(102)
+        # if website.get("google-analytics") is not None:
+        #     print(f"`{QUARTO}` already has a value for `website.google-analytics`.")
+        #     raise typer.Exit(102)
 
         website["google-analytics"] = google_tracking_id
         if self.dry:
@@ -86,62 +87,70 @@ class Context:
         with open(self.quarto_variables, "w") as file:
             yaml.dump(data, file)
 
-    async def get_iconsets(self, exclude: set[str]) -> None:
+    async def get_iconsets(self, config: dict[str, Any], include: set[str]) -> None:
         """See ``[tool.acederbergio.icons]`` in pyproject toml."""
-
-        with open(env.ROOT / "pyproject.toml", "r") as file:
-            config = toml.load(file)
 
         icons = config["tool"]["acederbergio"]["icons"]
         origin = icons["origin"]
 
-        def create_name(iconset: dict[str, str]):
+        def create_url(iconset: dict[str, str]):
             _origin = iconset.get("origin", origin)
 
-            url = f'{_origin}:{iconset["name"]}'
+            url = f'{_origin}/{iconset["name"]}'
             if "version" in iconset:
                 url += f'@{iconset["version"]}'
 
             url += "/icons.json"
             return url
 
-        urls = (
-            create_name(iconset)
+        urls = {
+            create_url(iconset): iconset
             for iconset in icons["sets"]
-            if iconset["name"] not in exclude
-        )
+            if iconset["name"] in include
+        }
 
         if self.dry:
             print("---")
             print("# iconsets")
-            print(yaml.dump(list(urls)))
+            print(yaml.dump(urls))
             return
 
-        responses = zip(await asyncio.gather(*map(httpx.get, urls)), origin["sets"])
-        for response, config in responses:
-            self._dump_iconset(response, config)
+        await asyncio.gather(
+            *(self.get_iconset(url, config) for url, config in urls.items())
+        )
 
-    def _dump_iconset(self, response: httpx.Response, config: dict[str, str]):
-        name = config
-        destination = env.ICONS_SETS / f"{name}.json"
-        with open(destination, "r") as file:
-            json.dump(file, response.json())
+    async def get_iconset(self, url: str, config: dict[str, str]):
+        destination = config["destination"]
+        destination = env.ICONS_SETS / f"{destination}.json"
+
+        if os.path.exists(destination):
+            return
+
+        response = httpx.get(url)
+        if response.status_code != 200:
+            print(f"Bad response status code `{response.status_code}` from `{url}`.")
+            raise typer.Exit(103)
+
+        with open(destination, "w") as file:
+            json.dump(response.json(), file)
 
 
-def create_context(context: typer.Context, dry: bool = True):
+FlagBuildGitCommit = Annotated[Optional[str], typer.Option("--build-git-commit")]
+FlagBuildGitRef = Annotated[Optional[str], typer.Option("--build-git-ref")]
+FlagInclude = Annotated[list[str], typer.Option("--include")]
+FlagGoogleTrackingId = Annotated[
+    Optional[str],
+    typer.Option("--google-tracking-id"),
+]
+FlagDry = Annotated[bool, typer.Option("--dry/--for-real")]
+
+
+def create_context(context: typer.Context, dry: FlagDry = True):
     context_data = Context(dry)
     context.obj = context_data
 
 
 cli = typer.Typer(callback=create_context)
-
-FlagBuildGitCommit = Annotated[Optional[str], typer.Option("--build-git-commit")]
-FlagBuildGitRef = Annotated[Optional[str], typer.Option("--build-git-ref")]
-FlagExclude = Annotated[list[str], typer.Option("--exclude")]
-FlagGoogleTrackingId = Annotated[
-    Optional[str],
-    typer.Option("--google-tracking-id"),
-]
 
 
 @cli.command("google-analytics")
@@ -174,24 +183,33 @@ def build_info(
 @cli.command("icons")
 def icons(
     _context: typer.Context,
-    _exclude: FlagExclude = list(),
+    _include: FlagInclude = list(),
 ):
+
+    with open(env.ROOT / "pyproject.toml", "r") as file:
+        config = toml.load(file)
+
+    if not _include:
+        _include = list(
+            item["name"] for item in config["tool"]["acederbergio"]["icons"]["sets"]
+        )
+
     context: Context = _context.obj
-    exclude = set(_exclude)
-    asyncio.run(context.get_iconsets(exclude))
+    include = set(_include)
+    asyncio.run(context.get_iconsets(config, include))
 
 
-@cli.command()
+@cli.command("all")
 def main(
     _context: typer.Context,
     _build_git_commit: FlagBuildGitCommit = None,
     _build_git_ref: FlagBuildGitRef = None,
     _google_tracking_id: FlagGoogleTrackingId = None,
-    _exclude: FlagExclude = list(),
+    _include: FlagInclude = list(),
 ):
     google_analytics(_context, _google_tracking_id)
     build_info(_context, _build_git_commit, _build_git_ref)
-    icons(_context, _exclude)
+    icons(_context, _include)
 
 
 if __name__ == "__main__":

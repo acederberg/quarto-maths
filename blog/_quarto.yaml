@@ -75,7 +75,6 @@ website:
 
   # NOTE: https://icons.getbootstrap.com/
   navbar:
-    pinned: true
     right:
       - icon: github
         href: https://github.com/acederberg
@@ -106,7 +105,7 @@ format:
       - templates/metadata.html
     include-in-header:
       - file: ./includes/iconify.html
-      - file: ./includes/extrenal_links.html
+      - file: ./includes/external_links.html
 
 author:
   - name: Adrian Cederberg
