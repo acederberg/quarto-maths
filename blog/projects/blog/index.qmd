@@ -30,48 +30,8 @@ Thank you to all of the contributors to the tools I have used that made this pos
 I cannot emphasize enought that without the tremendous efforts of the open source community (in particular) that this would not be possible at all.
 Click on any of the icons below to see a brief description of how each tool is utilitized here.
 
-```{=html}
-<style>
 
-#blog-thank-you-tools ul,
-#blog-thank-you ul {
-  padding: 0px;
-  align-items: center;
-  justify-content: center;
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-}
-
-#blog-thank-you-tools li iconify-icon,
-#blog-thank-you li img {
-  height: 192px;
-  width: 192px;
-}
-
-#overlay iconify-icon,
-#blog-thank-you li img,
-#blog-thank-you-tools li iconify-icon {
-  padding: 32px;
-  transition: all 1s;
-}
-
-#blog-thank-you-tools li iconify-icon:hover,
-#blog-thank-you li img:hover{
-  transform: scale(1.1);
-  filter: drop-shadow(8px 8px 16px rgba(0, 0, 0, 0.5));
-}
-
-#overlay iconify-icon,
-#blog-thank-you-tools li iconify-icon,
-#blog-thank-you li img {
-  filter: drop-shadow(8px 8px 4px rgba(0, 0, 0, 0.5));
-}
-
-</style>
-```
-
-::: {#blog-thank-you-tools}
+::: { .floaty-container #blog-thank-you-tools }
 
 - {{< iconify misc quarto size=128px label=Quarto title=Quarto >}}
 - {{< iconify devicon tex size=128px label=Latex title=Latex >}}
@@ -92,7 +52,15 @@ Click on any of the icons below to see a brief description of how each tool is u
 
 <script>
   let overlay_content_data = {
-    Pulumi: `Pulumi is a great infrastructure as code tool available in most popular lanugages.`
+    Pulumi: `
+      Pulumi is a great infrastructure as code tool available in most popular lanugages.
+      I use it to provision the kubernetes cluster that this blog runs on and set up paripheral resources.
+      I also use it to manage kubernetes resources, such as traefik and the error pages.
+      <iconify-icon icon="logos:kubernetes"></iconify-icon>
+    `,
+    Docker: `
+    `
+
   }
   let overlay = document.getElementById("overlay")
   let overlay_content = document.getElementById("overlay-content")
@@ -111,6 +79,7 @@ Click on any of the icons below to see a brief description of how each tool is u
         overlay_content.appendChild(paragraph.cloneNode(true))
 
         let icon = Array.from(overlay_content.getElementsByTagName("iconify-icon"))[0]
+        icon.classList.add("floaty")
 
         let head = document.createElement("h1")
         head.innerHTML = icon.ariaLabel

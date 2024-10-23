@@ -1,11 +1,19 @@
+import contextlib
+import http.server as http_server
 import os
 import pathlib
+import socket
 import subprocess
+import threading
 import time
+from datetime import datetime
 
+import rich
 import typer
 from watchdog.events import FileSystemEvent
 from watchdog.observers import Observer
+
+from scripts import env
 
 path_here = pathlib.Path(__file__).parent.resolve()
 path_build = path_here / "build"
@@ -53,7 +61,8 @@ class HandleWrite:
                     stderr=subprocess.PIPE,
                 )
 
-                typer.print(int(self.tt_last[path]), path)
+                tt = datetime.fromtimestamp(self.tt_last[path]).strftime("%H:%M:%S")
+                rich.print(f"[green]{tt} -> Rendered `{path}`.")
                 if out.stderr and out.returncode != 0:
                     print(out.stdout)
                     print(out.stderr.decode())
@@ -65,7 +74,23 @@ class HandleWrite:
             #     shutil.copy(path, dest)
 
 
-def main():
+class DualStackServer(http_server.ThreadingHTTPServer):
+
+    def server_bind(self):
+        with contextlib.suppress(Exception):
+            self.socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 0)
+        return super().server_bind()
+
+    def finish_request(self, request, client_address):
+        self.RequestHandlerClass(
+            request,
+            client_address,
+            self,
+            directory=str(env.BUILD),  # type: ignore
+        )
+
+
+def watch():
     event_handler = HandleWrite()
     observer = Observer()
     observer.schedule(event_handler, ".", recursive=True)
@@ -78,5 +103,28 @@ def main():
         observer.join()
 
 
+def serve():
+    http_server.test(
+        HandlerClass=http_server.SimpleHTTPRequestHandler,
+        ServerClass=DualStackServer,
+        port=3000,
+        bind="0.0.0.0",
+    )
+
+
+cli = typer.Typer()
+
+
+@cli.command("watch")
+def cmd_watch():
+    watch()
+
+
+@cli.command("server")
+def cmd_server():
+    threading.Thread(target=serve).start()
+    threading.Thread(target=watch).start()
+
+
 if __name__ == "__main__":
-    main()
+    cli()

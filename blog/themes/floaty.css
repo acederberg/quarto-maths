@@ -1,0 +1,27 @@
+/*-- scss:rules --*/
+
+/* .floaty-container { } */
+
+.floaty-container ul {
+  padding: 0px;
+  align-items: center;
+  justify-content: center;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.floaty-container li .floaty,
+.floaty-container li iconify-icon {
+  filter: drop-shadow(8px 8px 4px rgba(0, 0, 0, 0.5));
+  height: 192px;
+  width: 192px;
+  padding: 32px;
+  transition: all 1s;
+}
+
+.floaty-container li .floaty:hover,
+.floaty-container li iconify-icon:hover {
+  transform: scale(1.1);
+  filter: drop-shadow(8px 8px 16px rgba(0, 0, 0, 0.5));
+}

@@ -96,7 +96,7 @@ website:
         href: /dsa/leetcode
 theme:
   # dark: [cyborg, ./themes/commits.css, ./themes/index.css, ./themes/dark.scss, ./themes/dark-default.scss]
-  light: [cosmo, ./themes/commits.css, ./themes/index.css, ./themes/overlay.css]
+  light: [cosmo, ./themes/commits.css, ./themes/index.css, ./themes/overlay.css, ./themes/floaty.css]
 format:
   html:
     code-fold: false
