@@ -2,6 +2,8 @@
 title: Adrian Cederberg
 version: 5
 image: /icons/document.svg
+filter:
+  - links.lua
 format:
   docx: default
   html:
@@ -86,78 +88,7 @@ date-updated: 10-16-2024
 
 :::
 
-<!---------------------------------------------------------------------------->
-
-## Education
-
-<!---------------------------------------------------------------------------->
-
-::: {.content-visible when-format="pdf"}
-
-### University of New Mexico \hfill Spring 2015 - Fall 2019
-
-:::
-
-::: {.content-visible when-format="html"}
-
-### University of New Mexico
-
-**Spring 2015 - Fall 2019**
-:::
-
-- Bachelors of Science in Applied Mathematics - Minor in chemistry.
-- Worked as a grader, tutor, and researcher. Got my first tastes of code with `matlab` and `python`.
-
-<!---------------------------------------------------------------------------->
-
-<!-- ::: {.content-visible when-format="pdf"} -->
-<!---->
-<!-- ### Self Study \hfill January 2021 - January 2022 -->
-<!---->
-<!-- ::: -->
-
-::: {.content-visible when-format="html"}
-
-### Self Study
-
-**January 2021 - January 2022**
-
-- Built a portfolio using `flask` and deployed it with `ansible` and
-  `docker-compose`. Code is available upon request.
-- Made various projects using `python`, `react`, and `docker` to further my
-  understanding.
-
-:::
-
-## Projects
-
-::: {.content-visible when-format="pdf"}
-
-|                                                                                     |
-| ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| \hreful{https://github.com/acederberg/captura}{Captura}                             | A framework for building sharing into APIs, including a command line and python client, tests, and pypi package. Includes actions to test, build, version. |
-| \hreful{https://github.com/acederberg/captura-deploy}{Blog and Captura IaC}         | Infrastructure as code and DNS automation for my blog and captura.                                                                                         |
-| \hreful{https://github.com/acederberg/quarto-maths}{My Blog}                        | A blog powered by quarto where I routinely publish blog posts. Includes actions to test, build, version, and deploy.                                       |
-| \hreful{https://github.com/acederberg/pydantic-settings-yaml}{PydanticYamlSettings} | A library I like to use for project configurations                                                                                                         |
-| \hreful{https://github.com/acederberg/nvim-ez}{Neovim Configuration}                | Configuration for my favorite text editor.                                                                                                                 |
-
-: {tbl-colwidths="[25, 75]" .striped .hover .borderless}
-:::
-
-::: {.content-visible when-format="html"}
-
-|                                                                              |
-| ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [Captura](https://github.com/acederberg/captura)                             | A framework for building sharing into APIs, including a command line and python client, tests, and pypi package. Includes actions to test, build, version. |
-| [Blog and Captura IaC](https://github.com/acederberg/captura-deploy)         | Infrastructure as code and DNS automation for my blog and captura.                                                                                         |
-| [My Blog](https://github.com/acederberg/quarto-maths)                        | A blog powered by quarto where I routinely publish blog posts. Includes actions to test, build, version, and deploy.                                       |
-| [PydanticYamlSettings](https://github.com/acederberg/pydantic-settings-yaml) | A library I like to use for project configurations                                                                                                         |
-| [Neovim Configuration](https://github.com/acederberg/nvim-ez)                | Configuration for my favorite text editor.                                                                                                                 |
-
-: {tbl-colwidths="[25, 75]" .striped .hover .borderless}
-:::
-
-## Employment
+## Experience
 
 <!---------------------------------------------------------------------------->
 
@@ -236,6 +167,77 @@ date-updated: 10-16-2024
   drivers in `python` and `c`.
 - Processed experimental data using `python` to generate graphs. Interpreted
   spectrometer data using `python` to increase productivity.
+
+## Projects
+
+::: {.content-visible when-format="pdf"}
+
+|                                                                                     |
+| ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| \hreful{https://github.com/acederberg/captura}{Captura}                             | A framework for building sharing into APIs, including a command line and python client, tests, and pypi package. Includes actions to test, build, version. |
+| \hreful{https://github.com/acederberg/captura-deploy}{Blog and Captura IaC}         | Infrastructure as code and DNS automation for my blog and captura.                                                                                         |
+| \hreful{https://github.com/acederberg/quarto-maths}{My Blog}                        | A blog powered by quarto where I routinely publish blog posts. Includes actions to test, build, version, and deploy.                                       |
+| \hreful{https://github.com/acederberg/pydantic-settings-yaml}{PydanticYamlSettings} | A library I like to use for project configurations                                                                                                         |
+| \hreful{https://github.com/acederberg/nvim-ez}{Neovim Configuration}                | Configuration for my favorite text editor.                                                                                                                 |
+
+: {tbl-colwidths="[25, 75]" .striped .hover .borderless}
+:::
+
+::: {.content-visible when-format="html"}
+
+|                                                                              |
+| ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Captura](https://github.com/acederberg/captura)                             | A framework for building sharing into APIs, including a command line and python client, tests, and pypi package. Includes actions to test, build, version. |
+| [Blog and Captura IaC](https://github.com/acederberg/captura-deploy)         | Infrastructure as code and DNS automation for my blog and captura.                                                                                         |
+| [My Blog](https://github.com/acederberg/quarto-maths)                        | A blog powered by quarto where I routinely publish blog posts. Includes actions to test, build, version, and deploy.                                       |
+| [PydanticYamlSettings](https://github.com/acederberg/pydantic-settings-yaml) | A library I like to use for project configurations                                                                                                         |
+| [Neovim Configuration](https://github.com/acederberg/nvim-ez)                | Configuration for my favorite text editor.                                                                                                                 |
+
+: {tbl-colwidths="[25, 75]" .striped .hover .borderless}
+:::
+
+<!---------------------------------------------------------------------------->
+
+## Education
+
+<!---------------------------------------------------------------------------->
+
+::: {.content-visible when-format="pdf"}
+
+### University of New Mexico \hfill Spring 2015 - Fall 2019
+
+:::
+
+::: {.content-visible when-format="html"}
+
+### University of New Mexico
+
+**Spring 2015 - Fall 2019**
+:::
+
+- Bachelors of Science in Applied Mathematics - Minor in chemistry.
+- Worked as a grader, tutor, and researcher. Got my first tastes of code with `matlab` and `python`.
+
+<!---------------------------------------------------------------------------->
+
+<!-- ::: {.content-visible when-format="pdf"} -->
+<!---->
+<!-- ### Self Study \hfill January 2021 - January 2022 -->
+<!---->
+<!-- ::: -->
+
+::: {.content-visible when-format="html"}
+
+### Self Study
+
+**January 2021 - January 2022**
+
+- Built a portfolio using `flask` and deployed it with `ansible` and
+  `docker-compose`. Code is available upon request.
+- Made various projects using `python`, `react`, and `docker` to further my
+  understanding.
+
+:::
 
 ## Skills and Tools
 

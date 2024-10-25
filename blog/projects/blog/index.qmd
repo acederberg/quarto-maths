@@ -30,7 +30,6 @@ Thank you to all of the contributors to the tools I have used that made this pos
 I cannot emphasize enought that without the tremendous efforts of the open source community (in particular) that this would not be possible at all.
 Click on any of the icons below to see a brief description of how each tool is utilitized here.
 
-
 ::: { .floaty-container #blog-thank-you-tools }
 
 - {{< iconify misc quarto size=128px label=Quarto title=Quarto >}}

@@ -1,0 +1,44 @@
+---
+filters:
+  - links.lua
+format:
+  html:
+    toc: false
+  pdf:
+    toc: false
+    documentclass: article
+    hyperref:
+      - pdfborder={0 0 0}
+      - breaklinks=false
+      - colorlinks=true
+      - urlcolor=blue
+    include-before-body:
+      # NOTE: It may be possible to style links using another means.
+      # NOTE: It is such a pain to remove the ugly rules around tables: https://github.com/jgm/pandoc/issues/8223
+      - text: |
+          \newcommand{\hreful}[2]{
+              \href{#1}{
+                  \textcolor{blue}{\ttfamily\underline{#2}}
+              }
+          }
+          \renewcommand{\toprule}[2]{}
+          \renewcommand{\bottomrule}[2]{}
+    geometry:
+      - margin=1in
+    keep-tex: true
+    template-partials:
+      - ./title.tex
+format-links:
+  - text: tex
+    href: ./test.tex
+---
+
+### What to do?
+
+I think I should probably use a custom pandoc template for both the html page
+and the tex rendering. This would probably be the most flexible and not result
+in requiring jinja installs, which would be nice.
+
+### Test Extra { title="Test Title" organization="Test Organization" start=Now stop=Then }
+
+[example](example.com)

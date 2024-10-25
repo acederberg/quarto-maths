@@ -1,0 +1,280 @@
+content:
+  metadata:
+    title: Adrian Cederberg
+    version: 5
+    image: /icons/document.svg
+    format:
+      docx: default
+      html:
+        toc: false
+      pdf:
+        toc: false
+        documentclass: article
+        hyperref:
+          - pdfborder={0 0 0}
+          - breaklinks=false
+          - colorlinks=true
+          - urlcolor=blue
+        include-before-body:
+          # NOTE: It may be possible to style links using another means.
+          # NOTE: It is such a pain to remove the ugly rules around tables: https://github.com/jgm/pandoc/issues/8223
+          - text: |
+              \newcommand{\hreful}[2]{
+                  \href{#1}{
+                      \textcolor{blue}{\ttfamily\underline{#2}}
+                  }
+              }
+              \renewcommand{\toprule}[2]{}
+              \renewcommand{\bottomrule}[2]{}
+        geometry:
+          - margin=1in
+        keep-tex: true
+        template-partials:
+          - ./title.tex
+    format-links:
+      - text: tex
+        href: ./index.tex
+    date-updated: 10-16-2024
+  # NOTE: Use this to hydrate each ``skills`` section in each job.
+  skills:
+    cicd:
+      experience:
+        years: 4
+      text: Continuous Integration and Deployment
+      icon: devicon:github-actions
+      type: devops
+    lua:
+      experience:
+        years: 1
+      icon: devicon:lua
+      type: language
+    quarto:
+      experience:
+        months: 4
+      icon: devicon:quarto
+      type: language
+    pandoc:
+      experience:
+        months: 4
+      icon: devicon:pandoc
+      type: tool
+    jupyter:
+      experience:
+        years: 2
+      icon: devicon:jupyter
+      type: tool
+    docker:
+      experience:
+        years: 4
+      icon: devicon:docker
+      type: devops
+    kubernetes:
+      experience:
+        years: 3
+      icon: logos:kubernetes
+      type: devops
+    python:
+      experience:
+        years: 7
+      icon: devicon:python
+      type: lang
+    github:
+      experience:
+        years: 4
+      icon: devicon:github
+      type: tool
+    atlassian:
+      experience:
+        years: 2
+      icon: devicon:github
+      type: tool
+    bitbucket:
+      experience:
+        years: 2
+      icon: devicon:atlassian
+      type: tool
+    nodejs:
+      experience:
+        years: 3
+      icon: devicon:nodejs
+      type: lang
+    react:
+      experience:
+        years: 2
+      icon: devicon:react
+      type: library
+    git:
+      experience:
+        years: 4
+      icon: devicon:git
+      type: tool
+    pulumi:
+      experience:
+        years: 1
+      icon: devicon:pulumi
+      type: devops
+    fastapi:
+      experience:
+        years: 3
+      icon: devicon:fastapi
+      type: library
+    typer:
+      experience:
+        years: 2
+      icon: misc:typer
+      type: library
+    sqlalchemy:
+      experience:
+        years: 4
+      icon: devicon:sqlalchemy
+      type: library
+    linux:
+      icon: logos:ubuntu
+      type: tool
+    windows:
+      icon: logos:windows
+      type: tool
+    azure:
+      icon: logos:azure
+      type: devops
+    neovim:
+      icon: devicon:neovim
+      type: tool
+    yaml:
+      icon: hugeicons:yaml
+      type: data
+    json:
+      icon: hugeicons:yaml
+      type: data
+    mongodb:
+      icon: devicons:mongodb
+      type: data
+    xml:
+      icon: devicons:xml
+      type: data
+    css:
+      icon: devicons:css
+    mysql:
+      icon: devicon:mysql
+      type: data
+    redis:
+      icon: devicon:redis
+      type: data
+    terraform:
+      icon: devicon:terrafor
+      type: devops
+    helm:
+      icon: devicon:helmm
+      type: devops
+
+  experience:
+    - organization: Mountain Vector Energy
+      title: Senior Software Engineer
+      start: January 2022
+      stop: December 2023
+      skills:
+        - name: fastapi
+          for: Buildining the Cufflink API.
+        - name: terraform
+          for: Provisioning IaC.
+        - name: bitbucket
+          for: Hosting repositories and running CI/CD pipelines.
+        - name: kubernetes
+          for: Running containerized API and dashboard services and data pipeline cronjobs.
+        - name: helm
+          for: Ensuring that kubernetes resources were reproducable and service testing hooks.
+        - name: docker
+          for: Containerization of services (microservices) and consistent developer environment across platforms.
+        - name: pydantic
+          for: Schema validation and application configuration with FastAPI
+        - name: python
+          for: Language of choice for all back end services (APIs) and data pipelines.
+        - name: node
+          for: Language of choice for all front end services (dashboard and app).
+        - name: react
+          for: Framework of choice for all front end services (dashboard and app).
+        - name: auth0
+          for: OAuth token authentication in APIs and login in dashboard and app.
+        - name: sqlalchemy
+          for: Backend services to talk to to mysql with ease.
+        - name: mysql
+          for: Primary database for storing timeseries data and customer metadata.
+        - name: mongodb
+          for: Resource grouping and real time usage and spend.
+        - name: azure
+          for: Hosting infrastructure and organization active directory.
+        - name: cicd
+          for: Ensuring developer productivity and efficient software delivery.
+        - name: traefik
+          for: Kubernetes ingress, middlewares, and SSL termination with ACME certificates.
+      content:
+        - content: >
+            Pivotted company toward SaaS to increase valuation by implementing
+            `Cufflink` SaaS from scratch.
+        - content: >
+            Supported Cufflink client dashboard and app by designing, implementing,
+            and testing Cufflink API.
+        - content: >
+            Gaurenteed platform stability and reproducability by architecting
+            and implementing DevOps standards and IaC.
+        - content: >
+            Ensured great customer experience by providing $99.99\%$ uptime
+            with IaC and self testing Helm releases.
+        - content: >
+            Enhanced developer productivity and rapid software delivery using
+            CI/CD in Bitbucket and Azure.
+        - content: >
+            Ensured API delivery of accurate data from devices and data pipelines
+            via rigorous testing.
+        - content: >
+            Encaned organizational security by securing Cufflink APIs, Cufflink
+            Dashboard, and Azure organization.
+
+    # NOTE: Want to put the skills on each job/project rather than in skills section.
+    - organization: acederberg.io
+      title: Founder
+      start: January 2024
+      stop: Now
+      skills:
+        - name: docker
+        - name: kubernetes
+        - name: python
+        - name: javascript
+        - name: github
+        - name: git
+        - name: fastapi
+        - name: quarto
+        - name: linode
+        - name: cicd
+      projects:
+        - name: Blog
+          url: /projects/blog
+        - name: Neovim Configuration
+          url: /projects/neovim
+        - name: Captura
+          url: https://github.com/acederberg/captura
+      content:
+        - content: "Built [captura](https://github.com/acederberg) support future \ncommercial products and open source."
+          draft: true
+        - content: "Contributed to open source community and advertise services, built my blog [acederberg.io](https://acederberg.io]."
+        - content: "Ensured site reliability of blog and future web services with CI/CD and IaC."
+  education:
+    - institution: University of New Mexico
+      degree: Bachelors of Science
+      disipline: Applied Mathematics
+      started: August 2015
+      ended: December 2019
+      content:
+        - name: Department of Mathematics
+          description: >
+            Improved student outcomes as tutor and exam proctor in remedial
+            algebra. Ensured therough student feedback by grading algebra,
+            linear algebra, and ordinary differential equations homework.
+        - name: Department of Mechanical Engineering
+          description: >
+            Documentented efficient air plasma production using electricty and
+            magnetism. Built and programmed sensor arrays using rapberry pi and
+            arduino with drivers in ``python`` and ``c``.
+
+
+

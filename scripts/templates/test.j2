@@ -1,0 +1,17 @@
+
+{% for item in experience %}
+
+::: { .content-visible when-format="pdf" }
+
+### {{ item.role }} \textbar{} {{ item.company }} \hfill {{ item.started }} - {{ item.end }}
+
+:::
+
+
+::: { .content-visible when-fornat="html" }
+
+### 
+
+:::
+
+{% endfor %}
