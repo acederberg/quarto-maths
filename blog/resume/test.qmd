@@ -1,6 +1,8 @@
 ---
+title: Test Resume Template
 filters:
-  - links.lua
+  - elements.lua
+  - fenced.lua
 format:
   html:
     toc: false
@@ -28,17 +30,84 @@ format:
     keep-tex: true
     template-partials:
       - ./title.tex
+
 format-links:
   - text: tex
     href: ./test.tex
+resume:
+  sidebar:
+    contact:
+      - icon: devicon:phone
+        item: phone
+        text: (505) 589 - 6914
+      - icon: devicon:mail
+        item: email
+        text: adrn.cederberg123@gmail.com
+    skills:
+      - name: cicd
+        experience: 4 Years
+        alttext: Continuous Integration and Deployment
+        icon: devicon:github-actions
+        type: devops
+      - name: lua
+        experience: 1 Year
+        icon: devicon:lua
+        type: language
+  body:
+    experience:
+      test_experience:
+        title: "Test Title"
+        organization: "Test Organization"
+        start: Now
+        stop: Then
+      somewhere:
+        title: "Doer of Things"
+        organization: "Some Place"
+        start: "1929"
+        stop: "1999"
+# quarto:
+#   experience:
+#     months: 4
+#   icon: devicon:quarto
+#   type: language
+# pandoc:
+#   experience:
+#     months: 4
+#   icon: devicon:pandoc
+#   type: tool
 ---
+
+::: {#skills}
+
+This is additional content in the skills section!
+
+:::
+
+::: {#contacts}
+
+This is addition content in contacts section!
+
+:::
+
+<!-- -->
 
 ### What to do?
 
-I think I should probably use a custom pandoc template for both the html page
-and the tex rendering. This would probably be the most flexible and not result
-in requiring jinja installs, which would be nice.
+::: { #experience }
 
-### Test Extra { title="Test Title" organization="Test Organization" start=Now stop=Then }
+This is some additional text in the `experience` section.
 
-[example](example.com)
+::: { .experience experience_item="test_experience" }
+
+This text should show up under the "Test Organization" experience header of
+level $3$.
+
+:::
+
+::: { .experience experience_item="somewhere" }
+
+This text should show up under the "Some Place" experience header of level $3$.
+
+:::
+
+:::

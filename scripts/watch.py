@@ -74,6 +74,7 @@ class HandleWrite:
                 return
 
             if path.suffix == ".qmd" and self.check_conform(path):
+                rich.print(f"[green]Starting render for `{path}`.")
                 out = subprocess.run(
                     ["quarto", "render", str(path)],
                     stdout=subprocess.PIPE,

@@ -6,6 +6,16 @@ function Link(el)
   return el
 end
 
+local function hasKey(t, value)
+  for k, v in pairs(t) do
+    if v == value then
+      return true
+    end
+  end
+
+  return false
+end
+
 function Header(el)
   -- This filter should transform header content like
   -- ### content {organization="organization" title="title" start="start" stop="stop" }
@@ -13,11 +23,11 @@ function Header(el)
   -- ```### organization \textbar{} title \hfill dates``` in tex
   -- and
   -- ```### organization \textbar{} title\n**dates**``` in html
-  for key, value in pairs(el.attr.attributes) do
-    print("Custom attribute: ", key, " = ", value)
+
+  if not hasKey(el.classes, "resume-header") then
+    return el
   end
 
-  print(el.content)
   if quarto.doc.is_format("latex") then
     -- "%s \\textbar{} %s \\hfill %s - %s",
     local content = {
@@ -35,7 +45,6 @@ function Header(el)
       pandoc.Space(),
       el.attributes.stop,
     }
-    print(content)
 
     if #el.content then
       table.insert(el.content, pandoc.Space())

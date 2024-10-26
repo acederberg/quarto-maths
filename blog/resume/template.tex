@@ -1,0 +1,97 @@
+
+%% ========================================================================= %%
+%% FROM OG TEX ON OVERLEAF
+
+\documentclass{article}
+    \usepackage[margin=0.7in]{geometry}
+    \usepackage[parfill]{parskip}
+    \usepackage[utf8]{inputenc}
+    \usepackage{titlesec}
+    \usepackage[pdfborder={0 0 0}, breaklinks=false, colorlinks=true, urlcolor=blue]{hyperref}
+    \usepackage[normalem]{ulem}
+    \usepackage{lipsum}
+
+\useunder{\uline}{\ulined}{}%
+\DeclareUrlCommand{\bulurl}{\def\UrlFont{\ttfamily\color{blue}\ulined}}
+
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\titleformat{\section}{\large\bfseries}{}{}{}[]
+\titleformat{\subsection}
+  {\bfseries} % format for whole line
+  {} % how to \hfillshow number
+  {1em} % space between number and text
+  {} % formatting for just the text
+  [] % formatting for after the text
+
+%% ========================================================================= %%
+%% Fresh Header
+\usepackage{lipsum}
+
+%% ========================================================================= %%
+%% FROM DEFAULT QUARTO ``templates.tex``
+
+\usepackage{amsmath,amssymb}
+
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+
+%% ========================================================================= %%
+
+$title.tex()$
+
+\begin{document}
+
+\newcommand{\hreful}[2]{
+    \href{#1}{
+        \textcolor{blue}{\ttfamily\underline{#2}}
+    }
+}
+% \renewcommand{\toprule}[2]{}
+% \renewcommand{\bottomrule}[2]{}
+
+% \maketitle
+
+%% ========================================================================= %%
+%% SIDEBAR IN LEFT COLUMN
+%% Should contain
+%% - Headshot
+%% - Contact
+%% - Skills
+%% - Tools
+%% All from metadata.
+
+\colorbox{green}{
+\begin{minipage}{0.35\linewidth}
+  \section{Contact Information}\label{contact}
+  \begin{itemize}
+      \tightlist
+      $for(sidebar.contact)$
+        \item[--] $sidebar.contact.text$
+      $endfor$
+  \end{itemize}
+
+  \section{Skills}\label{skills}
+  \begin{itemize}
+      \tightlist
+      $for(sidebar.skills)$
+        \item[--] $it.name$: $it.experience$
+      $endfor$
+  \end{itemize}
+
+\end{minipage}}
+\begin{minipage}{0.65\linewidth}
+
+%% ========================================================================= %%
+%% BODY IN RIGHT COLUMN
+%% Should contain
+%% - Body
+%% - Experiences
+%% - Education
+%% All from metadata besides body.
+
+$body$
+
+\end{minipage}
+
+
+\end{document}
