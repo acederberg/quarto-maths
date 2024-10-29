@@ -18,6 +18,18 @@ format:
       - breaklinks=false
       - colorlinks=true
       - urlcolor=blue
+    include-in-header:
+      - text: |
+          \usepackage{multicol}
+          \usepackage{lipsum}
+          \setlength{\parindent}{0cm}
+
+          \definecolor{sidebar}{RGB}{71,62,136}
+
+          \setlength{\parindent}{0pt}
+          \setlength{\fboxsep}{10pt}
+          \setlength{\fboxrule}{20pt}
+
     include-before-body:
       # NOTE: It may be possible to style links using another means.
       # NOTE: It is such a pain to remove the ugly rules around tables: https://github.com/jgm/pandoc/issues/8223
@@ -30,7 +42,11 @@ format:
           \renewcommand{\toprule}[2]{}
           \renewcommand{\bottomrule}[2]{}
     geometry:
-      - margin=1in
+      - top=0.1cm
+      - bottom=0.1cm
+      - left=0.1cm
+      - right=1cm
+      - landscape
     keep-tex: true
     template-partials:
       - ./title.tex
@@ -73,6 +89,7 @@ resume:
       category: devops
 
   sidebar:
+    width: .35
     contact:
       - name: Phone
         value: (111) 111 - 1111
@@ -97,10 +114,10 @@ resume:
         start: "1929"
         stop: "1999"
         content:
-          - Did suff at some place with whoever
-          - Did whatever at some place with whoever
-          - Ate some company lunch
-          - Spent time in front of computer
+          - Increased sharholder value by doing some suff at some place with whoever.
+          - To increase worker productivity, did whatever at some place with whoever.
+          - To increase team bonding, planned company lunch and ate some company lunch.
+          - Made boss man happy by spending time in front of computer doing some tasks.
       wherever:
         title: Dude
         organization: Place
@@ -122,12 +139,23 @@ resume:
 #   type: tool
 ---
 
-:::::: { .columns }
+```{=html}
+<style>
+  #resume-sidebar {
+    padding-right: 16px;
+  }
+</style>
+```
+
+:::::: { #resume }
 
 <!-- Sidebar ----------------------------------------------------------------->
 
-::::: { .column width=35% }
+:::: { #resume-sidebar .test }
 
+\lipsum
+
+<!--
 ::: {#skills}
 
 This is additional content in the skills section!
@@ -136,22 +164,22 @@ This is additional content in the skills section!
 
 ::: {#contact}
 
-This is addition content in contacts section!
+This is additional content in contacts section! Just put content in this fenced
+div to add any addition paragraphs.
 
 :::
+-->
 
-:::::
-
-<!-- Sep --------------------------------------------------------------------->
-
-:::: { .column width=5% }
 ::::
 
-<!-- Body -------------------------------------------------------------------->
+::::: { #resume-body }
 
-::::: { .column width=60% }
+\lipsum[20]
+
+<!--
 
 :::: { #experience }
+
 
 This is some additional text in the `experience` section.
 
@@ -175,6 +203,7 @@ This text should show up under the "Some Place" experience header.
 :::
 
 ::::
+-->
 
 :::::
 

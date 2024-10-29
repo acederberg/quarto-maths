@@ -1,0 +1,11 @@
+---
+title: About the Watcher
+---
+
+I decided to write my own because the one that ships with quarto is quirky and
+does not come with room for customization - a few of the problems I would like
+to solve are enumerated below:
+
+1. The watcher does not rebuild `qmd` files depending on a filter when the
+   filter is changed. To this end, when the filter is updated I would like its
+   corresponding page to be updated when there are changes in its filters.

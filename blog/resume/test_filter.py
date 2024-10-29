@@ -27,6 +27,7 @@ class ConfigContact(pydantic.BaseModel):
 
 
 class ConfigSidebar(pydantic.BaseModel):
+    width: Annotated[float, pydantic.Field(lt=1, gt=0, default=0.35)]
     contact: list[ConfigContact]
     skills: list[str]
 
@@ -76,18 +77,27 @@ class Filter:
 
     def hydrate_contact_item(self, config: ConfigContact):
 
-        iconify = "{{< iconify " + " ".join(config.icon.split(":")) + " >}}"
+        # iconify = "{{< iconify " + " ".join(config.icon.split(":")) + " >}}"
 
-        # if filter.doc.format == "latex":
-        return pf.Para(pf.Str(iconify), pf.Space(), pf.Str(config.value))
+        if self.doc.format == "html":
+            return pf.TableRow(
+                pf.TableCell(pf.Para(self.hydrate_icon(config.icon))),
+                pf.TableCell(pf.Para(pf.Str(config.value))),
+            )
+
+        return pf.TableRow(pf.TableCell(pf.Para(pf.Str(config.value))))
 
     def hydrate_contact(self, element: pf.Element):
         element.content = (
             pf.Header(pf.Str("Contact"), level=2),
             *element.content,
-            *(
-                self.hydrate_contact_item(contact_config)
-                for contact_config in self.config.sidebar.contact
+            pf.Table(
+                pf.TableBody(
+                    *(
+                        self.hydrate_contact_item(contact_config)
+                        for contact_config in self.config.sidebar.contact
+                    ),
+                ),
             ),
         )
 
@@ -106,6 +116,18 @@ class Filter:
         )
 
         return element
+
+    def hydrate_icon(self, icon: str):
+        """Make the icon span.
+
+        NOTE: Not sure how insert shortcodes from icon configurations.
+              For now this is good enough.
+              See the [discussion on github]().
+        """
+
+        return pf.RawInline(
+            f"<iconify-icon inline icon={icon}></iconify-icon>", format="html"
+        )
 
     def hydrate_experience_item(self, element: pf.Element):
         experience_field = element.attributes["experience_item"]
@@ -171,21 +193,80 @@ class Filter:
     def unsupported_format(self):
         return pf.Header(f"Format `{self.doc.format}` Not Supported.")
 
+    def layout(self, element: pf.Element):
+
+        if self.doc.format == "html":
+            if element.identifier == "resume":
+                element.classes.append("columns")
+
+            elif element.identifier == "resume-sidebar":
+                element.classes.append("column")
+                element.attributes["width"] = "30%"
+
+                # element.parent.content.insert(element.index, pf.Div())
+
+            elif element.identifier == "resume-body":
+                element.classes.append("column")
+                element.attributes["width"] = "65%"
+
+        elif self.doc.format == "latex":
+
+            size = self.config.sidebar.width
+            if element.identifier == "resume-sidebar":
+                element.content = (
+                    pf.RawBlock(
+                        "\\colorbox{green}{\\begin{minipage}[t][\\textheight][t]{"
+                        + str(size)
+                        + "\\textwidth}",
+                        format="latex",
+                    ),
+                    *element.content,
+                )
+
+            elif element.identifier == "resume-body":
+                # NOTE: End of minipage must be next to start of next for columns.
+                element.content = (
+                    pf.RawBlock(
+                        "\\end{minipage}}\\hfill\\begin{minipage}[t][\\textheight][t]{"
+                        + str(1 - size - 0.05)
+                        + "\\textwidth}",
+                        format="latex",
+                    ),
+                    *element.content,
+                    pf.RawBlock("\\end{minipage}", format="latex"),
+                )
+
+            elif element.identifier == "resume":
+                record(
+                    list(
+                        (type(item), getattr(item, "identifier", None))
+                        for item in element.content
+                    )
+                )
+
+        return element
+
+    def layout_tex_minipage(self, element: pf.Element, size: float):
+        element.content = (pf.RawBlock("\\end{minipage} %", format="latex"),)
+        return element
+
     def __call__(self, element: pf.Element):
         if not isinstance(element, pf.Div):
             return element
 
+        element = self.layout(element)
+
         if element.identifier == "contact":
-            self.hydrate_contact(element)
+            return self.hydrate_contact(element)
 
         elif element.identifier == "skills":
-            self.hydrate_skills(element)
+            return self.hydrate_skills(element)
 
         elif element.identifier == "experience":
-            self.hydrate_experience(element)
+            return self.hydrate_experience(element)
 
         elif "experience" in element.classes:
-            self.hydrate_experience_item(element)
+            return self.hydrate_experience_item(element)
 
         return element
 

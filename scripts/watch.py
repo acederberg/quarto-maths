@@ -7,9 +7,11 @@ import subprocess
 import threading
 import time
 from datetime import datetime
+from typing import Annotated, Iterable, Optional
 
 import rich
 import typer
+from typing_extensions import Doc
 from watchdog.events import FileSystemEvent
 from watchdog.observers import Observer
 
@@ -19,16 +21,54 @@ path_here = pathlib.Path(__file__).parent.resolve()
 path_build = path_here / "build"
 
 
-class HandleWrite:
+class Context:
     quarto_verbose: bool
-    tt_tolerance: int
-    tt_last: dict[pathlib.Path, float]
-    path_memo: dict[str, pathlib.Path]
-    path_ignored: set[str]
+    quarto_filters: set[pathlib.Path]  # Use this to watch filter files.
 
     def __init__(
         self,
         quarto_verbose: bool = False,
+        quarto_filters: Iterable[pathlib.Path] | None = None,
+    ):
+        self.quarto_verbose = quarto_verbose
+        self.quarto_filters = (
+            set(item.resolve() for item in quarto_filters)
+            if quarto_filters is not None
+            else set()
+        )
+
+
+class HandleWrite:
+    context: Context
+
+    tt_tolerance: Annotated[
+        int,
+        Doc("Acceptable time between writes. This is meant to make it easier."),
+    ]
+    tt_last: Annotated[
+        dict[pathlib.Path, float],
+        Doc("Map of file paths to last write timestamp."),
+    ]
+    path_memo: Annotated[
+        dict[str, pathlib.Path],
+        Doc("Map of seen paths to their resolved paths."),
+    ]
+    path_ignored: Annotated[
+        set[str],
+        Doc("Paths (from root) to ignore."),
+    ]
+    path_last_qmd: Annotated[
+        pathlib.Path | None,
+        Doc(
+            "Last qmd file written to. This is used when watching filter "
+            "files to determine which qmd files to re-render."
+        ),
+    ]
+
+    def __init__(
+        self,
+        context: Context,
+        *,
         tt_tolerance: int = 3,
         path_ignored: set[str] | None = None,
     ):
@@ -42,9 +82,10 @@ class HandleWrite:
             self.path_ignored = path_ignored
 
         self.path_memo = dict()
-        self.quarto_verbose = quarto_verbose
+        self.path_last_qmd = None
+        self.context = context
 
-    def check_conform(self, path: pathlib.Path):
+    def event_from_conform(self, path: pathlib.Path):
         """Check for sequential write events, e.g. from ``conform.nvim``
         fixing.
         """
@@ -58,40 +99,87 @@ class HandleWrite:
         self.tt_last[path] = tt
         return True
 
+    def get_path(self, event: FileSystemEvent):
+        _path_str = str(event.src_path)
+        if event.src_path not in self.path_memo:
+            self.path_memo[_path_str] = pathlib.Path(_path_str).resolve()
+
+        return self.path_memo[_path_str]
+
+    def is_ignored_path(self, path: pathlib.Path) -> bool:
+        # NOTE: Do not ignore filters that are being watched.
+        if path in self.context.quarto_filters:
+            return False
+
+        # NOTE: Ignore filters that are in any
+        path_rel = os.path.relpath(path, path_here)
+        top = path_rel.split("/")[0]
+
+        return top in self.path_ignored
+
+    def get_time_modified(self, path: pathlib.Path):
+        return datetime.fromtimestamp(self.tt_last[path]).strftime("%H:%M:%S")
+
+    def dispatch_qmd(self, path: pathlib.Path):
+        error_output = env.BUILD / "error.txt"
+        tt = self.get_time_modified(path)
+        rich.print(f"[green]{tt} -> Starting render for `{path}`.")
+        out = subprocess.run(
+            ["quarto", "render", str(path)],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+
+        with open(error_output, "w") as file:
+            file.write(out.stdout.decode())
+            file.write(out.stderr.decode())
+
+        if out.returncode != 0:
+            rich.print(
+                f"[red]{tt} -> Failed to render `{path}`. See error output "
+                "in `http://localhost:3000/error.txt`."
+            )
+        else:
+            rich.print(f"[green]{tt} -> Rendered `{path}`.")
+        if self.context.quarto_verbose:
+            print(out.stdout)
+            print(out.stderr.decode())
+
     def dispatch(self, event: FileSystemEvent) -> None:
 
-        if event.event_type == "modified" and not event.is_directory:
+        # NOTE: Parse and memoize path, decide if ignored.
+        if event.event_type != "modified" or event.is_directory:
+            return
 
-            _path_str = str(event.src_path)
-            if event.src_path not in self.path_memo:
-                self.path_memo[_path_str] = pathlib.Path(_path_str).resolve()
+        # NOTE: Resolve path from event and check if the event should be
+        #       ignored.
+        path = self.get_path(event)
+        if self.is_ignored_path(path):
+            return
 
-            path = self.path_memo[_path_str]
+        if self.event_from_conform(path):
+            return
 
-            path_rel = os.path.relpath(path, path_here)
-            top = path_rel.split("/")[0]
-            if top in self.path_ignored:
-                return
+        # NOTE: If a qmd file was modified, then rerender the modified ``qmd``
+        #       If a watched filter (from ``--quarto-filter``) is changed, do
+        #       it for the last file.
+        if path.suffix == ".qmd":
+            self.dispatch_qmd(path)
+            self.path_last_qmd = path
+        elif path in self.context.quarto_filters and self.path_last_qmd is not None:
 
-            if path.suffix == ".qmd" and self.check_conform(path):
-                rich.print(f"[green]Starting render for `{path}`.")
-                out = subprocess.run(
-                    ["quarto", "render", str(path)],
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                )
+            tt = self.get_time_modified(path)
+            rich.print(
+                f"[blue]{tt} -> Changes detected in filter `{path}`, "
+                f"tiggering rerender of `{self.path_last_qmd}`."
+            )
+            self.dispatch_qmd(self.path_last_qmd)
 
-                tt = datetime.fromtimestamp(self.tt_last[path]).strftime("%H:%M:%S")
-                rich.print(f"[green]{tt} -> Rendered `{path}`.")
-                if (out.stderr and out.returncode != 0) or self.quarto_verbose:
-                    print(out.stdout)
-                    print(out.stderr.decode())
-
-            # NOTE: Pain in the ass because of transient quarto html files.
-            # elif path.suffix == ".html":
-            #     dest = path_build / os.path.relpath(path, path_here)
-            #     print(f"{path} -> {dest}")
-            #     shutil.copy(path, dest)
+        # NOTE: Pain in the ass because of transient quarto html files.
+        # elif path.suffix == ".html":
+        #     dest = path_build / os.path.relpath(path, path_here)
+        #     print(f"{path} -> {dest}")
+        #     shutil.copy(path, dest)
 
 
 class DualStackServer(http_server.ThreadingHTTPServer):
@@ -110,8 +198,8 @@ class DualStackServer(http_server.ThreadingHTTPServer):
         )
 
 
-def watch(quarto_verbose: bool = False):
-    event_handler = HandleWrite(quarto_verbose=quarto_verbose)
+def watch(context: Context):
+    event_handler = HandleWrite(context)
     observer = Observer()
     observer.schedule(event_handler, ".", recursive=True)  # type: ignore
     observer.start()
@@ -132,15 +220,38 @@ def serve():
     )
 
 
-class Context:
-    quarto_verbose: bool
+FlagQuartoFilters = Annotated[
+    Optional[list[pathlib.Path]],
+    typer.Option("--quarto-filter"),
+]
+FlagQuartoVerbose = Annotated[
+    bool,
+    typer.Option("--quarto-verbose"),
+]
 
-    def __init__(self, quarto_verbose: bool = False):
-        self.quarto_verbose = quarto_verbose
 
+def callback(
+    context: typer.Context,
+    quarto_verbose: FlagQuartoVerbose = False,
+    quarto_filters: FlagQuartoFilters = None,
+):
+    context.obj = Context(
+        quarto_verbose=quarto_verbose,
+        quarto_filters=quarto_filters,
+    )
 
-def callback(context: typer.Context, quarto_verbose: bool = False):
-    context.obj = Context(quarto_verbose=quarto_verbose)
+    # def verify(path: pathlib.Path) -> pathlib.Path:
+    if quarto_filters is None:
+        return None
+
+    for path in quarto_filters:
+
+        if os.path.exists(path):
+            rich.print(f"[green]Watching filter `{path}`.")
+        else:
+            rich.print(
+                f"[green]File `{path}` specified with `--quarto-verbose` does not exist."
+            )
 
 
 cli = typer.Typer(callback=callback)
@@ -150,7 +261,7 @@ cli = typer.Typer(callback=callback)
 def cmd_watch(_context: typer.Context):
     context: Context = _context.obj
 
-    watch(quarto_verbose=context.quarto_verbose)
+    watch(context)
 
 
 @cli.command("server")
@@ -158,7 +269,7 @@ def cmd_server(_context: typer.Context):
     context: Context = _context.obj
 
     threading.Thread(target=serve).start()
-    threading.Thread(target=lambda: watch(context.quarto_verbose)).start()
+    threading.Thread(target=lambda: watch(context)).start()
 
 
 if __name__ == "__main__":
