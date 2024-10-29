@@ -215,7 +215,7 @@ class Filter:
             if element.identifier == "resume-sidebar":
                 element.content = (
                     pf.RawBlock(
-                        "\\colorbox{green}{\\begin{minipage}[t][\\textheight][t]{"
+                        "\\begin{minipage}[t][0.7\\textheight][t]{"
                         + str(size)
                         + "\\textwidth}",
                         format="latex",
@@ -227,7 +227,7 @@ class Filter:
                 # NOTE: End of minipage must be next to start of next for columns.
                 element.content = (
                     pf.RawBlock(
-                        "\\end{minipage}}\\hfill\\begin{minipage}[t][\\textheight][t]{"
+                        "\\end{minipage}\\hfill\\begin{minipage}[t][0.7\\textheight][t]{"
                         + str(1 - size - 0.05)
                         + "\\textwidth}",
                         format="latex",

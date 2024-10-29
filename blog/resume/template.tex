@@ -1,97 +1,115 @@
+% --------------------------------------------------------------------------- %
+% Yucky Stuff From OG Quarto Template
 
-%% ========================================================================= %%
-%% FROM OG TEX ON OVERLEAF
-
-\documentclass{article}
-    \usepackage[margin=0.7in]{geometry}
-    \usepackage[parfill]{parskip}
-    \usepackage[utf8]{inputenc}
-    \usepackage{titlesec}
-    \usepackage[pdfborder={0 0 0}, breaklinks=false, colorlinks=true, urlcolor=blue]{hyperref}
-    \usepackage[normalem]{ulem}
-    \usepackage{lipsum}
-
-\useunder{\uline}{\ulined}{}%
-\DeclareUrlCommand{\bulurl}{\def\UrlFont{\ttfamily\color{blue}\ulined}}
-
-\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
-\titleformat{\section}{\large\bfseries}{}{}{}[]
-\titleformat{\subsection}
-  {\bfseries} % format for whole line
-  {} % how to \hfillshow number
-  {1em} % space between number and text
-  {} % formatting for just the text
-  [] % formatting for after the text
-
-%% ========================================================================= %%
-%% Fresh Header
-\usepackage{lipsum}
-
-%% ========================================================================= %%
-%% FROM DEFAULT QUARTO ``templates.tex``
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+]{article}
 
 \usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else  
+    % xetex/luatex font selection
+\fi
 
+
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[top=1cm,bottom=1cm,left=1cm,right=1cm,landscape]{geometry}
 \setlength{\emergencystretch}{3em} % prevent overfull lines
 \setcounter{secnumdepth}{-\maxdimen} % remove section numbering
 
-%% ========================================================================= %%
 
-$title.tex()$
+% Make \paragraph and \subparagraph free-standing
+\makeatletter
+\ifx\paragraph\undefined\else
+  \let\oldparagraph\paragraph
+  \renewcommand{\paragraph}{
+    \@ifstar
+      \xxxParagraphStar
+      \xxxParagraphNoStar
+  }
+  \newcommand{\xxxParagraphStar}[1]{\oldparagraph*{#1}\mbox{}}
+  \newcommand{\xxxParagraphNoStar}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+  \let\oldsubparagraph\subparagraph
+  \renewcommand{\subparagraph}{
+    \@ifstar
+      \xxxSubParagraphStar
+      \xxxSubParagraphNoStar
+  }
+  \newcommand{\xxxSubParagraphStar}[1]{\oldsubparagraph*{#1}\mbox{}}
+  \newcommand{\xxxSubParagraphNoStar}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+\makeatother
 
-\begin{document}
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}\usepackage{longtable,booktabs,array}
+
+\usepackage{calc} % for calculating minipage widths
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+
+\usepackage{multicol}
+\usepackage{lipsum}
+\usepackage{bookmark}
+
+\hypersetup{
+  pdftitle={Test Resume Template},
+  pdfauthor={Adrian Cederberg},
+  colorlinks=true,
+  linkcolor={blue},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+
+% --------------------------------------------------------------------------- %
 
 \newcommand{\hreful}[2]{
     \href{#1}{
         \textcolor{blue}{\ttfamily\underline{#2}}
     }
 }
-% \renewcommand{\toprule}[2]{}
-% \renewcommand{\bottomrule}[2]{}
+\renewcommand{\toprule}[2]{}
+\renewcommand{\bottomrule}[2]{}
 
-% \maketitle
+\begin{document}
 
-%% ========================================================================= %%
-%% SIDEBAR IN LEFT COLUMN
-%% Should contain
-%% - Headshot
-%% - Contact
-%% - Skills
-%% - Tools
-%% All from metadata.
-
-\colorbox{green}{
-\begin{minipage}{0.35\linewidth}
-  \section{Contact Information}\label{contact}
-  \begin{itemize}
-      \tightlist
-      $for(sidebar.contact)$
-        \item[--] $sidebar.contact.text$
-      $endfor$
-  \end{itemize}
-
-  \section{Skills}\label{skills}
-  \begin{itemize}
-      \tightlist
-      $for(sidebar.skills)$
-        \item[--] $it.name$: $it.experience$
-      $endfor$
-  \end{itemize}
-
-\end{minipage}}
-\begin{minipage}{0.65\linewidth}
-
-%% ========================================================================= %%
-%% BODY IN RIGHT COLUMN
-%% Should contain
-%% - Body
-%% - Experiences
-%% - Education
-%% All from metadata besides body.
-
+\section{$title$}
 $body$
-
-\end{minipage}
-
 
 \end{document}
