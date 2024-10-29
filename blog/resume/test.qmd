@@ -1,11 +1,15 @@
 ---
 title: Test Resume Template
 filters:
+  # - fenced.lua
   - elements.lua
-  - fenced.lua
+  - test_filter.py
+  - iconify
+
 format:
   html:
     toc: false
+    page-layout: full
   pdf:
     toc: false
     documentclass: article
@@ -35,24 +39,51 @@ format-links:
   - text: tex
     href: ./test.tex
 resume:
+  skills:
+    cicd:
+      display_name: CI/CD
+      display_description: Continuous Integration and Deployment
+      experience: 4 Years
+      icon: "{{< iconify devicon github-actions >}}"
+      category: devops
+    lua:
+      display_name: Lua
+      experience: 1 Year
+      icon: devicon:lua
+      category: language
+    quarto:
+      display_name: Quarto
+      experience: 4 months
+      icon: devicon:quarto
+      category: language
+    pandoc:
+      display_name: Pandoc
+      experience: 4 months
+      icon: devicon:pandoc
+      category: tool
+    jupyter:
+      display_name: Jupyter
+      experience: 2 years
+      icon: devicon:jupyter
+      category: tool
+    docker:
+      display_name: Docker
+      experience: 4 years
+      icon: devicon:docker
+      category: devops
+
   sidebar:
     contact:
-      - icon: devicon:phone
-        item: phone
-        text: (505) 589 - 6914
-      - icon: devicon:mail
-        item: email
-        text: adrn.cederberg123@gmail.com
-    skills:
-      - name: cicd
-        experience: 4 Years
-        alttext: Continuous Integration and Deployment
-        icon: devicon:github-actions
-        type: devops
-      - name: lua
-        experience: 1 Year
-        icon: devicon:lua
-        type: language
+      - name: Phone
+        value: (111) 111 - 1111
+        icon: hugeicons:smart-phone-01
+      - name: Email
+        value: dude@place.org
+        icon: hugeicons:mail-01
+
+    # NOTE: Skills are reusable for experience section and should be put in a
+    #       list to ensure same order on render.
+    skills: [cicd, lua, docker]
   body:
     experience:
       test_experience:
@@ -65,6 +96,20 @@ resume:
         organization: "Some Place"
         start: "1929"
         stop: "1999"
+        content:
+          - Did suff at some place with whoever
+          - Did whatever at some place with whoever
+          - Ate some company lunch
+          - Spent time in front of computer
+      wherever:
+        title: Dude
+        organization: Place
+        start: whenever
+        stop: now
+        content:
+          - Does stuff
+          - Does things
+          - Does whatever
 # quarto:
 #   experience:
 #     months: 4
@@ -77,30 +122,43 @@ resume:
 #   type: tool
 ---
 
+:::::: { .columns }
+
+<!-- Sidebar ----------------------------------------------------------------->
+
+::::: { .column width=35% }
+
 ::: {#skills}
 
 This is additional content in the skills section!
 
 :::
 
-::: {#contacts}
+::: {#contact}
 
 This is addition content in contacts section!
 
 :::
 
-<!-- -->
+:::::
 
-### What to do?
+<!-- Sep --------------------------------------------------------------------->
 
-::: { #experience }
+:::: { .column width=5% }
+::::
+
+<!-- Body -------------------------------------------------------------------->
+
+::::: { .column width=60% }
+
+:::: { #experience }
 
 This is some additional text in the `experience` section.
 
 ::: { .experience experience_item="test_experience" }
 
 This text should show up under the "Test Organization" experience header of
-level $3$.
+level $3$. This section should have no content after this line.
 
 :::
 
@@ -110,4 +168,14 @@ This text should show up under the "Some Place" experience header of level $3$.
 
 :::
 
+::: { .experience experience_item="wherever" }
+
+This text should show up under the "Some Place" experience header.
+
 :::
+
+::::
+
+:::::
+
+::::::

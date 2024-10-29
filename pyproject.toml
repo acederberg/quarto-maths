@@ -30,6 +30,7 @@ pyarrow = "^17.0.0"
 pytest = "^8.3.3"
 yamllint = "^1.35.1"
 watchdog = "^5.0.3"
+panflute = "^2.3.1"
 
 
 [tool.poetry.group.torch.dependencies]

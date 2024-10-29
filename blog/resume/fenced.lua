@@ -61,9 +61,8 @@ local resume_metadata = {}
 --       https://pandoc.org/lua-filters.html#replacing-placeholders-with-their-metadata-value
 --
 local function populate_resume_metadata(meta)
-  resume_metadata.foobars = "whatever"
-  resume_metadata.skills = meta.resume.sidebar.skills
-  resume_metadata.contacts = meta.resume.sidebar.contacts
+  resume_metadata.skills = meta.resume.skills
+  resume_metadata.sidebar = meta.resume.sidebar
   resume_metadata.experience = meta.resume.body.experience
 end
 
@@ -146,29 +145,92 @@ end
 
 -------------------------------------------------------------------------------
 --- Skills fence
+---
+
+local function create_skills_item(data)
+  local content = { pandoc.Strong(":"), pandoc.Space() }
+  if quarto.doc.is_format("html") then
+    content = merge(data.icon, content)
+  end
+  content = merge(data.name, content)
+  -- end
+  -- content = merge(pandoc.Image
+  content = merge(content, data.experience)
+  return pandoc.Para(content)
+end
 
 local function create_skills(el)
   local content = {
     pandoc.Header(2, { pandoc.Str("Skills") }),
   }
   content = merge(content, el.content)
-  return content
+
+  printTable(resume_metadata.sidebar.skills)
+
+  local skill_data
+  local content_list = {}
+  print("==============================")
+  printTable(resume_metadata.skills)
+  print("==============================")
+  for skill_index, skill_name in pairs(resume_metadata.sidebar.skills) do
+    print(skill_name[1])
+    printTable(resume_metadata.skills[skill_name[1]])
+    -- skill_data = resume_metadata.skills[skill_name]
+    -- content_list = merge(content_list, { create_skills_item(skill_data) })
+  end
+
+  local listing = { pandoc.BulletList(content_list) }
+  content = merge(content, el.content)
+  el.content = merge(content, listing)
+
+  return el
 end
 
 -------------------------------------------------------------------------------
 --- Contacts fence.
 
-local function create_contacts(el)
-  local content = {
-    pandoc.Header(2, "Contacts"),
-  }
+local function create_contacts_html_item(data)
+  local content = merge(data.icon, { pandoc.Space() })
+  content = merge(content, data.value)
+  printTable(content)
+
+  return pandoc.Para(content)
+end
+
+local function create_contacts_html(el)
+  local content = { pandoc.Header(2, "Contacts") }
+
+  local content_list = {}
+
+  for contact_field, contact_data in pairs(resume_metadata.sidebar.contact) do
+    content_list = merge(content_list, { create_contacts_html_item(contact_data) })
+  end
+
+  local listing = { pandoc.BulletList(content_list) }
+
   content = merge(content, el.content)
-  return content
+  el.content = merge(content, listing)
+  return el
+end
+
+local function create_contacts_tex(el)
+  el.content = it_works()
+  return el
+end
+
+local function create_contacts(el)
+  if quarto.doc.is_format("latex") then
+    return create_contacts_tex(el)
+  elseif quarto.doc.is_format("html") then
+    return create_contacts_html(el)
+  else
+    return pandoc.Null()
+  end
 end
 
 -------------------------------------------------------------------------------
 
-local function handle_fenced(el)
+local function hydrate_fenced(el)
   local identifier = el.attr.identifier
   if identifier == "skills" then
     print("Found Skills!")
@@ -189,5 +251,5 @@ end
 
 return {
   { Meta = populate_resume_metadata },
-  { Div = handle_fenced },
+  { Div = hydrate_fenced },
 }
