@@ -92,7 +92,15 @@ class FilterFloaty(util.BaseFilter):
             ),
         )
 
-        element.content = (pf.BulletList(*list_content),)
+        closure_name = "overlay_" + element.identifier.lower().replace("-", "_")
+        element.content = (
+            pf.BulletList(*list_content),
+            *element.content,
+            pf.Div(pf.Div(classes=["overlay-content"]), classes=["overlay"]),
+            pf.RawBlock(
+                f"<script> let {closure_name} = Overlay('{ element.identifier }')</script>"
+            ),
+        )
 
         return element
 

@@ -7,7 +7,7 @@ format:
 filters:
   - ../../filters/floaty.py
 floaty:
-  blog-thank-you-tools:
+  thank-you-tools:
     size: 128px;
     content:
       - image:
@@ -135,65 +135,9 @@ Thank you to all of the contributors to the tools I have used that made this pos
 I cannot emphasize enought that without the tremendous efforts of the open source community (in particular) that this would not be possible at all.
 Click on any of the icons below to see a brief description of how each tool is utilitized here.
 
-::: { #blog-thank-you-tools .floaty-container }
+::::: { #thank-you-tools .floaty-container }
 
-:::
-
-<script>
-  /* 
-    NOTE: Want to render all of these directly into the overlay.
-          This will require that the filter injects the overlay.
-          Each floaty container will have its own overlay, which will have
-          its own toggles.
-          This overlay will hold all of the html, just most of it will be
-          hidden. I would like to think that this is cleaner than manipulating
-          the DOM like this.
-  */
-  let overlay = document.getElementById("overlay")
-  let overlay_content = document.getElementById("overlay-content")
-
-  function createOnClickIcon(item)
-  {
-    let paragraphs = Array.from(item.getElementsByTagName("p"))
-
-    return function onClickSvg()
-    {
-      // https://stackoverflow.com/questions/3955229/remove-all-child-elements-of-a-dom-node-in-javascript
-      overlay_content.innerHTML = ''
-      paragraphs.map(paragraph => {
-        // Add the wrapped icon, get the iconify icon and use ``ariaLabel`` to
-        // recover the content to be put below the icon.
-        overlay_content.appendChild(paragraph.cloneNode(true))
-
-        let icon = Array.from(overlay_content.getElementsByTagName("iconify-icon"))[0]
-        icon.classList.add("floaty")
-
-        let head = document.createElement("h1")
-        head.innerHTML = icon.ariaLabel
-        overlay_content.appendChild(head)
-
-        let content = document.createElement("p")
-        let content_data = overlay_content_data[icon.ariaLabel] 
-        if (content_data) content.innerHTML = content_data
-        overlay_content.appendChild(content)
-
-
-        // overlay_content.add("h1")
-
-      })
-      showOverlay()
-    }
-  }
-
-  Array.from(
-    document
-      .getElementById("blog-thank-you-tools")
-      .getElementsByTagName("li")
-  )
-    .map(
-      item => item.addEventListener("click", createOnClickIcon(item))
-    )
-</script>
+:::::
 
 ## Thank You to the Reviewers
 

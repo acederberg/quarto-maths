@@ -26,10 +26,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-logger.warning("It works")
-logger.info("It works")
-logger.debug("It works")
-
 
 # NOTE: This is possible with globs, but I like practicing DSA.
 class IgnoreNode:
@@ -147,8 +143,6 @@ class Context:
         logger.debug("Assembling `context.ignore_trie`.")
         for path in _ignore:
             self.ignore_trie.add(path)
-            if os.path.exists(path):
-                rich.print(f"[green]Ignoring anything in `{path}`.")
 
         return _ignore
 
@@ -164,18 +158,10 @@ class Context:
                     lambda item: (directory / "filters" / item).resolve(),
                     os.listdir(directory / "filters"),
                 )
-                if pth.suffix == ".py"
+                if pth.suffix in {".py", ".lua"}
             ),
             *quarto_filters,
         }
-
-        for path in _quarto_filters:
-            if os.path.exists(path):
-                rich.print(f"[green]Watching filter `{path}`.")
-            else:
-                rich.print(
-                    f"[green]File `{path}` specified with `--quarto-verbose` does not exist."
-                )
 
         return _quarto_filters
 
@@ -193,7 +179,7 @@ class BlogHandler(FileSystemEventHandler):
 
     _ignored: Annotated[
         set[pathlib.Path],
-        Doc("Cache for ``Context.is_ignored_path`` "),
+        Doc("Cache for paths that make it past ``is_event_ignored``."),
     ]
     _path_memo: Annotated[
         dict[str, pathlib.Path],
@@ -221,7 +207,7 @@ class BlogHandler(FileSystemEventHandler):
         self,
         context: Context,
         *,
-        tt_tolerance: int = 30,
+        tt_tolerance: int = 3,
     ):
 
         self.tt_tolerance = tt_tolerance
@@ -294,32 +280,28 @@ class BlogHandler(FileSystemEventHandler):
         return False
 
     def is_event_ignored(self, event: FileSystemEvent) -> pathlib.Path | None:
-        if event.is_directory:
-            return
-
         # NOTE: Resolve path from event and check if the event should be
         #       ignored - next check if the event originates from conform.nvim.
         path = self.get_path(event)
-        if path.suffix not in self.suffixes:
-            logger.debug("Ignored event at `%s` because of suffix.", path)
-            return
-        elif path in self._ignored:
+        if path in self._ignored:
             logger.debug("Ignored `%s` since it has already been ignored.", path)
-            return
         elif self.context.is_ignored_path(path):
             logger.debug("Ignored event at `%s` because it is explicity ignored.", path)
-            self._ignored.add(path)
-            return
+        elif path.suffix not in self.suffixes:
+            logger.debug("Ignored event at `%s` because of suffix.", path)
         elif self.is_event_from_conform(path):
             logger.debug(
                 "Checking if event for path `%s` came from `conform.nvim`.", path
             )
-            return
+        else:
+            logger.debug("Not ignoring changes in `%s`.", path)
+            return path
 
-        logger.debug("Not ignoring changes in `%s`.", path)
-        return path
+        return None
 
     def on_modified(self, event: FileSystemEvent) -> None:
+        if event.is_directory:
+            return
 
         if (path := self.is_event_ignored(event)) is None:
             return
