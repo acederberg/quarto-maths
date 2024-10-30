@@ -1,5 +1,6 @@
 import contextlib
 import http.server as http_server
+import json
 import os
 import pathlib
 import socket
@@ -11,7 +12,8 @@ from typing import Annotated, Iterable, Optional
 
 import rich
 import typer
-from typing_extensions import Doc
+import yaml
+from typing_extensions import Doc, Self
 from watchdog.events import FileSystemEvent
 from watchdog.observers import Observer
 
@@ -21,26 +23,149 @@ path_here = pathlib.Path(__file__).parent.resolve()
 path_build = path_here / "build"
 
 
+# NOTE: This is possible with globs, but I like practicing DSA.
+class IgnoreNode:
+
+    children: dict[str, Self]
+    is_end: bool
+
+    def __init__(self, is_end: bool):
+        self.children = dict()
+        self.is_end = is_end
+
+    def add(self, path: pathlib.Path | str):
+
+        if isinstance(path, str):
+            path = pathlib.Path(path)
+
+        node = self
+        for item in path.parts:
+            if item == "/":
+                continue
+
+            if item not in node.children:
+                node.children[item] = self.__class__(False)
+
+            node = node.children[item]
+
+        node.is_end = True
+        path.resolve()
+
+    def is_ignored(self, path: pathlib.Path | str) -> bool:
+        # NOTE: If the path encounters an end, it is ignored.
+
+        if isinstance(path, str):
+            path = pathlib.Path(path)
+
+        node = self
+        for item in path.parts:
+            if item == "/":
+                continue
+
+            # NOTE: If the current node is terminating, definitely ignored.
+            if node.is_end:
+                return True
+
+            # NOTE: No terminating node encountered, not ignored.
+            if item not in node.children:
+                return False
+
+            node = node.children[item]
+
+        return node.is_end
+
+    def dict(self):
+
+        out = dict()
+        if self.is_end:
+            out["is_end"] = self.is_end
+
+        if self.children:
+            out.update({k: v.dict() for k, v in self.children.items()})
+
+        return out
+
+
 class Context:
     quarto_verbose: bool
     quarto_filters: set[pathlib.Path]  # Use this to watch filter files.
+    ignore: Annotated[
+        set[pathlib.Path],
+        Doc("Absolute paths to ignore."),
+    ]
+    ignore_trie: Annotated[IgnoreNode, Doc("Trie for matching ignored paths.")]
 
     def __init__(
         self,
         quarto_verbose: bool = False,
         quarto_filters: Iterable[pathlib.Path] | None = None,
+        ignore: Iterable[pathlib.Path] | None = None,
     ):
         self.quarto_verbose = quarto_verbose
-        self.quarto_filters = (
-            set(item.resolve() for item in quarto_filters)
-            if quarto_filters is not None
-            else set()
+        self.quarto_filters = self.__validate_filters(quarto_filters or set())
+        self.ignore_trie = IgnoreNode(False)
+        self.ignore = self.__validate_ignore(ignore or set())
+
+    def __validate_ignore(self, ignore: Iterable[pathlib.Path]) -> set[pathlib.Path]:
+
+        _ignore = (
+            set(map(lambda item: pathlib.Path(item).resolve(), ignore))
+            | set(
+                map(
+                    lambda item: (env.BLOG / item).resolve(),
+                    ("build", ".quarto", "_freeze", "site_libs"),
+                )
+            )
+            | set(map(lambda item: (env.ROOT / item).resolve(), (".git", ".venv")))
         )
+
+        for path in _ignore:
+            self.ignore_trie.add(path)
+            if os.path.exists(path):
+                rich.print(f"[green]Ignoring anything in `{path}`.")
+
+        return _ignore
+
+    def __validate_filters(
+        self, quarto_filters: Iterable[pathlib.Path]
+    ) -> set[pathlib.Path]:
+        _quarto_filters = {
+            *(
+                pth
+                for pth in map(
+                    lambda item: (env.SCRIPTS / "filters" / item).resolve(),
+                    os.listdir(env.SCRIPTS / "filters"),
+                )
+                if pth.suffix == ".py"
+            ),
+            *quarto_filters,
+        }
+
+        for path in _quarto_filters:
+            if os.path.exists(path):
+                rich.print(f"[green]Watching filter `{path}`.")
+            else:
+                rich.print(
+                    f"[green]File `{path}` specified with `--quarto-verbose` does not exist."
+                )
+
+        return _quarto_filters
+
+    def is_ignored_path(self, path: pathlib.Path) -> bool:
+        # NOTE: Do not ignore filters that are being watched.
+        if path in self.quarto_filters:
+            return False
+
+        # NOTE: See if the path lies in ignore directories.
+        return self.ignore_trie.is_ignored(path)
 
 
 class HandleWrite:
     context: Context
 
+    _ignored: Annotated[
+        set[pathlib.Path], Doc("Cache for ``Context.is_ignored_path`` ")
+    ]
     tt_tolerance: Annotated[
         int,
         Doc("Acceptable time between writes. This is meant to make it easier."),
@@ -53,10 +178,6 @@ class HandleWrite:
         dict[str, pathlib.Path],
         Doc("Map of seen paths to their resolved paths."),
     ]
-    path_ignored: Annotated[
-        set[str],
-        Doc("Paths (from root) to ignore."),
-    ]
     path_last_qmd: Annotated[
         pathlib.Path | None,
         Doc(
@@ -64,23 +185,19 @@ class HandleWrite:
             "files to determine which qmd files to re-render."
         ),
     ]
+    suffixes = {".py", ".lua", ".qmd", ".html", ".yaml"}
 
     def __init__(
         self,
         context: Context,
         *,
-        tt_tolerance: int = 3,
-        path_ignored: set[str] | None = None,
+        tt_tolerance: int = 30,
     ):
 
         self.tt_tolerance = tt_tolerance
         self.tt_last = dict()
 
-        if path_ignored is None:
-            self.path_ignored = {"build", ".quarto", "_freeze", "site_libs"}
-        else:
-            self.path_ignored = path_ignored
-
+        self._ignored = set()
         self.path_memo = dict()
         self.path_last_qmd = None
         self.context = context
@@ -93,11 +210,11 @@ class HandleWrite:
         tt = time.time()
         tt_last = self.tt_last.get(path, 0)
 
-        if abs(tt - tt_last) < self.tt_tolerance:
-            return False
-
         self.tt_last[path] = tt
-        return True
+        if abs(tt - tt_last) < self.tt_tolerance:
+            return True
+
+        return False
 
     def get_path(self, event: FileSystemEvent):
         _path_str = str(event.src_path)
@@ -106,23 +223,14 @@ class HandleWrite:
 
         return self.path_memo[_path_str]
 
-    def is_ignored_path(self, path: pathlib.Path) -> bool:
-        # NOTE: Do not ignore filters that are being watched.
-        if path in self.context.quarto_filters:
-            return False
-
-        # NOTE: Ignore filters that are in any
-        path_rel = os.path.relpath(path, path_here)
-        top = path_rel.split("/")[0]
-
-        return top in self.path_ignored
-
     def get_time_modified(self, path: pathlib.Path):
         return datetime.fromtimestamp(self.tt_last[path]).strftime("%H:%M:%S")
 
-    def dispatch_qmd(self, path: pathlib.Path):
+    def dispatch_qmd(self, path: pathlib.Path, *, tt: str | None = None):
         error_output = env.BUILD / "error.txt"
-        tt = self.get_time_modified(path)
+        if tt is None:
+            tt = self.get_time_modified(path)
+
         rich.print(f"[green]{tt} -> Starting render for `{path}`.")
         out = subprocess.run(
             ["quarto", "render", str(path)],
@@ -145,19 +253,29 @@ class HandleWrite:
             print(out.stdout)
             print(out.stderr.decode())
 
-    def dispatch(self, event: FileSystemEvent) -> None:
-
+    def is_event_ignored(self, event: FileSystemEvent) -> pathlib.Path | None:
         # NOTE: Parse and memoize path, decide if ignored.
-        if event.event_type != "modified" or event.is_directory:
+        if event.event_type == "modified" or event.is_directory:
             return
 
         # NOTE: Resolve path from event and check if the event should be
-        #       ignored.
+        #       ignored - next check if the event originates from conform.nvim.
         path = self.get_path(event)
-        if self.is_ignored_path(path):
+        if path.suffix not in self.suffixes:
+            return
+        elif path in self._ignored:
+            return
+        elif self.context.is_ignored_path(path):
+            self._ignored.add(path)
+            return
+        elif self.event_from_conform(path):
             return
 
-        if self.event_from_conform(path):
+        return path
+
+    def dispatch(self, event: FileSystemEvent) -> None:
+
+        if (path := self.is_event_ignored(event)) is None:
             return
 
         # NOTE: If a qmd file was modified, then rerender the modified ``qmd``
@@ -166,14 +284,22 @@ class HandleWrite:
         if path.suffix == ".qmd":
             self.dispatch_qmd(path)
             self.path_last_qmd = path
-        elif path in self.context.quarto_filters and self.path_last_qmd is not None:
-
+        elif path in self.context.quarto_filters:
             tt = self.get_time_modified(path)
+            if self.path_last_qmd is None:
+                rich.print(
+                    f"[blue]{tt} -> Changes detected in filter `{path}`, no "
+                    "``qmd`` to reload."
+                )
+                return
+
             rich.print(
                 f"[blue]{tt} -> Changes detected in filter `{path}`, "
                 f"tiggering rerender of `{self.path_last_qmd}`."
             )
-            self.dispatch_qmd(self.path_last_qmd)
+            self.dispatch_qmd(self.path_last_qmd, tt=tt)
+        else:
+            self._ignored.add(path)
 
         # NOTE: Pain in the ass because of transient quarto html files.
         # elif path.suffix == ".html":
@@ -240,27 +366,6 @@ def callback(
         quarto_filters=quarto_filters,
     )
 
-    quarto_filters = [
-        *(
-            pth
-            for pth in map(
-                lambda item: env.SCRIPTS / "filters" / item,
-                os.listdir(env.SCRIPTS / "filters"),
-            )
-            if pth.suffix == ".py"
-        ),
-        *quarto_filters,
-    ]
-
-    for path in quarto_filters:
-
-        if os.path.exists(path):
-            rich.print(f"[green]Watching filter `{path}`.")
-        else:
-            rich.print(
-                f"[green]File `{path}` specified with `--quarto-verbose` does not exist."
-            )
-
 
 cli = typer.Typer(callback=callback)
 
@@ -278,6 +383,20 @@ def cmd_server(_context: typer.Context):
 
     threading.Thread(target=serve).start()
     threading.Thread(target=lambda: watch(context)).start()
+
+
+@cli.command("context")
+def cmd_context(_context: typer.Context):
+    context: Context = _context.obj
+
+    print("---")
+    print("# Ignore Trie")
+    print(yaml.dump(context.ignore_trie.dict(), indent=2))
+    print()
+    print("---")
+    print("# Additional Watched")
+    print(yaml.dump(list(map(str, context.quarto_filters))))
+    print()
 
 
 if __name__ == "__main__":

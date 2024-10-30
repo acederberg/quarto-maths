@@ -43,7 +43,6 @@ floaty:
           that this blog runs on and set up paripheral resources. I also use
           it to manage kubernetes resources, such as traefik and the error
           pages. <iconify-icon icon="logos:kubernetes"></iconify-icon>
-
       - image:
           iconify:
             set: logos
