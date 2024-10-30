@@ -8,7 +8,9 @@ logger = logging.getLogger(__name__)
 
 ENV_PREFIX = "ACEDERBERG_IO"
 
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
+SCRIPTS = ROOT / "scripts"
 BLOG = ROOT / "blog"
 BUILD = BLOG / "build"
 ICONS = BLOG / "icons"

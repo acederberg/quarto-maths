@@ -4,6 +4,112 @@ format:
   html:
     include-in-header:
       - file: ../../includes/overlay.html
+filters:
+  - floaty.py
+floaty:
+  blog-thank-you-tools:
+    size: 128px;
+    content:
+      - image:
+          iconify:
+            set: misc
+            name: quarto
+            label: Quarto
+            title: Quarto
+      - image:
+          iconify:
+            set: devicon
+            name: latex
+            label: Latex
+            title: Latex
+        description: |
+          Without TeX, I would have to write my resume in Microsoft word.
+          Since I do all of my work on a linux machine, I could have used libre
+          word, however I generally like not to use such tools since they do
+          not produce documents that play well with git
+          {{< iconify devicon git >}}.
+
+          **Using a GUI text editor - This is one of the few fates I believe to
+          be worse than death.**\n"
+      - image:
+          iconify:
+            set: devicon
+            name: pulumi
+            label: Pulumi
+            title: Pulumi
+        description: |
+          Pulumi is a great infrastructure as code tool available in most
+          popular lanugages. I use it to provision the kubernetes cluster
+          that this blog runs on and set up paripheral resources. I also use
+          it to manage kubernetes resources, such as traefik and the error
+          pages. <iconify-icon icon="logos:kubernetes"></iconify-icon>
+
+      - image:
+          iconify:
+            set: logos
+            name: github-icon
+            label: Github
+            title: Github
+      - image:
+          iconify:
+            set: devicon
+            name: git
+            label: Git
+            title: Git
+      - image:
+          iconify:
+            set: devicon
+            name: neovim
+            label: Neovim
+            title: Neovim
+      - image:
+          iconify:
+            set: devicon
+            name: python-wordmark
+            label: Python
+            title: Python
+      - image:
+          iconify:
+            set: devicon
+            name: nodejs-wordmark
+            label: Nodejs
+            title: Nodejs
+      - image:
+          iconify:
+            set: misc
+            name: mermaid
+            label: Mermaidjs
+            title: Mermaidjs
+      - image:
+          iconify:
+            set: logos
+            name: linode
+            label: Linode
+            title: Linode
+      - image:
+          iconify:
+            set: logos
+            name: kubernetes
+            label: Kubernetes
+            title: Kubernetes
+      - image:
+          iconify:
+            set: devicon
+            name: pandas-wordmark
+            label: Pandas
+            title: Pandas
+      - image:
+          iconify:
+            set: devicon
+            name: kaggle-wordmark
+            label: Kaggle
+            title: Kaggle
+      - image:
+          iconify:
+            set: devicon
+            name: docker-wordmark
+            label: Docker
+            title: Docker
 ---
 
 Here I discuss the implementation of this blog itself as it has been quite a project to do so.
@@ -30,37 +136,20 @@ Thank you to all of the contributors to the tools I have used that made this pos
 I cannot emphasize enought that without the tremendous efforts of the open source community (in particular) that this would not be possible at all.
 Click on any of the icons below to see a brief description of how each tool is utilitized here.
 
-::: { .floaty-container #blog-thank-you-tools }
-
-- {{< iconify misc quarto size=128px label=Quarto title=Quarto >}}
-- {{< iconify devicon tex size=128px label=Latex title=Latex >}}
-- {{< iconify devicon pulumi size=128px label=Pulumi title=Pulumi >}}
-- {{< iconify logos github-icon size=128px label=Github title=Github >}}
-- {{< iconify devicon git size=128px label=Git title=Git >}}
-- {{< iconify devicon neovim size=128px label=Neovim title=Neovim >}}
-- {{< iconify devicon python-wordmark size=128px label=Python title=Python >}}
-- {{< iconify devicon nodejs-wordmark size=128px label=Nodejs title=Nodejs >}}
-- {{< iconify misc mermaid size=128px label=Mermaidjs title=Mermaidjs >}}
-- {{< iconify logos linode size=128px label=Linode title=Linode >}}
-- {{< iconify logos kubernetes size=128px label=Kubernetes title=Kubernetes >}}
-- {{< iconify devicon pandas-wordmark size=128px label=Pandas title=Pandas >}}
-- {{< iconify devicon kaggle-wordmark size=128px label=Kaggle title=Kaggle >}}
-- {{< iconify devicon docker-wordmark size=128px label=Docker title=Docker >}}
+::: { #blog-thank-you-tools .floaty-container }
 
 :::
 
 <script>
-  let overlay_content_data = {
-    Pulumi: `
-      Pulumi is a great infrastructure as code tool available in most popular lanugages.
-      I use it to provision the kubernetes cluster that this blog runs on and set up paripheral resources.
-      I also use it to manage kubernetes resources, such as traefik and the error pages.
-      <iconify-icon icon="logos:kubernetes"></iconify-icon>
-    `,
-    Docker: `
-    `
-
-  }
+  /* 
+    NOTE: Want to render all of these directly into the overlay.
+          This will require that the filter injects the overlay.
+          Each floaty container will have its own overlay, which will have
+          its own toggles.
+          This overlay will hold all of the html, just most of it will be
+          hidden. I would like to think that this is cleaner than manipulating
+          the DOM like this.
+  */
   let overlay = document.getElementById("overlay")
   let overlay_content = document.getElementById("overlay-content")
 
@@ -111,7 +200,7 @@ Click on any of the icons below to see a brief description of how each tool is u
 
 Thank you to all of my reviewers for their hard work in reviewing and consulting:
 
-:::
+::: {}
 
 - [Chris "that Chris" Sanchez]()
 - John "Bud" Poston

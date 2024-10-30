@@ -221,7 +221,7 @@ def serve():
 
 
 FlagQuartoFilters = Annotated[
-    Optional[list[pathlib.Path]],
+    list[pathlib.Path],
     typer.Option("--quarto-filter"),
 ]
 FlagQuartoVerbose = Annotated[
@@ -233,16 +233,24 @@ FlagQuartoVerbose = Annotated[
 def callback(
     context: typer.Context,
     quarto_verbose: FlagQuartoVerbose = False,
-    quarto_filters: FlagQuartoFilters = None,
+    quarto_filters: FlagQuartoFilters = list(),
 ):
     context.obj = Context(
         quarto_verbose=quarto_verbose,
         quarto_filters=quarto_filters,
     )
 
-    # def verify(path: pathlib.Path) -> pathlib.Path:
-    if quarto_filters is None:
-        return None
+    quarto_filters = [
+        *(
+            pth
+            for pth in map(
+                lambda item: env.SCRIPTS / "filters" / item,
+                os.listdir(env.SCRIPTS / "filters"),
+            )
+            if pth.suffix == ".py"
+        ),
+        *quarto_filters,
+    ]
 
     for path in quarto_filters:
 

@@ -53,6 +53,7 @@ resume:
       icon: devicon:docker
       category: devops
 
+  portrait:
   sidebar:
     width: .2
     contact:
@@ -62,11 +63,25 @@ resume:
       - name: Email
         value: dude@place.org
         icon: hugeicons:mail-01
+    links:
+      - name: linkedin
+        href: https://www.linkedin.com/in/adrian-cederberg-b453571b9
+        icon: devicon:linkedin
+      - name: github
+        href: https://github.com/acederberg
+        icon: devicon:github
+      - name: blog
+        href: https://github.com
+        icon: devicon:home
 
     # NOTE: Skills are reusable for experience section and should be put in a
     #       list to ensure same order on render.
     skills: [cicd, lua, docker]
   body:
+    projects:
+      test_project:
+        title: "Test Project"
+        href: /projects
     experience:
       test_experience:
         title: "Test Title"
@@ -157,6 +172,18 @@ This text should show up under the "Some Place" experience header of level $3$.
 This text should show up under the "Some Place" experience header.
 
 :::
+
+::::
+
+:::: { #projects }
+
+This is some additional content in the projects section.
+
+::::
+
+:::: { #education }
+
+This is some additional content in the education section.
 
 ::::
 
