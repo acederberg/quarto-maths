@@ -34,8 +34,11 @@ class ConfigFloatyItem(pydantic.BaseModel):
 class ConfigFloatyItemImage(pydantic.BaseModel):
     image: ConfigFloatyItem
     description: Annotated[
-        str,
-        pydantic.Field(description="Description to be displayed in the overlay."),
+        str | None,
+        pydantic.Field(
+            description="Description to be displayed in the overlay.",
+            default=None,
+        ),
     ]
 
 
