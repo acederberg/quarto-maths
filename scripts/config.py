@@ -1,6 +1,5 @@
 import asyncio
 import json
-import logging
 import os
 import pathlib
 from datetime import datetime
@@ -13,7 +12,7 @@ import yaml
 
 from scripts import env
 
-logger = logging.getLogger(__name__)
+logger = env.create_logger(__name__)
 
 QUARTO = env.BLOG / "_quarto.yaml"
 QUARTO_VARIABLES = env.BLOG / "_variables.yaml"

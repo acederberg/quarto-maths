@@ -29,3 +29,15 @@
   transform: scale(1.1);
   filter: drop-shadow(16px 16px 16px rgba(0, 0, 0, 0.5));
 }
+
+
+#under-construction {
+  border: 5px solid red;
+  border-radius: 10px;
+}
+
+
+#under-construction-detail {
+  background: rgba(255, 0, 0, 0.1);
+  width: 100%;
+}

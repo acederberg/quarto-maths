@@ -96,16 +96,7 @@ class FilterFloaty(util.BaseFilter):
             {"floaty": doc.get_metadata("floaty")}  # type: ignore
         )
 
-    def floaty(self, element: pf.Element):
-        if not isinstance(element, pf.Div):
-            return element
-
-        if (
-            "floaty-wrapper" not in element.classes
-            or "floaty-ignore" in element.classes
-        ):
-            return element
-
+    def floaty_many(self, element: pf.Element):
         if element.identifier not in self.config.floaty:
             return element
 
@@ -140,7 +131,12 @@ class FilterFloaty(util.BaseFilter):
         return element
 
     def __call__(self, element: pf.Element):
-        return self.floaty(element)
+        if not isinstance(element, pf.Div):
+            return element
+
+        if "floaty-wrapper" in element.classes:
+            return self.floaty_many(element)
+        return element
 
 
 filter = util.create_run_filter(FilterFloaty)

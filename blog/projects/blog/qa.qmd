@@ -1,11 +1,10 @@
 ---
 title: How is the Blog Deployed?
 draft: true
-format:
-  html:
-    include-in-header:
-      - file: ./mermaid.html
 ---
+
+::: { #under-construction }
+:::
 
 ## Versioning and Fixing Workflow
 

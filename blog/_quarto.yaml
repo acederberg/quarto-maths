@@ -59,19 +59,28 @@ website:
                   href: ./projects/nvim-config/index.qmd
                 - title: Gallery
                   href: ./projects/nvim-config/gallery.qmd
-                - title: Configuration ReadMe
-                  href: ./projects/nvim-config/instructions.qmd
+                  # - title: Configuration ReadMe
+                  #   href: ./projects/nvim-config/instructions.qmd
 
 
 
             - text: '---'
             - section: Blog and Demo Automation
-              href: ./projects/automation
               contents:
                 - title: Blog and Demo Infrastructure as Code on Linode
-                  href: ./
-                - title: Github Actions
-                  href: ./projects/
+                  href: ./projects/automation/index.qmd
+
+                - title: Blog and Demo Github Actions
+                  href: ./projects/automation/actions.qmd
+
+            - text: '---'
+            - section: Captura
+              contents:
+                - title: What is Captura?
+                  href: ./projects/captura/index.qmd
+
+                - title: Projects I am Building onto of Captura
+                  href: ./projects/captura/about.qmd
 
   # NOTE: https://icons.getbootstrap.com/
   navbar:
@@ -113,6 +122,7 @@ author:
     email: adrn.cederberg123@gmail.com
 filters:
   - include-code-files
+  - iconify
 execute:
   freeze: true
   cache: true

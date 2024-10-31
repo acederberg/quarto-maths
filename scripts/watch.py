@@ -19,11 +19,7 @@ from watchdog.observers import Observer
 
 from scripts import env
 
-logging.basicConfig(
-    level=logging.WARNING, handlers=[RichHandler()], format="%(message)s"
-)
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger = env.create_logger(__name__)
 
 
 # NOTE: This is possible with globs, but I like practicing DSA.
@@ -146,6 +142,7 @@ class Context:
             env.BLOG / "includes",
             env.BLOG / "templates",
             env.BLOG / "themes",
+            env.BLOG / "_quaro.yaml",
         )
 
         return assets_trie

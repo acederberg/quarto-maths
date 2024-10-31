@@ -11,7 +11,7 @@ If you know me, you know I love containerization and linux - lately I've also be
 Luckily for myself my blog uses exactly these tools.
 
 In another blog post, I will eventually describe what happens within github actions {{< iconify logos github-actions >}}
-to automate this build and trigger the necessary rollout in `kubernetes` {{< inconify logos kubernetes >}}.
+to automate this build and trigger the necessary rollout in `kubernetes` {{< iconify logos kubernetes >}}.
 
 ## {{< iconify logos docker-icon >}} The Dockerfile
 

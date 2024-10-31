@@ -110,7 +110,7 @@ to direct internet traffic to the services:
 ### `Deployment`s and `Service`s
 
 The `Deployment` and `Service` resources here are described in my blog
-post [static sites in kubernetes](./posts/quarto-kube-static/index.qmd).
+post [static sites in kubernetes](../../posts/quarto-kube-static/index.qmd).
 What you are seeing here is just the result of `quarto render`.
 
 ### Architecture

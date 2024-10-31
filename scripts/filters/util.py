@@ -24,9 +24,8 @@ def print_to_log(log_file: pathlib.Path):
 class BaseFilter(abc.ABC):
 
     doc: pf.Doc
-    config: pydantic.BaseModel
 
-    filter_config_cls: ClassVar[type[pydantic.BaseModel]]
+    filter_config_cls: ClassVar[type[pydantic.BaseModel] | None]
     filter_name: ClassVar[str]
     filter_log: ClassVar[pathlib.Path]
 
@@ -38,11 +37,6 @@ class BaseFilter(abc.ABC):
         if getattr(cls, "filter_name", None) is None:
             raise AttributeError(
                 f"Missing attribute `filter_name` of `{cls.__name__}`."
-            )
-
-        if getattr(cls, "filter_config_cls", None) is None:
-            raise AttributeError(
-                f"Missing attribute `filter_config_cls` of `{cls.__name__}`."
             )
 
         cls.filter_log = env.BUILD / f"{cls.filter_name}.txt"
