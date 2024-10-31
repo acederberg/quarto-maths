@@ -2,6 +2,7 @@
 
 /* .floaty-container { } */
 
+.floaty-container-single,
 .floaty-container ul {
   padding: 0px;
   align-items: center;
@@ -11,17 +12,20 @@
   flex-wrap: wrap;
 }
 
-.floaty-container li .floaty,
+.floaty iconify-icon,
 .floaty-container li iconify-icon {
-  filter: drop-shadow(8px 8px 4px rgba(0, 0, 0, 0.5));
-  height: 192px;
-  width: 192px;
-  padding: 32px;
+  filter: drop-shadow(16px 16px 8px rgba(0, 0, 0, 0.5));
   transition: all 1s;
+  padding: 32px;
 }
 
-.floaty-container li .floaty:hover,
+.floaty-container li iconify-icon {
+  height: 192px;
+  width: 192px;
+}
+
+.floaty iconify-icon:hover,
 .floaty-container li iconify-icon:hover {
   transform: scale(1.1);
-  filter: drop-shadow(8px 8px 16px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(16px 16px 16px rgba(0, 0, 0, 0.5));
 }

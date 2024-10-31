@@ -15,13 +15,20 @@ floaty:
             set: misc
             name: quarto
             label: Quarto
-            title: Quarto
+        title: Quarto
+        description: |
+          Quarto is an excellent code notebook built on top of pandoc.
+          It can convert ``.qmd`` documents to
+          <iconify-icon icon="devicon:latex"></iconify-icon> ``latex``,
+          <iconify-icon icon="devicon:html5"></iconify-icon> ``html``, and more.
+          It is the backbone of this project and most of the documents
+          presented are rendered ``.qmd`` documents and some pandoc filters.
       - image:
           iconify:
             set: devicon
             name: latex
             label: Latex
-            title: Latex
+        title: Latex
         description: |
           Without TeX, I would have to write my resume in Microsoft word.
           Since I do all of my work on a linux machine, I could have used libre
@@ -30,13 +37,13 @@ floaty:
           {{< iconify devicon git >}}.
 
           **Using a GUI text editor - This is one of the few fates I believe to
-          be worse than death.**\n"
+          be worse than death.**
       - image:
           iconify:
             set: devicon
             name: pulumi
             label: Pulumi
-            title: Pulumi
+        title: Pulumi
         description: |
           Pulumi is a great infrastructure as code tool available in most
           popular lanugages. I use it to provision the kubernetes cluster
@@ -48,67 +55,95 @@ floaty:
             set: logos
             name: github-icon
             label: Github
-            title: Github
+        title: Github
+        description: |
+          Github is where I host all of my code.
       - image:
           iconify:
             set: devicon
             name: git
             label: Git
-            title: Git
+        title: Git
+        description: |
+          Git is a fantastic tool for version control.
+          Without version control, software development would be very tedious.
+          It allows me to make experimental changes and revert to my last point
+          in my work and maintain multiple working versions of the same
+          project.
       - image:
           iconify:
             set: devicon
             name: neovim
             label: Neovim
-            title: Neovim
+        title: Neovim
+        description: |
+          My favorite tool for text editing.
       - image:
           iconify:
             set: devicon
             name: python-wordmark
             label: Python
-            title: Python
+        title: Python
+        description: |
+          The primary language I use in my quarto notebooks.
       - image:
           iconify:
             set: devicon
             name: nodejs-wordmark
             label: Nodejs
-            title: Nodejs
+        title: Nodejs
+        description: |
+          My server uses ``http-server`` to deliver these html pages.
       - image:
           iconify:
             set: misc
             name: mermaid
             label: Mermaidjs
-            title: Mermaidjs
+        title: Mermaidjs
+        description: |
+          For making some terrific diagrams.
       - image:
           iconify:
             set: logos
             name: linode
             label: Linode
-            title: Linode
+        title: Linode
+        description: |
+          This is where the servers live.
       - image:
           iconify:
             set: logos
             name: kubernetes
             label: Kubernetes
-            title: Kubernetes
+        title: Kubernetes
+        description: |
+          This is where the containers run.
       - image:
           iconify:
             set: devicon
             name: pandas-wordmark
             label: Pandas
-            title: Pandas
+        title: Pandas
+        description: |
+          This is my favorite tool for loading an manipulating datasets in
+          python {{< iconify devicon python >}}.
       - image:
           iconify:
             set: devicon
             name: kaggle-wordmark
             label: Kaggle
-            title: Kaggle
+        title: Kaggle
+        description: |
+          The data science competition platform.
       - image:
           iconify:
             set: devicon
             name: docker-wordmark
             label: Docker
-            title: Docker
+        title: Docker
+        description: |
+          The containerization technology used to gaurentee consistent builds
+          in github actions and a uniform development environment.
 ---
 
 Here I discuss the implementation of this blog itself as it has been quite a project to do so.
@@ -135,7 +170,7 @@ Thank you to all of the contributors to the tools I have used that made this pos
 I cannot emphasize enought that without the tremendous efforts of the open source community (in particular) that this would not be possible at all.
 Click on any of the icons below to see a brief description of how each tool is utilitized here.
 
-::::: { #thank-you-tools .floaty-container }
+::::: { #thank-you-tools .floaty-wrapper }
 
 :::::
 
@@ -157,7 +192,15 @@ Working with web pages offers much more flexibility a features than using paper 
 
 ### About `leetcode`
 
-![Leetcode logo](/icons/leetcode/default.svg){fig-align="center" width="256px"}
+::: { #leetcode-icon .floaty-container-single }
+
+::: { .floaty }
+
+{{< iconify misc leetcode-02 size=256px >}}
+
+:::
+
+:::
 
 Data structures and algorithms is a useful subject matter to be knowledgable about in computer science and software.
 Additionally, the subject matter is frequently quized in SDE technical interviews.
@@ -166,7 +209,15 @@ I also wanted to have a record of the problem which I had done and to take more 
 
 ### About the Resume
 
-![Quarto logo](/icons/quarto.svg){fig-align=center width=256px}
+::: { #leetcode-icon .floaty-container-single }
+
+::: { .floaty }
+
+{{< iconify misc quarto size=256px >}}
+
+:::
+
+:::
 
 I thought it might be helpful to have all of the resumes I distribute contain a link to the most recent version of [my resume](/resume).
 To make this possible, I would have to host it somewhere and thought my blog would be the most suitable place.
@@ -181,7 +232,15 @@ This came with a number of benefits, such as
 
 ### About the Projects
 
-![Github logo](/icons/github.svg){fig-align=center width=256px}
+::: { #leetcode-icon .floaty-container-single }
+
+::: { .floaty }
+
+{{< iconify devicon github size=256px >}}
+
+:::
+
+:::
 
 I've made a few projects (including this blog) which I wanted to showcase here.
 Each of these will have their own page dedicated them, and should be available in the sidebar.

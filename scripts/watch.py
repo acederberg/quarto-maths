@@ -1,14 +1,13 @@
 import contextlib
 import http.server as http_server
 import logging
-import os
 import pathlib
 import socket
 import subprocess
 import threading
 import time
 from datetime import datetime
-from typing import Annotated, Iterable, Optional
+from typing import Annotated, Iterable
 
 import rich
 import typer
@@ -28,10 +27,18 @@ logger.setLevel(logging.DEBUG)
 
 
 # NOTE: This is possible with globs, but I like practicing DSA.
-class IgnoreNode:
+class Node:
 
     children: dict[str, Self]
     is_end: bool
+
+    @classmethod
+    def fromPaths(cls, *paths: pathlib.Path):
+        root = Node(False)
+        for path in paths:
+            root.add(path)
+
+        return root
 
     def __init__(self, is_end: bool):
         self.children = dict()
@@ -55,7 +62,7 @@ class IgnoreNode:
         node.is_end = True
         path.resolve()
 
-    def is_ignored(self, path: pathlib.Path | str) -> bool:
+    def has_prefix(self, path: pathlib.Path | str) -> bool:
         # NOTE: If the path encounters an end, it is ignored.
 
         if isinstance(path, str):
@@ -93,85 +100,88 @@ class IgnoreNode:
 class Context:
     quarto_render: bool
     quarto_verbose: bool
-    quarto_filters: set[pathlib.Path]  # Use this to watch filter files.
+
+    quarto_filters: Annotated[Node, Doc("Trie for matching watched filters.")]
+    quarto_assets: Annotated[Node, Doc("Trie for matching watched assets.")]
     ignore: Annotated[
-        set[pathlib.Path],
-        Doc("Absolute paths to ignore."),
-    ]
-    ignore_trie: Annotated[
-        IgnoreNode,
+        Node,
         Doc("Trie for matching ignored paths."),
     ]
+
+    # ignore: Annotated[
+    #     set[pathlib.Path],
+    #     Doc("Absolute paths to ignore."),
+    # ]
 
     def __init__(
         self,
         quarto_verbose: bool = False,
         quarto_filters: Iterable[pathlib.Path] | None = None,
         quarto_render: bool = True,
+        quarto_assets: Iterable[pathlib.Path] | None = None,
         ignore: Iterable[pathlib.Path] | None = None,
     ):
         self.quarto_render = quarto_render
         self.quarto_verbose = quarto_verbose
         self.quarto_filters = self.__validate_filters(quarto_filters or set())
+        self.quarto_assets = self.__validate_assets(quarto_assets or set())
 
-        self.ignore_trie = IgnoreNode(False)
         self.ignore = self.__validate_ignore(ignore or set())
 
     def dict(self):
         out = {
-            "ignore_trie": self.ignore_trie.dict(),
-            "quarto_filters": list(map(str, self.quarto_filters)),
+            "ignore_trie": self.ignore.dict(),
+            "quarto_filters": self.quarto_filters.dict(),
+            "quarto_assets": self.quarto_assets.dict(),
             "quarto_render": self.quarto_render,
             "quarto_verbose": self.quarto_verbose,
         }
         return out
 
-    def __validate_ignore(self, ignore: Iterable[pathlib.Path]) -> set[pathlib.Path]:
+    def __validate_assets(self, assets: Iterable[pathlib.Path]) -> Node:
 
-        logger.debug("Validating `Context.ignore`.")
-        _ignore = (
-            set(map(lambda item: pathlib.Path(item).resolve(), ignore))
-            | set(
-                map(
-                    lambda item: (env.BLOG / item).resolve(),
-                    ("build", ".quarto", "_freeze", "site_libs"),
-                )
-            )
-            | set(map(lambda item: (env.ROOT / item).resolve(), (".git", ".venv")))
+        logger.debug("Validating `context.quarto_assets`.")
+        assets_trie = Node.fromPaths(
+            *assets,
+            env.BLOG / "includes",
+            env.BLOG / "templates",
+            env.BLOG / "themes",
         )
 
-        logger.debug("Assembling `context.ignore_trie`.")
-        for path in _ignore:
-            self.ignore_trie.add(path)
+        return assets_trie
 
-        return _ignore
+    def __validate_ignore(self, ignore: Iterable[pathlib.Path]) -> Node:
+        logger.debug("Validating `Context.ignore`.")
+        return Node.fromPaths(
+            *ignore,
+            env.BLOG / "build",
+            env.BLOG / ".quarto",
+            env.BLOG / "_freeze",
+            env.BLOG / "site_libs",
+            env.ROOT / ".git",
+            env.ROOT / ".venv",
+        )
 
     def __validate_filters(
-        self, quarto_filters: Iterable[pathlib.Path]
-    ) -> set[pathlib.Path]:
+        self,
+        filters: Iterable[pathlib.Path],
+    ) -> Node:
         logger.debug("Validating `context.filters`.")
-        _quarto_filters = {
-            *(
-                pth
-                for directory in (env.SCRIPTS, env.BLOG)
-                for pth in map(
-                    lambda item: (directory / "filters" / item).resolve(),
-                    os.listdir(directory / "filters"),
-                )
-                if pth.suffix in {".py", ".lua"}
-            ),
-            *quarto_filters,
-        }
-
-        return _quarto_filters
+        return Node.fromPaths(
+            *filters,
+            env.SCRIPTS / "filters",
+            env.BLOG / "filters",
+        )
 
     def is_ignored_path(self, path: pathlib.Path) -> bool:
         # NOTE: Do not ignore filters that are being watched.
-        if path in self.quarto_filters:
+        if self.quarto_filters.has_prefix(path):
+            return False
+        elif self.quarto_assets.has_prefix(path):
             return False
 
         # NOTE: See if the path lies in ignore directories.
-        return self.ignore_trie.is_ignored(path)
+        return self.ignore.has_prefix(path)
 
 
 class BlogHandler(FileSystemEventHandler):
@@ -201,7 +211,7 @@ class BlogHandler(FileSystemEventHandler):
             "files to determine which qmd files to re-render."
         ),
     ]
-    suffixes = {".py", ".lua", ".qmd", ".html", ".yaml"}
+    suffixes = {".py", ".lua", ".qmd", ".html", ".yaml", ".html", ".css"}
 
     def __init__(
         self,
@@ -312,12 +322,14 @@ class BlogHandler(FileSystemEventHandler):
         if path.suffix == ".qmd":
             self.render_qmd(path)
             self.path_last_qmd = path
-        elif path in self.context.quarto_filters:
+        elif self.context.quarto_filters.has_prefix(
+            path
+        ) or self.context.quarto_assets.has_prefix(path):
             tt = self.get_time_modified(path)
             if self.path_last_qmd is None:
                 logger.info("No render to dispatch from changes in `%s`.", path)
                 rich.print(
-                    f"[blue]{tt} -> Changes detected in filter `{path}`, no "
+                    f"[blue]{tt} -> Changes detected in `{path}`, no "
                     "``qmd`` to reload."
                 )
                 return
@@ -328,7 +340,7 @@ class BlogHandler(FileSystemEventHandler):
                 path,
             )
             rich.print(
-                f"[blue]{tt} -> Changes detected in filter `{path}`, "
+                f"[blue]{tt} -> Changes detected in `{path}`, "
                 f"tiggering rerender of `{self.path_last_qmd}`."
             )
             self.render_qmd(self.path_last_qmd, tt=tt)
@@ -408,6 +420,7 @@ def callback(
 
 
 cli = typer.Typer(callback=callback)
+cli.add_typer(cli_context := typer.Typer(), name="context")
 
 
 @cli.command("render")
@@ -425,12 +438,23 @@ def cmd_server(_context: typer.Context):
     threading.Thread(target=lambda: watch(context)).start()
 
 
-@cli.command("context")
+@cli_context.command("show")
 def cmd_context(_context: typer.Context):
     context: Context = _context.obj
 
     print("---")
     print(yaml.dump(context.dict()))
+
+
+@cli_context.command("test")
+def cmd_test(
+    _context: typer.Context,
+    paths: Annotated[list[pathlib.Path], typer.Argument()],
+):
+    context: Context = _context.obj
+    for path in paths:
+        path = path.resolve()
+        print(context.is_ignored_path(path), path)
 
 
 if __name__ == "__main__":
