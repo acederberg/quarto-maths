@@ -8,7 +8,7 @@ filters:
   - ../../filters/floaty.py
 floaty:
   thank-you-tools:
-    size: 128px;
+    size: 128 # px
     content:
       - image:
           iconify:

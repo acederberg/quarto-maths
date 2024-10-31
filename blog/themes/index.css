@@ -91,31 +91,6 @@
   display: none !important;
 }
 
-#resume-contact {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: var(--bs-blue);
-}
-
-#resume-contact a,
-#resume-contact p {
-  margin-right: 32px;
-  display: inline;
-  text-decoration: none;
-}
-
-#resume-contact .break {
-  margin-left: auto;
-}
-
-#resume-contact a i {
-  margin: 0px;
-  height: 1em;
-  width: 1em;
-}
-
-
 .table {
   border-top: none !important;
   border-bottom: none !important;

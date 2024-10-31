@@ -1,6 +1,6 @@
 import contextlib
 import http.server as http_server
-import logging
+import os
 import pathlib
 import socket
 import subprocess
@@ -10,9 +10,10 @@ from datetime import datetime
 from typing import Annotated, Iterable
 
 import rich
+import rich.syntax
+import rich.table
 import typer
 import yaml
-from rich.logging import RichHandler
 from typing_extensions import Doc, Self
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
@@ -45,6 +46,8 @@ class Node:
         if isinstance(path, str):
             path = pathlib.Path(path)
 
+        path = path.resolve()
+
         node = self
         for item in path.parts:
             if item == "/":
@@ -63,6 +66,8 @@ class Node:
 
         if isinstance(path, str):
             path = pathlib.Path(path)
+
+        path = path.resolve()
 
         node = self
         for item in path.parts:
@@ -142,7 +147,10 @@ class Context:
             env.BLOG / "includes",
             env.BLOG / "templates",
             env.BLOG / "themes",
-            env.BLOG / "_quaro.yaml",
+            env.BLOG / "_quarto.yaml",
+            env.BLOG / "resume/template.tex",
+            env.BLOG / "resume/title.tex",
+            env.BLOG / "resume/resume.yaml",
         )
 
         return assets_trie
@@ -157,6 +165,8 @@ class Context:
             env.BLOG / "site_libs",
             env.ROOT / ".git",
             env.ROOT / ".venv",
+            env.BLOG / "resume/test.tex",
+            env.BLOG / "resume/index.tex",
         )
 
     def __validate_filters(
@@ -208,13 +218,13 @@ class BlogHandler(FileSystemEventHandler):
             "files to determine which qmd files to re-render."
         ),
     ]
-    suffixes = {".py", ".lua", ".qmd", ".html", ".yaml", ".html", ".css"}
+    suffixes = {".py", ".lua", ".qmd", ".html", ".yaml", ".html", ".css", ".tex"}
 
     def __init__(
         self,
         context: Context,
         *,
-        tt_tolerance: int = 3,
+        tt_tolerance: int = 5,
     ):
 
         self.tt_tolerance = tt_tolerance
@@ -286,10 +296,12 @@ class BlogHandler(FileSystemEventHandler):
 
         return False
 
-    def is_event_ignored(self, event: FileSystemEvent) -> pathlib.Path | None:
+    def is_event_ignored(
+        self, v: FileSystemEvent | pathlib.Path
+    ) -> pathlib.Path | None:
         # NOTE: Resolve path from event and check if the event should be
         #       ignored - next check if the event originates from conform.nvim.
-        path = self.get_path(event)
+        path = v if isinstance(v, pathlib.Path) else self.get_path(v)
         if path in self._ignored:
             logger.debug("Ignored `%s` since it has already been ignored.", path)
         elif self.context.is_ignored_path(path):
@@ -401,6 +413,14 @@ FlagQuartoVerbose = Annotated[
     bool,
     typer.Option("--quarto-verbose"),
 ]
+FlagQuartoAsset = Annotated[
+    list[pathlib.Path],
+    typer.Option("--quarto-asset"),
+]
+FlagIgnore = Annotated[
+    list[pathlib.Path],
+    typer.Option("--ignore"),
+]
 
 
 def callback(
@@ -408,11 +428,15 @@ def callback(
     quarto_verbose: FlagQuartoVerbose = False,
     quarto_filters: FlagQuartoFilters = list(),
     quarto_render: FlagQuartoRender = True,
+    quarto_assets: FlagQuartoAsset = list(),
+    ignore: FlagIgnore = list(),
 ):
     context.obj = Context(
         quarto_verbose=quarto_verbose,
         quarto_filters=quarto_filters,
         quarto_render=quarto_render,
+        quarto_assets=quarto_assets,
+        ignore=ignore,
     )
 
 
@@ -436,22 +460,67 @@ def cmd_server(_context: typer.Context):
 
 
 @cli_context.command("show")
-def cmd_context(_context: typer.Context):
+def cmd_context_show(_context: typer.Context):
     context: Context = _context.obj
 
-    print("---")
-    print(yaml.dump(context.dict()))
+    s = rich.syntax.Syntax(
+        "---\n" + yaml.dump(context.dict()),
+        "yaml",
+        theme="fruity",
+        background_color="default",
+    )
+    rich.print(s)
 
 
 @cli_context.command("test")
-def cmd_test(
+def cmd_context_test(
     _context: typer.Context,
     paths: Annotated[list[pathlib.Path], typer.Argument()],
+    max_depth: int = 3,
+    max_rows: int = 50,
 ):
     context: Context = _context.obj
-    for path in paths:
-        path = path.resolve()
-        print(context.is_ignored_path(path), path)
+    watcher = BlogHandler(context)
+
+    t = rich.table.Table(title="Ignored Paths")
+    t.add_column("Path")
+    t.add_column("Ignored by ``is_ignored_path``")
+    t.add_column("Ignored by ``is_ignored_event``")
+
+    def add_paths(paths: Iterable[pathlib.Path], depth=0, rows=0) -> int:
+        """Returns the numver of rows encountered so far so that the table
+        is of unreasonable size, e.g. listing something stupid."""
+
+        if depth > max_depth:
+            return rows
+
+        for path in paths:
+            if rows > max_rows:
+                break
+
+            path = path.resolve()
+            if os.path.isdir(path):
+                rows = add_paths(
+                    map(
+                        lambda item: (path / item).resolve(),
+                        os.listdir(path),
+                    ),
+                    depth=depth + 1,
+                    rows=rows,
+                )
+            else:
+                t.add_row(
+                    str(p := path.resolve()),
+                    str(context.is_ignored_path(p)),
+                    str(watcher.is_event_ignored(p) is None),
+                    str(depth),
+                )
+                rows += 1
+
+        return rows
+
+    add_paths(paths)
+    rich.print(t)
 
 
 if __name__ == "__main__":

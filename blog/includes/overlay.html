@@ -1,5 +1,6 @@
 <script>
-  function Overlay(name) {
+
+  function Overlay(name, li_margin) {
     let parent = document.getElementById(name)
     let floaty_container = document.getElementsByClassName("floaty-container")[0]
     let overlay = Array.from(parent.getElementsByClassName("overlay"))[0]
@@ -28,8 +29,26 @@
       }
     }
 
+    function setListItemSize(icon){
+      const size = parseInt(icon.style['font-size'])
+
+      // NOTE: This makes it so that size should always be specified in pixels.
+      const li = icon.closest("li")
+      if (li){
+        li.style.height = `${size}px`
+        li.style.width = `${size}px`
+        console.log(li_margin, size)
+        li.style.margin = `${li_margin || (size / 4)}px`
+      }
+    }
+
+
+
     let icons = Array.from(floaty_container.getElementsByTagName("iconify-icon"))
-    icons.map(icon => icon.addEventListener("click", onClickIcon(icon)))
+    icons.map(icon => {
+      icon.addEventListener("click", onClickIcon(icon))
+      setListItemSize(icon)
+    })
 
 
     // NOTE: For now, clicking anywhere on the overlay should hide it.

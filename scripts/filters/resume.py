@@ -3,7 +3,7 @@ from typing import Annotated
 import panflute as pf
 import pydantic
 
-from scripts.filters import util
+from scripts.filters import floaty, util
 
 
 class ConfigExperience(pydantic.BaseModel):
@@ -18,15 +18,19 @@ class ConfigBody(pydantic.BaseModel):
     experience: dict[str, ConfigExperience]
 
 
-class ConfigContact(pydantic.BaseModel):
-    name: str
+class ConfigContactItem(floaty.ConfigFloatyItem):
     value: str
-    icon: str
+
+
+# NOTE: This should look like ``ConfigFloatySection``.
+# class ConfigContact(floaty.ConfigFloatySection[ConfigContactItem]):
+#     size: int
+#     content: list[ConfigContactItem]
 
 
 class ConfigSidebar(pydantic.BaseModel):
     width: Annotated[float, pydantic.Field(lt=1, gt=0, default=0.35)]
-    contact: list[ConfigContact]
+    contact: floaty.ConfigFloatySection[ConfigContactItem]
     skills: list[str]
 
 
@@ -58,30 +62,43 @@ class FilterResume(util.BaseFilter):
         self.doc = doc
         self.config = ConfigResume.model_validate(doc.get_metadata("resume"))
 
-    def hydrate_contact_item(self, config: ConfigContact):
-
-        # iconify = "{{< iconify " + " ".join(config.icon.split(":")) + " >}}"
-
-        if self.doc.format == "html":
-            return pf.TableRow(
-                pf.TableCell(pf.Para(self.hydrate_icon(config.icon))),
-                pf.TableCell(pf.Para(pf.Str(config.value))),
-            )
-
-        return pf.TableRow(pf.TableCell(pf.Para(pf.Str(config.value))))
+    # def hydrate_contact_item(self, config: ConfigContactItem):
+    #
+    #     # iconify = "{{< iconify " + " ".join(config.icon.split(":")) + " >}}"
+    #
+    #     if self.doc.format == "html":
+    #         return pf.TableRow(
+    #             pf.TableCell(pf.Para(self.hydrate_icon(config.icon))),
+    #             pf.TableCell(pf.Para(pf.Str(config.value))),
+    #         )
+    #
+    #     return pf.TableRow(pf.TableCell(pf.Para(pf.Str(config.value))))
+    # self.config.sidebar.contact.hydrate_html(element)
+    # elif self.doc.format == "latex":
+    #     contact_list = pf.Table(
+    #         pf.TableBody(
+    #             *(
+    #                 self.hydrate_contact_item(contact_config)
+    #                 for contact_config in self.config.sidebar.contact
+    #             ),
+    #         ),
+    #     )
 
     def hydrate_contact(self, element: pf.Element):
+        if self.doc.format == "html":
+            contact = self.config.sidebar.contact.hydrate_html(
+                pf.Div(
+                    identifier="contact",
+                    classes=["floaty"],
+                )
+            )
+        else:
+            contact = pf.Para(pf.Str("Paceholder content"))
+        #
         element.content = (
             pf.Header(pf.Str("Contact"), level=2),
             *element.content,
-            pf.Table(
-                pf.TableBody(
-                    *(
-                        self.hydrate_contact_item(contact_config)
-                        for contact_config in self.config.sidebar.contact
-                    ),
-                ),
-            ),
+            contact,
         )
 
         return element

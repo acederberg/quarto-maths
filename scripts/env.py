@@ -47,7 +47,7 @@ def require(varname: str, default: str | None = None) -> str:
 
 def create_logger(name: str):
 
-    level = require("level", "WARNING")
+    level = require("log_level", "WARNING")
     logger = logging.getLogger(name)
     logger.setLevel(level)
 

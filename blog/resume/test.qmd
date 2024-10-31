@@ -10,6 +10,8 @@ format:
   html:
     toc: false
     page-layout: full
+    include-in-header:
+      - file: ../includes/overlay.html
   pdf:
     template: template.tex
     keep-tex: true
@@ -57,12 +59,33 @@ resume:
   sidebar:
     width: .2
     contact:
-      - name: Phone
-        value: (111) 111 - 1111
-        icon: hugeicons:smart-phone-01
-      - name: Email
-        value: dude@place.org
-        icon: hugeicons:mail-01
+      size: 32 #px;
+      li_amargin: 32 #px
+      include_titles: true
+      include_overlay: true
+      content:
+        - title: Phone
+          value: (111) 111 - 1111
+          description: |
+            I am available by phone Monday - Friday, 8 AM - 4 PM MST.
+            If I can not pick up, please feel free to leave a voice mail.
+          image:
+            iconify:
+              set: hugeicons
+              name: smart-phone-01
+              label: Phone
+        - title: Email
+          value: dude@place.org
+          description: |
+            This is my email address for work.
+            Please do not send me spam.
+            Only send me legitimage inquiries.
+            If I do not get back to you right away and you need me to just call.
+          image:
+            iconify:
+              set: hugeicons
+              name: mail-01
+              label: Email
     links:
       - name: linkedin
         href: https://www.linkedin.com/in/adrian-cederberg-b453571b9
