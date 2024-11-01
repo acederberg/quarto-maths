@@ -1,3 +1,4 @@
+from datetime import date, datetime, timedelta
 from typing import Annotated
 
 import panflute as pf
@@ -21,6 +22,20 @@ class ConfigBody(pydantic.BaseModel):
 class ConfigContactItem(floaty.ConfigFloatyItem):
     value: str
 
+    def hydrate_iconify_tr(self, *args, **kwargs):
+        extra = pf.TableCell(pf.Para(pf.Str(self.value)))
+        return super().hydrate_iconify_tr(
+            *args,
+            cells_extra=[extra],
+            **kwargs,
+        )
+
+
+class ConfigSkillsItem(floaty.ConfigFloatyItem):
+
+    since: date
+    category: str
+
 
 # NOTE: This should look like ``ConfigFloatySection``.
 # class ConfigContact(floaty.ConfigFloatySection[ConfigContactItem]):
@@ -31,19 +46,10 @@ class ConfigContactItem(floaty.ConfigFloatyItem):
 class ConfigSidebar(pydantic.BaseModel):
     width: Annotated[float, pydantic.Field(lt=1, gt=0, default=0.35)]
     contact: floaty.ConfigFloatySection[ConfigContactItem]
-    skills: list[str]
-
-
-class ConfigSkills(pydantic.BaseModel):
-    display_name: str
-    display_description: Annotated[str | None, pydantic.Field(default=None)]
-    experience: str
-    # icon: Any
-    category: str
+    skills: floaty.ConfigFloatySection[ConfigSkillsItem]
 
 
 class ConfigResume(pydantic.BaseModel):
-    skills: dict[str, ConfigSkills]
     sidebar: ConfigSidebar
     body: ConfigBody
 
@@ -88,7 +94,7 @@ class FilterResume(util.BaseFilter):
         if self.doc.format == "html":
             contact = self.config.sidebar.contact.hydrate_html(
                 pf.Div(
-                    identifier="contact",
+                    identifier="_contact",
                     classes=["floaty"],
                 )
             )
@@ -99,6 +105,26 @@ class FilterResume(util.BaseFilter):
             pf.Header(pf.Str("Contact"), level=2),
             *element.content,
             contact,
+        )
+
+        return element
+
+    def hydrate_skills(self, element: pf.Element):
+        # NOTE: Adding both results in broken overlays.
+        if self.doc.format == "html":
+            skills = self.config.sidebar.skills.hydrate_html(
+                pf.Div(
+                    identifier="_skills",
+                    classes=["floaty"],
+                )
+            )
+        else:
+            skills = pf.Para(pf.Str("Placeholder content."))
+
+        element.content = (
+            pf.Header(pf.Str("Skills"), level=2),
+            *element.content,
+            skills,
         )
 
         return element
@@ -115,13 +141,6 @@ class FilterResume(util.BaseFilter):
             pf.Header(pf.Str("Projects"), level=2),
             *element.content,
         )
-        return element
-
-    def hydrate_skills(self, element: pf.Element):
-        element.content = pf.ListContainer(
-            pf.Header(pf.Str("Skills"), level=2), *element.content
-        )
-
         return element
 
     def hydrate_experience(self, element: pf.Element):

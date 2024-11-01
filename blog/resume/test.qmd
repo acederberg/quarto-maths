@@ -22,47 +22,16 @@ format-links:
   - text: tex
     href: ./test.tex
 resume:
-  skills:
-    cicd:
-      display_name: CI/CD
-      display_description: Continuous Integration and Deployment
-      experience: 4 Years
-      icon: "{{< iconify devicon github-actions >}}"
-      category: devops
-    lua:
-      display_name: Lua
-      experience: 1 Year
-      icon: devicon:lua
-      category: language
-    quarto:
-      display_name: Quarto
-      experience: 4 months
-      icon: devicon:quarto
-      category: language
-    pandoc:
-      display_name: Pandoc
-      experience: 4 months
-      icon: devicon:pandoc
-      category: tool
-    jupyter:
-      display_name: Jupyter
-      experience: 2 years
-      icon: devicon:jupyter
-      category: tool
-    docker:
-      display_name: Docker
-      experience: 4 years
-      icon: devicon:docker
-      category: devops
-
   portrait:
   sidebar:
     width: .2
     contact:
+      info_text: Click any row to learn more about each contact method.
       size: 32 #px;
-      li_amargin: 32 #px
+      li_margin: 32 #px
       include_titles: true
       include_overlay: true
+      kind: table
       content:
         - title: Phone
           value: (111) 111 - 1111
@@ -86,6 +55,83 @@ resume:
               set: hugeicons
               name: mail-01
               label: Email
+        - title: Carrier Pigeon
+          value: Bert
+          description: |
+            Bert is my carrier pigeon.
+            Find bert and tell him what you need me to hear.
+            He can talk, he just won't talk to you because he is shy.
+          image:
+            iconify:
+              set: misc
+              name: birds
+              label: Carrier Pigeon
+    skills:
+      info_text: Click on any icon to learn more about any particular skill.
+      size: 64
+      li_margin: 16
+      include_titles: true
+      include_overlay: true
+      kind: list
+      content:
+        - title: CI/CD
+          since: 2021-05-01
+          description: Continuous Integration and Deployment
+          category: devops
+          image:
+            iconify:
+              set: logos
+              name: github-actions
+              label: Continuous Integration and Deployment
+        - title: Lua
+          since: 2022-11-01
+          category: languages
+          description: |
+            Lua is a language that I have used because it the language used to
+            configure ``nvim``. It is also used to write ``pandoc`` filters.
+          image:
+            iconify:
+              set: devicon
+              name: lua
+              label: Lua
+        - title: Quarto
+          since: 2024-07-01
+          category: tools
+          description: |
+            Quarto powers this document.
+          image:
+            iconify:
+              set: misc
+              name: quarto
+              label: Lua
+        - title: Terraform
+          since: 2022-05-01
+          category: tools
+          description: Infrastructure as code.
+          image:
+            iconify:
+              set: devicon
+              name: terraform
+              label: Terraform
+        - title: Python
+          since: 2017-08-01
+          category: tool
+          description: Python is my favorite language.
+          image:
+            iconify:
+              set: devicon
+              name: python
+              label: Python
+        - title: Docker
+          since: 2021-03-01
+          category: devops
+          description: Docker is a powerful containerization tool.
+          image:
+            iconify:
+              set: devicon
+              name: docker
+              label: Docker
+
     links:
       - name: linkedin
         href: https://www.linkedin.com/in/adrian-cederberg-b453571b9
@@ -99,7 +145,7 @@ resume:
 
     # NOTE: Skills are reusable for experience section and should be put in a
     #       list to ensure same order on render.
-    skills: [cicd, lua, docker]
+    # skills: [cicd, lua, docker]
   body:
     projects:
       test_project:
@@ -162,7 +208,7 @@ This is additional content in the skills section!
 
 :::
 
-::: {#contact}
+::: { #contact }
 
 This is additional content in contacts section! Just put content in this fenced
 div to add any addition paragraphs.
@@ -213,3 +259,7 @@ This is some additional content in the education section.
 :::::
 
 ::::::
+
+```
+
+```

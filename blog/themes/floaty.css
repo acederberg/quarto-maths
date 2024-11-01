@@ -12,6 +12,41 @@
   flex-wrap: wrap;
 }
 
+.floaty-info {
+  width: 100%;
+}
+
+.floaty-info p {
+  text-align: center;
+  color: var(--bs-gray-100);
+  filter: blur(4px);
+  transition: filter 2s, color 2s;
+}
+
+/* .floaty:hover>.floaty-info, */
+.floaty:hover>.floaty-info p {
+  color: var(--bs-gray-600);
+  filter: blur(0) drop-shadow(4px 4px 8px rgba(0, 0, 0, 0.1));
+}
+
+
+
+.floaty-container table,
+.floaty-container tr,
+.floaty-container td {
+  border: none;
+}
+
+.floaty-container tr {
+  transition: all 0.5s;
+}
+
+.floaty-container tr:hover {
+  background: var(--bs-gray-200);
+  color: var(--bs-blue);
+  transform: scale(1.01);
+}
+
 
 /* DO NOT SET HEIGHTS OR WIDTHS OF li or iconify-icon HERE! IT IS DONE BY JS TO PREVENT JITTER! */
 .floaty iconify-icon,

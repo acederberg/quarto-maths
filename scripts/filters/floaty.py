@@ -1,4 +1,4 @@
-from typing import Annotated, Generic, TypeVar
+from typing import Annotated, Generic, Iterable, Literal, TypeVar
 
 import panflute as pf
 import pydantic
@@ -30,8 +30,20 @@ class ConfigFloatyItem(pydantic.BaseModel):
         res = self.hydrate_iconify(*args, **kwargs)
         return pf.ListItem(pf.Para(res))
 
-    def hydrate_iconify_tr(self, *args, **kwargs):
-        return
+    def hydrate_iconify_tr(
+        self, *args, cells_extra: Iterable[pf.TableCell] | None = None, **kwargs
+    ):
+
+        kwargs["inline"] = False
+
+        cells = (
+            pf.TableCell(self.hydrate_iconify(*args, **kwargs)),
+            pf.TableCell(pf.Para(pf.Str(self.title))),
+        )
+        if cells_extra is not None:
+            cells = (*cells, *cells_extra)
+
+        return pf.TableRow(*cells)
 
     def hydrate_iconify(
         self,
@@ -86,10 +98,15 @@ T_ConfigFloatySection = TypeVar("T_ConfigFloatySection", bound=ConfigFloatyItem)
 
 
 class ConfigFloatySection(pydantic.BaseModel, Generic[T_ConfigFloatySection]):
+    info_text: Annotated[
+        str,
+        pydantic.Field(default="Click on any of the icons to see more."),
+    ]
     size: int
     size_margin: Annotated[int | None, pydantic.Field(default=None)]
     include_overlay: Annotated[bool, pydantic.Field(default=True)]
     include_titles: Annotated[bool, pydantic.Field(default=False)]
+    kind: Annotated[Literal["table", "list"], pydantic.Field(default="list")]
 
     content: list[T_ConfigFloatySection]
 
@@ -116,24 +133,52 @@ class ConfigFloatySection(pydantic.BaseModel, Generic[T_ConfigFloatySection]):
         )
         return element
 
-    def hydrate_html(self, element: pf.Element):
-        config = self
-        list_content = (
-            config_image.hydrate_iconify_li(config.size, key)
-            for key, config_image in enumerate(config.content)
+    def hydrate_html_list(self, element: pf.Element):
+        list_items = (
+            config_image.hydrate_iconify_li(self.size, key)
+            for key, config_image in enumerate(self.content)
         )
 
         element.content = (
-            pf.Div(
-                pf.BulletList(*list_content),
-                classes=["floaty-container"],
-            ),
+            pf.Div(pf.BulletList(*list_items), classes=["floaty-container"]),
             *element.content,
         )
 
         if self.include_overlay:
-            element = config.hydrate_html_overlay(element)
+            element = self.hydrate_html_overlay(element)
 
+        return element
+
+    def hydrate_html_table(self, element: pf.Element):
+
+        table_rows = (
+            config_image.hydrate_iconify_tr(self.size, key)
+            for key, config_image in enumerate(self.content)
+        )
+
+        element.content = (
+            pf.Div(
+                pf.Table(pf.TableBody(*table_rows)),
+                classes=["floaty-container"],
+            ),
+            *element.content,
+        )
+        if self.include_overlay:
+            element = self.hydrate_html_overlay(element)
+
+        return element
+
+    def hydrate_html(self, element: pf.Element):
+        if self.kind == "list":
+            element = self.hydrate_html_list(element)
+        else:
+            element = self.hydrate_html_table(element)
+
+        note = pf.Div(
+            pf.Para(pf.Str(self.info_text)),
+            classes=["floaty-info"],
+        )
+        element.content.append(note)
         return element
 
 
@@ -158,12 +203,11 @@ class FilterFloaty(util.BaseFilter):
         if not isinstance(element, pf.Div):
             return element
 
-        if element.identifier not in self.config.floaty:
+        if element.identifier not in self.config.floaty or self.doc.format != "html":
             return element
 
         config = self.config.floaty[element.identifier]
-        if self.doc.format == "html" and "floaty-wrapper" in element.classes:
-            element = config.hydrate_html(element)
+        element = config.hydrate_html(element)
 
         return element
 
