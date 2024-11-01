@@ -22,13 +22,15 @@ format-links:
   - text: tex
     href: ./test.tex
 resume:
-  portrait:
   sidebar:
-    width: .2
+    tex_width: .2
+    headshot:
+      url: https://avatars.githubusercontent.com/u/77076023?v=4
+      title: Headshot
+      description: Its'a Me!
     contact:
       info_text: Click any row to learn more about each contact method.
-      size: 32 #px;
-      li_margin: 32 #px
+      size: 24 #px;
       include_titles: true
       include_overlay: true
       kind: table
@@ -133,15 +135,37 @@ resume:
               label: Docker
 
     links:
-      - name: linkedin
-        href: https://www.linkedin.com/in/adrian-cederberg-b453571b9
-        icon: devicon:linkedin
-      - name: github
-        href: https://github.com/acederberg
-        icon: devicon:github
-      - name: blog
-        href: https://github.com
-        icon: devicon:home
+      size: 24
+      info_text: Click on any of the icons to open in a new tab.
+      include_overlay: false
+      type: list
+      content:
+        - title: Linkedin
+          href: https://www.linkedin.com/in/adrian-cederberg-b453571b9
+          description: My profile on linkedin.
+          image:
+            iconify:
+              set: devicon
+              name: linkedin
+              label: Linkedin
+
+        - title: Github
+          href: https://github.com/acederberg
+          description: My github account.
+          image:
+            iconify:
+              set: devicon
+              name: github
+              label: Github
+
+        - title: Blog
+          href: https://acederberg.io
+          description: My Blog
+          image:
+            iconify:
+              set: hugeicons
+              name: house-01
+              label: Blog
 
     # NOTE: Skills are reusable for experience section and should be put in a
     #       list to ensure same order on render.
@@ -188,25 +212,37 @@ resume:
 #   type: tool
 ---
 
-```{=html}
-<style>
-  #resume-sidebar {
-    padding-right: 16px;
-  }
-</style>
-```
-
 :::::: { #resume }
 
 <!-- Sidebar ----------------------------------------------------------------->
 
-:::: { #resume-sidebar .test }
+::::: { #resume-sidebar .columns }
 
-::: {#skills}
+This is a section about how great I am.
+I am the absolute best, my name is SumDood and I am fron Whereverville, Whatever State.
+My background is in in doing whatever boss man tells me.
+I am an excellent employee as I just take orders without question.
+You should give me your money since:
 
-This is additional content in the skills section!
+- I am more productive than any other human in existence.
+- Have a 10,000kg deadlift, 8,000kg squat, and better endurance than David Goggins.
+- I am perfect and optimamal in every way, even in ways that are in fact contradictory.
+
+:::: {.column width=49% }
+
+::: { #headshot }
 
 :::
+
+::: { #links }
+
+This is some additional content in the links section.
+
+:::
+
+::::
+
+:::: { .column width=49% }
 
 ::: { #contact }
 
@@ -215,9 +251,23 @@ div to add any addition paragraphs.
 
 :::
 
+::: { #skills }
+
+This is additional content in the skills section! I've got mad skills fool.
+
+:::
+
 ::::
 
+:::::
+
 ::::: { #resume-body }
+
+::: { #projects }
+
+This is some additional content in the experience section.
+
+:::
 
 :::: { #experience }
 

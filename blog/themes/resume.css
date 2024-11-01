@@ -1,39 +1,59 @@
 /*-- scss:rules --*/
 
-#resume-contact {
-  color: var(--bs-blue);
-  background: var(--bs-gray-200);
+/* #resume-contact { */
+/*   color: var(--bs-blue); */
+/*   background: var(--bs-gray-200); */
+/* } */
+/**/
+/* #resume-contact ul { */
+/*   display: flex; */
+/*   align-items: center; */
+/*   justify-content: space-between; */
+/*   list-style: none; */
+/* } */
+/**/
+/**/
+/* #resume-contact ul, */
+/* #resume-contact li, */
+/* #resume-contact p { */
+/*   width: 100%; */
+/*   height: 100%; */
+/*   padding: 0px; */
+/*   margin: 0px; */
+/* } */
+/**/
+/* #resume-contact p { */
+/*   text-align: center; */
+/* } */
+/**/
+/* #resume-contact ul li { */
+/*   flex-grow: 1; */
+/**/
+/*   display: flex; */
+/*   align-items: center; */
+/*   justify-content: space-between; */
+/* } */
+
+#resume #headshot img {
+  border-radius: 50% !important;
 }
 
-#resume-contact ul {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  list-style: none;
+#resume #resume-sidebar h2 {
+  border: none;
+  font-size: large;
 }
 
-
-#resume-contact ul,
-#resume-contact li,
-#resume-contact p {
-  width: 100%;
-  height: 100%;
-  padding: 0px;
-  margin: 0px;
+#resume #resume-sidebar p {
+  font-size: medium;
 }
 
-#resume-contact p {
+#resume #resume-sidebar #links p {
   text-align: center;
 }
 
-#resume-contact ul li {
-  flex-grow: 1;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+#resume #resume-sidebar #links h2 {
+  display: none;
 }
-
 
 /* #resume-contact a, */
 /* #resume-contact p { */

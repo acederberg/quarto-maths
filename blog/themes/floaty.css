@@ -51,7 +51,7 @@
 /* DO NOT SET HEIGHTS OR WIDTHS OF li or iconify-icon HERE! IT IS DONE BY JS TO PREVENT JITTER! */
 .floaty iconify-icon,
 .floaty-container li iconify-icon {
-  filter: drop-shadow(16px 16px 8px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(8px 8px 8px rgba(0, 0, 0, 0.5));
   transition: all 1s;
 }
 
@@ -59,7 +59,7 @@
 .floaty iconify-icon:hover,
 .floaty-container li iconify-icon:hover {
   transform: scale(1.1);
-  filter: drop-shadow(16px 16px 16px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(8px 8px 16px rgba(0, 0, 0, 0.5));
 }
 
 

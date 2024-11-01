@@ -1,5 +1,5 @@
-from datetime import date, datetime, timedelta
-from typing import Annotated
+from datetime import date
+from typing import Annotated, Callable
 
 import panflute as pf
 import pydantic
@@ -31,22 +31,24 @@ class ConfigContactItem(floaty.ConfigFloatyItem):
         )
 
 
+# TODO: Skillbar to take up row on hover (and in overlay).
 class ConfigSkillsItem(floaty.ConfigFloatyItem):
-
     since: date
     category: str
 
 
-# NOTE: This should look like ``ConfigFloatySection``.
-# class ConfigContact(floaty.ConfigFloatySection[ConfigContactItem]):
-#     size: int
-#     content: list[ConfigContactItem]
+class ConfigHeadshot(pydantic.BaseModel):
+    url: Annotated[str, pydantic.Field()]
+    title: Annotated[str, pydantic.Field()]
+    description: Annotated[str, pydantic.Field()]
 
 
 class ConfigSidebar(pydantic.BaseModel):
-    width: Annotated[float, pydantic.Field(lt=1, gt=0, default=0.35)]
+    tex_width: Annotated[float, pydantic.Field(lt=1, gt=0, default=0.35)]
+    headshot: Annotated[ConfigHeadshot, pydantic.Field()]
     contact: floaty.ConfigFloatySection[ConfigContactItem]
     skills: floaty.ConfigFloatySection[ConfigSkillsItem]
+    links: floaty.ConfigFloatySection[floaty.ConfigFloatyItem]
 
 
 class ConfigResume(pydantic.BaseModel):
@@ -63,10 +65,21 @@ class FilterResume(util.BaseFilter):
 
     config: ConfigResume
     doc: pf.Doc
+    identifier_to_hydrate: dict[str, Callable[[pf.Element], pf.Element]]
 
     def __init__(self, doc: pf.Doc):
         self.doc = doc
         self.config = ConfigResume.model_validate(doc.get_metadata("resume"))
+
+        self.identifier_to_hydrate = {
+            "contact": self.hydrate_contact,
+            "skills": self.hydrate_skills,
+            "headshot": self.hydrate_headshot,
+            "experience": self.hydrate_experience,
+            "projects": self.hydrate_projects,
+            "education": self.hydrate_education,
+            "links": self.hydrate_links,
+        }
 
     # def hydrate_contact_item(self, config: ConfigContactItem):
     #
@@ -91,6 +104,7 @@ class FilterResume(util.BaseFilter):
     #     )
 
     def hydrate_contact(self, element: pf.Element):
+        """Sidebar skills."""
         if self.doc.format == "html":
             contact = self.config.sidebar.contact.hydrate_html(
                 pf.Div(
@@ -110,6 +124,8 @@ class FilterResume(util.BaseFilter):
         return element
 
     def hydrate_skills(self, element: pf.Element):
+        """Sidebar skills."""
+
         # NOTE: Adding both results in broken overlays.
         if self.doc.format == "html":
             skills = self.config.sidebar.skills.hydrate_html(
@@ -129,16 +145,64 @@ class FilterResume(util.BaseFilter):
 
         return element
 
-    def hydrate_education(self, element: pf.Element):
+    def hydrate_headshot(self, element: pf.Element):
+        """Sidebar headshot."""
+
+        config = self.config.sidebar.headshot
+        if self.doc.format == "html":
+            headshot = pf.Plain(
+                pf.Image(
+                    url=config.url,
+                    title=config.title,
+                    classes=["p-5"],
+                )
+            )
+
+        else:
+            headshot = pf.Para(pf.Str("Paceholder content"))
+
+        element.content = (headshot, *element.content)
+        return element
+
+    def hydrate_links(self, element: pf.Element):
+        """Sidebar links."""
+
+        if self.doc.format == "html":
+            links = self.config.sidebar.links.hydrate_html(
+                pf.Div(identifier="_links", classes=["floaty"])
+            )
+
+        else:
+            links = pf.Para(pf.Str("Paceholder content"))
+
         element.content = (
-            pf.Header(pf.Str("Education"), level=2),
+            pf.Header(pf.Str("Links"), level=2),
             *element.content,
+            links,
         )
         return element
 
     def hydrate_projects(self, element: pf.Element):
+        """Body projects."""
+        # if self.doc.format == "html":
+        #     projects = self.config.sidebar.projects.hydrate_html(
+        #         pf.Div(identifier="_projects", classes=["floaty"])
+        #     )
+        # else:
+        #     projects = pf.Para(pf.Str("Paceholder content"))
+
         element.content = (
             pf.Header(pf.Str("Projects"), level=2),
+            *element.content,
+            # projects,
+        )
+        return element
+
+    def hydrate_education(self, element: pf.Element):
+        """Body education."""
+
+        element.content = (
+            pf.Header(pf.Str("Education"), level=2),
             *element.content,
         )
         return element
@@ -147,7 +211,6 @@ class FilterResume(util.BaseFilter):
         element.content = pf.ListContainer(
             pf.Header(pf.Str("Experience"), level=2), *element.content
         )
-
         return element
 
     def hydrate_icon(self, icon: str):
@@ -245,7 +308,7 @@ class FilterResume(util.BaseFilter):
 
         elif self.doc.format == "latex":
 
-            size = self.config.sidebar.width
+            size = self.config.sidebar.tex_width
             if element.identifier == "resume-sidebar":
                 element.content = (
                     pf.RawBlock(
@@ -286,22 +349,10 @@ class FilterResume(util.BaseFilter):
 
         element = self.layout(element)
 
-        if element.identifier == "contact":
-            return self.hydrate_contact(element)
+        if element.identifier in self.identifier_to_hydrate:
+            return self.identifier_to_hydrate[element.identifier](element)
 
-        elif element.identifier == "skills":
-            return self.hydrate_skills(element)
-
-        elif element.identifier == "experience":
-            return self.hydrate_experience(element)
-
-        elif element.identifier == "projects":
-            return self.hydrate_projects(element)
-
-        elif element.identifier == "education":
-            return self.hydrate_education(element)
-
-        elif "experience" in element.classes:
+        if "experience" in element.classes:
             return self.hydrate_experience_item(element)
 
         return element

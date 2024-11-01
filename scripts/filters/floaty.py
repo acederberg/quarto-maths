@@ -9,8 +9,8 @@ from scripts.filters import util
 class ConfigFloatyItemIconify(pydantic.BaseModel):
     set_: Annotated[str, pydantic.Field(alias="set")]
     name: str
-    label: str
     size: Annotated[int | None, pydantic.Field(default=None)]
+    label: Annotated[str | None, pydantic.Field(default=None)]
 
 
 class ConfigFloatyItemImage(pydantic.BaseModel):
@@ -19,15 +19,29 @@ class ConfigFloatyItemImage(pydantic.BaseModel):
 
 class ConfigFloatyItem(pydantic.BaseModel):
     image: ConfigFloatyItemImage
+    href: Annotated[
+        str | None,
+        pydantic.Field(
+            "A link to go to when clicked on. Should open in a new tab."
+            "Will be ignored when an overlay is included."
+        ),
+    ]
     # name: str
     title: str
+
+    # TODO: It might be better to put the overlay directly in the document so
+    #       that overlay content can be written a quarto directly.
+    # TODO: This belongs in a separate overlay section.
     description: Annotated[
         str,
         pydantic.Field(description="Description to be displayed in the overlay."),
     ]
 
-    def hydrate_iconify_li(self, *args, **kwargs):
+    def hydrate_iconify_li(self, *args, include_link: bool, **kwargs):
         res = self.hydrate_iconify(*args, **kwargs)
+        if include_link and self.href is not None:
+            res = pf.Link(res, url=self.href)
+
         return pf.ListItem(pf.Para(res))
 
     def hydrate_iconify_tr(
@@ -57,7 +71,7 @@ class ConfigFloatyItem(pydantic.BaseModel):
         # NOTE: Font size MUST be in pixels for JS to ensure list item resize.
         attrs = (
             f'icon="{self.image.iconify.set_}:{self.image.iconify.name}"',
-            f"aria-label={self.image.iconify.label}",
+            f"aria-label={self.image.iconify.label or self.title}",
             f"title={self.title}",
             f"style='font-size: {self.image.iconify.size or size}px;'",
             f"data-key={key}",
@@ -103,39 +117,52 @@ class ConfigFloatySection(pydantic.BaseModel, Generic[T_ConfigFloatySection]):
         pydantic.Field(default="Click on any of the icons to see more."),
     ]
     size: int
-    size_margin: Annotated[int | None, pydantic.Field(default=None)]
+    li_margin: Annotated[int | None, pydantic.Field(default=None)]
+
+    # TODO: This should just be included by having a fenced div ``overlay-content``
+    #       with a header for each item.
     include_overlay: Annotated[bool, pydantic.Field(default=True)]
+
+    # TODO: Add titles list type.
     include_titles: Annotated[bool, pydantic.Field(default=False)]
     kind: Annotated[Literal["table", "list"], pydantic.Field(default="list")]
 
     content: list[T_ConfigFloatySection]
 
-    def hydrate_html_overlay(self, element: pf.Element):
+    def hydrate_html_js(self, element: pf.Element):
         closure_name = "overlay_" + element.identifier.lower().replace("-", "_")
-        size_margin = (
-            f"'{self.size_margin}px'" if self.size_margin is not None else "null"
-        )
-        js = f"let {closure_name} = Overlay('{ element.identifier }', {size_margin})"
+
+        li_margin = f"'{self.li_margin}px'" if self.li_margin is not None else "null"
+        kwargs = f"{{ li_margin: {li_margin} }}"
+        js = f"let {closure_name} = Floaty('{ element.identifier }', {kwargs})"
+
+        if self.include_overlay:
+            element.content = (
+                *element.content,
+                pf.Div(
+                    pf.Div(
+                        *(
+                            item.hydrate_overlay_content_item(self.size, key)
+                            for key, item in enumerate(self.content)
+                        ),
+                        classes=["overlay-content"],
+                    ),
+                    classes=["overlay"],
+                ),
+            )
 
         element.content = (
             *element.content,
-            pf.Div(
-                pf.Div(
-                    *(
-                        item.hydrate_overlay_content_item(self.size, key)
-                        for key, item in enumerate(self.content)
-                    ),
-                    classes=["overlay-content"],
-                ),
-                classes=["overlay"],
-            ),
             pf.RawBlock(f"<script>{js}</script>"),
         )
         return element
 
     def hydrate_html_list(self, element: pf.Element):
+        # NOTE: Links are only ever included when the overlay is not present.
         list_items = (
-            config_image.hydrate_iconify_li(self.size, key)
+            config_image.hydrate_iconify_li(
+                self.size, key, include_link=not self.include_overlay
+            )
             for key, config_image in enumerate(self.content)
         )
 
@@ -143,9 +170,6 @@ class ConfigFloatySection(pydantic.BaseModel, Generic[T_ConfigFloatySection]):
             pf.Div(pf.BulletList(*list_items), classes=["floaty-container"]),
             *element.content,
         )
-
-        if self.include_overlay:
-            element = self.hydrate_html_overlay(element)
 
         return element
 
@@ -163,8 +187,6 @@ class ConfigFloatySection(pydantic.BaseModel, Generic[T_ConfigFloatySection]):
             ),
             *element.content,
         )
-        if self.include_overlay:
-            element = self.hydrate_html_overlay(element)
 
         return element
 
@@ -174,11 +196,12 @@ class ConfigFloatySection(pydantic.BaseModel, Generic[T_ConfigFloatySection]):
         else:
             element = self.hydrate_html_table(element)
 
-        note = pf.Div(
+        self.hydrate_html_js(element)
+        info = pf.Div(
             pf.Para(pf.Str(self.info_text)),
             classes=["floaty-info"],
         )
-        element.content.append(note)
+        element.content.append(info)
         return element
 
 

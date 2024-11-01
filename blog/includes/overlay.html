@@ -1,21 +1,10 @@
 <script>
+  // If an overlay is found, add controls.
+  function FloatyOverlay(overlay){
+    let overlay_content = overlay.querySelector(".overlay-content")
+    if (!overlay_content) throw Error("Could not find overlay content.")
 
-  function Overlay(name, li_margin) {
-    let parent = document.getElementById(name)
-    let floaty_container = parent.getElementsByClassName("floaty-container")[0]
-    let overlay = Array.from(parent.getElementsByClassName("overlay"))[0]
-    let overlay_content = Array.from(parent.getElementsByClassName("overlay-content"))[0]
     let overlay_content_children = Array.from(overlay_content.getElementsByClassName("overlay-content-item"))
-
-    // console.log("===================================")
-    // console.log(name)
-    // console.log(parent)
-    // console.log(floaty_container)
-    // console.log(overlay)
-
-    if (!floaty_container) { console.error(`Could not find floaty.`) }
-    if (!overlay) { console.error(`Could not find overlay for \`${name}\`.`) }
-    if (!overlay_content) { console.error(`Could not find overlay_content for \`${name}\`.`) }
 
     function hideOverlay() {
       overlay.style.display = "none";
@@ -35,6 +24,23 @@
       }
     }
 
+    hideOverlay(name)
+    overlay.addEventListener("click", hideOverlay)
+
+    return { hideOverlay, showOverlay, overlay, overlay_content, overlay_content_children, onClick }
+  }
+
+  // Set up floaty with ``id=name``.
+  function Floaty(name, {li_margin}) {
+    let parent = document.getElementById(name)
+    if (!parent) throw Error(`Could not find element with name \`${name}\`.`)
+
+    let floaty_container = parent.querySelector(".floaty-container")
+    if (!floaty_container) throw Error(`Could not find element with name \`${floaty_container}\`.`)
+
+    let overlay = parent.querySelector(".overlay")
+    overlay_controls = !overlay ? null : FloatyOverlay(overlay)
+
     function setListItemSize(icon_in_li){
       const size = parseInt(icon_in_li.style['font-size'])
 
@@ -43,7 +49,7 @@
       if (li){
         li.style.height = `${size}px`
         li.style.width = `${size}px`
-        li.style.margin = `${li_margin || (size / 4)}px`
+        li.style.margin = li_margin || `${(size / 4)}px`
       }
     }
 
@@ -51,17 +57,15 @@
     {
       let ul = parent.querySelector(".floaty-container ul")
       let table = parent.querySelector(".floaty-container table")
-      // console.log("ul", ul)
-      // console.log("table", table)
       if (table) {
         icons.map(icon => {
-          icon.closest("tr").addEventListener("click", onClick(icon))
+          if (overlay) icon.closest("tr").addEventListener("click", overlay_controls.onClick(icon))
         })
       }
       else if (ul) {
         icons.map(icon => {
-          icon.addEventListener("click", onClick(icon))
-          if (ul) setListItemSize(icon)
+          if (overlay) icon.addEventListener("click", overlay_controls.onClick(icon))
+          setListItemSize(icon)
         })
       }
       else {
@@ -72,13 +76,10 @@
 
     // NOTE: For now, clicking anywhere on the overlay should hide it.
     let icons = Array.from(floaty_container.getElementsByTagName("iconify-icon"))
-
     setOnClick(icons)
 
-    hideOverlay(name)
-    overlay.addEventListener("click", hideOverlay)
 
-    return { icons, hideOverlay, showOverlay, overlay, overlay_content, overlay_content_children }
+    return { icons, overlay }
   }
 
 </script>
