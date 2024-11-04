@@ -89,6 +89,8 @@ class ConfigFloatyItem(pydantic.BaseModel):
         self,
         size: int,
         key: int,
+        *,
+        _parent: "ConfigFloatySection",
     ):
         """Should make content to put in overlay-content"""
 
@@ -168,7 +170,11 @@ class ConfigFloatySection(pydantic.BaseModel, Generic[T_ConfigFloatySection]):
                     # TODO: This should just be included by having a fenced div ``overlay-content``
                     #       with a header for each item.
                     *(
-                        item.hydrate_overlay_content_item(self.overlay.size_icon, key)
+                        item.hydrate_overlay_content_item(
+                            self.overlay.size_icon,
+                            key,
+                            _parent=self,
+                        )
                         for key, item in enumerate(self.content)
                     ),
                     classes=["overlay-content"],

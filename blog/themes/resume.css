@@ -27,3 +27,12 @@
   padding: 0px;
   margin: 0px;
 }
+
+#resume .progress {
+  height: 32px;
+}
+
+#resume .progress .progress-bar {
+  font-size: large !important;
+  text-align: left !important;
+}

@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime, timedelta
 from typing import Annotated, Callable
 
 import panflute as pf
@@ -123,10 +123,83 @@ class ConfigContactItem(floaty.ConfigFloatyItem):
         )
 
 
+TODAY = date.today()
+
+
 # TODO: Skillbar to take up row on hover (and in overlay).
 class ConfigSkillsItem(floaty.ConfigFloatyItem):
     since: date
     category: str
+    progress_classes: Annotated[
+        list,
+        pydantic.Field(
+            default_factory=lambda: [
+                "bg-warning",
+                "progress-bar-animated",
+                "progress-bar-striped",
+            ]
+        ),
+    ]
+
+    @pydantic.computed_field
+    @property
+    def duration(self) -> timedelta:
+        diff = TODAY - self.since
+        return diff
+
+    def hydrate_progress_bar(self, _parent: "ConfigSkills"):
+        percent = (100 * self.duration.days) // _parent.duration.days
+
+        _n_years = self.duration.days // 365
+        _n_months = (self.duration.days % 365) // 31
+
+        content_str = []
+        if _n_years:
+            content_str.append(f"{_n_years} Years")
+        if _n_months:
+            content_str.append(f"{_n_months} Months")
+
+        return pf.Div(
+            pf.Div(
+                pf.RawBlock(", ".join(content_str)),
+                classes=["progress-bar", "px-2", *self.progress_classes],
+                attributes={"style": f"width: {percent}%;"},
+            ),
+            classes=["progress", "my-5"],
+            attributes={
+                "aria-valuenow": str(self.duration.days),
+                "aria-valuemin": "0",
+                "aria-valuemax": str(_parent.duration.days),
+                "role": "progressbar",
+            },
+        )
+
+    def hydrate_overlay_content_item(
+        self,
+        size: int,
+        key: int,
+        *,
+        _parent: "ConfigSkills",
+    ):
+        el = super().hydrate_overlay_content_item(size, key, _parent=_parent)
+        el.content.insert(2, self.hydrate_progress_bar(_parent))
+        el.content.insert(
+            3,
+            pf.Plain(
+                pf.Strong(pf.Str("Since "), pf.Str(self.since.strftime("%B, %Y"))),
+            ),
+        )
+
+        return el
+
+
+class ConfigSkills(floaty.ConfigFloatySection[ConfigSkillsItem]):
+
+    @pydantic.computed_field
+    @property
+    def duration(self) -> timedelta:
+        vv = max(self.content, key=lambda item: item.duration)  # type: ignore
+        return vv.duration
 
 
 class ConfigHeadshot(pydantic.BaseModel):
@@ -139,7 +212,7 @@ class ConfigSidebar(pydantic.BaseModel):
     tex_width: Annotated[float, pydantic.Field(lt=1, gt=0, default=0.35)]
     headshot: Annotated[ConfigHeadshot, pydantic.Field()]
     contact: floaty.ConfigFloatySection[ConfigContactItem]
-    skills: floaty.ConfigFloatySection[ConfigSkillsItem]
+    skills: ConfigSkills
     links: floaty.ConfigFloatySection[floaty.ConfigFloatyItem]
 
 

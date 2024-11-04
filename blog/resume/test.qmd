@@ -12,11 +12,11 @@ format:
     page-layout: full
     include-in-header:
       - file: ../includes/overlay.html
-  pdf:
-    template: template.tex
-    keep-tex: true
-    template-partials:
-      - ./title.tex
+        # pdf:
+        #   template: template.tex
+        #   keep-tex: true
+        #   template-partials:
+        #     - ./title.tex
 
 format-links:
   - text: tex
@@ -352,9 +352,7 @@ section will contain educations and skills.
 
 :::: { #resume-skills .column width=50% }
 
-This is additional content in the skills section! I've got mad skills fool.
-I want to use [bootstrap progress](https://getbootstrap.com/docs/5.3/components/progress/)
-to progress indicators to the overlay.
+This is additional content in the skills section!
 
 ::::
 
@@ -380,7 +378,7 @@ This is some additional content in the education section.
 This is some additional content in the projects section.
 
 <!-- Stop Projects ---> :::
-<!-- Start Projects --> :::: { #resume-experience }
+<!-- Start Experience --> :::: { #resume-experience }
 
 This is some additional text in the `experience` section.
 
