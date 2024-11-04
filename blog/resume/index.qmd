@@ -1,5 +1,16 @@
 ---
 title: Resume
+format:
+  html:
+    toc: false
+    include-in-header:
+      - file: ../includes/overlay.html
+        # pdf:
+        #   template: template.tex
+        #   keep-tex: true
+        #   template-partials:
+        #     - ./title.tex
+
 filters:
   - ../filters/resume.py
 resume:
@@ -10,18 +21,125 @@ resume:
       url: https://avatars.githubusercontent.com/u/77076023?v=4
       title: Headshot
       description: Its'a Me!
+    skills:
+      container:
+        size_item: 64
+        type: list
+      tooltip:
+        text: Click to learn more about my experience.
+      overlay:
+        include: true
+        size_icon: 256
+      content:
+        - title: Software Implementation and Architecture
+          since: 2017-08-01
+          description: |
+            I have been seriously writing code since about 2017 (and a little
+            before).
+
+            Through my various projects I have developed habits condusive to
+            building and shipping projects. I always:
+
+            1. have a plan and a timeline,
+            2. enforce effective design patterns and testing,
+            3. and use version control.
+          image:
+            iconify:
+              set: devicon
+              name: nodejs
+
+        - title: APIs and Databases
+          since: 2021-02-01
+          image:
+            iconify:
+              set: devicon
+              name: python
+          description: |
+            Data storage and retrieval is an essentail part of all modern web
+            applications. I have plenty of experience developing APIs and ETLs
+            in languages like
+            ``python`` <iconify-icon icon="devicons:python"></iconify-icon>
+            and ``nodejs`` <iconify-icon icon="devicons:nodejs"></iconify-icon>
+            using database technologies such as
+            ``mysql`` <iconify-icon icon=devicon:mysql></iconify-icon>,
+            ``mongodb`` <iconify-icon icon=devicon:mongodb></iconify-icon>,
+            and ``redis`` <iconify-icon icon=devicon:redis></iconify-icon>.
+
+        - title: Dashboards and UIs
+          since: 2021-05-01
+          image:
+            iconify:
+              set: devicon
+              name: react
+          description: |
+            For instance, you are probably viewing this resume on my blog.
+
+            My blog uses a mix of server side rendering in ``python`` using
+            ``quarto`` and ``panflute`` along with vanilla ``javascript``
+            running in the browser to implement reactivity.
+
+        - title: DevOps Engineering
+          since: 2021-06-01
+          image:
+            iconify:
+              set: devicon
+              name: pulumi
+          description: |
+            A service is not useful or accessable unless it is deployed, and
+            deploying a website manually is a thing of the past. Automation is
+            mandatory for buliding reliable and secure products.
+
+    links:
+      container:
+        # classes: ["floaty-container-macos", "pt-3", "px-5"]
+        size_item: 32
+        type: table
+      tooltip:
+        text: Click on any of the icons to open in a new tab.
+      overlay:
+        include: false
+        size_icon: 64
+      content:
+        - title: Linkedin
+          href: https://www.linkedin.com/in/adrian-cederberg-b453571b9
+          description: My profile on linkedin.
+          image:
+            iconify:
+              set: devicon
+              name: linkedin
+              label: Linkedin
+
+        - title: Github
+          href: https://github.com/acederberg
+          description: My github account.
+          image:
+            iconify:
+              set: devicon
+              name: github
+              label: Github
+
+        - title: Blog
+          href: https://acederberg.io
+          description: My Blog
+          image:
+            iconify:
+              set: hugeicons
+              name: house-01
+              label: Blog
+
     contact:
       tooltip:
         include: true
         text: Click any row to learn more about each contact method.
       container:
         include: true
-        size_item: 24
+        size_item: 32
+        # classes: ["floaty-container-macos", "pt-3", "px-5"]
         # include_titles: true
         kind: table
       overlay:
         include: true
-        size_icon: 256
+        size_icon: 64
       content:
         - title: Phone
           value: (505) 589 - 6914
@@ -34,16 +152,18 @@ resume:
             iconify:
               set: hugeicons
               name: smart-phone-01
+
         - title: Email
           value: adrn.cederberg123@gmail.com
           description: |
-            Send your inquiries here.
-            You can expect a response within the day.
-            If your need is urgent, please just call or text me.
+            For inquiries not requiring an immediate response - You can expect
+            a response within the day. If your need is urgent, please just call
+            or text me.
           image:
             iconify:
               set: hugeicons
               name: mail-01
+
         - title: Mail
           value: Albuquerque, New Mexico
           description: |
@@ -67,20 +187,17 @@ resume:
             phone.**
           image:
             iconify:
-              set: misc
-              name: birds
+              set: hugeicons
+              name: location-01
 ---
 
 <!-- Start Resume --> :::::: { #resume }
 <!-- SIDEBAR ----------------------------------------------------------------->
 <!-- Start Sidebar --> :::::: { #resume-sidebar }
 <!-- Start Columns 1 --> ::::: { .columns }
+<!-- Start Left --> :::: { .column width=50% }
 
 ::: { #resume-headshot }
-
-:::
-
-::: { #resume-contact }
 
 :::
 
@@ -88,7 +205,30 @@ resume:
 
 :::
 
+<!-- Stop Left --> ::::
+<!-- Start Right --> :::: { .column width=50% }
+
+::: { #resume-contact }
+
+:::
+
+<!-- Stop Right --> ::::
 <!-- End Columns 1 --> :::::
+
+<!-- Start Columns 2 --> ::::: { .columns }
+
+<!-- Start Left --> :::: { .column width=50% }
+<!-- Stop Left --> ::::
+
+<!-- Start Right --> :::: { .column width=50% }
+
+::: { #resume-skills }
+
+:::
+
+<!-- Stop Right --> ::::
+
+<!-- End Columns 2 --> :::::
 
 <!-- End Sidebar --> ::::::
 

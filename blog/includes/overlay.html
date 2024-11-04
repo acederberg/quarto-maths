@@ -20,7 +20,9 @@
     function onClick (icon_or_row) {
       return function() {
         showOverlay()
-        overlay_content_children[icon_or_row.dataset.key].style.display = 'block'
+        let content = overlay_content_children.find(item => item.dataset.key == icon_or_row.dataset.key)
+        if (!content) throw Error(`Could not find content for \`${icon_or_row.dataset.key}\`.`)
+        content.style.display = 'block'
       }
     }
 

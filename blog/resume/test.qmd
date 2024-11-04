@@ -83,8 +83,8 @@ resume:
         # include_titles: true
       content:
         - title: CI/CD
+          key: cicd
           since: 2021-05-01
-          description: Continuous Integration and Deployment
           category: devops
           image:
             iconify:
@@ -92,48 +92,45 @@ resume:
               name: github-actions
               label: Continuous Integration and Deployment
         - title: Lua
+          key: lua
           since: 2022-11-01
           category: languages
-          description: |
-            Lua is a language that I have used because it the language used to
-            configure ``nvim``. It is also used to write ``pandoc`` filters.
           image:
             iconify:
               set: devicon
               name: lua
               label: Lua
         - title: Quarto
+          key: quarto
           since: 2024-07-01
           category: tools
-          description: |
-            Quarto powers this document.
           image:
             iconify:
               set: misc
               name: quarto
               label: Lua
         - title: Terraform
+          key: terraform
           since: 2022-05-01
           category: tools
-          description: Infrastructure as code.
           image:
             iconify:
               set: devicon
               name: terraform
               label: Terraform
         - title: Python
+          key: python
           since: 2017-08-01
           category: tool
-          description: Python is my favorite language.
           image:
             iconify:
               set: devicon
               name: python
               label: Python
         - title: Docker
+          key: docker
           since: 2021-03-01
           category: devops
-          description: Docker is a powerful containerization tool.
           image:
             iconify:
               set: devicon
@@ -226,7 +223,6 @@ resume:
           content:
             - title: CI/CD
               since: 2021-05-01
-              description: Continuous Integration and Deployment
               category: devops
               image:
                 iconify:
@@ -236,9 +232,6 @@ resume:
             - title: Lua
               since: 2022-11-0110px
               category: languages
-              description: |
-                Lua is a language that I have used because it the language used to
-                configure ``nvim``. It is also used to write ``pandoc`` filters.
               image:
                 iconify:
                   set: devicon
@@ -247,8 +240,6 @@ resume:
             - title: Quarto
               since: 2024-07-01
               category: tools
-              description: |
-                Quarto powers this document.
               image:
                 iconify:
                   set: misc
@@ -257,7 +248,6 @@ resume:
             - title: Terraform
               since: 2022-05-01
               category: tools
-              description: Infrastructure as code.
               image:
                 iconify:
                   set: devicon
@@ -266,7 +256,6 @@ resume:
             - title: Python
               since: 2017-08-01
               category: tool
-              description: Python is my favorite language.
               image:
                 iconify:
                   set: devicon
@@ -275,7 +264,6 @@ resume:
             - title: Docker
               since: 2021-03-01
               category: devops
-              description: Docker is a powerful containerization tool.
               image:
                 iconify:
                   set: devicon
@@ -353,6 +341,45 @@ section will contain educations and skills.
 :::: { #resume-skills .column width=50% }
 
 This is additional content in the skills section!
+
+<!-- start floaty --> ::: { #resume-skills-floaty }
+<!-- start overlay --> ::: { .overlay }
+<!-- start overlay content --> ::: { .overlay-content }
+
+::: { .overlay-content-item data-key=cicd }
+
+Continuous Integration and Deployment
+
+:::
+
+::: { .overlay-content-item data-key=lua }
+
+Lua is a language that I have used because it the language used to configure
+`nvim`. It is also used to write `pandoc` filters.
+
+:::
+
+::: { .overlay-content-item data-key=quarto }
+
+Quarto powers this document.
+
+:::
+
+::: { .overlay-content-item data-key=python}
+
+Python is my favorite language.
+
+:::
+
+::: { .overlay-content-item data-key=docker }
+
+Docker is a powerful containerization tool.
+
+:::
+
+<!-- stop overlay content --> :::
+<!-- stop overlay --> :::
+<!-- stop floaty --> :::
 
 ::::
 

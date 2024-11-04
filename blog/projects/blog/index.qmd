@@ -22,82 +22,55 @@ floaty:
           iconify:
             set: misc
             name: quarto
+        key: quarto
         title: Quarto
-        description: |
-          Quarto is an excellent code notebook built on top of pandoc.
-          It can convert ``.qmd`` documents to
-          <iconify-icon icon="devicon:latex"></iconify-icon> ``latex``,
-          <iconify-icon icon="devicon:html5"></iconify-icon> ``html``, and more.
-          It is the backbone of this project and most of the documents
-          presented are rendered ``.qmd`` documents and some pandoc filters.
       - image:
           iconify:
             set: devicon
             name: latex
+        key: latex
         title: Latex
-        description: |
-          Without TeX, I would have to write my resume in Microsoft word.
-          Since I do all of my work on a linux machine, I could have used libre
-          word, however I generally like not to use such tools since they do
-          not produce documents that play well with git
-          {{< iconify devicon git >}}.
-
-          **Using a GUI text editor - This is one of the few fates I believe to
-          be worse than death.**
       - image:
           iconify:
             set: devicon
             name: pulumi
+        key: pulumi
         title: Pulumi
-        description: |
-          Pulumi is a great infrastructure as code tool available in most
-          popular lanugages. I use it to provision the kubernetes cluster
-          that this blog runs on and set up paripheral resources. I also use
-          it to manage kubernetes resources, such as traefik and the error
-          pages. <iconify-icon icon="logos:kubernetes"></iconify-icon>
       - image:
           iconify:
             set: logos
             name: github-icon
+        key: github
         title: Github
-        description: |
-          Github is where I host all of my code.
       - image:
           iconify:
             set: devicon
             name: git
+        key: git
         title: Git
-        description: |
-          Git is a fantastic tool for version control.
-          Without version control, software development would be very tedious.
-          It allows me to make experimental changes and revert to my last point
-          in my work and maintain multiple working versions of the same
-          project.
       - image:
           iconify:
             set: devicon
             name: neovim
+        key: neovim
         title: Neovim
-        description: |
-          My favorite tool for text editing.
       - image:
           iconify:
             set: devicon
             name: python-wordmark
+        key: python
         title: Python
-        description: |
-          The primary language I use in my quarto notebooks.
       - image:
           iconify:
             set: devicon
             name: nodejs-wordmark
+        key: nodejs
         title: Nodejs
-        description: |
-          My server uses ``http-server`` to deliver these html pages.
       - image:
           iconify:
             set: misc
             name: mermaid
+        key: mermaid
         title: Mermaidjs
         description: |
           For making some terrific diagrams.
@@ -105,6 +78,7 @@ floaty:
           iconify:
             set: logos
             name: linode
+        key: linode
         title: Linode
         description: |
           This is where the servers live.
@@ -112,32 +86,26 @@ floaty:
           iconify:
             set: logos
             name: kubernetes
+        key: kubernetes
         title: Kubernetes
-        description: |
-          This is where the containers run.
       - image:
           iconify:
             set: devicon
             name: pandas-wordmark
+        key: pandas
         title: Pandas
-        description: |
-          This is my favorite tool for loading an manipulating datasets in
-          python {{< iconify devicon python >}}.
       - image:
           iconify:
             set: devicon
             name: kaggle-wordmark
+        key: kaggle
         title: Kaggle
-        description: |
-          The data science competition platform.
       - image:
           iconify:
             set: devicon
             name: docker-wordmark
+        key: docker
         title: Docker
-        description: |
-          The containerization technology used to gaurentee consistent builds
-          in github actions and a uniform development environment.
 ---
 
 Here I discuss the implementation of this blog itself as it has been quite a project to do so.
@@ -164,7 +132,105 @@ Thank you to all of the contributors to the tools I have used that made this pos
 I cannot emphasize enought that without the tremendous efforts of the open source community (in particular) that this would not be possible at all.
 Click on any of the icons below to see a brief description of how each tool is utilitized here.
 
-::::: { #thank-you-tools }
+:::::: { #thank-you-tools }
+
+<!-- start overlay --> ::::: { .overlay }
+<!-- start overlay-content --> :::: { .overlay-content }
+
+::: { .overlay-content-item data-key="quarto" }
+
+Quarto is an excellent code notebook built on top of pandoc.
+It can convert `.qmd` documents to
+<iconify-icon icon="devicon:latex"></iconify-icon> `latex`,
+<iconify-icon icon="devicon:html5"></iconify-icon> `html`, and more.
+It is the backbone of this project and most of the documents
+presented are rendered `.qmd` documents and some pandoc filters.
+
+:::
+
+::: { .overlay-content-item data-key="latex" }
+
+Without TeX, I would have to write my resume in Microsoft word.
+Since I do all of my work on a linux machine, I could have used libre
+word, however I generally like not to use such tools since they do
+not produce documents that play well with git
+{{< iconify devicon git >}}.
+
+**Using a GUI text editor - This is one of the few fates I believe to
+be worse than death.**
+
+:::
+
+::: { .overlay-content-item data-key="pulumi" }
+
+Pulumi is a great infrastructure as code tool available in most
+popular lanugages. I use it to provision the kubernetes cluster
+that this blog runs on and set up paripheral resources. I also use
+it to manage kubernetes resources, such as traefik and the error
+pages. <iconify-icon icon="logos:kubernetes"></iconify-icon>
+
+:::
+
+::: { .overlay-content-item data-key="github" }
+
+Github is where I host all of my code.
+
+:::
+
+::: { .overlay-content-item data-key="git" }
+
+Git is a fantastic tool for version control.
+Without version control, software development would be very tedious.
+It allows me to make experimental changes and revert to my last point
+in my work and maintain multiple working versions of the same
+project.
+
+:::
+
+::: { .overlay-content-item data-key="neovim" }
+
+My favorite tool for text editing.
+
+:::
+
+::: { .overlay-content-item data-key="python" }
+
+The primary language I use in my quarto notebooks.
+
+:::
+
+::: { .overlay-content-item data-key="nodejs" }
+
+My server uses `http-server` to deliver these html pages.
+
+:::
+
+::: { .overlay-content-item data-key="kubernetes" }
+
+This is where the containers run.
+
+:::
+
+::: { .overlay-content-item data-key="pandas" }
+
+This is my favorite tool for loading an manipulating datasets in
+python {{< iconify devicon python >}}.
+
+:::
+
+::: { .overlay-content-item data-key="kaggle" }
+The data science competition platform.
+:::
+
+::: { .overlay-content-item data-key="docker" }
+
+The containerization technology used to gaurentee consistent builds
+in github actions and a uniform development environment.
+
+:::
+
+<!-- stop overlay-content --> ::::
+<!-- stop overlay-content-item --> :::::
 
 :::::
 
