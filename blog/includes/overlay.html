@@ -41,7 +41,7 @@
     let overlay = parent.querySelector(".overlay")
     overlay_controls = !overlay ? null : FloatyOverlay(overlay)
 
-    function setListItemSize(icon_in_li){
+    function setUpListItem(icon_in_li){
       const size = parseInt(icon_in_li.style['font-size'])
 
       // NOTE: This makes it so that size should always be specified in pixels.
@@ -51,6 +51,9 @@
         li.style.width = `${size}px`
         li.style.margin = li_margin || `${(size / 4)}px`
       }
+
+      // NOTE: Icon and its list item should be clickable.
+      if (overlay) li.addEventListener("click", overlay_controls.onClick(icon_in_li))
     }
 
     function setOnClick(icons)
@@ -63,10 +66,7 @@
         })
       }
       else if (ul) {
-        icons.map(icon => {
-          if (overlay) icon.addEventListener("click", overlay_controls.onClick(icon))
-          setListItemSize(icon)
-        })
+        icons.map(icon => setUpListItem(icon))
       }
       else {
         console.error("No `ul` or `table` found.")

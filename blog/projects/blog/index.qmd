@@ -8,13 +8,20 @@ filters:
   - ../../filters/floaty.py
 floaty:
   thank-you-tools:
-    size: 128 # px
+    tooltip:
+      include: true
+    container:
+      size_item: 128 # px
+      size_item_margin: 32
+      kind: list
+    overlay:
+      include: true
+      size_icon: 256
     content:
       - image:
           iconify:
             set: misc
             name: quarto
-            label: Quarto
         title: Quarto
         description: |
           Quarto is an excellent code notebook built on top of pandoc.
@@ -27,7 +34,6 @@ floaty:
           iconify:
             set: devicon
             name: latex
-            label: Latex
         title: Latex
         description: |
           Without TeX, I would have to write my resume in Microsoft word.
@@ -42,7 +48,6 @@ floaty:
           iconify:
             set: devicon
             name: pulumi
-            label: Pulumi
         title: Pulumi
         description: |
           Pulumi is a great infrastructure as code tool available in most
@@ -54,7 +59,6 @@ floaty:
           iconify:
             set: logos
             name: github-icon
-            label: Github
         title: Github
         description: |
           Github is where I host all of my code.
@@ -62,7 +66,6 @@ floaty:
           iconify:
             set: devicon
             name: git
-            label: Git
         title: Git
         description: |
           Git is a fantastic tool for version control.
@@ -74,7 +77,6 @@ floaty:
           iconify:
             set: devicon
             name: neovim
-            label: Neovim
         title: Neovim
         description: |
           My favorite tool for text editing.
@@ -82,7 +84,6 @@ floaty:
           iconify:
             set: devicon
             name: python-wordmark
-            label: Python
         title: Python
         description: |
           The primary language I use in my quarto notebooks.
@@ -90,7 +91,6 @@ floaty:
           iconify:
             set: devicon
             name: nodejs-wordmark
-            label: Nodejs
         title: Nodejs
         description: |
           My server uses ``http-server`` to deliver these html pages.
@@ -98,7 +98,6 @@ floaty:
           iconify:
             set: misc
             name: mermaid
-            label: Mermaidjs
         title: Mermaidjs
         description: |
           For making some terrific diagrams.
@@ -106,7 +105,6 @@ floaty:
           iconify:
             set: logos
             name: linode
-            label: Linode
         title: Linode
         description: |
           This is where the servers live.
@@ -114,7 +112,6 @@ floaty:
           iconify:
             set: logos
             name: kubernetes
-            label: Kubernetes
         title: Kubernetes
         description: |
           This is where the containers run.
@@ -122,7 +119,6 @@ floaty:
           iconify:
             set: devicon
             name: pandas-wordmark
-            label: Pandas
         title: Pandas
         description: |
           This is my favorite tool for loading an manipulating datasets in
@@ -131,7 +127,6 @@ floaty:
           iconify:
             set: devicon
             name: kaggle-wordmark
-            label: Kaggle
         title: Kaggle
         description: |
           The data science competition platform.
@@ -139,7 +134,6 @@ floaty:
           iconify:
             set: devicon
             name: docker-wordmark
-            label: Docker
         title: Docker
         description: |
           The containerization technology used to gaurentee consistent builds

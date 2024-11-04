@@ -1,6 +1,5 @@
 /*-- scss:rules --*/
 
-/* .floaty-container { } */
 
 .floaty-container-single,
 .floaty-container ul {
@@ -11,6 +10,9 @@
   display: flex;
   flex-wrap: wrap;
 }
+
+/* ------------------------------------------------------------------------- */
+/* Floaty infobar */
 
 .floaty-info {
   width: 100%;
@@ -29,12 +31,18 @@
   filter: blur(0) drop-shadow(4px 4px 8px rgba(0, 0, 0, 0.1));
 }
 
-
+/* ------------------------------------------------------------------------- */
+/* Default floaty table */
 
 .floaty-container table,
 .floaty-container tr,
 .floaty-container td {
   border: none;
+}
+
+.floaty-container td p {
+  padding: 0px;
+  margin: 0px;
 }
 
 .floaty-container tr {
@@ -47,6 +55,9 @@
   transform: scale(1.01);
 }
 
+
+/* ------------------------------------------------------------------------- */
+/* Floaty lists and one offs. */
 
 /* DO NOT SET HEIGHTS OR WIDTHS OF li or iconify-icon HERE! IT IS DONE BY JS TO PREVENT JITTER! */
 .floaty iconify-icon,
@@ -62,6 +73,37 @@
   filter: drop-shadow(8px 8px 16px rgba(0, 0, 0, 0.5));
 }
 
+
+/* ------------------------------------------------------------------------- */
+/* Floaty vaguely like macos. */
+
+.floaty-container-macos ul {
+  justify-content: left;
+}
+
+.floaty-container-macos ul li {
+  flex-grow: 1;
+  transition: all 0.5s;
+  transition-delay: 0.3s;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+}
+
+.floaty-container-macos ul li p {
+  margin: 0px;
+  padding: 0px;
+}
+
+.floaty-container-macos ul li:hover {
+  transform: scale(1.5) translate(0%, -20%);
+}
+
+
+/* ------------------------------------------------------------------------- */
+/* Under construction floaty. */
 
 #under-construction {
   border: 5px solid red;

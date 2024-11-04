@@ -1,44 +1,12 @@
 /*-- scss:rules --*/
 
-/* #resume-contact { */
-/*   color: var(--bs-blue); */
-/*   background: var(--bs-gray-200); */
-/* } */
-/**/
-/* #resume-contact ul { */
-/*   display: flex; */
-/*   align-items: center; */
-/*   justify-content: space-between; */
-/*   list-style: none; */
-/* } */
-/**/
-/**/
-/* #resume-contact ul, */
-/* #resume-contact li, */
-/* #resume-contact p { */
-/*   width: 100%; */
-/*   height: 100%; */
-/*   padding: 0px; */
-/*   margin: 0px; */
-/* } */
-/**/
-/* #resume-contact p { */
-/*   text-align: center; */
-/* } */
-/**/
-/* #resume-contact ul li { */
-/*   flex-grow: 1; */
-/**/
-/*   display: flex; */
-/*   align-items: center; */
-/*   justify-content: space-between; */
-/* } */
-
-#resume #headshot img {
+#resume #resume-headshot img {
   border-radius: 50% !important;
 }
 
-#resume #resume-sidebar h2 {
+#resume #resume-sidebar h2,
+#resume #resume-sidebar h3,
+#resume #resume-sidebar h4 {
   border: none;
   font-size: large;
 }
@@ -47,27 +15,15 @@
   font-size: medium;
 }
 
-#resume #resume-sidebar #links p {
+#resume #resume-sidebar #resume-links p {
   text-align: center;
 }
 
-#resume #resume-sidebar #links h2 {
+#resume #resume-sidebar #resume-links h2 {
   display: none;
 }
 
-/* #resume-contact a, */
-/* #resume-contact p { */
-/*   margin-right: 32px; */
-/*   display: inline; */
-/*   text-decoration: none; */
-/* } */
-/**/
-/* #resume-contact .break { */
-/*   margin-left: auto; */
-/* } */
-/**/
-/* #resume-contact a i { */
-/*   margin: 0px; */
-/*   height: 1em; */
-/*   width: 1em; */
-/* } */
+#resume #resume-body ul li p {
+  padding: 0px;
+  margin: 0px;
+}

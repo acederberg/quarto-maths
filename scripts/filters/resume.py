@@ -7,16 +7,108 @@ import pydantic
 from scripts.filters import floaty, util
 
 
-class ConfigExperience(pydantic.BaseModel):
-    title: str
+class BaseExperienceItem(pydantic.BaseModel):
     organization: str
     start: str
     stop: str
     content: Annotated[list[str] | None, pydantic.Field(default=None)]
 
+    def create_start_stop(self):
+        return (
+            pf.Str(self.start),
+            pf.Space(),
+            pf.Str("-"),
+            pf.Space(),
+            pf.Str(self.stop),
+        )
+
+    def create_header_html(self) -> tuple[pf.Element, ...]:
+        return (
+            pf.Header(pf.Str(self.title), level=3),
+            pf.Para(pf.Strong(pf.Str(self.organization))),
+            pf.Para(pf.Emph(*self.create_start_stop())),
+        )
+
+    def create_header_tex(self) -> tuple[pf.Element]:
+        header_textbar = (
+            pf.Space(),
+            pf.RawInline("\\textbar{}", format="latex"),
+            pf.Space(),
+        )
+        return (
+            pf.Header(
+                pf.Str(self.title),
+                *header_textbar,
+                pf.Str(self.organization),
+                pf.Space(),
+                pf.RawInline("\\hfill", format="latex"),
+                pf.Space(),
+                *self.create_start_stop(),
+                level=3,
+            ),
+        )
+
+    def hydrate(self, element: pf.Element, *, format: str):
+        if format == "latex":
+            head_elements = self.create_header_tex()
+        else:
+            head_elements = self.create_header_html()
+
+        if self.content is not None:
+            element.content = (
+                *element.content,
+                pf.BulletList(
+                    *(pf.ListItem(pf.Para(pf.Str(item))) for item in self.content)
+                ),
+            )
+
+        element.content = (*head_elements, *element.content)
+
+        return element
+
+
+class ConfigExperienceItem(BaseExperienceItem):
+    title: str
+    tools: Annotated[
+        None | floaty.ConfigFloatySection[floaty.ConfigFloatyItem],
+        pydantic.Field(default=None),
+    ]
+
+    def hydrate(self, element: pf.Element, *, format: str):
+        element = super().hydrate(element, format=format)
+        if self.tools is not None and format == "html":
+            identifier = f"floaty_tools_{self.title}_{self.organization}"
+            identifier = identifier.replace("-", "_").replace(" ", "_")
+            element.content = (
+                pf.Div(
+                    *element.content,
+                    pf.Div(
+                        pf.Header(pf.Str("Tools"), level=4),
+                        self.tools.hydrate_html(
+                            pf.Div(
+                                identifier=identifier,
+                                classes=["floaty"],
+                            )
+                        ),
+                    ),
+                ),
+            )
+
+        return element
+
+
+class ConfigEducationItem(BaseExperienceItem):
+    concentration: str
+    degree: str
+
+    @pydantic.computed_field
+    def title(self) -> str:
+        return self.degree + ", " + self.concentration
+
 
 class ConfigBody(pydantic.BaseModel):
-    experience: dict[str, ConfigExperience]
+    experience: dict[str, ConfigExperienceItem]
+    education: dict[str, ConfigEducationItem]
 
 
 class ConfigContactItem(floaty.ConfigFloatyItem):
@@ -72,13 +164,13 @@ class FilterResume(util.BaseFilter):
         self.config = ConfigResume.model_validate(doc.get_metadata("resume"))
 
         self.identifier_to_hydrate = {
-            "contact": self.hydrate_contact,
-            "skills": self.hydrate_skills,
-            "headshot": self.hydrate_headshot,
-            "experience": self.hydrate_experience,
-            "projects": self.hydrate_projects,
-            "education": self.hydrate_education,
-            "links": self.hydrate_links,
+            "resume-contact": self.hydrate_contact,
+            "resume-skills": self.hydrate_skills,
+            "resume-headshot": self.hydrate_headshot,
+            "resume-experience": self.hydrate_experience,
+            "resume-projects": self.hydrate_projects,
+            "resume-education": self.hydrate_education,
+            "resume-links": self.hydrate_links,
         }
 
     # def hydrate_contact_item(self, config: ConfigContactItem):
@@ -108,7 +200,7 @@ class FilterResume(util.BaseFilter):
         if self.doc.format == "html":
             contact = self.config.sidebar.contact.hydrate_html(
                 pf.Div(
-                    identifier="_contact",
+                    identifier="resume_contact_floaty",
                     classes=["floaty"],
                 )
             )
@@ -130,7 +222,7 @@ class FilterResume(util.BaseFilter):
         if self.doc.format == "html":
             skills = self.config.sidebar.skills.hydrate_html(
                 pf.Div(
-                    identifier="_skills",
+                    identifier="resume_skills_floaty",
                     classes=["floaty"],
                 )
             )
@@ -169,7 +261,7 @@ class FilterResume(util.BaseFilter):
 
         if self.doc.format == "html":
             links = self.config.sidebar.links.hydrate_html(
-                pf.Div(identifier="_links", classes=["floaty"])
+                pf.Div(identifier="resume_links_floaty", classes=["floaty"])
             )
 
         else:
@@ -224,67 +316,6 @@ class FilterResume(util.BaseFilter):
         return pf.RawInline(
             f"<iconify-icon inline icon={icon}></iconify-icon>", format="html"
         )
-
-    def hydrate_experience_item(self, element: pf.Element):
-        experience_field = element.attributes["experience_item"]
-        config_experience = self.config.body.experience[experience_field]
-
-        title = pf.Str(config_experience.title)
-        organization = pf.Str(config_experience.organization)
-        start_stop = (
-            pf.Str(config_experience.start),
-            pf.Space(),
-            pf.Str("-"),
-            pf.Space(),
-            pf.Str(config_experience.stop),
-        )
-
-        if self.doc.format == "latex":
-            header_textbar = (
-                pf.Space(),
-                pf.RawInline("\\textbar{}", format="latex"),
-                pf.Space(),
-            )
-            element.content.insert(
-                0,
-                pf.Header(
-                    title,
-                    *header_textbar,
-                    organization,
-                    pf.Space(),
-                    pf.RawInline("\\hfill", format="latex"),
-                    pf.Space(),
-                    *start_stop,
-                    level=3,
-                ),
-            )
-
-        elif self.doc.format == "html":
-            element.content.insert(0, pf.Para(pf.Emph(*start_stop)))
-            element.content.insert(0, pf.Para(pf.Strong(organization)))
-            element.content.insert(
-                0,
-                pf.Header(
-                    title,
-                    # pf.Space(),
-                    # pf.RawInline("|", format="html"),
-                    # pf.Space(),
-                    level=3,
-                ),
-            )
-        else:
-            element.content.append(self.unsupported_format())
-
-        if config_experience.content is not None:
-            blah = (
-                pf.ListItem(pf.Para(pf.Str(item))) for item in config_experience.content
-            )
-            element.content = (
-                *element.content,
-                pf.BulletList(*blah),
-            )
-
-        return element
 
     def unsupported_format(self):
         return pf.Header(f"Format `{self.doc.format}` Not Supported.")
@@ -353,7 +384,12 @@ class FilterResume(util.BaseFilter):
             return self.identifier_to_hydrate[element.identifier](element)
 
         if "experience" in element.classes:
-            return self.hydrate_experience_item(element)
+            config = self.config.body.experience[element.attributes["experience_item"]]
+            return config.hydrate(element, format=self.doc.format)
+
+        if "education" in element.classes:
+            config = self.config.body.education[element.attributes["education_item"]]
+            return config.hydrate(element, format=self.doc.format)
 
         return element
 
