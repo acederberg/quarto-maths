@@ -33,6 +33,7 @@
 }
 
 #resume .progress .progress-bar {
+  color: var(--bs-black);
   font-size: large !important;
   text-align: left !important;
 }

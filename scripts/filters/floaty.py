@@ -22,8 +22,11 @@ class ConfigFloatyItem(pydantic.BaseModel):
     href: Annotated[
         str | None,
         pydantic.Field(
-            "A link to go to when clicked on. Should open in a new tab."
-            "Will be ignored when an overlay is included."
+            description=(
+                "A link to go to when clicked on. Should open in a new tab."
+                "Will be ignored when an overlay is included."
+            ),
+            default=None,
         ),
     ]
     # name: str
@@ -39,6 +42,7 @@ class ConfigFloatyItem(pydantic.BaseModel):
 
     def hydrate_iconify_li(self, *args, include_link: bool, **kwargs):
         res = self.hydrate_iconify(*args, **kwargs)
+
         if include_link and self.href is not None:
             res = pf.Link(res, url=self.href)
 
@@ -199,7 +203,7 @@ class ConfigFloatySection(pydantic.BaseModel, Generic[T_ConfigFloatySection]):
             config_image.hydrate_iconify_li(
                 self.container.size_item,
                 key,
-                include_link=not self.container.include,
+                include_link=not self.overlay.include,
             )
             for key, config_image in enumerate(self.content)
         )

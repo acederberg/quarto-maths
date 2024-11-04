@@ -1,0 +1,94 @@
+---
+title: Carousel Experiment
+---
+
+<style>
+  #carousel {
+    background: var(--bs-gray-200);
+    display: flex;
+  }
+
+  #carousel .carousel-right iconify-icon,
+  #carousel .carousel-left iconify-icon {
+    transform: scaleX(0.5);
+    font-size: 16px;
+  }
+
+  #carousel .carousel-items {
+    width: 80%;
+  }
+
+</style>
+
+:::: { #carousel }
+
+```{=html}
+<div class="carousel-left">
+  <iconify-icon icon="hugeicons:arrow-left-01" style="font-size: 128px;" ></iconify-icon>
+</div>
+```
+
+::: { .carousel-items }
+
+# This is the first item.
+
+And this is some content in the first item.
+
+# This is the second item.
+
+And this is some content in the second item.
+
+# This is the third item.
+
+And this is some content in the third item.
+
+# This is the final item.
+
+And this is some content in the fourth item.
+
+:::
+
+```{=html}
+<div class="carousel-right">
+  <iconify-icon icon="hugeicons:arrow-right-01" style="font-size: 128px;" ></iconify-icon>
+</div>
+```
+
+::::
+
+<script>
+  let parent = document.getElementById("carousel")
+  if (!parent) throw Error("Could not find carousel.")
+
+  let left = parent.querySelector(".carousel-left iconify-icon")
+  if (!left) throw Error("Could not find left.")
+
+  let right = parent.querySelector(".carousel-right iconify-icon")
+  if (!right) throw Error("Could not find right.")
+
+  let sections = Array.from(parent.querySelector(".carousel-items").getElementsByTagName("section"))
+  let n_sections = sections.length
+  let state = {index: 0}
+
+  // Ensure that the section at index is displayed.
+  function display(index){
+    sections.map( section => { section.style.display = "none" })
+    sections[index].style.display = "block"
+  }
+
+  function incr(){
+    state.index++
+    if ( state.index == sections.length) state.index = 0
+    display(state.index)
+  }
+
+  function decr() {
+    state.index--
+    if ( state.index == -1 ) state.index = sections.length - 1
+    display(state.index)
+  }
+
+  display(0)
+  right.addEventListener("click", incr)
+  left.addEventListener("click", decr)
+</script>

@@ -1,10 +1,29 @@
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from typing import Annotated, Callable
 
 import panflute as pf
 import pydantic
 
 from scripts.filters import floaty, util
+
+ELEMENTS_SIDEBAR = {
+    "resume-contact",
+    "resume-skills",
+    "resume-headshot",
+    "resume-links",
+}
+ELEMENTS_BODY = {"resume-experience", "resume-projects", "resume-education"}
+
+
+def get_hydrate(
+    instance, element: pf.Element, elements: set[str]
+) -> Callable[[pf.Doc, pf.Element], pf.Element] | None:
+    if element.identifier in elements:
+        meth_name = element.identifier.replace("resume-", "hydrate_")
+        hydrator = getattr(instance, meth_name)
+        return hydrator
+
+    return None
 
 
 class BaseExperienceItem(pydantic.BaseModel):
@@ -24,7 +43,7 @@ class BaseExperienceItem(pydantic.BaseModel):
 
     def create_header_html(self) -> tuple[pf.Element, ...]:
         return (
-            pf.Header(pf.Str(self.title), level=3),
+            pf.Header(pf.Str(self.title), level=3),  # type: ignore[attr-exists]
             pf.Para(pf.Strong(pf.Str(self.organization))),
             pf.Para(pf.Emph(*self.create_start_stop())),
         )
@@ -37,7 +56,7 @@ class BaseExperienceItem(pydantic.BaseModel):
         )
         return (
             pf.Header(
-                pf.Str(self.title),
+                pf.Str(self.title),  # type: ignore[attr-exists]
                 *header_textbar,
                 pf.Str(self.organization),
                 pf.Space(),
@@ -48,8 +67,8 @@ class BaseExperienceItem(pydantic.BaseModel):
             ),
         )
 
-    def hydrate(self, element: pf.Element, *, format: str):
-        if format == "latex":
+    def hydrate(self, doc: pf.Doc, element: pf.Element):
+        if doc.format == "latex":
             head_elements = self.create_header_tex()
         else:
             head_elements = self.create_header_html()
@@ -71,11 +90,14 @@ class ConfigExperienceItem(BaseExperienceItem):
     title: str
     tools: Annotated[
         None | floaty.ConfigFloatySection[floaty.ConfigFloatyItem],
-        pydantic.Field(default=None),
+        pydantic.Field(
+            default=None,
+            description="Some tools to enumerate.",
+        ),
     ]
 
-    def hydrate(self, element: pf.Element, *, format: str):
-        element = super().hydrate(element, format=format)
+    def hydrate(self, doc: pf.Doc, element: pf.Element):
+        element = super().hydrate(doc, element)
         if self.tools is not None and format == "html":
             identifier = f"floaty_tools_{self.title}_{self.organization}"
             identifier = identifier.replace("-", "_").replace(" ", "_")
@@ -104,11 +126,6 @@ class ConfigEducationItem(BaseExperienceItem):
     @pydantic.computed_field
     def title(self) -> str:
         return self.degree + ", " + self.concentration
-
-
-class ConfigBody(pydantic.BaseModel):
-    experience: dict[str, ConfigExperienceItem]
-    education: dict[str, ConfigEducationItem]
 
 
 class ConfigContactItem(floaty.ConfigFloatyItem):
@@ -174,7 +191,7 @@ class ConfigSkillsItem(floaty.ConfigFloatyItem):
             },
         )
 
-    def hydrate_overlay_content_item(
+    def hydrate_overlay_content_item(  # type: ignore
         self,
         size: int,
         key: int,
@@ -210,15 +227,209 @@ class ConfigHeadshot(pydantic.BaseModel):
 
 class ConfigSidebar(pydantic.BaseModel):
     tex_width: Annotated[float, pydantic.Field(lt=1, gt=0, default=0.35)]
-    headshot: Annotated[ConfigHeadshot, pydantic.Field()]
-    contact: floaty.ConfigFloatySection[ConfigContactItem]
-    skills: ConfigSkills
-    links: floaty.ConfigFloatySection[floaty.ConfigFloatyItem]
+    headshot: Annotated[ConfigHeadshot | None, pydantic.Field(default=None)]
+    skills: Annotated[
+        ConfigSkills | None,
+        pydantic.Field(default=None, description="Skills configuration."),
+    ]
+    contact: Annotated[
+        floaty.ConfigFloatySection[ConfigContactItem] | None,
+        pydantic.Field(
+            default=None,
+            description="Contact information configuration.",
+        ),
+    ]
+    links: Annotated[
+        floaty.ConfigFloatySection[floaty.ConfigFloatyItem] | None,
+        pydantic.Field(
+            default=None,
+            description=(
+                "Links configuration. Make sure to set "
+                "``$.overlay.include=False`` so that links are clickable."
+            ),
+        ),
+    ]
+
+    def hydrate_contact(self, doc: pf.Doc, element: pf.Element):
+        """Sidebar skills."""
+        if self.contact is None:
+            return element
+
+        if doc.format == "html":
+            contact = self.contact.hydrate_html(
+                pf.Div(
+                    identifier="resume_contact_floaty",
+                    classes=["floaty"],
+                )
+            )
+        else:
+            contact = pf.Para(pf.Str("Paceholder content"))
+        #
+        element.content = (
+            pf.Header(pf.Str("Contact"), level=2),
+            *element.content,
+            contact,
+        )
+
+        return element
+
+    def hydrate_skills(self, doc: pf.Doc, element: pf.Element):
+        """Sidebar skills."""
+
+        if self.skills is None:
+            return element
+        # NOTE: Adding both results in broken overlays.
+        if doc.format == "html":
+            skills = self.skills.hydrate_html(
+                pf.Div(
+                    identifier="resume_skills_floaty",
+                    classes=["floaty"],
+                )
+            )
+        else:
+            skills = pf.Para(pf.Str("Placeholder content."))
+
+        element.content = (
+            pf.Header(pf.Str("Skills"), level=2),
+            *element.content,
+            skills,
+        )
+
+        return element
+
+    def hydrate_headshot(self, doc: pf.Doc, element: pf.Element):
+        """Sidebar headshot."""
+
+        if self.headshot is None:
+            return element
+
+        if doc.format == "html":
+            headshot = pf.Plain(
+                pf.Image(
+                    url=self.headshot.url,
+                    title=self.headshot.title,
+                    classes=["p-5"],
+                )
+            )
+
+        else:
+            headshot = pf.Para(pf.Str("Paceholder content"))
+
+        element.content = (headshot, *element.content)
+        return element
+
+    def hydrate_links(self, doc: pf.Doc, element: pf.Element):
+        """Sidebar links."""
+        if self.links is None:
+            return doc
+
+        if doc.format == "html":
+            links = self.links.hydrate_html(
+                pf.Div(identifier="resume_links_floaty", classes=["floaty"])
+            )
+
+        else:
+            links = pf.Para(pf.Str("Paceholder content"))
+
+        element.content = (
+            pf.Header(pf.Str("Links"), level=2),
+            *element.content,
+            links,
+        )
+        return element
+
+    def __call__(self, doc: pf.Doc, element: pf.Element):
+        if (hydrator := get_hydrate(self, element, ELEMENTS_SIDEBAR)) is not None:
+            return hydrator(doc, element)
+
+        return element
+
+
+class ConfigBody(pydantic.BaseModel):
+    experience: Annotated[
+        dict[str, ConfigExperienceItem] | None,
+        pydantic.Field(
+            default=None,
+            description="Work experience configuration.",
+        ),
+    ]
+    education: Annotated[
+        dict[str, ConfigEducationItem] | None,
+        pydantic.Field(
+            default=None,
+            description="Education experience configuration.",
+        ),
+    ]
+
+    def hydrate_projects(self, _: pf.Doc, element: pf.Element):
+        """Body projects."""
+        # if self.doc.format == "html":
+        #     projects = self.config.sidebar.projects.hydrate_html(
+        #         pf.Div(identifier="_projects", classes=["floaty"])
+        #     )
+        # else:
+        #     projects = pf.Para(pf.Str("Paceholder content"))
+
+        element.content = (
+            pf.Header(pf.Str("Projects"), level=2),
+            *element.content,
+            # projects,
+        )
+        return element
+
+    def hydrate_education(self, _: pf.Doc, element: pf.Element):
+        """Body education."""
+
+        element.content = (
+            pf.Header(pf.Str("Education"), level=2),
+            *element.content,
+        )
+        return element
+
+    def hydrate_experience(self, _: pf.Doc, element: pf.Element):
+        element.content = pf.ListContainer(
+            pf.Header(pf.Str("Experience"), level=2), *element.content
+        )
+        return element
+
+    def __call__(self, doc: pf.Doc, element: pf.Element):
+        if (hydrator := get_hydrate(self, element, ELEMENTS_BODY)) is not None:
+            return hydrator(doc, element)
+
+        if "experience" in element.classes and self.experience is not None:
+            config = self.experience[element.attributes["experience_item"]]
+            return config.hydrate(doc, element)
+
+        if "education" in element.classes and self.education is not None:
+            config = self.education[element.attributes["education_item"]]
+            return config.hydrate(doc, element)
+
+        return element
 
 
 class ConfigResume(pydantic.BaseModel):
-    sidebar: ConfigSidebar
-    body: ConfigBody
+    # NOTE: These are required so tex layout is not whacky.
+    sidebar: Annotated[
+        ConfigSidebar,
+        pydantic.Field(
+            description="Sidebar content configuration.",
+        ),
+    ]
+    body: Annotated[
+        ConfigBody | None,
+        pydantic.Field(
+            description="Main body configuration.",
+        ),
+    ]
+
+    def __call__(self, doc: pf.Doc, element: pf.Element):
+        if self.sidebar is not None:
+            element = self.sidebar(doc, element)
+
+        if self.body is not None:
+            element = self.body(doc, element)
+
+        return element
 
 
 # --------------------------------------------------------------------------- #
@@ -236,178 +447,11 @@ class FilterResume(util.BaseFilter):
         self.doc = doc
         self.config = ConfigResume.model_validate(doc.get_metadata("resume"))
 
-        self.identifier_to_hydrate = {
-            "resume-contact": self.hydrate_contact,
-            "resume-skills": self.hydrate_skills,
-            "resume-headshot": self.hydrate_headshot,
-            "resume-experience": self.hydrate_experience,
-            "resume-projects": self.hydrate_projects,
-            "resume-education": self.hydrate_education,
-            "resume-links": self.hydrate_links,
-        }
-
-    # def hydrate_contact_item(self, config: ConfigContactItem):
-    #
-    #     # iconify = "{{< iconify " + " ".join(config.icon.split(":")) + " >}}"
-    #
-    #     if self.doc.format == "html":
-    #         return pf.TableRow(
-    #             pf.TableCell(pf.Para(self.hydrate_icon(config.icon))),
-    #             pf.TableCell(pf.Para(pf.Str(config.value))),
-    #         )
-    #
-    #     return pf.TableRow(pf.TableCell(pf.Para(pf.Str(config.value))))
-    # self.config.sidebar.contact.hydrate_html(element)
-    # elif self.doc.format == "latex":
-    #     contact_list = pf.Table(
-    #         pf.TableBody(
-    #             *(
-    #                 self.hydrate_contact_item(contact_config)
-    #                 for contact_config in self.config.sidebar.contact
-    #             ),
-    #         ),
-    #     )
-
-    def hydrate_contact(self, element: pf.Element):
-        """Sidebar skills."""
-        if self.doc.format == "html":
-            contact = self.config.sidebar.contact.hydrate_html(
-                pf.Div(
-                    identifier="resume_contact_floaty",
-                    classes=["floaty"],
-                )
-            )
-        else:
-            contact = pf.Para(pf.Str("Paceholder content"))
-        #
-        element.content = (
-            pf.Header(pf.Str("Contact"), level=2),
-            *element.content,
-            contact,
-        )
-
-        return element
-
-    def hydrate_skills(self, element: pf.Element):
-        """Sidebar skills."""
-
-        # NOTE: Adding both results in broken overlays.
-        if self.doc.format == "html":
-            skills = self.config.sidebar.skills.hydrate_html(
-                pf.Div(
-                    identifier="resume_skills_floaty",
-                    classes=["floaty"],
-                )
-            )
-        else:
-            skills = pf.Para(pf.Str("Placeholder content."))
-
-        element.content = (
-            pf.Header(pf.Str("Skills"), level=2),
-            *element.content,
-            skills,
-        )
-
-        return element
-
-    def hydrate_headshot(self, element: pf.Element):
-        """Sidebar headshot."""
-
-        config = self.config.sidebar.headshot
-        if self.doc.format == "html":
-            headshot = pf.Plain(
-                pf.Image(
-                    url=config.url,
-                    title=config.title,
-                    classes=["p-5"],
-                )
-            )
-
-        else:
-            headshot = pf.Para(pf.Str("Paceholder content"))
-
-        element.content = (headshot, *element.content)
-        return element
-
-    def hydrate_links(self, element: pf.Element):
-        """Sidebar links."""
-
-        if self.doc.format == "html":
-            links = self.config.sidebar.links.hydrate_html(
-                pf.Div(identifier="resume_links_floaty", classes=["floaty"])
-            )
-
-        else:
-            links = pf.Para(pf.Str("Paceholder content"))
-
-        element.content = (
-            pf.Header(pf.Str("Links"), level=2),
-            *element.content,
-            links,
-        )
-        return element
-
-    def hydrate_projects(self, element: pf.Element):
-        """Body projects."""
-        # if self.doc.format == "html":
-        #     projects = self.config.sidebar.projects.hydrate_html(
-        #         pf.Div(identifier="_projects", classes=["floaty"])
-        #     )
-        # else:
-        #     projects = pf.Para(pf.Str("Paceholder content"))
-
-        element.content = (
-            pf.Header(pf.Str("Projects"), level=2),
-            *element.content,
-            # projects,
-        )
-        return element
-
-    def hydrate_education(self, element: pf.Element):
-        """Body education."""
-
-        element.content = (
-            pf.Header(pf.Str("Education"), level=2),
-            *element.content,
-        )
-        return element
-
-    def hydrate_experience(self, element: pf.Element):
-        element.content = pf.ListContainer(
-            pf.Header(pf.Str("Experience"), level=2), *element.content
-        )
-        return element
-
-    def hydrate_icon(self, icon: str):
-        """Make the icon span.
-
-        NOTE: Not sure how insert shortcodes from icon configurations.
-              For now this is good enough.
-              See the [discussion on github]().
-        """
-
-        return pf.RawInline(
-            f"<iconify-icon inline icon={icon}></iconify-icon>", format="html"
-        )
-
-    def unsupported_format(self):
-        return pf.Header(f"Format `{self.doc.format}` Not Supported.")
-
     def layout(self, element: pf.Element):
 
+        # NOTE: ``HTML`` formatting is to be done using bootstrap in the
+        #       document itself. Bootstrap divs (obviously) only affect ``HTML``.
         if self.doc.format == "html":
-            # if element.identifier == "resume":
-            #     element.classes.append("columns")
-            #
-            # elif element.identifier == "resume-sidebar":
-            #     element.classes.append("column")
-            #     element.attributes["width"] = "30%"
-            #
-            #     # element.parent.content.insert(element.index, pf.Div())
-            #
-            # elif element.identifier == "resume-body":
-            #     element.classes.append("column")
-            #     element.attributes["width"] = "65%"
             pass
 
         elif self.doc.format == "latex":
@@ -452,17 +496,7 @@ class FilterResume(util.BaseFilter):
             return element
 
         element = self.layout(element)
-
-        if element.identifier in self.identifier_to_hydrate:
-            return self.identifier_to_hydrate[element.identifier](element)
-
-        if "experience" in element.classes:
-            config = self.config.body.experience[element.attributes["experience_item"]]
-            return config.hydrate(element, format=self.doc.format)
-
-        if "education" in element.classes:
-            config = self.config.body.education[element.attributes["education_item"]]
-            return config.hydrate(element, format=self.doc.format)
+        element = self.config(self.doc, element)
 
         return element
 

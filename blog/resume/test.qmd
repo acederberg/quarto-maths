@@ -3,7 +3,7 @@ title: Test Resume Template
 filters:
   # - fenced.lua
   - ../filters/elements.lua
-  - ../filters/test_filter.py
+  - ../filters/resume.py
   - iconify
 
 format:
