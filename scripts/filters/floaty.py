@@ -37,14 +37,48 @@ class ConfigFloatyItem(pydantic.BaseModel):
         ),
     ]
     title: str
+    tooltip: Annotated[str | None, pydantic.Field(default=None)]
+    # attributes_additional: Annotated[
+    #     dict[str, str] | None,
+    #     pydantic.Field(
+    #         description="Additional attributes to add.",
+    #         default=None,
+    #     )
+    # ]
 
-    def hydrate_iconify_li(self, *args, include_link: bool, **kwargs):
+    def get_attributes(self, size: int) -> dict[str, str]:
+        return {
+            "data-key": self.key,
+            "data-bs-toggle": "tooltip",
+            "data-bs-title": self.tooltip or self.title,
+            "data-bs-placement": "bottom",
+            "data-bs-custom-class": "floaty-tooltip",
+            "aria-label": f"{self.image.iconify.label or self.title}",
+            "icon": f"{self.image.iconify.set_}:{self.image.iconify.name}",
+            "title": self.title,
+            "style": f"font-size: {self.image.iconify.size or size}px;",
+        }
+
+    def hydrate_iconify_li(
+        self,
+        *args,
+        include_link: bool,
+        _parent: "ConfigFloatySection",
+        **kwargs,
+    ):
         res = self.hydrate_iconify(*args, **kwargs)
 
         if include_link and self.href is not None:
             res = pf.Link(res, url=self.href)
 
-        return pf.ListItem(pf.Para(res))
+        out = pf.ListItem(pf.Para(res))
+        util.record("titles", _parent.container.titles)
+        if _parent.container.titles:
+            util.record("Adding titles")
+            title = pf.Header(pf.Str(self.title), level=3, classes=["floaty-title"])
+            out.content.append(title)
+
+        return out
 
     def hydrate_iconify_tr(
         self, *args, cells_extra: Iterable[pf.TableCell] | None = None, **kwargs
@@ -69,14 +103,10 @@ class ConfigFloatyItem(pydantic.BaseModel):
         """Should make the iconify icon."""
 
         # NOTE: Font size MUST be in pixels for JS to ensure list item resize.
-        attrs = (
-            f'icon="{self.image.iconify.set_}:{self.image.iconify.name}"',
-            f"aria-label={self.image.iconify.label or self.title}",
-            f"title={self.title}",
-            f"style='font-size: {self.image.iconify.size or size}px;'",
-            f"data-key={self.key}",
+        attrs = " ".join(
+            f"{key}='{value}'" for key, value in self.get_attributes(size).items()
         )
-        raw = f'<iconify-icon {" ".join(attrs)}></iconify-icon>'
+        raw = f"<iconify-icon { attrs }></iconify-icon>"
 
         if inline:
             el = pf.RawInline(raw, format="html")
@@ -118,6 +148,7 @@ class ConfigFloatySectionContainer(pydantic.BaseModel):
     include: FieldInclude
     classes: FieldClasses
 
+    titles: Annotated[bool, pydantic.Field(default=False)]
     kind: Annotated[Literal["table", "list"], pydantic.Field(default="list")]
     size_item: int
     size_item_margin: Annotated[
@@ -193,6 +224,7 @@ class ConfigFloatySection(pydantic.BaseModel, Generic[T_ConfigFloatySection]):
             config_image.hydrate_iconify_li(
                 self.container.size_item,
                 include_link=not self.overlay.include,
+                _parent=self,
             )
             for config_image in self.content.values()
         )
@@ -253,7 +285,8 @@ class ConfigFloatySection(pydantic.BaseModel, Generic[T_ConfigFloatySection]):
                 return el
 
             util.record(
-                f"Hydrating overlay content for `#{element.identifier} .overlay data-key={el.attributes.get('data-key')}`."
+                f"Hydrating overlay content for `#{element.identifier} "
+                ".overlay data-key={el.attributes.get('data-key')}`."
             )
             el = el_config.hydrate_overlay_content_item(el, _parent=self)
             return el
@@ -274,6 +307,7 @@ class ConfigFloatySection(pydantic.BaseModel, Generic[T_ConfigFloatySection]):
         self.hydrate_html_js(element)
 
         if self.tooltip.include:
+
             info = pf.Div(
                 pf.Para(pf.Str(self.tooltip.text)),
                 classes=["floaty-info"],

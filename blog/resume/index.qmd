@@ -6,6 +6,7 @@ format:
     page-layout: full
     include-in-header:
       - file: ../includes/overlay.html
+      - file: ../includes/tooltip.html
         # pdf:
         #   template: template.tex
         #   keep-tex: true
@@ -257,6 +258,8 @@ resume:
     # Skills
     skills:
       container:
+        classes: ["floaty-container-wide", "py-3"]
+        titles: true
         size_item: 64
         type: list
       tooltip:
@@ -270,29 +273,30 @@ resume:
           since: 2017-08-01
           image:
             iconify:
-              set: devicon
-              name: nodejs
+              set: misc
+              name: binary
+          tooltip: Click to see more!
         - title: APIs and Databases
           key: api-and-db
           since: 2021-02-01
           image:
             iconify:
-              set: devicon
-              name: python
+              set: misc
+              name: api
         - title: Dashboards and UIs
           key: uiux
           since: 2021-05-01
           image:
             iconify:
-              set: devicon
-              name: react
+              set: misc
+              name: dashboard
         - title: DevOps Engineering
           key: devops
           since: 2021-06-01
           image:
             iconify:
-              set: devicon
-              name: pulumi
+              set: misc
+              name: devops
     # ----------------------------------------------------------------------- #
     # Links
     links:
@@ -447,17 +451,14 @@ or text me.
 <!-- Stop Right --> ::::
 <!-- End Columns 1 --> :::::
 
-<!-- Start Columns 2 --> ::::: { .columns }
+<!-- End Sidebar -------> ::::::
 
-<!-- Start Left --> :::: { .column width=40% }
-<!-- Stop Left --> ::::
+<!-- BODY -------------------------------------------------------------------->
+<!-- Start Body --------> :::::: { #resume-body }
 
-<!-- Start Right --> :::: { .column width=60% }
-
-::: { #resume-skills }
-
-<!-- Start Floaty --> ::: { #resume-skills-floaty }
-<!-- Start Overlay --> ::: { .overlay }
+<!-- Stop Skills -----------> ::: { #resume-skills }
+<!-- Start Floaty ----------> ::: { #resume-skills-floaty }
+<!-- Start Overlay ---------> ::: { .overlay }
 <!-- Start Overlay Conent --> ::: { .overlay-content }
 
 ::: { .overlay-content-item data-key="uiux" }
@@ -515,15 +516,8 @@ mandatory for buliding reliable and secure products.
 <!-- Stop Overlay Content --> :::
 <!-- Stop Overlay ------> :::
 <!-- Stop Floaty -------> :::
+<!-- Stop Skills -------> :::
 
-:::
-
-<!-- Stop Right --------> ::::
-<!-- End Columns 2 -----> :::::
-<!-- End Sidebar -------> ::::::
-
-<!-- BODY -------------------------------------------------------------------->
-<!-- Start Body --------> :::::: { #resume-body }
 <!-- Start Experience --> ::::: { #resume-experience }
 
 <!-- CONSULTING -------------------------------------------------------------->
@@ -533,11 +527,11 @@ mandatory for buliding reliable and secure products.
 I started my own consultancy and am working on registering my business and getting some customers.
 For a complete desription and technical details, see [the about page](/projects/blog).
 
-- Delivered [acederberg.io](https://acederberg.io) to advertise services,
+- Delivered [acederberg.io](https://acederberg.io){ data-bs-toggle="tooltip" data-bs-title="My blog" } to advertise services,
   distribute resume, host blog posts and notes, and showcase projects.
-- Ensured site reliability of [acederberg.io](https://acederberg.io) and future
+- Ensured site reliability of [acederberg.io](https://acederberg.io){ data-bs-toggle="tooltip" data-bs-title="My blog" } and future
   web services with CI/CD and IaC.
-- To support future commercial products, built [captura](https://github.com/acederberg).
+- To support future commercial products, built [captura](https://github.com/acederberg){ data-bs-toggle="tooltip" data-bs-title="Captura on github" }.
 
 ::::
 

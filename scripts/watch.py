@@ -218,7 +218,17 @@ class BlogHandler(FileSystemEventHandler):
             "files to determine which qmd files to re-render."
         ),
     ]
-    suffixes = {".py", ".lua", ".qmd", ".html", ".yaml", ".html", ".css", ".tex"}
+    suffixes = {
+        ".py",
+        ".lua",
+        ".qmd",
+        ".html",
+        ".yaml",
+        ".html",
+        ".css",
+        ".scss",
+        ".tex",
+    }
 
     def __init__(
         self,

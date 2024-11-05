@@ -62,15 +62,71 @@
 /* DO NOT SET HEIGHTS OR WIDTHS OF li or iconify-icon HERE! IT IS DONE BY JS TO PREVENT JITTER! */
 .floaty iconify-icon,
 .floaty-container li iconify-icon {
-  filter: drop-shadow(8px 8px 8px rgba(0, 0, 0, 0.5));
-  transition: all 1s;
+  filter: drop-shadow(8px 8px 2px rgba(0, 0, 0, 0.1));
+  transition: filter 1s, transform 1s;
 }
 
 
 .floaty iconify-icon:hover,
 .floaty-container li iconify-icon:hover {
   transform: scale(1.1);
-  filter: drop-shadow(8px 8px 16px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(8px 8px 4px rgba(0, 0, 0, 0.5));
+}
+
+
+.floaty-container li .floaty-title {
+  text-align: center;
+  width: 100%;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.floaty-container-fill ul {
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+
+@mixin wide-li {
+  flex-grow: 1;
+  transition: all 0.5s;
+  transition-delay: 0.3s;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.floaty-container-wide ul li {
+  @include wide-li;
+}
+
+@keyframes shiny {
+  0% {
+    filter: hue-rotate(15%);
+  }
+
+  33% {
+    filter: hue-rotate(30%);
+  }
+
+  66% {
+    filter: hue-rotate(45%);
+  }
+
+  100% {
+    filter: hue-rotate(60%);
+  }
+}
+
+.floaty-container-wide ul li:hover {
+  background: var(--bs-background);
+  transform: scale(1.2) translate(0%, -20%);
+  animation: shiny 10s linear;
+}
+
+.floaty-container-wide ul li iconify-icon:hover {
+  transform: none;
 }
 
 
@@ -79,6 +135,8 @@
 
 .floaty-container-macos ul {
   justify-content: left;
+  flex-wrap: nowrap;
+  /* overflow-y: scroll; */
 }
 
 .floaty-container-macos ul li {
@@ -99,6 +157,26 @@
 
 .floaty-container-macos ul li:hover {
   transform: scale(1.5) translate(0%, -20%);
+}
+
+.floaty-container-macos li iconify-icon {
+  filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.3));
+}
+
+.floaty-container-macos li iconify-icon:hover {
+  transform: background 0.5s;
+  border-radius: 50%;
+}
+
+.floaty-container-macos li iconify-icon:hover {
+  background: rgba(255, 255, 255, 0.95)
+}
+
+
+.floaty-tooltip {
+  --bs-tooltip-bg: var(--bs-white);
+  --bs-tooltip-color: var(--bs-black);
+  filter: drop-shadow(8px 8px 16px rgba(0, 0, 0, 0.5));
 }
 
 

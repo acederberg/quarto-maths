@@ -235,7 +235,7 @@ content:
       title: Founder
       start: January 2024
       stop: Now
-      skills:
+      tools:
         - name: docker
         - name: kubernetes
         - name: python
@@ -264,17 +264,6 @@ content:
       disipline: Applied Mathematics
       started: August 2015
       ended: December 2019
-      content:
-        - name: Department of Mathematics
-          description: >
-            Improved student outcomes as tutor and exam proctor in remedial
-            algebra. Ensured therough student feedback by grading algebra,
-            linear algebra, and ordinary differential equations homework.
-        - name: Department of Mechanical Engineering
-          description: >
-            Documentented efficient air plasma production using electricty and
-            magnetism. Built and programmed sensor arrays using rapberry pi and
-            arduino with drivers in ``python`` and ``c``.
 
 
 
