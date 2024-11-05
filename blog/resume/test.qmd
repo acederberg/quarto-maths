@@ -389,7 +389,7 @@ Docker is a powerful containerization tool.
 
 This is some additional content in the education section.
 
-::: { .education education_item="harvard" }
+::: { .education education-item="harvard" }
 
 :::
 
@@ -409,20 +409,20 @@ This is some additional content in the projects section.
 
 This is some additional text in the `experience` section.
 
-::: { .experience experience_item="test_experience" }
+::: { .experience experience-item="test_experience" }
 
 This text should show up under the "Test Organization" experience header of
 level $3$. This section should have no content after this line.
 
 :::
 
-::: { .experience experience_item="somewhere" }
+::: { .experience experience-item="somewhere" }
 
 This text should show up under the "Some Place" experience header of level $3$.
 
 :::
 
-::: { .experience experience_item="wherever" }
+::: { .experience experience-item="wherever" }
 
 This text should show up under the "Some Place" experience header.
 

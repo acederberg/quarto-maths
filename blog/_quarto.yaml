@@ -33,7 +33,7 @@ website:
                 - section: Subprojects
                   contents:
                     - text: 'Resume'
-                      href: ./resume/index.qmd
+                      href: ./resume/about.qmd
                     - text: 'Building A Custom Iconset for Kubernetes'
                       href: ./posts/iconify/index.qmd
                     - text: 'Leetcode Problems'

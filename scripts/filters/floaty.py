@@ -159,11 +159,20 @@ class ConfigFloatySection(pydantic.BaseModel, Generic[T_ConfigFloatySection]):
     def content_from_list(cls, v):
 
         if isinstance(v, list):
-            return {v.get("key") or str(k): v for k, v in enumerate(v)}
+            v_as_dict = {v.get("key") or str(k): v for k, v in enumerate(v)}
+
+            if len(v_as_dict) != len(v):
+                raise ValueError("Key collisions found.")
+
+            return v_as_dict
 
         return v
 
     def hydrate_html_js(self, element: pf.Element):
+        if not element.identifier:
+            util.record(element)
+            raise ValueError("Missing identifier for div.")
+
         closure_name = "overlay_" + element.identifier.lower().replace("-", "_")
 
         li_margin = self.container.size_item_margin
@@ -243,6 +252,9 @@ class ConfigFloatySection(pydantic.BaseModel, Generic[T_ConfigFloatySection]):
                 needs_config.add(el.attributes.get("data-key"))
                 return el
 
+            util.record(
+                f"Hydrating overlay content for `#{element.identifier} .overlay data-key={el.attributes.get('data-key')}`."
+            )
             el = el_config.hydrate_overlay_content_item(el, _parent=self)
             return el
 

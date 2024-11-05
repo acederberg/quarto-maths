@@ -26,11 +26,59 @@ def get_hydrate(
     return hydrator
 
 
+def do_floaty(
+    config: floaty.ConfigFloatySection, doc: pf.Doc, element: pf.Element
+) -> None:
+    """Given a section, look for its floaty (or make it) and hydrate.
+
+    Only floaties with overlay content should need to include their own
+    floaty explicitly.
+    """
+
+    if not element.identifier:
+        raise ValueError("Missing identifier for div.")
+
+    floaty_identifier = element.identifier + "-floaty"
+    state = {"count": 0}
+
+    def handle_floaty(el: pf.Element, _: pf.Doc) -> pf.Element:
+        if not isinstance(el, pf.Div):
+            return el
+
+        if el.identifier != floaty_identifier:
+            return el
+
+        el = config.hydrate_html(el)
+        state["count"] += 1
+        return el
+
+    element.walk(handle_floaty)
+
+    if not state["count"]:
+        floaty = pf.Div(
+            identifier=floaty_identifier,
+            classes=["floaty"],
+        )
+        handle_floaty(floaty, doc)
+        element.content.append(floaty)
+
+
+# class ExperienceContentItem(pydantic.BaseModel):
+#     text: str
+#     draft: Annotated[bool, pydantic.Field(default=False)]
+#
+#     @pydantic.model_validator(mode="before")
+#     def from_string(cls, v):
+#         if isinstance(v, str):
+#             return {"text": v, "draft": False}
+#         return v
+
+
 class BaseExperienceItem(pydantic.BaseModel):
     organization: str
     start: str
     stop: str
-    content: Annotated[list[str] | None, pydantic.Field(default=None)]
+    # content: Annotated[list[ExperienceContentItem] | None, pydantic.Field(default=None)]
 
     def create_start_stop(self):
         return (
@@ -73,13 +121,17 @@ class BaseExperienceItem(pydantic.BaseModel):
         else:
             head_elements = self.create_header_html()
 
-        if self.content is not None:
-            element.content = (
-                *element.content,
-                pf.BulletList(
-                    *(pf.ListItem(pf.Para(pf.Str(item))) for item in self.content)
-                ),
-            )
+        # if self.content is not None:
+        #     element.content = (
+        #         *element.content,
+        #         pf.BulletList(
+        #             *(
+        #                 pf.ListItem(pf.Para(pf.Str(item.text)))
+        #                 for item in self.content
+        #                 if not item.draft
+        #             )
+        #         ),
+        #     )
 
         element.content = (*head_elements, *element.content)
 
@@ -115,6 +167,11 @@ class ConfigExperienceItem(BaseExperienceItem):
                     ),
                 ),
             )
+
+        if self.tools is not None:
+            util.record(element.identifier)
+            util.record(self.tools.model_dump_json(indent=2))
+            do_floaty(self.tools, doc, element)
 
         return element
 
@@ -248,48 +305,13 @@ class ConfigSidebar(pydantic.BaseModel):
         ),
     ]
 
-    def do_floaty(
-        self, config: floaty.ConfigFloatySection, doc: pf.Doc, element: pf.Element
-    ) -> None:
-        """Given a section, look for its floaty (or make it) and hydrate.
-
-        Only floaties with overlay content should need to include their own
-        floaty explicitly.
-        """
-
-        floaty_identifier = element.identifier + "-floaty"
-        state = {"count": 0}
-
-        def handle_floaty(el: pf.Element, _: pf.Doc) -> pf.Element:
-            if not isinstance(el, pf.Div):
-                return el
-
-            if el.identifier != floaty_identifier:
-                return el
-
-            el = config.hydrate_html(el)
-            state["count"] += 1
-            return el
-
-        element.walk(handle_floaty)
-
-        util.record(floaty_identifier)
-        util.record(state)
-        if not state["count"]:
-            floaty = pf.Div(
-                identifier=floaty_identifier,
-                classes=["floaty"],
-            )
-            handle_floaty(floaty, doc)
-            element.content.append(floaty)
-
     def hydrate_contact(self, doc: pf.Doc, element: pf.Element) -> pf.Element:
         """Sidebar skills."""
         if self.contact is None:
             return element
 
         if doc.format == "html":
-            self.do_floaty(self.contact, doc, element)
+            do_floaty(self.contact, doc, element)
         else:
             pf.Para(pf.Str("Paceholder content"))
         #
@@ -307,7 +329,7 @@ class ConfigSidebar(pydantic.BaseModel):
             return element
         # NOTE: Adding both results in broken overlays.
         if doc.format == "html":
-            self.do_floaty(self.skills, doc, element)
+            do_floaty(self.skills, doc, element)
         else:
             ...
             # skills = pf.Para(pf.Str("Placeholder content."))
@@ -346,17 +368,14 @@ class ConfigSidebar(pydantic.BaseModel):
             return element
 
         if doc.format == "html":
-            links = self.links.hydrate_html(
-                pf.Div(identifier="resume_links_floaty", classes=["floaty"])
-            )
-
+            do_floaty(self.links, doc, element)
         else:
-            links = pf.Para(pf.Str("Paceholder content"))
+            ...
+            # = pf.Para(pf.Str("Paceholder content"))
 
         element.content = (
             pf.Header(pf.Str("Links"), level=2),
             *element.content,
-            links,
         )
         return element
 
@@ -409,7 +428,8 @@ class ConfigBody(pydantic.BaseModel):
 
     def hydrate_experience(self, _: pf.Doc, element: pf.Element) -> pf.Element:
         element.content = pf.ListContainer(
-            pf.Header(pf.Str("Experience"), level=2), *element.content
+            pf.Header(pf.Str("Experience"), level=2),
+            *element.content,
         )
         return element
 
@@ -421,11 +441,11 @@ class ConfigBody(pydantic.BaseModel):
             return hydrator(doc, element)
 
         if "experience" in element.classes and self.experience is not None:
-            config = self.experience[element.attributes["experience_item"]]
+            config = self.experience[element.attributes["experience-item"]]
             return config.hydrate(doc, element)
 
         if "education" in element.classes and self.education is not None:
-            config = self.education[element.attributes["education_item"]]
+            config = self.education[element.attributes["education-item"]]
             return config.hydrate(doc, element)
 
         return element

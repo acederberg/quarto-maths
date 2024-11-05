@@ -3,6 +3,7 @@ title: Resume
 format:
   html:
     toc: false
+    page-layout: full
     include-in-header:
       - file: ../includes/overlay.html
         # pdf:
@@ -14,13 +15,246 @@ format:
 filters:
   - ../filters/resume.py
 resume:
-  body: {}
+  body:
+    # ----------------------------------------------------------------------- #
+    # Education
+    education:
+      unm:
+        organization: University of New Mexico
+        degree: Bachelors of Science
+        concentration: Applied Mathematics
+        start: August 2015
+        stop: December 2019
+
+    # ----------------------------------------------------------------------- #
+    # Experience
+    experience:
+      mve:
+        organization: Mountain Mountain Vector Energy
+        title: Senior Software Engineer
+        start: January 2022
+        stop: December 2023
+        tools:
+          overlay:
+            include: true
+            size_icon: 256
+          container:
+            size_item: 48
+            size_item_margin: 8
+            kind: list
+            classes: ["floaty-container-macos", "pt-3", "px-3"]
+          tooltip:
+            include: false
+          content:
+            - image:
+                iconify:
+                  name: fastapi
+                  set: devicon
+              key: fastapi
+              title: FastAPI
+            - image:
+                iconify:
+                  name: terraform
+                  set: devicon
+              key: terraform
+              title: Terraform
+            - image:
+                iconify:
+                  name: bitbucket
+                  set: devicon
+              key: bitbucket
+              title: Bitbucket
+            - image:
+                iconify:
+                  name: kubernetes
+                  set: devicon
+              key: kubernetes
+              title: Kubernetes
+            - image:
+                iconify:
+                  name: helm
+                  set: devicon
+              key: helm
+              title: Helm
+            - image:
+                iconify:
+                  name: docker
+                  set: devicon
+              key: docker
+              title: Docker
+            - image:
+                iconify:
+                  name: python
+                  set: devicon
+              key: python
+              title: Python
+            - image:
+                iconify:
+                  name: nodejs
+                  set: devicon
+              key: nodejs
+              title: NodeJS
+            - image:
+                iconify:
+                  name: react
+                  set: devicon
+              key: react
+              title: React
+            - image:
+                iconify:
+                  name: auth0-icon
+                  set: logos
+              key: auth0
+              title: Auth0
+            - image:
+                iconify:
+                  name: sqlalchemy
+                  set: devicon
+              key: sqlalchemy
+              title: SQLAlchemy
+            - image:
+                iconify:
+                  name: mysql
+                  set: devicon
+              key: mysql
+              title: MySQL
+            - image:
+                iconify:
+                  name: mongodb
+                  set: devicon
+              key: mongodb
+              title: MongoDB
+            - image:
+                iconify:
+                  name: azure
+                  set: devicon
+              key: azure
+              title: Azure
+            - image:
+                iconify:
+                  name: github-actions
+                  set: logos
+              key: cicd
+              title: Bitbucket Pipelines
+            - image:
+                iconify:
+                  name: traefikproxy
+                  set: devicon
+              key: traefik
+              title: Traefik
+
+      consulting:
+        organization: acederberg.io
+        title: Founder
+        start: January 2024
+        stop: Now
+        tools:
+          overlay:
+            include: false
+            size_icon: 256
+          container:
+            size_item: 48
+            size_item_margin: 8
+            kind: list
+            classes: ["floaty-container-macos", "pt-3", "px-3"]
+          tooltip:
+            include: false
+          content:
+            - image:
+                iconify:
+                  set: misc
+                  name: quarto
+              key: quarto
+              title: Quarto
+            - image:
+                iconify:
+                  set: devicon
+                  name: latex
+              key: latex
+              title: Latex
+            - image:
+                iconify:
+                  set: devicon
+                  name: pulumi
+              key: pulumi
+              title: Pulumi
+            - image:
+                iconify:
+                  set: logos
+                  name: github-icon
+              key: github
+              title: Github
+            - image:
+                iconify:
+                  set: devicon
+                  name: git
+              key: git
+              title: Git
+            - image:
+                iconify:
+                  set: devicon
+                  name: neovim
+              key: neovim
+              title: Neovim
+            - image:
+                iconify:
+                  set: devicon
+                  name: python-wordmark
+              key: python
+              title: Python
+            - image:
+                iconify:
+                  set: devicon
+                  name: nodejs-wordmark
+              key: nodejs
+              title: Nodejs
+            - image:
+                iconify:
+                  set: misc
+                  name: mermaid
+              key: mermaid
+              title: Mermaidjs
+            - image:
+                iconify:
+                  set: logos
+                  name: linode
+              key: linode
+              title: Linode
+            - image:
+                iconify:
+                  set: logos
+                  name: kubernetes
+              key: kubernetes
+              title: Kubernetes
+            - image:
+                iconify:
+                  set: devicon
+                  name: pandas-wordmark
+              key: pandas
+              title: Pandas
+            - image:
+                iconify:
+                  set: devicon
+                  name: kaggle-wordmark
+              key: kaggle
+              title: Kaggle
+            - image:
+                iconify:
+                  set: devicon
+                  name: docker-wordmark
+              key: docker
+              title: Docker
+
+  # ========================================================================= #
+  # Experience
   sidebar:
     tex_width: .2
     headshot:
       url: https://avatars.githubusercontent.com/u/77076023?v=4
       title: Headshot
       description: Its'a Me!
+    # ----------------------------------------------------------------------- #
+    # Skills
     skills:
       container:
         size_item: 64
@@ -32,63 +266,35 @@ resume:
         size_icon: 256
       content:
         - title: Software Implementation and Architecture
+          key: impl
           since: 2017-08-01
-          description: |
-            I have been seriously writing code since about 2017 (and a little
-            before).
-
-            Through my various projects I have developed habits condusive to
-            building and shipping projects. I always:
-
-            1. have a plan and a timeline,
-            2. enforce effective design patterns and testing,
-            3. and use version control.
           image:
             iconify:
               set: devicon
               name: nodejs
-
         - title: APIs and Databases
+          key: api-and-db
           since: 2021-02-01
           image:
             iconify:
               set: devicon
               name: python
-          description: |
-            Data storage and retrieval is an essentail part of all modern web
-            applications. I have plenty of experience developing APIs and ETLs
-            in languages like
-            ``python`` <iconify-icon icon="devicons:python"></iconify-icon>
-            and ``nodejs`` <iconify-icon icon="devicons:nodejs"></iconify-icon>
-            using database technologies such as
-            ``mysql`` <iconify-icon icon=devicon:mysql></iconify-icon>,
-            ``mongodb`` <iconify-icon icon=devicon:mongodb></iconify-icon>,
-            and ``redis`` <iconify-icon icon=devicon:redis></iconify-icon>.
-
         - title: Dashboards and UIs
+          key: uiux
           since: 2021-05-01
           image:
             iconify:
               set: devicon
               name: react
-          description: |
-            For instance, you are probably viewing this resume on my blog.
-
-            My blog uses a mix of server side rendering in ``python`` using
-            ``quarto`` and ``panflute`` along with vanilla ``javascript``
-            running in the browser to implement reactivity.
-
         - title: DevOps Engineering
+          key: devops
           since: 2021-06-01
           image:
             iconify:
               set: devicon
               name: pulumi
-          description: |
-            A service is not useful or accessable unless it is deployed, and
-            deploying a website manually is a thing of the past. Automation is
-            mandatory for buliding reliable and secure products.
-
+    # ----------------------------------------------------------------------- #
+    # Links
     links:
       container:
         # classes: ["floaty-container-macos", "pt-3", "px-5"]
@@ -127,6 +333,8 @@ resume:
               name: house-01
               label: Blog
 
+    # ----------------------------------------------------------------------- #
+    # Contact
     contact:
       tooltip:
         include: true
@@ -142,49 +350,24 @@ resume:
         size_icon: 64
       content:
         - title: Phone
+          key: phone
           value: (505) 589 - 6914
-          description: |
-            I am available by phone Monday - Friday, 8 AM - 4 PM MST.
-            I do not pick up please feel free to leave a voice mail.
-            If you want to schedule a meeting, please text me or email me
-            in advance.
           image:
             iconify:
               set: hugeicons
               name: smart-phone-01
 
         - title: Email
+          key: email
           value: adrn.cederberg123@gmail.com
-          description: |
-            For inquiries not requiring an immediate response - You can expect
-            a response within the day. If your need is urgent, please just call
-            or text me.
           image:
             iconify:
               set: hugeicons
               name: mail-01
 
-        - title: Mail
+        - title: Location
+          key: location
           value: Albuquerque, New Mexico
-          description: |
-            I currently reside in Albuquerque, New Mexico and have lived here
-            since I was about seven years old.
-            I quite like it here, but am open to relocate for the right
-            position and compensation.
-
-            My preferences are listed in descending order:
-
-            1. A hybrid job here in Albuerque with and office in town or near by.
-            2. A remote job where I can make occasional trips out of town to
-               work in the office.
-            3. A fully remote job.
-            4. A fully on-premise job where relocation is provided.
-
-            **I will not provide my full address here, this is included for
-            resume parsers and the like so that they can begin do more for
-            autofill.
-            If you need my full address, please reach out to me by email or
-            phone.**
           image:
             iconify:
               set: hugeicons
@@ -195,7 +378,7 @@ resume:
 <!-- SIDEBAR ----------------------------------------------------------------->
 <!-- Start Sidebar --> :::::: { #resume-sidebar }
 <!-- Start Columns 1 --> ::::: { .columns }
-<!-- Start Left --> :::: { .column width=50% }
+<!-- Start Left --> :::: { .column width=40% }
 
 ::: { #resume-headshot }
 
@@ -206,9 +389,58 @@ resume:
 :::
 
 <!-- Stop Left --> ::::
-<!-- Start Right --> :::: { .column width=50% }
+<!-- Start Right --> :::: { .column width=60% }
 
 ::: { #resume-contact }
+
+<!-- Begin Floaty --> ::: { #resume-contact-floaty }
+<!-- Begin Overlay --> ::: { .overlay }
+<!-- Begin Overlay Content --> ::: { .overlay-content }
+
+::: { .overlay-content-item data-key=location }
+
+I currently reside in Albuquerque, New Mexico and have lived here
+since I was about seven years old.
+
+I quite like it here, but am open to relocate for the right
+position and compensation.
+
+My preferences are listed in descending order:
+
+1. A hybrid job here in Albuerque with and office in town or near by.
+2. A remote job where I can make occasional trips out of town to
+   work in the office.
+3. A fully remote job.
+4. A fully on-premise job where relocation is provided.
+
+**I will not provide my full address here, this is included for
+resume parsers and the like so that they can begin do more for
+autofill.
+If you need my full address, please reach out to me by email or
+phone.**
+
+:::
+
+::: { .overlay-content-item data-key=phone }
+
+I am available by phone Monday - Friday, 8 AM - 4 PM MST.
+I do not pick up please feel free to leave a voice mail.
+If you want to schedule a meeting, please text me or email me
+in advance.
+
+:::
+
+::: { .overlay-content-item data-key=email }
+
+For inquiries not requiring an immediate response - You can expect
+a response within the day. If your need is urgent, please just call
+or text me.
+
+:::
+
+<!-- End Floaty --> :::
+<!-- End Overlay Content --> :::
+<!-- End Overlay --> :::
 
 :::
 
@@ -217,23 +449,233 @@ resume:
 
 <!-- Start Columns 2 --> ::::: { .columns }
 
-<!-- Start Left --> :::: { .column width=50% }
+<!-- Start Left --> :::: { .column width=40% }
 <!-- Stop Left --> ::::
 
-<!-- Start Right --> :::: { .column width=50% }
+<!-- Start Right --> :::: { .column width=60% }
 
 ::: { #resume-skills }
 
+<!-- Start Floaty --> ::: { #resume-skills-floaty }
+<!-- Start Overlay --> ::: { .overlay }
+<!-- Start Overlay Conent --> ::: { .overlay-content }
+
+::: { .overlay-content-item data-key="uiux" }
+
+For instance, you are probably viewing this resume on my blog.
+
+My blog uses a mix of server side rendering in `python` using
+`quarto` and `panflute` along with vanilla `javascript`
+running in the browser to implement reactivity.
+
 :::
 
-<!-- Stop Right --> ::::
+::: { .overlay-content-item data-key="impl" }
 
-<!-- End Columns 2 --> :::::
+I have been seriously writing code since about 2017 (and a little
+before).
 
-<!-- End Sidebar --> ::::::
+:::
+
+<!--
+::: { .overlay-content-item data-key="" }
+
+Through my various projects I have developed habits condusive to
+building and shipping projects. I always:
+
+1. have a plan and a timeline,
+2. enforce effective design patterns and testing,
+3. and use version control.
+
+:::
+-->
+
+::: { .overlay-content-item data-key="api-and-db" }
+
+Data storage and retrieval is an essentail part of all modern web
+applications. I have plenty of experience developing APIs and ETLs
+in languages like
+`python` <iconify-icon icon="devicons:python"></iconify-icon>
+and `nodejs` <iconify-icon icon="devicons:nodejs"></iconify-icon>
+using database technologies such as
+`mysql` <iconify-icon icon=devicon:mysql></iconify-icon>,
+`mongodb` <iconify-icon icon=devicon:mongodb></iconify-icon>,
+and `redis` <iconify-icon icon=devicon:redis></iconify-icon>.
+
+:::
+
+::: { .overlay-content-item data-key="devops" }
+
+A service is not useful or accessable unless it is deployed, and
+deploying a website manually is a thing of the past. Automation is
+mandatory for buliding reliable and secure products.
+
+:::
+
+<!-- Stop Overlay Content --> :::
+<!-- Stop Overlay ------> :::
+<!-- Stop Floaty -------> :::
+
+:::
+
+<!-- Stop Right --------> ::::
+<!-- End Columns 2 -----> :::::
+<!-- End Sidebar -------> ::::::
 
 <!-- BODY -------------------------------------------------------------------->
-<!-- Start Body --> :::::: { #resume-body }
+<!-- Start Body --------> :::::: { #resume-body }
+<!-- Start Experience --> ::::: { #resume-experience }
 
-<!-- End Body --> ::::::
-<!-- End Resume   --> ::::::
+<!-- CONSULTING -------------------------------------------------------------->
+
+:::: { #consulting .experience experience-item="consulting" }
+
+I started my own consultancy and am working on registering my business and getting some customers.
+For a complete desription and technical details, see [the about page](/projects/blog).
+
+- Delivered [acederberg.io](https://acederberg.io) to advertise services,
+  distribute resume, host blog posts and notes, and showcase projects.
+- Ensured site reliability of [acederberg.io](https://acederberg.io) and future
+  web services with CI/CD and IaC.
+- To support future commercial products, built [captura](https://github.com/acederberg).
+
+::::
+
+<!-- MVE --------------------------------------------------------------------->
+
+:::: { #mve .experience experience-item="mve" }
+
+It was a fun time building some software.
+
+- Pivotted company toward SaaS to increase valuation by implementing `Cufflink` SaaS from scratch.
+- Supported Cufflink client dashboard and app by designing, implementing, and testing Cufflink API.
+- Gaurenteed platform stability and reproducability by architecting and implementing DevOps standards and IaC.
+- Ensured excellent customer experience by providing $99.99\%$ uptime with IaC and self testing Helm releases.
+- Enhanced developer productivity and rapid software delivery using CI/CD in Bitbucket and Azure.
+- Ensured API delivery of accurate data from devices and data pipelines via rigorous testing.
+- Encaned organizational security by securing Cufflink APIs, Cufflink Dashboard, and Azure organization.
+
+<!-- Start Floaty --------------> ::: { #mve-floaty }
+<!-- Start Overlay -------------> ::: { .overlay }
+<!-- Start Overlay Content -----> ::: { .overlay-content }
+
+::: { .overlay-content-item data-key="fastapi" }
+
+The main framework we used for Cufflink API services written in `python`.
+
+:::
+
+::: { .overlay-content-item data-key="terraform" }
+
+The tool I used to write all of our infrastructure as code (aka `IaC`).
+
+:::
+
+::: { .overlay-content-item data-key="bitbucket" }
+
+The repository host and tools for Continuous Integration and Deployment (aka `CI/CD`).
+I used bitbucket pipelines to automate a number of tasks for developers, including
+(but not limited to) running software test suites, container builds, and
+production and preview deployments.
+
+:::
+
+::: { .overlay-content-item data-key="kubernetes" }
+
+Running containerized API and dashboard services and data pipeline cronjobs.
+
+:::
+
+::: { .overlay-content-item data-key="helm" }
+
+Ensuring that kubernetes resources were reproducable and service testing hooks.
+
+:::
+
+::: { .overlay-content-item data-key="docker" }
+
+Containerization of services (microservices) and consistent developer environment across platforms.
+
+:::
+
+::: { .overlay-content-item data-key="python" }
+
+Language of choice for all back end services (APIs) and data pipelines.
+
+:::
+
+::: { .overlay-content-item data-key="nodejs" }
+
+Language of choice for all front end services (dashboard and app).
+
+:::
+
+::: { .overlay-content-item data-key="react" }
+
+Framework of choice for all front end services (dashboard and app).
+
+:::
+
+::: { .overlay-content-item data-key="auth0" }
+
+OAuth token authentication in APIs and login in dashboard and app.
+
+:::
+
+::: { .overlay-content-item data-key="sqlalchemy" }
+
+Backend services to talk to to mysql with ease.
+
+:::
+
+::: { .overlay-content-item data-key="mysql" }
+
+Primary database for storing timeseries data and customer metadata.
+
+:::
+
+::: { .overlay-content-item data-key="mongodb" }
+
+Resource grouping and real time usage and spend.
+
+:::
+
+::: { .overlay-content-item data-key="azure" }
+
+Hosting infrastructure and organization active directory.
+
+:::
+
+::: { .overlay-content-item data-key="cicd" }
+
+Ensuring developer productivity and efficient software delivery.
+
+:::
+
+::: { .overlay-content-item data-key="traefik" }
+
+Kubernetes ingress, middlewares, and SSL termination with ACME certificates.
+
+:::
+
+<!-- Stop Overlay Content ------> :::
+<!-- Stop Overlay --------------> :::
+<!-- Stop Floaty ---------------> :::
+
+::::
+
+<!-- End Experience ----> :::::
+<!-- Start Education ---> ::::: { #education }
+<!-- Start UNM ---------> :::: { #unm .education education-item=unm }
+
+- Improved student outcomes as tutor and exam proctor in remedial algebra.
+  Ensured therough student feedback by grading algebra, linear algebra, and
+  ordinary differential equations homework.
+- Documentented efficient air plasma production using electricty and magnetism.
+  Built and programmed sensor arrays using rapberry pi and arduino (using
+  `python` and `c`).
+
+<!-- End UNM -----------> ::::
+<!--- End Education ----> :::::
+<!-- End Body ----------> ::::::
+<!-- End Resume   ------> ::::::
