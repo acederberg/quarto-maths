@@ -5,7 +5,7 @@ import panflute as pf
 import pydantic
 from typing_extensions import NotRequired, Required, Unpack
 
-from scripts.filters import util
+from acederbergio.filters import util
 
 
 class ConfigFloatyItemIconify(pydantic.BaseModel):
@@ -19,15 +19,10 @@ class ConfigFloatyItemImage(pydantic.BaseModel):
     iconify: ConfigFloatyItemIconify
 
 
-T_ConfigFloatyItemParent = TypeVar(
-    "T_ConfigFloatyItemParent", bound="ConfigFloatySection"
-)
-
-
-class IconifyKwargs(TypedDict, Generic[T_ConfigFloatyItemParent]):
+class IconifyKwargs(TypedDict):
 
     inline: NotRequired[bool]
-    _parent: Required[T_ConfigFloatyItemParent]
+    _parent: Required["ConfigFloatySection"]
 
 
 class ConfigFloatyItem(pydantic.BaseModel):

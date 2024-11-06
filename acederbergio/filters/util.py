@@ -7,7 +7,7 @@ from typing import Any, ClassVar
 import panflute as pf
 import pydantic
 
-from scripts import env
+from acederbergio import env
 
 
 def record(*args, **kwargs):

@@ -14,7 +14,7 @@ import requests
 import rich.console
 import typer
 
-from scripts import env
+from acederbergio import env
 
 path_here = pathlib.Path(__file__).resolve().parent
 path_icons_json = path_here / "icons.json"

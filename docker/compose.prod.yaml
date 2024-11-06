@@ -12,8 +12,6 @@ services:
         ACEDERBERG_IO_BUILD_GIT_COMMIT: ${ACEDERBERG_IO_BUILD_GIT_COMMIT}
         ACEDERBERG_IO_BUILD_GIT_REF: ${ACEDERBERG_IO_BUILD_GIT_REF}
     image: acederberg/blog:${ACEDERBERG_IO_SERVER_VERSION-0.2.2}
-    entrypoint:
-      - sh
     ports:
       - published: 8080
         target: 8080

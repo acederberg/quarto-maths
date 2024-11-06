@@ -9,9 +9,9 @@ import meta_tags_parser as mtp
 import meta_tags_parser.structs as structs
 import yaml
 
-from scripts import env
+from acederbergio import env
 
-logger = logging.getLogger("scripts.meta")
+logger = logging.getLogger("acederbergio.meta")
 
 
 EXPECT_TWITTER = {"description", "title", "image", "card"}

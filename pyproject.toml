@@ -1,12 +1,12 @@
 [tool.poetry]
-name = "quarto-demo"
+name = "acederbergio"
 version = "0.2.2"
 description = "Quarto demo"
 authors = ["Adrian Cederberg <adrn.cederberg123@gmail.com>"]
 readme = "README.md"
 packages = [
   {include="dsa", from="blog"},
-  {include="scripts"},
+  {include="acederbergio"},
 ]
 
 
@@ -63,7 +63,7 @@ priority = "explicit"
 
 
 [tool.poetry.scripts]
-acederbergio = "scripts.__main__:cli"
+acederbergio = "acederbergio.__main__:cli"
 
 
 [tool.acederbergio.icons]

@@ -22,262 +22,262 @@ format-links:
   - text: tex
     href: ./test.tex
 resume:
-  sidebar:
-    tex_width: .2
-    headshot:
-      url: https://avatars.githubusercontent.com/u/77076023?v=4
-      title: Headshot
-      description: Its'a Me!
-    contact:
-      tooltip:
-        include: true
-        text: Click any row to learn more about each contact method.
-      container:
-        include: true
-        size_item: 24
-        # include_titles: true
-        kind: table
-      overlay:
-        include: true
-        size_icon: 256
-      content:
-        - title: Phone
-          value: (111) 111 - 1111
-          description: |
-            I am available by phone Monday - Friday, 8 AM - 4 PM MST.
-            If I can not pick up, please feel free to leave a voice mail.
-          image:
-            iconify:
-              set: hugeicons
-              name: smart-phone-01
-        - title: Email
-          value: dude@place.org
-          description: |
-            This is my email address for work.
-            Please do not send me spam.
-            Only send me legitimage inquiries.
-            If I do not get back to you right away and you need me to just call.
-          image:
-            iconify:
-              set: hugeicons
-              name: mail-01
-        - title: Carrier Pigeon
-          value: Bert
-          description: |
-            Bert is my carrier pigeon.
-            Find bert and tell him what you need me to hear.
-            He can talk, he just won't talk to you because he is shy.
-          image:
-            iconify:
-              set: misc
-              name: birds
-    skills:
-      overlay:
-        size_icon: 256
-      tooltip:
-        text: Click on any icon to learn more about any particular skill.
-      container:
-        kind: list
-        size_item: 64
-        li_margin: 16
-        # include_titles: true
-      content:
-        - title: CI/CD
-          key: cicd
-          since: 2021-05-01
-          category: devops
-          image:
-            iconify:
-              set: logos
-              name: github-actions
-              label: Continuous Integration and Deployment
-        - title: Lua
-          key: lua
-          since: 2022-11-01
-          category: languages
-          image:
-            iconify:
-              set: devicon
-              name: lua
-              label: Lua
-        - title: Quarto
-          key: quarto
-          since: 2024-07-01
-          category: tools
-          image:
-            iconify:
-              set: misc
-              name: quarto
-              label: Lua
-        - title: Terraform
-          key: terraform
-          since: 2022-05-01
-          category: tools
-          image:
-            iconify:
-              set: devicon
-              name: terraform
-              label: Terraform
-        - title: Python
-          key: python
-          since: 2017-08-01
-          category: tool
-          image:
-            iconify:
-              set: devicon
-              name: python
-              label: Python
-        - title: Docker
-          key: docker
-          since: 2021-03-01
-          category: devops
-          image:
-            iconify:
-              set: devicon
-              name: docker
-              label: Docker
-
-    links:
-      container:
-        classes: ["floaty-container-macos", "pt-3", "px-5"]
-        size_item: 32
-        type: list
-      tooltip:
-        text: Click on any of the icons to open in a new tab.
-      overlay:
-        include: false
-        size_icon: 256
-      content:
-        - title: Linkedin
-          href: https://www.linkedin.com/in/adrian-cederberg-b453571b9
-          description: My profile on linkedin.
-          image:
-            iconify:
-              set: devicon
-              name: linkedin
-              label: Linkedin
-
-        - title: Github
-          href: https://github.com/acederberg
-          description: My github account.
-          image:
-            iconify:
-              set: devicon
-              name: github
-              label: Github
-
-        - title: Blog
-          href: https://acederberg.io
-          description: My Blog
-          image:
-            iconify:
-              set: hugeicons
-              name: house-01
-              label: Blog
-
-    # NOTE: Skills are reusable for experience section and should be put in a
-    #       list to ensure same order on render.
-    # skills: [cicd, lua, docker]
-  body:
-    education:
-      harvard:
-        degree: "Bachelors of Science"
-        concentration: "Medical Science"
-        organization: "Harvard University"
-        start: "2015"
-        stop: "2019"
-        content:
-          - Dropped out to 'save the rap game'
-          - GPA was over 9000.
-    projects:
-      test_project:
-        title: "Test Project"
-        href: /projects
-    experience:
-      test_experience:
-        title: "Test Title"
-        organization: "Test Organization"
-        start: Now
-        stop: Then
-      somewhere:
-        title: "Doer of Things"
-        organization: "Some Place"
-        start: "1929"
-        stop: "1999"
-        content:
-          - Increased sharholder value by doing some suff at some place with whoever.
-          - To increase worker productivity, did whatever at some place with whoever.
-          - To increase team bonding, planned company lunch and ate some company lunch.
-          - Made boss man happy by spending time in front of computer doing some tasks.
-        tools:
-          tooltip:
-            text: Click on any icon to learn more about any particular skill.
-          container:
-            classes: ["floaty-container-macos", "pt-3"]
-            size_item: 48
-            size_item_margin: 8
-            kind: list
-            # include_titles: true
-          overlay:
-            size_icon: 256
-          content:
-            - title: CI/CD
-              since: 2021-05-01
-              category: devops
-              image:
-                iconify:
-                  set: logos
-                  name: github-actions
-                  label: Continuous Integration and Deployment
-            - title: Lua
-              since: 2022-11-0110px
-              category: languages
-              image:
-                iconify:
-                  set: devicon
-                  name: lua
-                  label: Lua
-            - title: Quarto
-              since: 2024-07-01
-              category: tools
-              image:
-                iconify:
-                  set: misc
-                  name: quarto
-                  label: Lua
-            - title: Terraform
-              since: 2022-05-01
-              category: tools
-              image:
-                iconify:
-                  set: devicon
-                  name: terraform
-                  label: Terraform
-            - title: Python
-              since: 2017-08-01
-              category: tool
-              image:
-                iconify:
-                  set: devicon
-                  name: python
-                  label: Python
-            - title: Docker
-              since: 2021-03-01
-              category: devops
-              image:
-                iconify:
-                  set: devicon
-                  name: docker
-                  label: Docker
-      wherever:
-        title: Dude
-        organization: Place
-        start: whenever
-        stop: now
-        content:
-          - Does stuff
-          - Does things
-          - Does whatever
+  sidebar: {}
+  # tex_width: .2
+  # headshot:
+  #   url: https://avatars.githubusercontent.com/u/77076023?v=4
+  #   title: Headshot
+  #   description: Its'a Me!
+  # contact:
+  #   tooltip:
+  #     include: true
+  #     text: Click any row to learn more about each contact method.
+  #   container:
+  #     include: true
+  #     size_item: 24
+  #     # include_titles: true
+  #     kind: table
+  #   overlay:
+  #     include: true
+  #     size_icon: 256
+  #   content:
+  #     - title: Phone
+  #       value: (111) 111 - 1111
+  #       description: |
+  #         I am available by phone Monday - Friday, 8 AM - 4 PM MST.
+  #         If I can not pick up, please feel free to leave a voice mail.
+  #       image:
+  #         iconify:
+  #           set: hugeicons
+  #           name: smart-phone-01
+  #     - title: Email
+  #       value: dude@place.org
+  #       description: |
+  #         This is my email address for work.
+  #         Please do not send me spam.
+  #         Only send me legitimage inquiries.
+  #         If I do not get back to you right away and you need me to just call.
+  #       image:
+  #         iconify:
+  #           set: hugeicons
+  #           name: mail-01
+  #     - title: Carrier Pigeon
+  #       value: Bert
+  #       description: |
+  #         Bert is my carrier pigeon.
+  #         Find bert and tell him what you need me to hear.
+  #         He can talk, he just won't talk to you because he is shy.
+  #       image:
+  #         iconify:
+  #           set: misc
+  #           name: birds
+  # skills:
+  #   overlay:
+  #     size_icon: 256
+  #   tooltip:
+  #     text: Click on any icon to learn more about any particular skill.
+  #   container:
+  #     kind: list
+  #     size_item: 64
+  #     li_margin: 16
+  #     # include_titles: true
+  #   content:
+  #     - title: CI/CD
+  #       key: cicd
+  #       since: 2021-05-01
+  #       category: devops
+  #       image:
+  #         iconify:
+  #           set: logos
+  #           name: github-actions
+  #           label: Continuous Integration and Deployment
+  #     - title: Lua
+  #       key: lua
+  #       since: 2022-11-01
+  #       category: languages
+  #       image:
+  #         iconify:
+  #           set: devicon
+  #           name: lua
+  #           label: Lua
+  #     - title: Quarto
+  #       key: quarto
+  #       since: 2024-07-01
+  #       category: tools
+  #       image:
+  #         iconify:
+  #           set: misc
+  #           name: quarto
+  #           label: Lua
+  #     - title: Terraform
+  #       key: terraform
+  #       since: 2022-05-01
+  #       category: tools
+  #       image:
+  #         iconify:
+  #           set: devicon
+  #           name: terraform
+  #           label: Terraform
+  #     - title: Python
+  #       key: python
+  #       since: 2017-08-01
+  #       category: tool
+  #       image:
+  #         iconify:
+  #           set: devicon
+  #           name: python
+  #           label: Python
+  #     - title: Docker
+  #       key: docker
+  #       since: 2021-03-01
+  #       category: devops
+  #       image:
+  #         iconify:
+  #           set: devicon
+  #           name: docker
+  #           label: Docker
+  #
+  # links:
+  #   container:
+  #     classes: ["floaty-container-macos", "pt-3", "px-5"]
+  #     size_item: 32
+  #     type: list
+  #   tooltip:
+  #     text: Click on any of the icons to open in a new tab.
+  #   overlay:
+  #     include: false
+  #     size_icon: 256
+  #   content:
+  #     - title: Linkedin
+  #       href: https://www.linkedin.com/in/adrian-cederberg-b453571b9
+  #       description: My profile on linkedin.
+  #       image:
+  #         iconify:
+  #           set: devicon
+  #           name: linkedin
+  #           label: Linkedin
+  #
+  #     - title: Github
+  #       href: https://github.com/acederberg
+  #       description: My github account.
+  #       image:
+  #         iconify:
+  #           set: devicon
+  #           name: github
+  #           label: Github
+  #
+  #     - title: Blog
+  #       href: https://acederberg.io
+  #       description: My Blog
+  #       image:
+  #         iconify:
+  #           set: hugeicons
+  #           name: house-01
+  #           label: Blog
+  #
+  # NOTE: Skills are reusable for experience section and should be put in a
+  #       list to ensure same order on render.
+  # skills: [cicd, lua, docker]
+  body: {}
+  # education:
+  #   harvard:
+  #     degree: "Bachelors of Science"
+  #     concentration: "Medical Science"
+  #     organization: "Harvard University"
+  #     start: "2015"
+  #     stop: "2019"
+  #     content:
+  #       - Dropped out to 'save the rap game'
+  #       - GPA was over 9000.
+  # projects:
+  #   test_project:
+  #     title: "Test Project"
+  #     href: /projects
+  # experience:
+  #   test_experience:
+  #     title: "Test Title"
+  #     organization: "Test Organization"
+  #     start: Now
+  #     stop: Then
+  #   somewhere:
+  #     title: "Doer of Things"
+  #     organization: "Some Place"
+  #     start: "1929"
+  #     stop: "1999"
+  #     content:
+  #       - Increased sharholder value by doing some suff at some place with whoever.
+  #       - To increase worker productivity, did whatever at some place with whoever.
+  #       - To increase team bonding, planned company lunch and ate some company lunch.
+  #       - Made boss man happy by spending time in front of computer doing some tasks.
+  #     tools:
+  #       tooltip:
+  #         text: Click on any icon to learn more about any particular skill.
+  #       container:
+  #         classes: ["floaty-container-macos", "pt-3"]
+  #         size_item: 48
+  #         size_item_margin: 8
+  #         kind: list
+  #         # include_titles: true
+  #       overlay:
+  #         size_icon: 256
+  #       content:
+  #         - title: CI/CD
+  #           since: 2021-05-01
+  #           category: devops
+  #           image:
+  #             iconify:
+  #               set: logos
+  #               name: github-actions
+  #               label: Continuous Integration and Deployment
+  #         - title: Lua
+  #           since: 2022-11-0110px
+  #           category: languages
+  #           image:
+  #             iconify:
+  #               set: devicon
+  #               name: lua
+  #               label: Lua
+  #         - title: Quarto
+  #           since: 2024-07-01
+  #           category: tools
+  #           image:
+  #             iconify:
+  #               set: misc
+  #               name: quarto
+  #               label: Lua
+  #         - title: Terraform
+  #           since: 2022-05-01
+  #           category: tools
+  #           image:
+  #             iconify:
+  #               set: devicon
+  #               name: terraform
+  #               label: Terraform
+  #         - title: Python
+  #           since: 2017-08-01
+  #           category: tool
+  #           image:
+  #             iconify:
+  #               set: devicon
+  #               name: python
+  #               label: Python
+  #         - title: Docker
+  #           since: 2021-03-01
+  #           category: devops
+  #           image:
+  #             iconify:
+  #               set: devicon
+  #               name: docker
+  #               label: Docker
+  #   wherever:
+  #     title: Dude
+  #     organization: Place
+  #     start: whenever
+  #     stop: now
+  #     content:
+  #       - Does stuff
+  #       - Does things
+  #       - Does whatever
 # quarto:
 #   experience:
 #     months: 4

@@ -5,7 +5,7 @@ import panflute as pf
 import pydantic
 from typing_extensions import Unpack
 
-from scripts.filters import floaty, util
+from acederbergio.filters import floaty, util
 
 ELEMENTS_SIDEBAR = {
     "resume-contact",
@@ -260,7 +260,7 @@ class ConfigSkillsItem(floaty.ConfigFloatyItem):
         cells_extra: Iterable[pf.TableCell] | None = None,
         **kwargs: Unpack[floaty.IconifyKwargs],
     ):
-        progress = pf.TableCell(self.hydrate_progress_bar(_parent=kwargs["_parent"]))
+        progress = pf.TableCell(self.hydrate_progress_bar(_parent=kwargs["_parent"]))  # type: ignore
 
         el = super().hydrate_iconify_tr(
             *args,

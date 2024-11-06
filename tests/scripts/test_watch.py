@@ -1,4 +1,4 @@
-from scripts import env, watch
+from acederbergio import env, watch
 
 
 def test_ignore_node():

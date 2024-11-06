@@ -78,37 +78,43 @@ CMD ["bash"]
 
 # start snippet builder
 FROM quarto AS builder
-WORKDIR /quarto/app
 ARG ACEDERBERG_IO_BUILD_GIT_COMMIT
 ARG ACEDERBERG_IO_BUILD_GIT_REF
+
+WORKDIR /quarto/app
+RUN quarto install tinytex
 ENV \
   ACEDERBERG_IO_VENV="/quarto/.venv" \
+  ACEDERBERG_IO_BLOG="/quarto/app/blog" \
+  ACEDERBERG_IO_PYPROJECT_TOML="/quarto/app/pyproject.toml" \
   ACEDERBERG_IO_WORKDIR="/quarto/app" \
   ACEDERBERG_IO_BUILD_GIT_COMMIT="${ACEDERBERG_IO_BUILD_GIT_COMMIT}" \
   ACEDERBERG_IO_BUILD_GIT_REF="${ACEDERBERG_IO_BUILD_GIT_REF}" \
   ACEDERBERG_IO_DRY="0" \
   KAGGLE_CONFIG_DIR="/quarto"
 
-RUN quarto install tinytex
 COPY ./pyproject.toml ./poetry.lock /quarto/app
+COPY ./acederbergio /quarto/app/acederbergio
 COPY ./blog /quarto/app/blog
 
 RUN \
-  --mount=type=bind,target=/quarto/app/scripts,source=./scripts \
   --mount=type=cache,target=$ACEDERBERG_IO_VENV \
+  --mount=type=bind,target=/quarto/app/acederbergio,source=./acederbergio \
   --mount=type=secret,id=kaggle_json,target=/quarto/kaggle.json,required \
   --mount=type=secret,id=google_tracking_id,env=ACEDERBERG_IO_GOOGLE_TRACKING_ID,required \
-  mkdir --parents $ACEDERBERG_IO_WORKDIR/build $ACEDERBERG_IO_VENV \
-  && python3.10 -m venv $ACEDERBERG_IO_VENV \
-  && bash -c "\
-    source $ACEDERBERG_IO_VENV/bin/activate \
+  bash -c "\
+    mkdir --parents $ACEDERBERG_IO_WORKDIR/build $ACEDERBERG_IO_VENV \
+    && source $ACEDERBERG_IO_VENV/bin/activate \
     && python3.10 -m pip install poetry \
-    && poetry install --with scripts --no-root \
-    && poetry run python -m scripts.config all \
+    && touch README.md \
+    && if ( pip list | grep acederbergio ); then pip uninstall --yes acederbergio; fi \
+    && poetry build \
+    && poetry run python3.10 -m pip install ./dist/*.whl \
     && cd /quarto/app/blog \
+    && poetry run python -m acederbergio.config all \
     && quarto add quarto-ext/include-code-files --no-prompt \
     && quarto add mcanouil/quarto-iconify --no-prompt \
-    && quarto render"
+    && poetry run quarto render"
 # end snippet builder
 
 

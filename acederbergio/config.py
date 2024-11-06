@@ -10,7 +10,7 @@ import toml
 import typer
 import yaml
 
-from scripts import env
+from acederbergio import env
 
 logger = env.create_logger(__name__)
 
@@ -182,7 +182,7 @@ def icons(
     _include: FlagInclude = list(),
 ):
 
-    with open(env.ROOT / "pyproject.toml", "r") as file:
+    with open(env.PYPROJECT_TOML, "r") as file:
         config = toml.load(file)
 
     if not _include:

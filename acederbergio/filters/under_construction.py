@@ -2,7 +2,7 @@ from typing import Literal
 
 import panflute as pf
 
-from scripts.filters import util
+from acederbergio.filters import util
 
 FONTSIZES = {"small": 64, "medium": 128, "large": 256, "#": 512}
 HEADERS = {

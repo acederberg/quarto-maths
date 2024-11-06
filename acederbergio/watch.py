@@ -18,7 +18,7 @@ from typing_extensions import Doc, Self
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 
-from scripts import env
+from acederbergio import env
 
 logger = env.create_logger(__name__)
 
