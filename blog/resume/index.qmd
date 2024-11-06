@@ -14,6 +14,7 @@ format:
         #     - ./title.tex
 
 filters:
+  - ../filters/under_construction.py
   - ../filters/resume.py
 resume:
   body:
@@ -320,6 +321,12 @@ resume:
               iconify:
                 set: devicon
                 name: docker
+          - title: Pipelines
+            since: 2021-07-01
+            image:
+              iconify:
+                set: logo
+                name: github-actions
           - title: Terraform
             key: terraform
             since: 2022-04-01
@@ -327,6 +334,28 @@ resume:
               iconify:
                 set: devicon
                 name: terraform
+          - title: Kuberenetes
+            key: k8s
+            since: 2022-04-01
+            image:
+              iconify:
+                set: devicon
+                name: kubernetes
+          - title: Ansible
+            key: ansible
+            since: 2021-10-01
+            image:
+              iconify:
+                set: devicon
+                name: ansible
+          - title: Cloud
+            key: cloud
+            since: 2021-06-01
+            image:
+              iconify:
+                set: hugeicons
+                name: cloud
+
           - title: Pulumi
             key: pulumi
             since: 2024-01-01
@@ -423,6 +452,8 @@ resume:
 
 ::: { #resume-headshot }
 
+_This is a placeholder image and will be replaced with an actual headshot soon._
+
 :::
 
 ::: { #resume-links }
@@ -446,9 +477,10 @@ since I was about seven years old.
 I quite like it here, but am open to relocate for the right
 position and compensation.
 
+<!--
 My preferences are listed in descending order:
 
-1. A hybrid job here in Albuerque with and office in town or near by.
+1. A hybrid job here in Albuquerque with and office in town or near by.
 2. A remote job where I can make occasional trips out of town to
    work in the office.
 3. A fully remote job.
@@ -459,6 +491,7 @@ resume parsers and the like so that they can begin do more for
 autofill.
 If you need my full address, please reach out to me by email or
 phone.**
+-->
 
 :::
 
@@ -493,10 +526,14 @@ or text me.
 <!-- BODY -------------------------------------------------------------------->
 <!-- Start Body --------> :::::: { #resume-body }
 
-<!-- Stop Skills -----------> ::: { #resume-skills }
+<!-- SKILLS ------------------------------------------------------------------>
+<!-- Start Skills ----------> ::: { #resume-skills }
+
+Click on any of the following items to learn more.
+
 <!-- Start Floaty ----------> ::: { #resume-skills-floaty }
 <!-- Start Overlay ---------> ::: { .overlay }
-<!-- Start Overlay Conent --> ::: { .overlay-content }
+<!-- Start Overlay Content --> ::: { .overlay-content }
 
 ::: { .overlay-content-item data-key="uiux" }
 
@@ -506,6 +543,12 @@ My blog uses a mix of server side rendering in `python` using
 `quarto` and `panflute` along with vanilla `javascript`
 running in the browser to implement reactivity.
 
+::: { .under-construction-medium .my-5 }
+
+Soon an enumeration of my ui/ux skills will be here.
+
+:::
+
 :::
 
 ::: { .overlay-content-item data-key="impl" }
@@ -513,12 +556,18 @@ running in the browser to implement reactivity.
 I have been seriously writing code since about 2017 (and a little
 before).
 
+::: { .under-construction-medium .my-5 }
+
+Soon an enumeration of general software skills will be here.
+
+:::
+
 :::
 
 <!--
 ::: { .overlay-content-item data-key="" }
 
-Through my various projects I have developed habits condusive to
+Through my various projects I have developed habits conducive to
 building and shipping projects. I always:
 
 1. have a plan and a timeline,
@@ -530,23 +579,27 @@ building and shipping projects. I always:
 
 ::: { .overlay-content-item data-key="api-and-db" }
 
-Data storage and retrieval is an essentail part of all modern web
+Data storage and retrieval is an essential part of all modern web
 applications. I have plenty of experience developing APIs and ETLs
-in languages like
-`python` <iconify-icon icon="devicons:python"></iconify-icon>
-and `nodejs` <iconify-icon icon="devicons:nodejs"></iconify-icon>
+in languages like `python` {{< iconify devicons python >}}, and `nodejs` {{< iconify devicons nodejs>}}
 using database technologies such as
-`mysql` <iconify-icon icon=devicon:mysql></iconify-icon>,
-`mongodb` <iconify-icon icon=devicon:mongodb></iconify-icon>,
-and `redis` <iconify-icon icon=devicon:redis></iconify-icon>.
+`mysql` {{< iconify devicon mysql >}},
+`mongodb` {{< iconify devicon mongodb >}},
+and `redis` {{< iconify devicon redis >}}.
+
+::: { .under-construction-medium .my-5 }
+
+Soon an enumeration of my database and API skills will be here.
+
+:::
 
 :::
 
 ::: { .overlay-content-item data-key="devops" }
 
-A service is not useful or accessable unless it is deployed, and
+A service is not useful or accessible unless it is deployed, and
 deploying a website manually is a thing of the past. Automation is
-mandatory for buliding reliable and secure products.
+mandatory for building reliable and secure products.
 
 ::: { #devops }
 :::
@@ -581,13 +634,13 @@ For a complete desription and technical details, see [the about page](/projects/
 
 It was a fun time building some software.
 
-- Pivotted company toward SaaS to increase valuation by implementing `Cufflink` SaaS from scratch.
+- Pivoted company toward SaaS to increase valuation by implementing `Cufflink` SaaS from scratch.
 - Supported Cufflink client dashboard and app by designing, implementing, and testing Cufflink API.
-- Gaurenteed platform stability and reproducability by architecting and implementing DevOps standards and IaC.
+- Guarenteed platform stability and reproducibility by architecting and implementing pipelines and IaC.
 - Ensured excellent customer experience by providing $99.99\%$ uptime with IaC and self testing Helm releases.
 - Enhanced developer productivity and rapid software delivery using CI/CD in Bitbucket and Azure.
 - Ensured API delivery of accurate data from devices and data pipelines via rigorous testing.
-- Encaned organizational security by securing Cufflink APIs, Cufflink Dashboard, and Azure organization.
+- Enhanced organizational security by securing Cufflink APIs, Cufflink Dashboard, and Azure organization.
 
 <!-- Start Floaty --------------> ::: { #mve-floaty }
 <!-- Start Overlay -------------> ::: { .overlay }
@@ -608,7 +661,7 @@ The tool I used to write all of our infrastructure as code (aka `IaC`).
 ::: { .overlay-content-item data-key="bitbucket" }
 
 The repository host and tools for Continuous Integration and Deployment (aka `CI/CD`).
-I used bitbucket pipelines to automate a number of tasks for developers, including
+I used Bitbucket pipelines to automate a number of tasks for developers, including
 (but not limited to) running software test suites, container builds, and
 production and preview deployments.
 
@@ -616,13 +669,13 @@ production and preview deployments.
 
 ::: { .overlay-content-item data-key="kubernetes" }
 
-Running containerized API and dashboard services and data pipeline cronjobs.
+Running containerized API and dashboard services and data pipeline `cronjobs`.
 
 :::
 
 ::: { .overlay-content-item data-key="helm" }
 
-Ensuring that kubernetes resources were reproducable and service testing hooks.
+Ensuring that `kubernetes` resources were reproducible and service testing hooks.
 
 :::
 
@@ -658,13 +711,13 @@ OAuth token authentication in APIs and login in dashboard and app.
 
 ::: { .overlay-content-item data-key="sqlalchemy" }
 
-Backend services to talk to to mysql with ease.
+Backend services to talk to to `mysql` with ease.
 
 :::
 
 ::: { .overlay-content-item data-key="mysql" }
 
-Primary database for storing timeseries data and customer metadata.
+Primary database for storing time-series data and customer metadata.
 
 :::
 
@@ -688,7 +741,7 @@ Ensuring developer productivity and efficient software delivery.
 
 ::: { .overlay-content-item data-key="traefik" }
 
-Kubernetes ingress, middlewares, and SSL termination with ACME certificates.
+`kubernetes` ingress, middleware, and SSL termination with ACME certificates.
 
 :::
 
@@ -703,13 +756,26 @@ Kubernetes ingress, middlewares, and SSL termination with ACME certificates.
 <!-- Start UNM ---------> :::: { #unm .education education-item=unm }
 
 - Improved student outcomes as tutor and exam proctor in remedial algebra.
-  Ensured therough student feedback by grading algebra, linear algebra, and
+  Ensured thorough student feedback by grading algebra, linear algebra, and
   ordinary differential equations homework.
-- Documentented efficient air plasma production using electricty and magnetism.
+- Documented efficient air plasma production using electricity and magnetism.
   Built and programmed sensor arrays using rapberry pi and arduino (using
   `python` and `c`).
 
 <!-- End UNM -----------> ::::
 <!--- End Education ----> :::::
+
+<!-- Projects ---------------------------------------------------------------->
+<!-- Start Projects --------> ::: { #resume-projects }
+
+::: { .under-construction-large }
+
+Currently this section is under construction.
+However, you can learn about projects by using `Projects` in the navigation bar.
+
+:::
+
+<!-- Stop Projects ---------> :::
+
 <!-- End Body ----------> ::::::
 <!-- End Resume   ------> ::::::
