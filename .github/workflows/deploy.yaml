@@ -71,14 +71,14 @@ jobs:
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install poetry meta-tags-parser
-          poetry install
+          poetry install --with scripts
       - name: Check MetaTags.
         id: metatags
         continue-on-error: true
         run: |
           source .venv/bin/activate
           echo -e "## MetaTags Report\n\n~~~yaml" >> $GITHUB_STEP_SUMMARY
-          poetry run python -m scripts.meta >> $GITHUB_STEP_SUMMARY
+          poetry run python -m acederbergio.meta >> $GITHUB_STEP_SUMMARY
           echo -e "~~~\n" >> $GITHUB_STEP_SUMMARY
       - run: |
           if ( \

@@ -26,3 +26,6 @@ index.tex
 *.log
 *.aux
 *.html
+svg
+blog/resume/test.tex
+_quarto_internal_scss_error.scss

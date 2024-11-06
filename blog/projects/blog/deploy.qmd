@@ -1,0 +1,157 @@
+---
+title: How is the Blog Deployed?
+format:
+  html:
+    include-in-header:
+      - file: ../../includes/mermaid.html
+---
+
+## {{< iconify logos linode >}} Infrastructure
+
+The blog is deployed onto infrastructure provisioned in linode
+by another project listed here, [see the automation project](./projects/automation).
+
+## {{< iconify devicon git >}} Deployment Workflow
+
+The workflow is pretty straigtforward since collaboration is not required:
+
+0. The subsequent steps assume that a cluster has already been provisioned in linode.
+1. Developer (myself) makes local changes. Changes are pushed to [the github repository](https://github.com/acederberg/quarto-maths) {{< iconify logos github-icon >}}.
+   Usually small changes are pushed to the `main` branch unless they are
+   pretty extensive - for instance, it is not necessary to make a pull request {{< iconify hugeicons git-pull-request >}}
+   for solving the daily `leetcode` problem.
+2. A developer (exclusively me) manually runs a github action {{< iconify logos github-actions >}}
+   that
+   - In the first job {{< iconify hugeicons checkmark-circle-02 >}}
+     of the workflow, builds the container and pushes it to dockerhub {{< iconify logos docker >}}.
+   - In the second job {{< iconify hugeicons checkmark-circle-02 >}}
+     rolls out the deployment to kubernetes {{< iconify logos kubernetes >}}
+     to either a preview site or the production site.
+3. Users see the changes in either the [production site](https://acederberg.io)
+   or in the [preview site](https://preview.acederberg.io).
+
+### {{< iconify exploding-head >}} Architecture
+
+```{mermaid}
+%%| fig-cap: By the way, this diagram was made possible using [`mermaid` architecture diagrams](https://mermaid.js.org/syntax/architecture.html) {{< iconify misc mermaid >}}.
+
+architecture-beta
+  group linode(logos:linode)[Linode]
+  %% group firewall(hugeicons:firewall)[Firewall] in linode %% can be added, but make proportions terrible
+  group kube(logos:kubernetes)[Kubernetes Cluster] in linode
+  group kube_service(k8s:service)[Blog Services] in kube
+  service kube_deployment(k8s:deployment)[Blog Deployments] in kube_service
+
+  service kube_traefik(devicon:traefikproxy)[Traefik Ingress] in kube
+  service internet(internet)[Internet]
+
+  internet:T --> B:kube_traefik
+  kube_traefik:R --> L:kube_deployment{group}
+
+  group github(logos:github-icon)[Github]
+  group github_blog_repo(devicon:git)[Blog Repo] in github
+  group github_blog_repo_repo_actions(logos:github-actions)[Github Actions] in github_blog_repo
+
+  service actions_build(plain:yaml)[Build and Publish Container Image] in github_blog_repo_repo_actions
+  service actions_deploy(plain:yaml)[Rollout Deployment in Kubernetes] in github_blog_repo_repo_actions
+
+  service developer(hugeicons:developer)[Developer]
+
+  developer:R --> L:actions_build
+  actions_build:R --> L:actions_deploy
+
+  service dockerhub(logos:docker)[DockerHub]
+  junction dockerhubPushPull
+
+  actions_deploy{group}:B -- T:dockerhubPushPull
+  kube_deployment:R -- L:dockerhubPushPull
+  dockerhubPushPull:B -- T:dockerhub
+
+```
+
+Also, these diagrams can be written directly in `quarto` documents, yet another reason why `quarto` is great.
+
+## {{< iconify logos kubernetes >}} `Kubernetes`
+
+I would like to go through some of the resources used in `kubernetes`
+to facilitate the above workflows. For github actions to rollout the new
+deployment, a few things are required. Some are pretty obvious, such as `Service`s
+and `Deployment`s to manage and route trafik to the pods for the `preview`
+and `production` sites.
+
+### {{< iconify logos github-actions size=1em >}} Github Actions `ServiceAccount`
+
+`ServiceAccounts` are used to delegate access to `kubernetes` resources, and
+the `ServiceAccount` is used to generate the `token` for the `deploy` job to
+access the kubernetes API with limited scope.
+
+```{.yaml include=../../../docker/manifests/sa.yaml snippet="service_account"}
+
+```
+
+In the above the `ServiceAccount` gets permissions from the `ClusterRole`
+and `ClusterRoleBinding`.
+
+### {{< iconify devicon:traefikproxy >}} `Traefik` Ingress Configuration
+
+Here I will not go into the details of getting `traefik` to play nice with
+`SSL` termination as the details can get quite hairy - it can be quite a chore
+to get everything working at first, however in my case everything is now
+automated using python.
+
+`traefik` has a number of nice `CustomResourceDefinitions` that can be used
+to configure `treafik`. In my case, `Middleware` and `IngressRoute` are used
+to direct internet traffic to the services:
+
+```{.yaml include=../../../docker/manifests/sa.yaml snippet="traefik"}
+
+```
+
+### `Deployment`s and `Service`s
+
+The `Deployment` and `Service` resources here are described in my blog
+post [static sites in kubernetes](../../posts/quarto-kube-static/index.qmd).
+What you are seeing here is just the result of `quarto render`.
+
+### Architecture
+
+The following diagram attempts to express the architecture of resources within
+kubernetes as described above.
+
+```{mermaid}
+%%| fig-cap: Directed edges represent traffic and undirected edges represent resources modified by github actions.
+architecture-beta
+  group kubernetes(logos:kubernetes)
+  group ns(k8s:ns)[Blog Namespace] in kubernetes
+
+  group blog_service(k8s:svc)[Blog Service] in ns
+  service blog_deployment(k8s:deployment)[Blog Deployment] in blog_service
+  service blog_ingressroute(k8s:crd)[Traefik Production IngressRoute] in ns
+  blog_ingressroute:L --> R:blog_deployment{group}
+
+  group blog_service_preview(k8s:svc)[Blog Service Preview] in ns
+  service blog_deployment_preview(k8s:deployment)[Blog Deployment Preview] in blog_service_preview
+  service blog_ingressroute_preview(k8s:crd)[Traefik Production IngressRoute] in ns
+  blog_ingressroute_preview:L --> R:blog_deployment_preview{group}
+
+  service traefik(devicon:traefikproxy)[Traefik] in kubernetes
+  service internet(internet)[Internet]
+
+  junction tt in ns
+  tt:T --> B:blog_ingressroute_preview
+  tt:B --> T:blog_ingressroute
+  tt:R <-- L:traefik
+  internet:L --> R:traefik
+
+  group blog_gha_sa(k8s:sa)[Blog Github Actions Service Account] in ns
+  service blog_gha(k8s:cr)[Blog Github Actions ClusterRole] in blog_gha_sa
+
+
+  junction ss in ns
+  ss:B -- T:blog_deployment{group}
+  ss:T -- B:blog_deployment_preview{group}
+  ss:L -- R:blog_gha{group}
+
+  service github_actions(logos:github-actions)[Github Actions]
+  github_actions:R -- L:blog_gha{group}
+```

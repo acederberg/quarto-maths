@@ -1,0 +1,39 @@
+/*-- scss:rules --*/
+
+#resume #resume-headshot img {
+  border-radius: 50% !important;
+}
+
+#resume #resume-sidebar h2,
+#resume #resume-sidebar h3,
+#resume #resume-sidebar h4 {
+  border: none;
+  font-size: large;
+}
+
+#resume #resume-sidebar p {
+  font-size: medium;
+}
+
+#resume #resume-sidebar #resume-links p {
+  text-align: center;
+}
+
+#resume #resume-sidebar #resume-links h2 {
+  display: none;
+}
+
+#resume #resume-body ul li p {
+  padding: 0px;
+  margin: 0px;
+}
+
+#resume .progress {
+  height: 32px;
+}
+
+#resume .progress .progress-bar {
+  color: var(--bs-black);
+  font-size: large !important;
+  text-align: left !important;
+}

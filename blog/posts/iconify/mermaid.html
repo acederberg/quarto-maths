@@ -1,0 +1,30 @@
+<html>
+<head>
+  <script src="https://code.iconify.design/3/3.0.0/iconify.min.js"></script>
+  <!-- start snippet script -->
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    async function setupMermaid()
+    {
+      await mermaid.initialize({startOnLoad: true});
+      mermaid.registerIconPacks([{
+        name: 'k',
+        loader: () => fetch('/icons/kubernetes.json').then(response => response.json())
+      }])
+    }
+    setupMermaid()
+  </script>
+  <!-- end snippet script -->
+</head>
+<body>
+  <section>
+    <h1>Using Mermaid</h1>
+    <pre class="mermaid">
+        architecture-beta
+          group namespace(k:ns)[Kubernetes]
+          service blog_deployment(k:svc)[Service] in namespace
+    </pre>
+  </section>
+</body>
+</html>

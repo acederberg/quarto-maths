@@ -1,16 +1,17 @@
-import sys
-import os
-import pathlib
-from typing import Any
 import json
 import logging
+import os
+import pathlib
+import sys
+from typing import Any
+
 import meta_tags_parser as mtp
 import meta_tags_parser.structs as structs
 import yaml
-from scripts import env
 
+from acederbergio import env
 
-logger = logging.getLogger("scripts.meta")
+logger = logging.getLogger("acederbergio.meta")
 
 
 EXPECT_TWITTER = {"description", "title", "image", "card"}

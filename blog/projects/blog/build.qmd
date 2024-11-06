@@ -1,0 +1,143 @@
+---
+title: Docker Builds with Quarto
+format:
+  html:
+    include-in-header:
+      - file: ../../includes/mermaid.html
+---
+
+Here I would like to describe how I set up `docker` builds for [my blog](https://acederberg.io).
+If you know me, you know I love containerization and linux - lately I've also been quite obsessed with `quarto`.
+Luckily for myself my blog uses exactly these tools.
+
+In another blog post, I will eventually describe what happens within github actions {{< iconify logos github-actions >}}
+to automate this build and trigger the necessary rollout in `kubernetes` {{< iconify logos kubernetes >}}.
+
+## {{< iconify logos docker-icon >}} The Dockerfile
+
+I have written a multistage `dockerfile` so that the final container is relatively
+lightweight and does not contain `quarto` and all of its dependencies.
+The only responsibility of the final image produced is to serve the static files
+rendered by `quarto`, including this very blog post.
+
+### {{< iconify misc quarto >}} The `quarto` Stage
+
+This stage does not do much - it just installs the dependencies for `quarto` itself.
+
+```{.dockerfile include="../../../docker/dockerfile" snippet="quarto"}
+
+```
+
+### {{< iconify hammer >}} The `builder` Stage
+
+```{mermaid}
+%%| fig-cap: Build stage diagram.
+%%| fig-label: build-mermaid
+architecture-beta
+
+  group builder(misc:build)[Build Stage]
+
+  service tex(devicon:tex)[Install TinyTex] in builder
+
+  group python_deps(logos:python)[python dependencies] in builder
+  service blog_content(hugeicons:folder-02)[blog content]
+  service pyproject_toml(devicon:poetry)[pyproject toml] in python_deps
+
+  junction quartoDeps
+  blog_content:T -- B:quartoDeps
+  pyproject_toml{group}:B -- T:quartoDeps
+  tex:L -- R:quartoDeps
+
+  service quarto(misc:quarto)[quarto render] in builder
+  quarto:R <-- L:quartoDeps
+
+  service google_analytics(logos:google-analytics)[Google Analytics] in builder
+  service kaggle_api_key(devicon:kaggle)[Kaggle API Key] in builder
+  junction buildSecrets in builder
+  buildSecrets:R -- L:quartoDeps
+
+  google_analytics:T -- B:buildSecrets
+  kaggle_api_key:B -- T:buildSecrets
+  quarto:R -- L:buildSecrets
+
+
+  quarto:L --> R:build
+
+  group production(devicon:nodejs)[Production]
+  service build(hugeicons:package)[Quarto Render] in production
+```
+
+This is where the action happens.
+The diagram above attempts to illustrate the dependencies in the build step.
+In this stage, the following are needed to run `quarto render`:
+
+- The python dependencies, such as `pandas`, `numpy`, `jupyter`, `kaggle`, and `seaborn`.
+  These dependencies can be found in `pyproject.toml` and are managed by [poetry {{< iconify logos poetry >}}](https://python-poetry.org/docs/pyproject),
+  a complete package manager for `python` {{< iconify logos python >}}.
+
+- `TinyTex`, a small `LaTex` {{< iconify devicon tex >}} depenency for building pdf outputs,
+  for instance [my resume](/resume).
+
+- The blog content from the git {{< iconify devicon git >}} repository, found in the `blog` folder.
+  This folder contains what `quarto` {{< iconify misc quarto >}} actually builds.
+
+- A docker build secret for `kaggle` {{< iconify logos kaggle >}} API calls during build time.
+  This is the secure way of using secrets during build time.
+  This is here because many of the `kaggle` notebooks require pulling/updating
+  datasets on build time.
+
+- A google analytics key {{< iconify logos google-analytics >}} so that website analytics
+  may be collected. This is not necessary since the key can be recovered from the build,
+  but atleast keeps it out of version control.
+
+The final step is quite raunchy looking. It does the following:
+
+1. Mounts the build secrets and caches using the `--mount` flags for the `RUN` directive.
+2. Installs poetry and python dependencies into a virtual environment.
+3. Runs the `config` script to inject analytics into `_quarto.yaml` and create `variables.yaml`
+   so that [the build info page](/build.qmd) is filled out. It also downloads the
+   necessary iconsets for `iconify` and `mermaid.js` {{< iconify misc mermaid >}}.
+   These icons are required to include `svg` icons and make diagrams like those
+   at [the top of this section](@build-mermaid).
+4. Adds the necessary quarto extensions.
+5. Finally runs `quarto render`.
+
+```{.dockerfile include="../../../docker/dockerfile" snippet="builder"}
+
+```
+
+::: {.callout-note}
+
+The final commands are wrapped in `bash -c` so that `source` may be used
+to activate the `python` virtual environment. This will tell `quarto` and `python`
+where to look for dependencies. Without this, caching `poetry` installs would not be very easy.
+
+:::
+
+::: {.callout-note}
+
+The bind mount mounts the `scripts` folder so that it does not need a `COPY` step.
+
+:::
+
+### {{< iconify devicon nodejs >}} The `production` Stage
+
+All of the nasty build steps are taken care of in the previous stage.
+The build is copied over and `npm` installs a minimal server to deliver content.
+
+```{.dockerfile include="../../../docker/dockerfile" snippet="production"}
+
+```
+
+::: {.callout-note}
+
+The server redirects to pages using the `--proxy` flag so that when a page does not exist
+the user is given a nice `404` error page.
+
+These error pages are hosted in my `kubernetes` {{< iconify logos kubernetes >}} cluster in `linode` {{< iconify logos linode >}}
+using [tarampampam/error-pages](https://github.com/tarampampam/error-pages).
+
+:::
+
+Eventually, I will probably move to a more sophisticated means of serving the site.
+However, for the time being this suites my needs.

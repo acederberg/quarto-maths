@@ -41,6 +41,7 @@ listing:
       - ./posts/index.qmd
       - ./dsa/leetcode/index.qmd
       - ./kaggle/index.qmd
+      - ./projects/index.qmd
   - id: posts
     fields:
       - title
@@ -80,16 +81,6 @@ If you find any errors in my blog posts, please make an issue on [the github rep
 
 :::{#posts}
 :::
-
-## Github Statistics
-
-<div id="commits">
-  <script src="https://cdn.rawgit.com/IonicaBizau/github-calendar/gh-pages/dist/github-calendar.min.js"></script>
-  <div class="calendar"></div>
-  <script>
-      new GitHubCalendar(".calendar", "acederberg", {global_stats: false, summary_text: null});
-  </script>
-</div>
 
 ## Where is the Old Blog?
 

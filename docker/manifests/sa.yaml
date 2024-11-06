@@ -9,6 +9,7 @@ metadata:
     acederberg.io/from: kubectl
     acederberg.io/component: blog
 ---
+# start snippet service_account
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -76,6 +77,7 @@ metadata:
     acederberg.io/from: kubectl
     acederberg.io/component: blog
 type: kubernetes.io/service-account-token
+# end snippet service_account
 ---
 apiVersion: v1
 kind: Service
@@ -115,6 +117,7 @@ spec:
   ports:
     - targetPort: 8080
       port: 80
+# start snippet traefik
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
@@ -144,6 +147,7 @@ spec:
           name: blog
           namespace: blog
           port: 80
+# end snippet traefik
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute

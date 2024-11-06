@@ -1,0 +1,9 @@
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<script type="module">
+  const Iconify = window.customElements.get('iconify-icon');
+  fetch('/icons/misc.json')
+    .then(response => response.json())
+    .then(data => Iconify.addCollection(data))
+  globalThis.Iconify = Iconify
+</script>
+

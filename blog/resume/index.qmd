@@ -1,242 +1,782 @@
 ---
 title: Adrian Cederberg
-version: 5
+subtitle: Resume v5
 format:
-  docx: default
   html:
     toc: false
-  pdf:
-    toc: false
-    documentclass: article
-    hyperref:
-      - pdfborder={0 0 0}
-      - breaklinks=false
-      - colorlinks=true
-      - urlcolor=blue
-    include-before-body:
-      # NOTE: It may be possible to style links using another means.
-      # NOTE: It is such a pain to remove the ugly rules around tables: https://github.com/jgm/pandoc/issues/8223
-      - text: |
-          \newcommand{\hreful}[2]{
-              \href{#1}{
-                  \textcolor{blue}{\ttfamily\underline{#2}}
-              }
-          }
-          \renewcommand{\toprule}[2]{}
-          \renewcommand{\bottomrule}[2]{}
-    geometry:
-      - margin=0.7in
-    keep-tex: true
-    template-partials:
-      - ./title.tex
-format-links:
-  - text: tex
-    href: ./index.tex
-date-updated: 10-16-2024
+    page-layout: full
+    include-in-header:
+      - file: ../includes/overlay.html
+      - file: ../includes/tooltip.html
+        # pdf:
+        #   template: template.tex
+        #   keep-tex: true
+        #   template-partials:
+        #     - ./title.tex
+
+filters:
+  - ../filters/under_construction.py
+  - ../filters/resume.py
+resume:
+  body:
+    # ----------------------------------------------------------------------- #
+    # Education
+    education:
+      unm:
+        organization: University of New Mexico
+        degree: Bachelors of Science
+        concentration: Applied Mathematics
+        start: August 2015
+        stop: December 2019
+
+    # ----------------------------------------------------------------------- #
+    # Experience
+    experience:
+      mve:
+        organization: Mountain Mountain Vector Energy
+        title: Senior Software Engineer
+        start: January 2022
+        stop: December 2023
+        tools:
+          overlay:
+            include: true
+            size_icon: 256
+          container:
+            size_item: 48
+            size_item_margin: 8
+            kind: list
+            classes: ["floaty-container-macos", "pt-3", "px-3"]
+          tooltip:
+            include: false
+          content:
+            - image:
+                iconify:
+                  name: fastapi
+                  set: devicon
+              key: fastapi
+              title: FastAPI
+            - image:
+                iconify:
+                  name: terraform
+                  set: devicon
+              key: terraform
+              title: Terraform
+            - image:
+                iconify:
+                  name: bitbucket
+                  set: devicon
+              key: bitbucket
+              title: Bitbucket
+            - image:
+                iconify:
+                  name: kubernetes
+                  set: devicon
+              key: kubernetes
+              title: Kubernetes
+            - image:
+                iconify:
+                  name: helm
+                  set: devicon
+              key: helm
+              title: Helm
+            - image:
+                iconify:
+                  name: docker
+                  set: devicon
+              key: docker
+              title: Docker
+            - image:
+                iconify:
+                  name: python
+                  set: devicon
+              key: python
+              title: Python
+            - image:
+                iconify:
+                  name: nodejs
+                  set: devicon
+              key: nodejs
+              title: NodeJS
+            - image:
+                iconify:
+                  name: react
+                  set: devicon
+              key: react
+              title: React
+            - image:
+                iconify:
+                  name: auth0-icon
+                  set: logos
+              key: auth0
+              title: Auth0
+            - image:
+                iconify:
+                  name: sqlalchemy
+                  set: devicon
+              key: sqlalchemy
+              title: SQLAlchemy
+            - image:
+                iconify:
+                  name: mysql
+                  set: devicon
+              key: mysql
+              title: MySQL
+            - image:
+                iconify:
+                  name: mongodb
+                  set: devicon
+              key: mongodb
+              title: MongoDB
+            - image:
+                iconify:
+                  name: azure
+                  set: devicon
+              key: azure
+              title: Azure
+            - image:
+                iconify:
+                  name: github-actions
+                  set: logos
+              key: cicd
+              title: Bitbucket Pipelines
+            - image:
+                iconify:
+                  name: traefikproxy
+                  set: devicon
+              key: traefik
+              title: Traefik
+
+      consulting:
+        organization: acederberg.io
+        title: Founder
+        start: January 2024
+        stop: Now
+        tools:
+          overlay:
+            include: false
+            size_icon: 256
+          container:
+            size_item: 48
+            size_item_margin: 8
+            kind: list
+            classes: ["floaty-container-macos", "pt-3", "px-3"]
+          tooltip:
+            include: false
+          content:
+            - image:
+                iconify:
+                  set: misc
+                  name: quarto
+              key: quarto
+              title: Quarto
+            - image:
+                iconify:
+                  set: devicon
+                  name: latex
+              key: latex
+              title: Latex
+            - image:
+                iconify:
+                  set: devicon
+                  name: pulumi
+              key: pulumi
+              title: Pulumi
+            - image:
+                iconify:
+                  set: logos
+                  name: github-icon
+              key: github
+              title: Github
+            - image:
+                iconify:
+                  set: devicon
+                  name: git
+              key: git
+              title: Git
+            - image:
+                iconify:
+                  set: devicon
+                  name: neovim
+              key: neovim
+              title: Neovim
+            - image:
+                iconify:
+                  set: devicon
+                  name: python-wordmark
+              key: python
+              title: Python
+            - image:
+                iconify:
+                  set: devicon
+                  name: nodejs-wordmark
+              key: nodejs
+              title: Nodejs
+            - image:
+                iconify:
+                  set: misc
+                  name: mermaid
+              key: mermaid
+              title: Mermaidjs
+            - image:
+                iconify:
+                  set: logos
+                  name: linode
+              key: linode
+              title: Linode
+            - image:
+                iconify:
+                  set: logos
+                  name: kubernetes
+              key: kubernetes
+              title: Kubernetes
+            - image:
+                iconify:
+                  set: devicon
+                  name: pandas-wordmark
+              key: pandas
+              title: Pandas
+            - image:
+                iconify:
+                  set: devicon
+                  name: kaggle-wordmark
+              key: kaggle
+              title: Kaggle
+            - image:
+                iconify:
+                  set: devicon
+                  name: docker-wordmark
+              key: docker
+              title: Docker
+
+  # ========================================================================= #
+  # Experience
+  sidebar:
+    tex_width: .2
+    headshot:
+      url: https://avatars.githubusercontent.com/u/77076023?v=4
+      title: Headshot
+      description: Its'a Me!
+    # ----------------------------------------------------------------------- #
+    # Skills
+    skills:
+      main:
+        type: list
+        container:
+          classes: ["floaty-container-wide", "py-3"]
+          titles: true
+          size_item: 64
+        tooltip:
+          include: false
+          text: Click to learn more about my experience.
+        overlay:
+          include: true
+          size_icon: 256
+        content:
+          - title: Software Implementation and Architecture
+            key: impl
+            since: 2017-08-01
+            image:
+              iconify:
+                set: misc
+                name: binary
+            tooltip: Click to see more!
+          - title: APIs and Databases
+            key: api-and-db
+            since: 2021-02-01
+            image:
+              iconify:
+                set: misc
+                name: api
+          - title: Dashboards and UIs
+            key: uiux
+            since: 2021-05-01
+            image:
+              iconify:
+                set: misc
+                name: dashboard
+          - title: DevOps Engineering
+            key: devops
+            since: 2021-06-01
+            image:
+              iconify:
+                set: misc
+                name: devops
+      devops:
+        progress_bar_classes:
+          ["bg-success", "progress-bar-animated", "progress-bar-striped"]
+        container:
+          classes: ["floaty-container-wide"]
+          titles: true
+          size_item: 64
+          kind: table
+        tooltip:
+          include: false
+        overlay:
+          size_icon: 32
+          include: false
+        content:
+          - title: Docker
+            key: docker
+            since: 2021-04-01
+            image:
+              iconify:
+                set: devicon
+                name: docker
+          - title: Pipelines
+            since: 2021-07-01
+            image:
+              iconify:
+                set: logos
+                name: github-actions
+          - title: Terraform
+            key: terraform
+            since: 2022-04-01
+            image:
+              iconify:
+                set: devicon
+                name: terraform
+          - title: Kuberenetes
+            key: k8s
+            since: 2022-04-01
+            image:
+              iconify:
+                set: devicon
+                name: kubernetes
+          - title: Ansible
+            key: ansible
+            since: 2021-10-01
+            image:
+              iconify:
+                set: devicon
+                name: ansible
+          - title: Cloud
+            key: cloud
+            since: 2021-06-01
+            image:
+              iconify:
+                set: hugeicons
+                name: cloud
+
+          - title: Pulumi
+            key: pulumi
+            since: 2024-01-01
+            image:
+              iconify:
+                set: devicon
+                name: pulumi
+    # ----------------------------------------------------------------------- #
+    # Links
+    links:
+      container:
+        # classes: ["floaty-container-macos", "pt-3", "px-5"]
+        size_item: 32
+        type: table
+      tooltip:
+        text: Click on any of the icons to open in a new tab.
+      overlay:
+        include: false
+        size_icon: 64
+      content:
+        - title: Linkedin
+          href: https://www.linkedin.com/in/adrian-cederberg-b453571b9
+          description: My profile on linkedin.
+          image:
+            iconify:
+              set: devicon
+              name: linkedin
+              label: Linkedin
+
+        - title: Github
+          href: https://github.com/acederberg
+          description: My github account.
+          image:
+            iconify:
+              set: devicon
+              name: github
+              label: Github
+
+        - title: Blog
+          href: https://acederberg.io
+          description: My Blog
+          image:
+            iconify:
+              set: hugeicons
+              name: house-01
+              label: Blog
+
+    # ----------------------------------------------------------------------- #
+    # Contact
+    contact:
+      tooltip:
+        include: true
+        text: Click any row to learn more about each contact method.
+      container:
+        include: true
+        size_item: 32
+        # classes: ["floaty-container-macos", "pt-3", "px-5"]
+        # include_titles: true
+        kind: table
+      overlay:
+        include: true
+        size_icon: 128
+      content:
+        - title: Phone
+          key: phone
+          value: (505) 589 - 6914
+          image:
+            iconify:
+              set: hugeicons
+              name: smart-phone-01
+
+        - title: Email
+          key: email
+          value: adrn.cederberg123@gmail.com
+          image:
+            iconify:
+              set: hugeicons
+              name: mail-01
+
+        - title: Location
+          key: location
+          value: Albuquerque, New Mexico
+          image:
+            iconify:
+              set: hugeicons
+              name: location-01
 ---
 
-<!---------------------------------------------------------------------------->
-<!-- Contect conditional contact -->
+<!-- Start Resume --> :::::: { #resume }
+<!-- SIDEBAR ----------------------------------------------------------------->
+<!-- Start Sidebar --> :::::: { #resume-sidebar }
+<!-- Start Columns 1 --> ::::: { .columns }
+<!-- Start Left --> :::: { .column width=40% }
 
-::: {.content-visible when-format="html"}
+::: { #resume-headshot }
 
-<!-- Will only appear in HTML. -->
-
-```{=html}
-<section>
-  <div id="resume-contact">
-    <p>adrn.cederberg123@gmail.com</p>
-    <p>(505) 589 - 6914</p>
-    <a href=https://acederberg.io class="break">
-      <i class="bi bi-house" role="img"></i>
-      blog
-    </a>
-    <a href=https://github.com/acederberg>
-      <i class="bi bi-github" role="img"></i>
-      github
-    </a>
-    <a href=https://www.linkedin.com/in/adrian-cederberg-b453571b9/>
-      <i class="bi bi-linkedin" role="img"></i>
-      linkedin
-    </a>
-  </div>
-</section>
-```
+_This is a placeholder image and will be replaced with an actual headshot soon._
 
 :::
 
-::: {.content-visible when-format="pdf"}
-
-<!-- Will only appear in PDF. -->
-
-\begin{center}
-(505) 589 - 6914
-\textbar{} adrn.cederberg123@gmail.com
-\hfill \hreful{https://acederberg.io}{blog}
-\textbar{} \hreful{https://github.com/acederberg}{github}
-\textbar{} \hreful{https://www.linkedin.com/in/adrian-cederberg-b453571b9/}{linkedin}
-\end{center}
+::: { #resume-links }
 
 :::
 
-<!---------------------------------------------------------------------------->
+<!-- Stop Left --> ::::
+<!-- Start Right --> :::: { .column width=60% }
 
-## Education
+::: { #resume-contact }
 
-<!---------------------------------------------------------------------------->
+<!-- Begin Floaty --> ::: { #resume-contact-floaty }
+<!-- Begin Overlay --> ::: { .overlay }
+<!-- Begin Overlay Content --> ::: { .overlay-content }
 
-::: {.content-visible when-format="pdf"}
+::: { .overlay-content-item data-key=location }
 
-### University of New Mexico \hfill Spring 2015 - Fall 2019
+I currently reside in Albuquerque, New Mexico and have lived here
+since I was about seven years old.
 
-:::
+I quite like it here, but am open to relocate for the right
+position and compensation.
 
-::: {.content-visible when-format="html"}
+<!--
+My preferences are listed in descending order:
 
-### University of New Mexico
+1. A hybrid job here in Albuquerque with and office in town or near by.
+2. A remote job where I can make occasional trips out of town to
+   work in the office.
+3. A fully remote job.
+4. A fully on-premise job where relocation is provided.
 
-**Spring 2015 - Fall 2019**
-:::
-
-- Bachelors of Science in Applied Mathematics - Minor in chemistry.
-- Worked as a grader, tutor, and researcher. Got my first tastes of code with `matlab` and `python`.
-
-<!---------------------------------------------------------------------------->
-
-<!-- ::: {.content-visible when-format="pdf"} -->
-<!---->
-<!-- ### Self Study \hfill January 2021 - January 2022 -->
-<!---->
-<!-- ::: -->
-
-::: {.content-visible when-format="html"}
-
-### Self Study
-
-**January 2021 - January 2022**
-
-- Built a portfolio using `flask` and deployed it with `ansible` and
-  `docker-compose`. Code is available upon request.
-- Made various projects using `python`, `react`, and `docker` to further my
-  understanding.
+**I will not provide my full address here, this is included for
+resume parsers and the like so that they can begin do more for
+autofill.
+If you need my full address, please reach out to me by email or
+phone.**
+-->
 
 :::
 
-## Projects
+::: { .overlay-content-item data-key=phone }
 
-::: {.content-visible when-format="pdf"}
-
-|                                                                                     |
-| ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| \hreful{https://github.com/acederberg/captura}{Captura}                             | A framework for building sharing into APIs, including a command line and python client, tests, and pypi package. Includes actions to test, build, version. |
-| \hreful{https://github.com/acederberg/captura-deploy}{Blog and Captura IaC}         | Infrastructure as code and DNS automation for my blog and captura.                                                                                         |
-| \hreful{https://github.com/acederberg/quarto-maths}{My Blog}                        | A blog powered by quarto where I routinely publish blog posts. Includes actions to test, build, version, and deploy.                                       |
-| \hreful{https://github.com/acederberg/pydantic-settings-yaml}{PydanticYamlSettings} | A library I like to use for project configurations                                                                                                         |
-| \hreful{https://github.com/acederberg/nvim-ez}{Neovim Configuration}                | Configuration for my favorite text editor.                                                                                                                 |
-
-: {tbl-colwidths="[25, 75]" .striped .hover .borderless}
-:::
-
-::: {.content-visible when-format="html"}
-
-|                                                                              |
-| ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [Captura](https://github.com/acederberg/captura)                             | A framework for building sharing into APIs, including a command line and python client, tests, and pypi package. Includes actions to test, build, version. |
-| [Blog and Captura IaC](https://github.com/acederberg/captura-deploy)         | Infrastructure as code and DNS automation for my blog and captura.                                                                                         |
-| [My Blog](https://github.com/acederberg/quarto-maths)                        | A blog powered by quarto where I routinely publish blog posts. Includes actions to test, build, version, and deploy.                                       |
-| [PydanticYamlSettings](https://github.com/acederberg/pydantic-settings-yaml) | A library I like to use for project configurations                                                                                                         |
-| [Neovim Configuration](https://github.com/acederberg/nvim-ez)                | Configuration for my favorite text editor.                                                                                                                 |
-
-: {tbl-colwidths="[25, 75]" .striped .hover .borderless}
-:::
-
-## Employment
-
-<!---------------------------------------------------------------------------->
-
-::: {.content-visible when-format="pdf"}
-
-### Founder \textbar{} acederberg.io \hfill January 2024 - Now
+I am available by phone Monday - Friday, 8 AM - 4 PM MST.
+I do not pick up please feel free to leave a voice mail.
+If you want to schedule a meeting, please text me or email me
+in advance.
 
 :::
 
-::: {.content-visible when-format="html"}
+::: { .overlay-content-item data-key=email }
 
-### Founder | acederberg.io
-
-**January 2024 - Now**
-:::
-
-- Designed, implemented, tested, and deployed \hreful{https://github.com/acederberg/captura}{captura}
-  using `fastapi`, `sqlalchemy`, `pydantic`, and `docker`.
-- Built my blog \hreful{https://acederberg.io}{acederberg.io} using `quarto` and
-  routinely published blog posts.
-- Implemented infrastructure as code and continuous integration and deployment
-  for \hreful{https://github.com/acederberg/captura}{captura} and my
-  \hreful{blog}{https://acederberg.io} to `linode` using `pulumi` and `python`.
-  Implemented `SSL` termination using `traefik`, \texttt{let's encrypt} ACME
-  certificates, and `porkbun API` automation. Code is hosted on `github` but is
-  only available upon request.
-
-<!---------------------------------------------------------------------------->
-
-::: {.content-visible when-format="pdf"}
-
-### Senior Software Engineer \textbar{} Mountain Vector Energy \hfill January 2022 - December 2023
+For inquiries not requiring an immediate response - You can expect
+a response within the day. If your need is urgent, please just call
+or text me.
 
 :::
 
-::: {.content-visible when-format="html"}
-
-### Senior Software Engineer | Mountain Vector Energy
-
-**January 2022 - December 2023**
-:::
-
-- Collaborated with team to design, implement, maintain, and deploy `Cufflink`
-  Software as a Service.
-- Contributed to `Cufflink` client and admin dashboards within the `react`
-  and `next` frameworks.
-- Bootstrapped the `Cufflink API` using `FastAPI`, `SQLAlchemy`, and
-  `Pydantic`. Developed data pipelines, managed databases, and implemented
-  fixes and features including `Auth0` OAuth authentication.
-- Developed infrastructure as code using `terraform` on `azure` and
-  designed `helm` charts for `Cufflink` services. Managed and debugged
-  services in `kubernetes`, built `bitbucket` pipelines, and
-  implemented/maintained continuous integration and deployment.
-  Maintained service up-time and reliability.
-- Used `atlassian jira` to track progress, keep notes, and assign issues.
-- Performed technical interviews to hire two software engineers.
-
-<!---------------------------------------------------------------------------->
-
-::: {.content-visible when-format="pdf"}
-
-### Research Assistant \textbar{} UNM Mechanical Engineering \hfill Summer 2019 - Winter 2020
+<!-- End Floaty --> :::
+<!-- End Overlay Content --> :::
+<!-- End Overlay --> :::
 
 :::
 
-::: {.content-visible when-format="html"}
+<!-- Stop Right --> ::::
+<!-- End Columns 1 --> :::::
 
-### Research Assistant | UNM Mechanical Engineering
+<!-- End Sidebar -------> ::::::
 
-**Summer 2019 - Winter 2020**
+<!-- BODY -------------------------------------------------------------------->
+<!-- Start Body --------> :::::: { #resume-body }
+
+<!-- SKILLS ------------------------------------------------------------------>
+<!-- Start Skills ----------> ::: { #resume-skills }
+
+Click on any of the following items to learn more.
+
+<!-- Start Floaty ----------> ::: { #resume-skills-floaty }
+<!-- Start Overlay ---------> ::: { .overlay }
+<!-- Start Overlay Content --> ::: { .overlay-content }
+
+::: { .overlay-content-item data-key="uiux" }
+
+For instance, you are probably viewing this resume on my blog.
+
+My blog uses a mix of server side rendering in `python` using
+`quarto` and `panflute` along with vanilla `javascript`
+running in the browser to implement reactivity.
+
+::: { .under-construction-medium .my-5 }
+
+Soon an enumeration of my ui/ux skills will be here.
+
 :::
 
-- Collaborated with Craig Davidson of Dark Sea Industries to develop and
-  document efficient air plasma production using magnetohydrodynamic methods.
-- Built and programmed sensor arrays using Raspberry and Arduino and wrote
-  drivers in `python` and `c`.
-- Processed experimental data using `python` to generate graphs. Interpreted
-  spectrometer data using `python` to increase productivity.
+:::
 
-## Skills and Tools
+::: { .overlay-content-item data-key="impl" }
 
-|                    |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| Languages          | `Python`, `Javascript`, `HCL`, `Go`, and `lua`,                                                                               |
-| Tools \& Libraries | `Kubernetes`, `Docker`, `Helm`, `Traefik`, `Terraform`, `Pulumi`,`Pydantic`, `FastAPI`, `Typer`, `SQLAlchemy`, `NextJS`, Etc. |
-| Data \& Databases  | `YAML`, `JSON`, `CSS`, `HTML`, `XML`, `TOML`, `MySQL`, `MongoDB`, `Redis`.                                                    |
-| Dev Ops and Others | `Pipelines`, `Infrastructure as Code`, `CI/CD`, `Linux`, `Windows`, `Vim`, `Neovim`, `Visual Studio Code`.                    |
+I have been seriously writing code since about 2017 (and a little
+before).
 
-: {tbl-colwidths="[25, 75]" .striped .hover .borderless}
+::: { .under-construction-medium .my-5 }
+
+Soon an enumeration of general software skills will be here.
+
+:::
+
+:::
+
+<!--
+::: { .overlay-content-item data-key="" }
+
+Through my various projects I have developed habits conducive to
+building and shipping projects. I always:
+
+1. have a plan and a timeline,
+2. enforce effective design patterns and testing,
+3. and use version control.
+
+:::
+-->
+
+::: { .overlay-content-item data-key="api-and-db" }
+
+Data storage and retrieval is an essential part of all modern web
+applications. I have plenty of experience developing APIs and ETLs
+in languages like `python` {{< iconify devicons python >}}, and `nodejs` {{< iconify devicons nodejs>}}
+using database technologies such as
+`mysql` {{< iconify devicon mysql >}},
+`mongodb` {{< iconify devicon mongodb >}},
+and `redis` {{< iconify devicon redis >}}.
+
+::: { .under-construction-medium .my-5 }
+
+Soon an enumeration of my database and API skills will be here.
+
+:::
+
+:::
+
+::: { .overlay-content-item data-key="devops" }
+
+A service is not useful or accessible unless it is deployed, and
+deploying a website manually is a thing of the past. Automation is
+mandatory for building reliable and secure products.
+
+::: { #devops }
+:::
+
+:::
+
+<!-- Stop Overlay Content --> :::
+<!-- Stop Overlay ------> :::
+<!-- Stop Floaty -------> :::
+<!-- Stop Skills -------> :::
+
+<!-- Start Experience --> ::::: { #resume-experience }
+
+<!-- CONSULTING -------------------------------------------------------------->
+
+:::: { #consulting .experience experience-item="consulting" }
+
+I started my own consultancy and am working on registering my business and getting some customers.
+For a complete desription and technical details, see [the about page](/projects/blog).
+
+- Delivered [acederberg.io](https://acederberg.io){ data-bs-toggle="tooltip" data-bs-title="My blog" } to advertise services,
+  distribute resume, host blog posts and notes, and showcase projects.
+- Ensured site reliability of [acederberg.io](https://acederberg.io){ data-bs-toggle="tooltip" data-bs-title="My blog" } and future
+  web services with CI/CD and IaC.
+- To support future commercial products, built [captura](https://github.com/acederberg){ data-bs-toggle="tooltip" data-bs-title="Captura on github" }.
+
+::::
+
+<!-- MVE --------------------------------------------------------------------->
+
+:::: { #mve .experience experience-item="mve" }
+
+It was a fun time building some software.
+
+- Pivoted company toward SaaS to increase valuation by implementing `Cufflink` SaaS from scratch.
+- Supported Cufflink client dashboard and app by designing, implementing, and testing Cufflink API.
+- Guarenteed platform stability and reproducibility by architecting and implementing pipelines and IaC.
+- Ensured excellent customer experience by providing $99.99\%$ uptime with IaC and self testing Helm releases.
+- Enhanced developer productivity and rapid software delivery using CI/CD in Bitbucket and Azure.
+- Ensured API delivery of accurate data from devices and data pipelines via rigorous testing.
+- Enhanced organizational security by securing Cufflink APIs, Cufflink Dashboard, and Azure organization.
+
+<!-- Start Floaty --------------> ::: { #mve-floaty }
+<!-- Start Overlay -------------> ::: { .overlay }
+<!-- Start Overlay Content -----> ::: { .overlay-content }
+
+::: { .overlay-content-item data-key="fastapi" }
+
+The main framework we used for Cufflink API services written in `python`.
+
+:::
+
+::: { .overlay-content-item data-key="terraform" }
+
+The tool I used to write all of our infrastructure as code (aka `IaC`).
+
+:::
+
+::: { .overlay-content-item data-key="bitbucket" }
+
+The repository host and tools for Continuous Integration and Deployment (aka `CI/CD`).
+I used Bitbucket pipelines to automate a number of tasks for developers, including
+(but not limited to) running software test suites, container builds, and
+production and preview deployments.
+
+:::
+
+::: { .overlay-content-item data-key="kubernetes" }
+
+Running containerized API and dashboard services and data pipeline `cronjobs`.
+
+:::
+
+::: { .overlay-content-item data-key="helm" }
+
+Ensuring that `kubernetes` resources were reproducible and service testing hooks.
+
+:::
+
+::: { .overlay-content-item data-key="docker" }
+
+Containerization of services (microservices) and consistent developer environment across platforms.
+
+:::
+
+::: { .overlay-content-item data-key="python" }
+
+Language of choice for all back end services (APIs) and data pipelines.
+
+:::
+
+::: { .overlay-content-item data-key="nodejs" }
+
+Language of choice for all front end services (dashboard and app).
+
+:::
+
+::: { .overlay-content-item data-key="react" }
+
+Framework of choice for all front end services (dashboard and app).
+
+:::
+
+::: { .overlay-content-item data-key="auth0" }
+
+OAuth token authentication in APIs and login in dashboard and app.
+
+:::
+
+::: { .overlay-content-item data-key="sqlalchemy" }
+
+Backend services to talk to to `mysql` with ease.
+
+:::
+
+::: { .overlay-content-item data-key="mysql" }
+
+Primary database for storing time-series data and customer metadata.
+
+:::
+
+::: { .overlay-content-item data-key="mongodb" }
+
+Resource grouping and real time usage and spend.
+
+:::
+
+::: { .overlay-content-item data-key="azure" }
+
+Hosting infrastructure and organization active directory.
+
+:::
+
+::: { .overlay-content-item data-key="cicd" }
+
+Ensuring developer productivity and efficient software delivery.
+
+:::
+
+::: { .overlay-content-item data-key="traefik" }
+
+`kubernetes` ingress, middleware, and SSL termination with ACME certificates.
+
+:::
+
+<!-- Stop Overlay Content ------> :::
+<!-- Stop Overlay --------------> :::
+<!-- Stop Floaty ---------------> :::
+
+::::
+
+<!-- End Experience ----> :::::
+<!-- Start Education ---> ::::: { #education }
+<!-- Start UNM ---------> :::: { #unm .education education-item=unm }
+
+- Improved student outcomes as tutor and exam proctor in remedial algebra.
+  Ensured thorough student feedback by grading algebra, linear algebra, and
+  ordinary differential equations homework.
+- Documented efficient air plasma production using electricity and magnetism.
+  Built and programmed sensor arrays using rapberry pi and arduino (using
+  `python` and `c`).
+
+<!-- End UNM -----------> ::::
+<!--- End Education ----> :::::
+
+<!-- Projects ---------------------------------------------------------------->
+<!-- Start Projects --------> ::: { #resume-projects }
+
+::: { .under-construction-large }
+
+Currently this section is under construction.
+However, you can learn about projects by using `Projects` in the navigation bar.
+
+:::
+
+<!-- Stop Projects ---------> :::
+
+<!-- End Body ----------> ::::::
+<!-- End Resume   ------> ::::::

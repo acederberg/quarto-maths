@@ -1,0 +1,276 @@
+---
+title: Building and Using a Custom Iconify Image Set For Mermaid
+image: /icons/kubernetes.svg
+format:
+  html:
+    include-in-header:
+      - file: ../../includes/mermaid.html
+---
+
+## {{< iconify misc mermaid >}} Use Case
+
+Recently I wanted to use [mermaid.js <span class="iconify" data-icon="misc:mermaid"></span>](https://mermaid.js.org) to make an
+[architecture diagram](https://mermaid.js.org/syntax/architecture.html) to
+describe my infrastructure I am currently using to deploy
+[my blog](https://acederberg.io).
+
+In particular, I wanted to use the `svg` icons defined in the [kubernetes community github repo](https://github.com/kubernetes/community/tree/master/icons/svg)
+inside of my architecture diagram. However, I could not find a suitable icon set.
+To this end I made my own and would like to showcase the methods that I used.
+
+After figuring out how to wrestle the `svg` icons into a properly formated `JSON` I was able to generate
+awesome diagrams using `kubernetes` icons such as the one below:
+
+```{mermaid}
+%%| fig-cap: Daigram made with mermaid using the custom icon set.
+architecture-beta
+  group kubernetes(logos:kubernetes)
+  group ns(k8s:ns)[Blog Namespace] in kubernetes
+
+  group blog_service(k8s:svc)[Blog Service] in ns
+  service blog_deployment(k8s:deployment)[Blog Deployment] in blog_service
+  service blog_ingressroute(k8s:crd)[Traefik Production IngressRoute] in ns
+  blog_ingressroute:L --> R:blog_deployment{group}
+
+  group blog_service_preview(k8s:svc)[Blog Service Preview] in ns
+  service blog_deployment_preview(k8s:deployment)[Blog Deployment Preview] in blog_service_preview
+  service blog_ingressroute_preview(k8s:crd)[Traefik Production IngressRoute] in ns
+  blog_ingressroute_preview:L --> R:blog_deployment_preview{group}
+
+  service traefik(devicon:traefikproxy)[Traefik] in kubernetes
+  service internet(internet)[Internet]
+
+  junction tt in ns
+  tt:T --> B:blog_ingressroute_preview
+  tt:B --> T:blog_ingressroute
+  tt:R <-- L:traefik
+  internet:L --> R:traefik
+
+  group blog_gha(k8s:crb)[Blog Github Actions ClusterRole] in ns
+  service blog_gha_sa(k8s:sa)[Blog Github Actions Service Account] in blog_gha
+
+  junction ss in ns
+  ss:B -- T:blog_deployment{group}
+  ss:T -- B:blog_deployment_preview{group}
+  ss:L -- R:blog_gha_sa{group}
+
+  service github_actions(logos:github-actions)[Github Actions]
+  github_actions:R -- L:blog_gha_sa{group}
+```
+
+and icons like that seen in the header of this section (the {{< iconify misc mermaid >}} `mermaid.js` symbol).
+
+## {{< iconify hugeicons question >}} Objective
+
+The goal is to take the svg content and turn it into a string inside of some
+`JSON`. This json should look something like
+
+```json
+{
+  "prefix": "myprefix",
+  "icons": {
+    "myicon": {
+      "body": "<g></g>",
+      "height": 17,
+      "width": 17
+    }
+  }
+}
+```
+
+Every value inside of `icons` should at least have a `body` field.
+The exact `JSON` schema may be found [on iconify.design](https://iconify.design/docs/types/iconify-json.html).
+
+::: { .callout-note }
+
+As you will see bellow, the only thing this has to with `iconify` is the `JSON` schema used by `mermaid`.
+It would appear that `mermaid` does not use `iconify` under the hood and therefore icon sets that work in `mermaid` may not work with iconify {{< iconify poop >}}.
+
+:::
+
+### Gotchas
+
+There were quite afew things that I found unintuitive while writing the script
+and getting the icon set to work.
+
+::: { .callout-warning }
+
+#### `body` Should Not be Wrapped in `svg`
+
+It turns out that having the `svg` tag inside of the `body` results in the icons not loading.
+My solution was to use `python`s built in `xml` library to parse out the
+content that was only the same. In the case of the kubernetes icons I had to find
+an element `layer1` to extract from the `xml`.
+
+In `python`, this is done like
+
+```python
+from xml.dom import minidom
+
+loaded = minidom.parse(str(path))
+elements = loaded.getElementsByTagName("g")
+element = next((ee for ee in elements if ee.getAttribute("id") == "layer1"), None)
+```
+
+A big part of debugging was parsing the `xml` files to query the right piece
+of code.
+
+:::
+
+::: { .callout-warning }
+
+#### Certain SVG Icons will not Be Accepted by Iconify
+
+Some icons contain svg incompatable with iconify.
+**However, such icons will often work with mermaid**
+Since I only really want these icons for `mermaid` I do not care, however,
+I found that certain icons (in my case `k8s:limits` make `iconify`) unable to use the whole image set.
+The code reproducing this is below:
+
+```{.html include="iconify.html"}
+
+```
+
+For those curious, the minimal content to reproduce the error is [is available here](./iconify.html).
+Deleting `limits` and its associated alias fix the problem and then the `k8s:node` icon can be foundd.
+
+:::
+
+::: { .callout-warning }
+
+#### All that is Necessary is a Properly Formated `JSON` File.
+
+You do not need to build your own `CDN` or use the `iconify` API.
+
+:::
+
+## {{< iconify logos python >}} The Script
+
+After all of these considerations, I cooked up a `python` script to process all of the
+`svg` icons and turn them into a nice `JSON` file.
+
+The setup is simple:
+
+- A clone of the [kubernetes community repo](https://github.com/kubernetes),
+- Installing `typer` with `pip install typer`.
+- Putting this script into the repo under `icons/tools/iconify.py`,
+
+The first two steps can be done with the script:
+
+```sh
+git clone --depth 1 https://github.com/kubernetes/community
+pip install typer
+```
+
+and the final step is as easy as copying and pasting the script below:
+
+```{.python include="../../../scripts/iconify_kubernetes.py"}
+
+```
+
+::: {.callout-note}
+
+The `JSON` output is available [on this website](/icons/kubernetes.json).
+
+:::
+
+### Running the Script
+
+Typer makes it easy to run the script with flags and subcommands.
+
+1. The `make` subcommand will create the json output.
+   It can limit the number of icons process using `--include` and set the output destination using `--output`.
+
+   For instance, the icon set with only the `svc`, `etcd`, and `limits` icon can be built like
+
+   ```sh
+   #| fig-cap: This assumes that the shell is currently in the root of the cloned community repo.
+   python ./icons/tools/iconify.py \
+     make --include svc \
+       --include etcd \
+       --include limits \
+       --output iconify.json
+   ```
+
+   and will be output to `./iconify.json`.
+
+2. The `names` will print all of the icon names.
+3. The `aliases` command will print `$.aliases` and also has `--include`.
+
+It might seem overkill, but this was extemely convenient while building the iconset.
+
+## {{< iconify hugeicons checkmark-circle-02 >}} Using the Icon Set in Mermaid
+
+::: { .callout-note }
+
+It is possible to use the icon set with iconify in pure `HTML`.
+However, for the reasons already state above, I will not be going into the details of this here.
+This is decribed [within the iconify documentation](https://iconify.design/docs/icon-components/svg-framework/).
+For those interested using iconify in quarto, see [the iconify extension for quarto](https://github.com/mcanouil/quarto-iconify).
+
+:::
+
+### {{< iconify logos html >}} With Mermaid Inside of `HTML`
+
+::: { .callout-note }
+
+The code displayed below is available as webpage [here](./mermaid.html).
+
+:::
+
+To get the icons working with `mermaid`, include `mermaid` and use `mermaid.registerIconPacks`.
+Then write out the declarative code for your diagram inside of some `pre` tags with `class=mermaid`:
+
+```{.html include="./mermaid.html"}
+
+```
+
+### With Mermaid Inside Of Quarto
+
+It is as simple as adding something like the script tags from above to `quarto` `HTML`
+output, e.g. make a file `./includes/mermaid.html` that calles `mermaid.registerIconPacks`:
+
+```{.html include="../../includes/mermaid.html" snippet="script"}
+
+```
+
+and include it in the html output by using `format.html.include-in-header`:
+
+````quarto
+---
+format:
+  html:
+    include-in-header:
+      - file: ./includes/mermaid.html
+---
+
+This is an example, and the following diagram should be rendered by mermaid
+in the browser:
+
+```{mermaid}
+architecture-beta
+  group linode(logos:linode)[Linode]
+  service blog_deployment(k8s:svc)[Blog Service and Deployment] in linode
+```
+
+````
+
+The diagram rendered should look like
+
+```{mermaid}
+architecture-beta
+  group linode(logos:linode)[Linode]
+  service blog_deployment(k8s:svc)[Blog Service and Deployment] in linode
+```
+
+<!--
+With this script in the head, it is also possible to use iconify icons inline
+with [the iconify extension for quarto](https://github.com/mcanouil/quarto-iconify),
+for instance
+
+```
+{{< iconify k8s svc >}}
+```
+
+will render to {{< iconify k8s svc >}}.
+-->
