@@ -19,9 +19,15 @@ class ConfigFloatyItemImage(pydantic.BaseModel):
     iconify: ConfigFloatyItemIconify
 
 
-class IconifyKwargs(TypedDict):
+T_ConfigFloatyItemParent = TypeVar(
+    "T_ConfigFloatyItemParent", bound="ConfigFloatySection"
+)
+
+
+class IconifyKwargs(TypedDict, Generic[T_ConfigFloatyItemParent]):
+
     inline: NotRequired[bool]
-    _parent: Required["ConfigFloatySection"]
+    _parent: Required[T_ConfigFloatyItemParent]
 
 
 class ConfigFloatyItem(pydantic.BaseModel):
@@ -45,7 +51,14 @@ class ConfigFloatyItem(pydantic.BaseModel):
     title: str
     tooltip: Annotated[str | None, pydantic.Field(default=None)]
 
-    def get_attributes(self, *, _parent: "ConfigFloatySection") -> dict[str, str]:
+    def get_attributes(
+        self, *, _parent: "ConfigFloatySection", for_overlay: bool = False
+    ) -> dict[str, str]:
+        if for_overlay:
+            size = _parent.overlay.size_icon
+        else:
+            size = self.image.iconify.size or _parent.container.size_item
+
         return {
             "data-key": self.key,
             "data-bs-toggle": "tooltip",
@@ -55,7 +68,7 @@ class ConfigFloatyItem(pydantic.BaseModel):
             "aria-label": f"{self.image.iconify.label or self.title}",
             "icon": f"{self.image.iconify.set_}:{self.image.iconify.name}",
             "title": self.title,
-            "style": f"font-size: {self.image.iconify.size or _parent.container.size_item }px;",
+            "style": f"font-size: {size}px;",
         }
 
     def hydrate_iconify_li(
@@ -86,6 +99,7 @@ class ConfigFloatyItem(pydantic.BaseModel):
     ):
 
         kwargs["inline"] = False
+        cells: Iterable[pf.TableCell]
         cells = [pf.TableCell(self.hydrate_iconify(*args, **kwargs))]
 
         if kwargs["_parent"].container.titles:
@@ -101,13 +115,17 @@ class ConfigFloatyItem(pydantic.BaseModel):
         *,
         _parent: "ConfigFloatySection",
         inline: bool = True,
+        for_overlay: bool = False,
     ):
         """Should make the iconify icon."""
 
         # NOTE: Font size MUST be in pixels for JS to ensure list item resize.
         attrs = " ".join(
             f"{key}='{value}'"
-            for key, value in self.get_attributes(_parent=_parent).items()
+            for key, value in self.get_attributes(
+                _parent=_parent,
+                for_overlay=for_overlay,
+            ).items()
         )
         raw = f"<iconify-icon { attrs }></iconify-icon>"
 
@@ -131,6 +149,7 @@ class ConfigFloatyItem(pydantic.BaseModel):
             pf.Div(
                 self.hydrate_iconify(
                     _parent=_parent,
+                    for_overlay=True,
                     inline=False,
                 )
             ),
@@ -209,8 +228,8 @@ class ConfigFloatySection(pydantic.BaseModel, Generic[T_ConfigFloatySection]):
 
         closure_name = "overlay_" + element.identifier.lower().replace("-", "_")
 
-        li_margin = self.container.size_item_margin
-        li_margin = f"'{li_margin}px'" if li_margin is not None else "null"
+        sim = self.container.size_item_margin
+        li_margin = f"'{sim}px'" if sim is not None else "null"
         kwargs = f"{{ li_margin: {li_margin}, kind: '{ self.container.kind }' }}"
         js = f"let {closure_name} = Floaty('{ element.identifier }', { kwargs })"
 

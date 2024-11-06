@@ -131,6 +131,7 @@ title = "Captura PyTest Coverage Report"
 [tool.mypy]
 overrides = [
   {module = "kagglehub.*",ignore_missing_imports=true},
+  {module = "panflute.*",ignore_missing_imports=true},
 ]
 
 

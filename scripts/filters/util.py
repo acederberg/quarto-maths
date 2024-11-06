@@ -2,7 +2,7 @@ import abc
 import contextlib
 import pathlib
 import sys
-from typing import Any, ClassVar, Protocol
+from typing import Any, ClassVar
 
 import panflute as pf
 import pydantic
@@ -58,7 +58,7 @@ def create_run_filter(Filter: type[BaseFilter]):
                     context["filter"] = Filter(doc)
 
                 filter = context["filter"]
-                return filter(element)
+                return filter(element)  # type: ignore[misc]
 
             out = pf.run_filter(do_filter, doc=doc)
 

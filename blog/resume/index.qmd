@@ -1,5 +1,6 @@
 ---
-title: Resume
+title: Adrian Cederberg
+subtitle: Resume v5
 format:
   html:
     toc: false
@@ -325,7 +326,7 @@ resume:
             since: 2021-07-01
             image:
               iconify:
-                set: logo
+                set: logos
                 name: github-actions
           - title: Terraform
             key: terraform
@@ -417,7 +418,7 @@ resume:
         kind: table
       overlay:
         include: true
-        size_icon: 64
+        size_icon: 128
       content:
         - title: Phone
           key: phone

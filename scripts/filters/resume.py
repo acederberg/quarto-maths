@@ -1,5 +1,5 @@
 from datetime import date, timedelta
-from typing import Annotated, Callable, Iterable
+from typing import Annotated, Any, Callable, Iterable
 
 import panflute as pf
 import pydantic
@@ -92,7 +92,7 @@ class BaseExperienceItem(pydantic.BaseModel):
 
     def create_header_html(self) -> tuple[pf.Element, ...]:
         return (
-            pf.Header(pf.Str(self.title), level=3),  # type: ignore[attr-exists]
+            pf.Header(pf.Str(self.title), level=3),  # type: ignore[attr-defined]
             pf.Para(pf.Strong(pf.Str(self.organization))),
             pf.Para(pf.Emph(*self.create_start_stop())),
         )
@@ -105,7 +105,7 @@ class BaseExperienceItem(pydantic.BaseModel):
         )
         return (
             pf.Header(
-                pf.Str(self.title),  # type: ignore[attr-exists]
+                pf.Str(self.title),  # type: ignore[attr-defined]
                 *header_textbar,
                 pf.Str(self.organization),
                 pf.Space(),
@@ -204,7 +204,7 @@ TODAY = date.today()
 class ConfigSkillsItem(floaty.ConfigFloatyItem):
     since: date
 
-    @pydantic.computed_field
+    @pydantic.computed_field  # type: ignore[prop-decorator]
     @property
     def duration(self) -> timedelta:
         diff = TODAY - self.since
@@ -287,7 +287,7 @@ class ConfigSkills(floaty.ConfigFloatySection[ConfigSkillsItem]):
         ),
     ]
 
-    @pydantic.computed_field
+    @pydantic.computed_field  # type: ignore[prop-decorator]
     @property
     def duration(self) -> timedelta:
         """In display, each section has its progress relative to the maximum
@@ -362,16 +362,12 @@ class ConfigSidebar(pydantic.BaseModel):
 
                 if element.identifier == "resume-skills":
                     key = "main"
-                elif element.identifier in self.skills:
+                elif element.identifier in self.skills:  # type: ignore
                     key = element.identifier
                 else:
                     return
 
-                util.record("key", key)
-                util.record(
-                    "type", self.skills[key].container.model_dump_json(indent=2)
-                )
-                do_floaty(self.skills[key], doc, element)
+                do_floaty(self.skills[key], doc, element)  # type: ignore
                 found.add(key)
 
             element.walk(lambda elem, doc: hydrate_skills_subskill(doc, elem))
@@ -488,6 +484,7 @@ class ConfigBody(pydantic.BaseModel):
         if (hydrator := get_hydrate(self, element, ELEMENTS_BODY)) is not None:
             return hydrator(doc, element)
 
+        config: Any
         if "experience" in element.classes and self.experience is not None:
             config = self.experience[element.attributes["experience-item"]]
             return config.hydrate(doc, element)
@@ -508,7 +505,7 @@ class ConfigResume(pydantic.BaseModel):
         ),
     ]
     body: Annotated[
-        ConfigBody | None,
+        ConfigBody,
         pydantic.Field(
             description="Main body configuration.",
         ),

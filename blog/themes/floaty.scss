@@ -181,24 +181,21 @@
 /* Under construction floaty. */
 
 // Font size on icons must be overwritten directly.
-.under-construction-small,
-.under-construction-medium,
-.under-construction-large,
 #under-construction {
   border: 5px solid red;
   border-radius: 10px;
 }
 
-
-.under-construction-small,
-.under-construction-medium,
-.under-construction-large,
 #under-construction-detail {
   background: rgba(255, 0, 0, 0.1);
   width: 100%;
 }
 
-
-.under-construction-small h1 {
-  font-size: small;
+.under-construction-small,
+.under-construction-medium,
+.under-construction-large {
+  width: 100%;
+  border: 1px solid rgba(255, 0, 0, 0.2);
+  border-left: 5px solid red;
+  border-radius: 5px;
 }
