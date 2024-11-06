@@ -20,6 +20,7 @@
   text-align: center;
   border-radius: 5px;
   margin: 1%;
+  overflow-y: scroll;
 
   z-index: 9000;
   width: 80vh;

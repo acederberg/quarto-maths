@@ -257,46 +257,83 @@ resume:
     # ----------------------------------------------------------------------- #
     # Skills
     skills:
-      container:
-        classes: ["floaty-container-wide", "py-3"]
-        titles: true
-        size_item: 64
+      main:
         type: list
-      tooltip:
-        text: Click to learn more about my experience.
-      overlay:
-        include: true
-        size_icon: 256
-      content:
-        - title: Software Implementation and Architecture
-          key: impl
-          since: 2017-08-01
-          image:
-            iconify:
-              set: misc
-              name: binary
-          tooltip: Click to see more!
-        - title: APIs and Databases
-          key: api-and-db
-          since: 2021-02-01
-          image:
-            iconify:
-              set: misc
-              name: api
-        - title: Dashboards and UIs
-          key: uiux
-          since: 2021-05-01
-          image:
-            iconify:
-              set: misc
-              name: dashboard
-        - title: DevOps Engineering
-          key: devops
-          since: 2021-06-01
-          image:
-            iconify:
-              set: misc
-              name: devops
+        container:
+          classes: ["floaty-container-wide", "py-3"]
+          titles: true
+          size_item: 64
+        tooltip:
+          include: false
+          text: Click to learn more about my experience.
+        overlay:
+          include: true
+          size_icon: 256
+        content:
+          - title: Software Implementation and Architecture
+            key: impl
+            since: 2017-08-01
+            image:
+              iconify:
+                set: misc
+                name: binary
+            tooltip: Click to see more!
+          - title: APIs and Databases
+            key: api-and-db
+            since: 2021-02-01
+            image:
+              iconify:
+                set: misc
+                name: api
+          - title: Dashboards and UIs
+            key: uiux
+            since: 2021-05-01
+            image:
+              iconify:
+                set: misc
+                name: dashboard
+          - title: DevOps Engineering
+            key: devops
+            since: 2021-06-01
+            image:
+              iconify:
+                set: misc
+                name: devops
+      devops:
+        progress_bar_classes:
+          ["bg-success", "progress-bar-animated", "progress-bar-striped"]
+        container:
+          classes: ["floaty-container-wide"]
+          titles: true
+          size_item: 64
+          kind: table
+        tooltip:
+          include: false
+        overlay:
+          size_icon: 32
+          include: false
+        content:
+          - title: Docker
+            key: docker
+            since: 2021-04-01
+            image:
+              iconify:
+                set: devicon
+                name: docker
+          - title: Terraform
+            key: terraform
+            since: 2022-04-01
+            image:
+              iconify:
+                set: devicon
+                name: terraform
+          - title: Pulumi
+            key: pulumi
+            since: 2024-01-01
+            image:
+              iconify:
+                set: devicon
+                name: pulumi
     # ----------------------------------------------------------------------- #
     # Links
     links:
@@ -510,6 +547,9 @@ and `redis` <iconify-icon icon=devicon:redis></iconify-icon>.
 A service is not useful or accessable unless it is deployed, and
 deploying a website manually is a thing of the past. Automation is
 mandatory for buliding reliable and secure products.
+
+::: { #devops }
+:::
 
 :::
 

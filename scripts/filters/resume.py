@@ -1,8 +1,9 @@
 from datetime import date, timedelta
-from typing import Annotated, Callable
+from typing import Annotated, Callable, Iterable
 
 import panflute as pf
 import pydantic
+from typing_extensions import Unpack
 
 from scripts.filters import floaty, util
 
@@ -169,8 +170,6 @@ class ConfigExperienceItem(BaseExperienceItem):
             )
 
         if self.tools is not None:
-            util.record(element.identifier)
-            util.record(self.tools.model_dump_json(indent=2))
             do_floaty(self.tools, doc, element)
 
         return element
@@ -188,11 +187,12 @@ class ConfigEducationItem(BaseExperienceItem):
 class ConfigContactItem(floaty.ConfigFloatyItem):
     value: str
 
-    def hydrate_iconify_tr(self, *args, **kwargs):
+    def hydrate_iconify_tr(self, *args, _parent, **kwargs):
         extra = pf.TableCell(pf.Para(pf.Str(self.value)))
         return super().hydrate_iconify_tr(
             *args,
             cells_extra=[extra],
+            _parent=_parent,
             **kwargs,
         )
 
@@ -203,16 +203,6 @@ TODAY = date.today()
 # TODO: Skillbar to take up row on hover (and in overlay).
 class ConfigSkillsItem(floaty.ConfigFloatyItem):
     since: date
-    progress_classes: Annotated[
-        list,
-        pydantic.Field(
-            default_factory=lambda: [
-                "bg-warning",
-                "progress-bar-animated",
-                "progress-bar-striped",
-            ]
-        ),
-    ]
 
     @pydantic.computed_field
     @property
@@ -235,10 +225,10 @@ class ConfigSkillsItem(floaty.ConfigFloatyItem):
         return pf.Div(
             pf.Div(
                 pf.RawBlock(", ".join(content_str)),
-                classes=["progress-bar", "px-2", *self.progress_classes],
+                classes=["progress-bar", "px-2", *_parent.progress_bar_classes],
                 attributes={"style": f"width: {percent}%;"},
             ),
-            classes=["progress", "my-5"],
+            classes=["progress", *_parent.progress_classes],
             attributes={
                 "aria-valuenow": str(self.duration.days),
                 "aria-valuemin": "0",
@@ -264,12 +254,45 @@ class ConfigSkillsItem(floaty.ConfigFloatyItem):
 
         return el
 
+    def hydrate_iconify_tr(
+        self,
+        *args,
+        cells_extra: Iterable[pf.TableCell] | None = None,
+        **kwargs: Unpack[floaty.IconifyKwargs],
+    ):
+        progress = pf.TableCell(self.hydrate_progress_bar(_parent=kwargs["_parent"]))
+
+        el = super().hydrate_iconify_tr(
+            *args,
+            cells_extra=(progress, *(cells_extra or tuple())),
+            **kwargs,
+        )
+        return el
+
 
 class ConfigSkills(floaty.ConfigFloatySection[ConfigSkillsItem]):
+
+    progress_classes: Annotated[
+        list,
+        pydantic.Field(default_factory=lambda: ["my-3"]),
+    ]
+    progress_bar_classes: Annotated[
+        list,
+        pydantic.Field(
+            default_factory=lambda: [
+                "bg-warning",
+                "progress-bar-animated",
+                "progress-bar-striped",
+            ]
+        ),
+    ]
 
     @pydantic.computed_field
     @property
     def duration(self) -> timedelta:
+        """In display, each section has its progress relative to the maximum
+        in its own section."""
+
         vv = max(self.content.values(), key=lambda item: item.duration)  # type: ignore
         return vv.duration
 
@@ -284,7 +307,7 @@ class ConfigSidebar(pydantic.BaseModel):
     tex_width: Annotated[float, pydantic.Field(lt=1, gt=0, default=0.35)]
     headshot: Annotated[ConfigHeadshot | None, pydantic.Field(default=None)]
     skills: Annotated[
-        ConfigSkills | None,
+        dict[str, ConfigSkills] | None,
         pydantic.Field(default=None, description="Skills configuration."),
     ]
     contact: Annotated[
@@ -327,9 +350,34 @@ class ConfigSidebar(pydantic.BaseModel):
 
         if self.skills is None:
             return element
+
         # NOTE: Adding both results in broken overlays.
         if doc.format == "html":
-            do_floaty(self.skills, doc, element)
+
+            found: set[str] = set()
+
+            def hydrate_skills_subskill(doc: pf.Doc, element: pf.Element):
+                if not isinstance(element, pf.Div):
+                    return
+
+                if element.identifier == "resume-skills":
+                    key = "main"
+                elif element.identifier in self.skills:
+                    key = element.identifier
+                else:
+                    return
+
+                util.record("key", key)
+                util.record(
+                    "type", self.skills[key].container.model_dump_json(indent=2)
+                )
+                do_floaty(self.skills[key], doc, element)
+                found.add(key)
+
+            element.walk(lambda elem, doc: hydrate_skills_subskill(doc, elem))
+            if len(missing := found - found.intersection(self.skills)):
+                raise ValueError(f"Did not hydrate for `{missing}`.")
+
         else:
             ...
             # skills = pf.Para(pf.Str("Placeholder content."))

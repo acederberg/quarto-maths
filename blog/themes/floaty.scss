@@ -70,7 +70,7 @@
 .floaty iconify-icon:hover,
 .floaty-container li iconify-icon:hover {
   transform: scale(1.1);
-  filter: drop-shadow(8px 8px 4px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(8px 8px 4px rgba(0, 0, 0, 0.05));
 }
 
 
@@ -120,7 +120,6 @@
 }
 
 .floaty-container-wide ul li:hover {
-  background: var(--bs-background);
   transform: scale(1.2) translate(0%, -20%);
   animation: shiny 10s linear;
 }
@@ -168,9 +167,7 @@
   border-radius: 50%;
 }
 
-.floaty-container-macos li iconify-icon:hover {
-  background: rgba(255, 255, 255, 0.95)
-}
+/* .floaty-container-macos li iconify-icon:hover { } */
 
 
 .floaty-tooltip {

@@ -1,8 +1,9 @@
 import secrets
-from typing import Annotated, Generic, Iterable, Literal, TypeVar
+from typing import Annotated, Generic, Iterable, Literal, TypedDict, TypeVar
 
 import panflute as pf
 import pydantic
+from typing_extensions import NotRequired, Required, Unpack
 
 from scripts.filters import util
 
@@ -16,6 +17,11 @@ class ConfigFloatyItemIconify(pydantic.BaseModel):
 
 class ConfigFloatyItemImage(pydantic.BaseModel):
     iconify: ConfigFloatyItemIconify
+
+
+class IconifyKwargs(TypedDict):
+    inline: NotRequired[bool]
+    _parent: Required["ConfigFloatySection"]
 
 
 class ConfigFloatyItem(pydantic.BaseModel):
@@ -38,15 +44,8 @@ class ConfigFloatyItem(pydantic.BaseModel):
     ]
     title: str
     tooltip: Annotated[str | None, pydantic.Field(default=None)]
-    # attributes_additional: Annotated[
-    #     dict[str, str] | None,
-    #     pydantic.Field(
-    #         description="Additional attributes to add.",
-    #         default=None,
-    #     )
-    # ]
 
-    def get_attributes(self, size: int) -> dict[str, str]:
+    def get_attributes(self, *, _parent: "ConfigFloatySection") -> dict[str, str]:
         return {
             "data-key": self.key,
             "data-bs-toggle": "tooltip",
@@ -56,16 +55,16 @@ class ConfigFloatyItem(pydantic.BaseModel):
             "aria-label": f"{self.image.iconify.label or self.title}",
             "icon": f"{self.image.iconify.set_}:{self.image.iconify.name}",
             "title": self.title,
-            "style": f"font-size: {self.image.iconify.size or size}px;",
+            "style": f"font-size: {self.image.iconify.size or _parent.container.size_item }px;",
         }
 
     def hydrate_iconify_li(
         self,
         *args,
         include_link: bool,
-        _parent: "ConfigFloatySection",
-        **kwargs,
+        **kwargs: Unpack[IconifyKwargs],
     ):
+        _parent = kwargs["_parent"]
         res = self.hydrate_iconify(*args, **kwargs)
 
         if include_link and self.href is not None:
@@ -74,21 +73,24 @@ class ConfigFloatyItem(pydantic.BaseModel):
         out = pf.ListItem(pf.Para(res))
         util.record("titles", _parent.container.titles)
         if _parent.container.titles:
-            util.record("Adding titles")
             title = pf.Header(pf.Str(self.title), level=3, classes=["floaty-title"])
             out.content.append(title)
 
         return out
 
     def hydrate_iconify_tr(
-        self, *args, cells_extra: Iterable[pf.TableCell] | None = None, **kwargs
+        self,
+        *args,
+        cells_extra: Iterable[pf.TableCell] | None = None,
+        **kwargs: Unpack[IconifyKwargs],
     ):
 
         kwargs["inline"] = False
-        cells = (
-            pf.TableCell(self.hydrate_iconify(*args, **kwargs)),
-            pf.TableCell(pf.Para(pf.Str(self.title))),
-        )
+        cells = [pf.TableCell(self.hydrate_iconify(*args, **kwargs))]
+
+        if kwargs["_parent"].container.titles:
+            cells.append(pf.TableCell(pf.Para(pf.Str(self.title))))
+
         if cells_extra is not None:
             cells = (*cells, *cells_extra)
 
@@ -96,15 +98,16 @@ class ConfigFloatyItem(pydantic.BaseModel):
 
     def hydrate_iconify(
         self,
-        size: int,
         *,
+        _parent: "ConfigFloatySection",
         inline: bool = True,
     ):
         """Should make the iconify icon."""
 
         # NOTE: Font size MUST be in pixels for JS to ensure list item resize.
         attrs = " ".join(
-            f"{key}='{value}'" for key, value in self.get_attributes(size).items()
+            f"{key}='{value}'"
+            for key, value in self.get_attributes(_parent=_parent).items()
         )
         raw = f"<iconify-icon { attrs }></iconify-icon>"
 
@@ -127,7 +130,7 @@ class ConfigFloatyItem(pydantic.BaseModel):
         element.content = (
             pf.Div(
                 self.hydrate_iconify(
-                    _parent.overlay.size_icon,
+                    _parent=_parent,
                     inline=False,
                 )
             ),
@@ -208,8 +211,8 @@ class ConfigFloatySection(pydantic.BaseModel, Generic[T_ConfigFloatySection]):
 
         li_margin = self.container.size_item_margin
         li_margin = f"'{li_margin}px'" if li_margin is not None else "null"
-        kwargs = f"{{ li_margin: {li_margin} }}"
-        js = f"let {closure_name} = Floaty('{ element.identifier }', {kwargs})"
+        kwargs = f"{{ li_margin: {li_margin}, kind: '{ self.container.kind }' }}"
+        js = f"let {closure_name} = Floaty('{ element.identifier }', { kwargs })"
 
         element.content = (
             *element.content,
@@ -222,7 +225,6 @@ class ConfigFloatySection(pydantic.BaseModel, Generic[T_ConfigFloatySection]):
         # NOTE: Links are only ever included when the overlay is not present.
         list_items = (
             config_image.hydrate_iconify_li(
-                self.container.size_item,
                 include_link=not self.overlay.include,
                 _parent=self,
             )
@@ -240,7 +242,8 @@ class ConfigFloatySection(pydantic.BaseModel, Generic[T_ConfigFloatySection]):
     def hydrate_html_table(self, element: pf.Element):
 
         table_rows = (
-            config_image.hydrate_iconify_tr(self.container.size_item)
+            # config_image.hydrate_iconify_tr(self.container.size_item, _parent=self)
+            config_image.hydrate_iconify_tr(_parent=self)
             for config_image in self.content.values()
         )
 
@@ -272,7 +275,7 @@ class ConfigFloatySection(pydantic.BaseModel, Generic[T_ConfigFloatySection]):
         # Look for overlay content
         needs_config = set()
 
-        def hydrate_overlay_content_item(doc: pf.Doc, el: pf.Element) -> pf.Element:
+        def hydrate_overlay_content_item(_: pf.Doc, el: pf.Element) -> pf.Element:
             if not isinstance(el, pf.Div):
                 return el
 
