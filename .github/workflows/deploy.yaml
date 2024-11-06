@@ -78,7 +78,7 @@ jobs:
         run: |
           source .venv/bin/activate
           echo -e "## MetaTags Report\n\n~~~yaml" >> $GITHUB_STEP_SUMMARY
-          poetry run python -m scripts.meta >> $GITHUB_STEP_SUMMARY
+          poetry run python -m acederbergio.meta >> $GITHUB_STEP_SUMMARY
           echo -e "~~~\n" >> $GITHUB_STEP_SUMMARY
       - run: |
           if ( \
