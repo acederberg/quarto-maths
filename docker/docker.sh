@@ -20,4 +20,4 @@ source $ACEDERBERG_IO_VENV/bin/activate
 python3.10 -m pip install poetry >>$ACEDERBERG_IO_BUILD_LOG
 
 cd $ACEDERBERG_IO_WORKDIR
-poetry install --with scripts >>$ACEDERBERG_IO_BUILD_LOG
+poetry install >>$ACEDERBERG_IO_BUILD_LOG
