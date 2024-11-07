@@ -49,60 +49,60 @@ jobs:
             ACEDERBERG_IO_BUILD_GIT_REF=${{ github.ref_name }}
             ACEDERBERG_IO_GOOGLE_TRACKING_ID=${{ secrets.GOOGLE_TRACKING_ID }}
 
-      - name: Run Server Image.
-        if: ${{ github.event.inputs.strict }} == '1' || ${{ github.event.inputs.preview }} == '0'
-        run: |
-          echo "strict = ${{ github.event.inputs.strict }}" >> $GITHUB_STEP_SUMMARY
-          echo "preview = ${{ github.event.inputs.preview }}" >> $GITHUB_STEP_SUMMARY
-          echo ACEDERBERG_IO_SERVER_VERSION='latest' > .env
-          # echo ACEDERBERG_IO_GIT_COMMIT="${{ github.sha }}" >> .env
-          # echo ACEDERBERG_IO_GIT_REF="${{ github.ref_name }}" >> .env
-          # echo ACEDERBERG_IO_GOOGLE_TRACKING_ID="${{ secrets.GOOGLE_TRACKING_ID }}" >> .env
-          docker compose \
-            --env-file .env \
-            --file docker/compose.prod.yaml \
-            up --detach
-          docker compose \
-            --file docker/compose.prod.yaml \
-            cp server:/app/build blog/build
-
-      - uses: actions/setup-python@v5
-        if: ${{ github.event.inputs.strict }} != '0' || ${{ github.event.inputs.preview }} == '0'
-        with:
-          python-version: '3.11'
-      - name: Cache Virtual Environment.
-        if: ${{ github.event.inputs.strict }} != '0' || ${{ github.event.inputs.preview }} == '0'
-        uses: actions/cache@v3
-        id: venv
-        with:
-          path: .venv
-          key: ${{ runner.os }}-venv-${{ hashFiles('poetry.lock') }}
-      - name: Venv and Setup .
-        if: ${{ github.event.inputs.strict }} != '0' || ${{ github.event.inputs.preview }} == '0'
-        run: |
-          python -m venv .venv
-          source .venv/bin/activate
-          python -m pip install poetry meta-tags-parser
-          poetry install
-      - name: Check MetaTags.
-        if: ${{ github.event.inputs.strict }} != '0' || ${{ github.event.inputs.preview }} == '0'
-        id: metatags
-        continue-on-error: true
-        run: |
-          source .venv/bin/activate
-          echo -e "## MetaTags Report\n\n~~~yaml" >> $GITHUB_STEP_SUMMARY
-          poetry run python -m acederbergio.meta >> $GITHUB_STEP_SUMMARY
-          echo -e "~~~\n" >> $GITHUB_STEP_SUMMARY
-      - if: ${{ github.event.inputs.strict }} != '0' || ${{ github.event.inputs.preview }} == '0'
-        run: |
-          if ( \
-            [ "${{ steps.metatags.outcome }}" != 'success' ]
-          ); then
-            echo "One or more checks failed. See the summary for details."
-            exit 1
-          fi
-      - if: ${{ github.event.inputs.strict }} == '1' || ${{ github.event.inputs.preview }} == '0'
-        run: docker compose --file docker/compose.yaml down
+          # - name: Run Server Image.
+          #   if: ${{ github.event.inputs.strict }} == '1' || ${{ github.event.inputs.preview }} == '0'
+          #   run: |
+          #     echo "strict = ${{ github.event.inputs.strict }}" >> $GITHUB_STEP_SUMMARY
+          #     echo "preview = ${{ github.event.inputs.preview }}" >> $GITHUB_STEP_SUMMARY
+          #     echo ACEDERBERG_IO_SERVER_VERSION='latest' > .env
+          #     # echo ACEDERBERG_IO_GIT_COMMIT="${{ github.sha }}" >> .env
+          #     # echo ACEDERBERG_IO_GIT_REF="${{ github.ref_name }}" >> .env
+          #     # echo ACEDERBERG_IO_GOOGLE_TRACKING_ID="${{ secrets.GOOGLE_TRACKING_ID }}" >> .env
+          #     docker compose \
+          #       --env-file .env \
+          #       --file docker/compose.prod.yaml \
+          #       up --detach
+          #     docker compose \
+          #       --file docker/compose.prod.yaml \
+          #       cp server:/app/build blog/build
+          #
+          # - uses: actions/setup-python@v5
+          #   if: ${{ github.event.inputs.strict }} != '0' || ${{ github.event.inputs.preview }} == '0'
+          #   with:
+          #     python-version: '3.11'
+          # - name: Cache Virtual Environment.
+          #   if: ${{ github.event.inputs.strict }} != '0' || ${{ github.event.inputs.preview }} == '0'
+          #   uses: actions/cache@v3
+          #   id: venv
+          #   with:
+          #     path: .venv
+          #     key: ${{ runner.os }}-venv-${{ hashFiles('poetry.lock') }}
+          # - name: Venv and Setup .
+          #   if: ${{ github.event.inputs.strict }} != '0' || ${{ github.event.inputs.preview }} == '0'
+          #   run: |
+          #     python -m venv .venv
+          #     source .venv/bin/activate
+          #     python -m pip install poetry meta-tags-parser
+          #     poetry install
+          # - name: Check MetaTags.
+          #   if: ${{ github.event.inputs.strict }} != '0' || ${{ github.event.inputs.preview }} == '0'
+          #   id: metatags
+          #   continue-on-error: true
+          #   run: |
+          #     source .venv/bin/activate
+          #     echo -e "## MetaTags Report\n\n~~~yaml" >> $GITHUB_STEP_SUMMARY
+          #     poetry run python -m acederbergio.meta >> $GITHUB_STEP_SUMMARY
+          #     echo -e "~~~\n" >> $GITHUB_STEP_SUMMARY
+          # - if: ${{ github.event.inputs.strict }} != '0' || ${{ github.event.inputs.preview }} == '0'
+          #   run: |
+          #     if ( \
+          #       [ "${{ steps.metatags.outcome }}" != 'success' ]
+          #     ); then
+          #       echo "One or more checks failed. See the summary for details."
+          #       exit 1
+          #     fi
+          # - if: ${{ github.event.inputs.strict }} == '1' || ${{ github.event.inputs.preview }} == '0'
+          #   run: docker compose --file docker/compose.yaml down
 
   # NOTE: Read [this](https://nicwortel.nl/blog/2022/continuous-deployment-to-kubernetes-with-github-actions).
   kube:

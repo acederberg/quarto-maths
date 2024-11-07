@@ -48,7 +48,7 @@ jobs:
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install poetry mypy ruff
-          poetry install
+          poetry install --with ci
       - name: MyPy Check.
         id: mypy_check
         run: |
@@ -95,6 +95,9 @@ jobs:
           source .venv/bin/activate
           python -m pip install poetry
           poetry install --with ci
+
+          cd blog
+          poetry install
       - name: Pytest.
         run: |
           source .venv/bin/activate

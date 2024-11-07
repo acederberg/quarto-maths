@@ -82,9 +82,6 @@ FROM quarto AS builder
 WORKDIR /quarto/app
 RUN quarto install tinytex
 
-COPY ./pyproject.toml ./poetry.lock /quarto/app
-COPY ./blog /quarto/app/blog
-
 ENV \
   ACEDERBERG_IO_VENV="/quarto/.venv" \
   ACEDERBERG_IO_BLOG="/quarto/app/blog" \
@@ -92,26 +89,35 @@ ENV \
   ACEDERBERG_IO_WORKDIR="/quarto/app" \
   ACEDERBERG_IO_DRY="0" \
   KAGGLE_CONFIG_DIR="/quarto"
+
+COPY ./pyproject.toml ./poetry.lock /quarto/app
 RUN \
-  --mount=type=cache,target=$ACEDERBERG_IO_VENV \
-  --mount=type=bind,target=/quarto/app/acederbergio,source=./acederbergio \
-  python3.10 -m venv $ACEDERBERG_IO_VENV \
-  && bash -c "\
+  bash -c " \
     mkdir --parents $ACEDERBERG_IO_WORKDIR/build $ACEDERBERG_IO_VENV \
+    && python3.10 -m venv $ACEDERBERG_IO_VENV \
     && source $ACEDERBERG_IO_VENV/bin/activate \
     && python3.10 -m pip install poetry \
+    && poetry install --no-root --with quarto"
+
+
+RUN \
+  --mount=type=bind,target=/quarto/app/acederbergio,source=./acederbergio \
+  bash -c "\
+    source $ACEDERBERG_IO_VENV/bin/activate \
     && touch README.md \
     && if ( pip list | grep acederbergio ); then pip uninstall --yes acederbergio; fi \
     && poetry build \
     && poetry run python3.10 -m pip install ./dist/*.whl"
 
+
+COPY ./blog /quarto/app/blog
 RUN \
-  --mount=type=cache,target=$ACEDERBERG_IO_VENV \
     cd /quarto/app/blog \
     && quarto add quarto-ext/include-code-files --no-prompt \
     && quarto add mcanouil/quarto-iconify --no-prompt
 
-# NOTE: Keep these as close to the end as possible, otherwise caching is destroyed.
+# NOTE: Keep ``ARG`` directives as close to the end as possible, otherwise 
+#       caching is destroyed.
 ARG ACEDERBERG_IO_BUILD_GIT_COMMIT
 ARG ACEDERBERG_IO_BUILD_GIT_REF
 ENV \
@@ -119,7 +125,6 @@ ENV \
   ACEDERBERG_IO_BUILD_GIT_REF="${ACEDERBERG_IO_BUILD_GIT_REF}"
 
 RUN \
-  --mount=type=cache,target=$ACEDERBERG_IO_VENV \
   --mount=type=secret,id=kaggle_json,target=/quarto/kaggle.json,required \
   --mount=type=secret,id=google_tracking_id,env=ACEDERBERG_IO_GOOGLE_TRACKING_ID,required \
   bash -c "\

@@ -1,0 +1,19 @@
+# NOTE: Notebook dependencies should be kept in the main pyproject toml.
+#       This is a hacky workaround to avoid having to reinstall dependencies
+#       every time the blog content changes (because of docker caching).
+[tool.poetry]
+name = "acederbergio-content"
+version = "0.1.0"
+description = "Blog python code as a module for running tests."
+authors = ["Adrian Cederberg"]
+license = "MIT"
+readme = "README.md"
+packages = [{include="dsa"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
