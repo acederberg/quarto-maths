@@ -1,0 +1,101 @@
+---
+title: A To Do List
+---
+
+At the moment, I am feeling a bit overwhelmed, and think it is probably wise
+to write out what I need to be doing right now. To this end, I am making a few
+tables that I can use to mark off my progress and plan.
+
+::: { .callout-note }
+
+### Table Task Completion Info
+
+There is some javascript in this page that will make the rows turn green as
+items are marked completed. Changing the table format may break the
+highlighting.
+
+:::
+
+## `acederberg.io`
+
+The main focus of my work on this website right now is to finish out the resume
+and projects. I think my previous resume really needed some work, and I need to
+continue working on it so I can send in more effective applications.
+
+### Before Next Release
+
+This items are urgent and must be completed to move the big changes into the
+production (not `preview`) website.
+
+::: { .callout-warning }
+
+#### Do the Bare Minimum
+
+I should do the minimal amount of work to get the release out.
+Anything that looks off topic/involved should be pushed into the next release.
+
+:::
+
+| Item                              | Completed | Description                                                           |
+| --------------------------------- | --------- | --------------------------------------------------------------------- |
+| Finish HTML Resume `Projects`     |           |                                                                       |
+| Hovering on Floaty Title          |           | Tooltip should be shown. Or maybe animated border (Chris suggests)    |
+| Finish HTML Resume `Skills`       |           | Just need to finish filling out the overlay.                          |
+| Overlay exit icon                 |           | Might not be boomer proof                                             |
+| Finish TeX Resume                 |           | The resume should be able to render as TeX.                           |
+| Finalize Resume Content           |           | Watch the videos Elen showed me, have a few people review if possible |
+| Project: Captura                  |           |                                                                       |
+| Project: Automation               |           |                                                                       |
+| Project: Nvim Gallery             |           |                                                                       |
+| Improve `projects/blog/index.qmd` |           | Finish overlays, round out content, make it look pretty for geusts    |
+
+### After Next Release
+
+These plans are for the future, and are not of utmost importance.
+
+::: { .callout-warning }
+
+I should hold off on doing this until I have completed my Amazon interviews.
+I will need to return to studying data structures and algorithms for a bit.
+
+:::
+
+| Item                             | Completed | Description                                                                                                                                                                     |
+| -------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Develop a testing strategy       |           | Need to test backwards compatibility of links, changes in pages, etc.                                                                                                           |
+| `CSS` for mobile                 |           | Should probably move to using grids on resume                                                                                                                                   |
+| Cool icons for skills            |           |                                                                                                                                                                                 |
+| Kubernetes icons                 |           | Need pipeline to work.                                                                                                                                                          |
+| Improve the initial landing page |           | The initial landing page feels very incomplete, there are listings, but the content is lacking. Generally the landing page does not draw me in - bio should be moved elsewhere. |
+| SVG icon / favicon               |           |                                                                                                                                                                                 |
+| Build checks -> Commit checks    |           | Huge pain in the ass.                                                                                                                                                           |
+
+## In General
+
+There are some things that must be handled in general.
+
+| Item                    | Completed | Description             |
+| ----------------------- | --------- | ----------------------- |
+| LinkedIn profile review |           |                         |
+| Fiver                   |           |                         |
+| NM ICS                  |           |                         |
+| Follow up with AZC      |           |                         |
+| include-code-files      |           | Need to add code files. |
+
+<script>
+  Array
+    .from(document.getElementsByTagName("tr"))
+    .map(item => {
+      let completed = Array.from(item.getElementsByTagName("td"))[1]
+      if ( !completed?.innerHTML ) return
+      completed.closest("tr").classList.add("table-success")
+    })
+
+  Array
+    .from(document.getElementsByTagName("table"))
+    .map(item => {
+      item.classList.add("table-light")
+      item.classList.add("table-striped")
+      item.classList.add("table-hover")
+    })
+</script>

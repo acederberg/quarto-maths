@@ -6,10 +6,10 @@ on:
         required: true
         description: Deploy to the preview site when true.
         default: '1'
-      strict:
-        required: true
-        description: Post build checks must pass (or not). Only allowed in preview.
-        default: '1'
+        # strict:
+        #   required: true
+        #   description: Post build checks must pass (or not). Only allowed in preview.
+        #   default: '1'
 jobs:
   # NOTE: See [the example](https://github.com/marketplace/actions/build-and-push-docker-images).
   build:
