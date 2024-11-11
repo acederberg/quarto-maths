@@ -36,7 +36,8 @@ resume:
         titles: true
         size_item: 64
       tooltip:
-        include: true
+        include: false
+        include_item: false
         text: Click to learn more about my experience.
       overlay:
         include: false
@@ -308,6 +309,7 @@ resume:
           size_item: 64
         tooltip:
           include: true
+          include_item: false
           text: Click to learn more about my experience.
         overlay:
           include: true

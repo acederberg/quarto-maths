@@ -82,6 +82,25 @@
   color: #333;
 }
 
+.floaty-container li .floaty-item-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.floaty-container li .floaty-item-wrapper iconify-icon {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.floaty-container li .floaty-item-wrapper h3 {
+  display: block;
+}
+
 .floaty-container-fill ul {
   justify-content: center;
   flex-wrap: nowrap;

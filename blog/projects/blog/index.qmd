@@ -134,7 +134,7 @@ Click on any of the icons below to see a brief description of how each tool is u
 
 :::::: { #thank-you-tools }
 
-<!-- start overlay --> ::::: { .overlay }
+<!-- start overlay --> ::::: { .overlay #thank-you-overlay }
 <!-- start overlay-content --> :::: { .overlay-content }
 
 ::: { .overlay-content-item data-key="quarto" }

@@ -40,7 +40,8 @@ Anything that looks off topic/involved should be pushed into the next release.
 | --------------------------------- | ---------- | --------------------------------------------------------------------- |
 | Site FavIcon                      | 11/10/2024 | Site needs a favicon                                                  |
 | Finish HTML Resume `Projects`     | 11/10/2024 |                                                                       |
-| Floaty Titles in Link             |            | Floaty titles should be enclosed within the link.                     |
+| Floaty Titles in Link             | 11/10/2024 | Floaty titles should be enclosed within the link.                     |
+| Floaty Tooltips Optional          | 11/10/2024 | Floaty tooltips should be optional.                                   |
 | Hovering on Floaty Title          | 11/8/2024  | Tooltip should be shown. Or maybe animated border (Chris suggests)    |
 | Finish HTML Resume Skills         | 11/8/2024  | Just need to finish filling out the overlay.                          |
 | Overlay exit icon                 | 11/9/2024  | Might not be boomer proof. Bonus: Navigation and urlparams.           |
@@ -68,7 +69,6 @@ I will need to return to studying data structures and algorithms for a bit.
 | Cool icons for skills            |           |                                                                                                                                                                                 |
 | Kubernetes icons                 |           | Need pipeline to work.                                                                                                                                                          |
 | Improve the initial landing page |           | The initial landing page feels very incomplete, there are listings, but the content is lacking. Generally the landing page does not draw me in - bio should be moved elsewhere. |
-| SVG icon / favicon               |           |                                                                                                                                                                                 |
 | Build checks -> Commit checks    |           | Huge pain in the ass.                                                                                                                                                           |
 | Project: Captura                 |           |                                                                                                                                                                                 |
 | Skills should be collapsable     |           |                                                                                                                                                                                 |
