@@ -1,0 +1,182 @@
+---
+title: Testing Hiding and Unhiding Using Javascript
+---
+
+## Overlay Fade In/Out on Show/Hide
+
+### Fade In And Fade Out
+
+Below this sentence there should be a black block that vanishes when clicked on:
+
+```{=html}
+<style>
+  #foo {
+    transition: opacity 1s;
+    background: black;
+    height: 512px;
+    width: 512px;
+  }
+</style>
+<div id="foo"></div>
+<script>
+  const foo = document.getElementById("foo");
+  const state = { count: 0 };
+
+  foo.addEventListener("click", () => {
+    if (state.count % 2) {
+      foo.style.opacity = 0;
+    } else {
+      foo.style.opacity = 1;
+    }
+    state.count = state.count + 1;
+
+  });
+</script>
+```
+
+### Overlay Implementation
+
+The overlay should fade in and out. Navigating left or right should be smooth.
+
+```{=html}
+<div id="my-overlay" class="overlay">
+  <div class="overlay-content">
+    <div class="overlay-content-item" data-key="it-works">
+      <h3>It works!</h3>
+      <p>This is overlay page 1.</p>
+      <p>The button bellow should update state directly.</p>
+      <button
+        type="button"
+        id="it-works-button"
+        class="btn btn-warning"
+      >
+        Reduce or reset opacity.
+      </button>
+    </div>
+    <div class="overlay-content-item" data-key="it-still-works">
+      <h3>It still works!</h3>
+      <p>This is overlay page 2.</p>
+    </div>
+  </div>
+</div>
+
+<div class="p-5 center-block">
+  <button
+    type="button"
+    id="it-works"
+    class="btn btn-warning"
+    data-key="it-works"
+  >
+    Show Overlay Page 1
+  </button>
+  <button
+    type="button"
+    id="it-still-works"
+    class="btn btn-warning"
+    data-key="it-still-works"
+  >
+    Show Overlay Page 2
+  </button>
+</div>
+
+<script>
+  const myOverlay = document.getElementById("my-overlay");
+  const myOverlayControls = Overlay(myOverlay);
+
+  document.getElementById("it-works-button").addEventListener(
+    "click",
+    () => {
+      if ( myOverlay.style.opacity == 1 )
+      {
+        myOverlay.style.opacity = 0.9
+      }
+      else {
+        myOverlay.style.opacity = 1
+      }
+    }
+  )
+
+  function addControl(id)
+  {
+    const elem = document.getElementById(id)
+
+    if (!elem) throw Error(`No element with id \`${id}\`.`)
+    elem.addEventListener(
+      "click",
+      function () {
+        myOverlayControls.showOverlay()
+        myOverlayControls.showOverlayContentItem(id)
+      }
+    )
+  }
+
+  addControl("it-works")
+  addControl("it-still-works")
+  const myOverlaySlidey = Slidey(myOverlay.querySelectorAll(".overlay-content-item"), {})
+
+</script>
+```
+
+The funny thing is that the fade in does not work unless the overlay has a value
+besides that of `none` before opacity is set to `1`, otherwise the `transition`
+is not considered by the browser.
+
+## Overlay Content Transition
+
+### Slide Over
+
+```{=html}
+<style>
+  .item-container {
+    position: relative;
+    overflow: hidden;
+
+    height: 256px;
+    width: 256px;
+    background: var(--bs-gray-300);
+  }
+
+  .item {
+    height: 256px;
+    width: 256px;
+
+    position: absolute;
+    top: 0px;
+    left: 0px;
+
+    transition: transform 0.3s ease;
+    transform: translateX(256px);
+  }
+
+</style>
+
+<div id="slidey" class="item-container">
+  <div class="item item-active" style="background: lavender;">The first item.</div>
+  <div class="item" style="background: yellow;">The second item.</div>
+  <div class="item" style="background: pink;">The third item.</div>
+</div>
+<div class="p-5">
+  <button class="btn btn-outline-warning" type="button" id="slidey-button-next">
+    Next Slide
+  </buttn>
+  <button class="btn btn-outline-warning" type="button" id="slidey-button-previous">
+    Previous Slide
+  </buttn>
+</div>
+
+<script>
+
+
+const slideyControls = Slidey(document.querySelectorAll("#slidey .item"), {size: "256px"})
+const slideyButtonNext = document.getElementById("slidey-button-next")
+const slideyButtonPrevious = document.getElementById("slidey-button-previous")
+
+slideyButtonNext.addEventListener("click", () => {
+  slideyControls.showNext()
+})
+slideyButtonPrevious.addEventListener("click", () => {
+  slideyControls.showNext(-1)
+})
+
+</script>
+```

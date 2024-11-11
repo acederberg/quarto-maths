@@ -69,7 +69,7 @@
   border: none;
 }
 
-$hover_animation: rotate 1s linear infinite !important;
+$hover_animation: rotate 2s linear !important;
 $hover_gradient : conic-gradient(from var(--angle),
   var(--color-hover-1), 30deg,
   var(--color-hover-2), 35deg,
@@ -85,6 +85,7 @@ $hover_gradient : conic-gradient(from var(--angle),
   animation: none;
   border-image: none;
   transform: none;
+  border-color: var(--color-hover-1);
 }
 
 #resume #resume-skills tr:hover {

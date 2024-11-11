@@ -39,9 +39,9 @@ Anything that looks off topic/involved should be pushed into the next release.
 | Item                              | Completed | Description                                                           |
 | --------------------------------- | --------- | --------------------------------------------------------------------- |
 | Finish HTML Resume `Projects`     |           |                                                                       |
-| Hovering on Floaty Title          |           | Tooltip should be shown. Or maybe animated border (Chris suggests)    |
-| Finish HTML Resume `Skills`       |           | Just need to finish filling out the overlay.                          |
-| Overlay exit icon                 |           | Might not be boomer proof                                             |
+| Hovering on Floaty Title          | 11/8/2024 | Tooltip should be shown. Or maybe animated border (Chris suggests)    |
+| Finish HTML Resume Skills         | 11/8/2024 | Just need to finish filling out the overlay.                          |
+| Overlay exit icon                 | 11/9/2024 | Might not be boomer proof. Bonus: Navigation and urlparams.           |
 | Finish TeX Resume                 |           | The resume should be able to render as TeX.                           |
 | Finalize Resume Content           |           | Watch the videos Elen showed me, have a few people review if possible |
 | Project: Captura                  |           |                                                                       |
@@ -69,6 +69,7 @@ I will need to return to studying data structures and algorithms for a bit.
 | Improve the initial landing page |           | The initial landing page feels very incomplete, there are listings, but the content is lacking. Generally the landing page does not draw me in - bio should be moved elsewhere. |
 | SVG icon / favicon               |           |                                                                                                                                                                                 |
 | Build checks -> Commit checks    |           | Huge pain in the ass.                                                                                                                                                           |
+| Skills should be collapsable     |           |                                                                                                                                                                                 |
 
 ## In General
 
@@ -88,14 +89,13 @@ There are some things that must be handled in general.
     .map(item => {
       let completed = Array.from(item.getElementsByTagName("td"))[1]
       if ( !completed?.innerHTML ) return
-      completed.closest("tr").classList.add("table-success")
+
+      console.log(completed)
+      completed.closest("tr").classList.add("bg-green")
     })
 
-  Array
-    .from(document.getElementsByTagName("table"))
-    .map(item => {
-      item.classList.add("table-light")
-      item.classList.add("table-striped")
-      item.classList.add("table-hover")
-    })
+  // Array
+  //   .from(document.getElementsByTagName("table"))
+  //   .map(item => {
+  //   })
 </script>

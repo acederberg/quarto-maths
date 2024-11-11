@@ -5,6 +5,7 @@ project:
     - ./robots.txt
     - ./posts/**/*.png
     - ./icons/**/*.json
+    - ./js/*.js
   output-dir: build
   preview:
     host: 0.0.0.0
@@ -115,6 +116,7 @@ format:
     include-in-header:
       - file: ./includes/iconify.html
       - file: ./includes/external_links.html
+      - file: ./includes/overlay.html
 
 author:
   - name: Adrian Cederberg

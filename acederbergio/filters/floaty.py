@@ -338,6 +338,41 @@ class ConfigFloaty(pydantic.BaseModel):
     floaty: dict[str, ConfigFloatySection[ConfigFloatyItem]]
 
 
+# def wrap_overlay_content(element: pf.Element) -> pf.Element:
+#     """Since it is a pain to wrap ``overlay-content`` in ``overlay-body``
+#     this can be added. This means that
+#
+#     ```qmd
+#     ::: { .overlay }
+#
+#     ::: { .overlay-content }
+#     :::
+#
+#     :::
+#     ```
+#
+#     should become
+#
+#     ```html
+#     <div classes="overlay">
+#         <div classes="overlay-body">
+#             <div classes="overlay-content">
+#             </div>
+#         </div>
+#     </div>
+#     ```
+#     """
+#
+#     # NOTE: Navbar is added by JS.
+#     element.content = (
+#         pf.Div(
+#             *element.content,
+#             classes=["overlay-body"],
+#         ),
+#     )
+#     return element
+
+
 class FilterFloaty(util.BaseFilter):
     filter_name = "floaty"
     filter_config_cls = ConfigFloaty
@@ -354,6 +389,9 @@ class FilterFloaty(util.BaseFilter):
     def __call__(self, element: pf.Element):
         if not isinstance(element, pf.Div):
             return element
+
+        # if "overlay" in element.classes:
+        #     return wrap_overlay_content(element)
 
         if element.identifier not in self.config.floaty or self.doc.format != "html":
             return element

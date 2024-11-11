@@ -594,6 +594,7 @@ resume:
     # ----------------------------------------------------------------------- #
     # Contact
     contact:
+      use: bootstrap
       tooltip:
         include: true
         text: Click any row to learn more about each contact method.
@@ -614,7 +615,7 @@ resume:
             iconify:
               set: hugeicons
               name: smart-phone-01
-
+            bootstrap: phone
         - title: Email
           key: email
           value: adrn.cederberg123@gmail.com
@@ -622,7 +623,7 @@ resume:
             iconify:
               set: hugeicons
               name: mail-01
-
+            bootstrap: envelope
         - title: Location
           key: location
           value: Albuquerque, New Mexico
@@ -630,6 +631,7 @@ resume:
             iconify:
               set: hugeicons
               name: location-01
+            bootstrap: compass
 floaty:
   impl-etc:
     container:
@@ -747,9 +749,9 @@ floaty:
 
 <!-- Start Resume --> :::::: { #resume }
 <!-- SIDEBAR ----------------------------------------------------------------->
-<!-- Start Sidebar --> :::::: { #resume-sidebar }
-<!-- Start Columns 1 --> ::::: { .columns }
-<!-- Start Left --> :::: { .column width=40% }
+<!-- Start Sidebar --------------> :::::: { #resume-sidebar }
+<!-- Start Columns 1 ------------> ::::: { .columns }
+<!-- Start Left -----------------> :::: { .column width=40% }
 
 ::: { #resume-headshot }
 
@@ -761,14 +763,14 @@ _This is a placeholder image and will be replaced with an actual headshot soon._
 
 :::
 
-<!-- Stop Left --> ::::
-<!-- Start Right --> :::: { .column width=60% }
+<!-- Stop Left ------------------> ::::
+<!-- Start Right ----------------> :::: { .column width=60% }
 
 ::: { #resume-contact }
 
-<!-- Begin Floaty --> ::: { #resume-contact-floaty }
-<!-- Begin Overlay --> ::: { .overlay }
-<!-- Begin Overlay Content --> ::: { .overlay-content }
+<!-- Begin Floaty ---------------> ::: { #resume-contact-floaty }
+<!-- Begin Overlay --------------> ::: { #resume-contact-overlay .overlay }
+<!-- Begin Overlay Content ------> ::: { .overlay-content }
 
 ::: { .overlay-content-item data-key=location }
 
@@ -813,13 +815,13 @@ or text me.
 
 :::
 
-<!-- End Floaty --> :::
-<!-- End Overlay Content --> :::
-<!-- End Overlay --> :::
+<!-- End Floaty -------------> :::
+<!-- End Overlay Content ----> :::
+<!-- End Overlay ------------> :::
 
 :::
 
-<!-- Stop Right --> ::::
+<!-- Stop Right -------------> ::::
 <!-- End Columns 1 ----------> :::::
 <!-- End Sidebar ------------> ::::::
 
@@ -834,27 +836,10 @@ section)_.
 <!-- Start Skills -----------> ::: { #resume-skills }
 
 <!-- Start Floaty -----------> ::: { #resume-skills-floaty }
-<!-- Start Overlay ----------> ::: { .overlay }
+<!-- Start Overlay ----------> ::: { #resume-skills-overlay .overlay }
 <!-- Start Overlay Content --> ::: { .overlay-content }
-<!-- Start UIUX -------------> ::: { .overlay-content-item data-key="uiux" }
 
-::: { #uiux .py-5 }
-
-:::
-
-::: { .skills-content .py-5 }
-
-While APIs and the backend aggregate, transform, and serve data, the data is
-of little use in assertaining the 'big picture' without visualization and
-interactivity.
-For instance, you are probably viewing this resume on my blog - would you read
-my resume if it were [in `YAML` format](/link-to-yaml)?
-
-:::
-
-<!-- Stop UIUX -------------> :::
-
-::: { .overlay-content-item data-key="impl" }
+<!-- Start impl ------------> ::: { .overlay-content-item data-key="impl" }
 
 ::: { #impl .pt-5 }
 :::
@@ -869,22 +854,9 @@ _Most of these will be covered in detail in subsequent sections._
 
 :::
 
-:::
+<!-- Stop impl ------------> :::
 
-<!--
-::: { .overlay-content-item data-key="" }
-
-Through my various projects I have developed habits conducive to
-building and shipping projects. I always:
-
-1. have a plan and a timeline,
-2. enforce effective design patterns and testing,
-3. and use version control.
-
-:::
--->
-
-::: { .overlay-content-item data-key="api-and-db" }
+<!-- Start API and DB ------> ::: { .overlay-content-item data-key="api-and-db" }
 
 ::: { #api-and-db .py-5 }
 
@@ -903,9 +875,27 @@ and `curl` and protocols like `http` and `websockets`.
 
 :::
 
+<!-- STOP API and DB ------> :::
+
+<!-- Start UIUX -----------> ::: { .overlay-content-item data-key="uiux" }
+
+::: { #uiux .py-5 }
+
 :::
 
-::: { .overlay-content-item data-key="devops" }
+::: { .skills-content .py-5 }
+
+While APIs and the backend aggregate, transform, and serve data, the data is
+of little use in assertaining the 'big picture' without visualization and
+interactivity.
+For instance, you are probably viewing this resume on my blog - would you read
+my resume if it were [in `YAML` format](/link-to-yaml)?
+
+:::
+
+<!-- Stop UIUX -------------> :::
+
+<!-- Start DevOps -----------> ::: { .overlay-content-item data-key="devops" }
 
 ::: { #devops .py-5 }
 :::
@@ -918,7 +908,7 @@ mandatory for building reliable and secure products.
 
 :::
 
-:::
+<!-- STOP DevOps -----------> :::
 
 <!-- Stop Overlay Content --> :::
 <!-- Stop Overlay ------> :::
@@ -957,7 +947,7 @@ It was a fun time building some software.
 - Enhanced organizational security by securing Cufflink APIs, Cufflink Dashboard, and Azure organization.
 
 <!-- Start Floaty --------------> ::: { #mve-floaty }
-<!-- Start Overlay -------------> ::: { .overlay }
+<!-- Start Overlay -------------> ::: { .overlay #mve-overlay }
 <!-- Start Overlay Content -----> ::: { .overlay-content }
 
 ::: { .overlay-content-item data-key="fastapi" }

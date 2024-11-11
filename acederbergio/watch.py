@@ -2,6 +2,7 @@ import contextlib
 import http.server as http_server
 import os
 import pathlib
+import shutil
 import socket
 import subprocess
 import threading
@@ -98,12 +99,35 @@ class Node:
         return out
 
 
+# class QuartoTargetType(enum.Enum, str):
+#     filter = "filter"
+#     asset = "asset"
+#     static = "static"
+#
+
+
 class Context:
     quarto_render: bool
     quarto_verbose: bool
 
     quarto_filters: Annotated[Node, Doc("Trie for matching watched filters.")]
-    quarto_assets: Annotated[Node, Doc("Trie for matching watched assets.")]
+    quarto_assets: Annotated[
+        Node,
+        Doc(
+            "Trie for matching watched assets.\nThis should not include assets "
+            "that ought to be literally coppied an pasted into their "
+            "respective places in ``build``, for instance "
+            "``icons/misc.json``.These should be in ``quarto_static``."
+        ),
+    ]
+    quarto_static: Annotated[
+        Node,
+        Doc(
+            "Trie for watching static assets.\nThis should contain assets that "
+            "ought to be literally copied and pasted into build directly just "
+            "like quarto would."
+        ),
+    ]
     ignore: Annotated[
         Node,
         Doc("Trie for matching ignored paths."),
@@ -120,12 +144,14 @@ class Context:
         quarto_filters: Iterable[pathlib.Path] | None = None,
         quarto_render: bool = True,
         quarto_assets: Iterable[pathlib.Path] | None = None,
+        quarto_static: Iterable[pathlib.Path] | None = None,
         ignore: Iterable[pathlib.Path] | None = None,
     ):
         self.quarto_render = quarto_render
         self.quarto_verbose = quarto_verbose
         self.quarto_filters = self.__validate_filters(quarto_filters or set())
         self.quarto_assets = self.__validate_assets(quarto_assets or set())
+        self.quarto_static = self.__validate_static(quarto_static or set())
 
         self.ignore = self.__validate_ignore(ignore or set())
 
@@ -134,6 +160,7 @@ class Context:
             "ignore_trie": self.ignore.dict(),
             "quarto_filters": self.quarto_filters.dict(),
             "quarto_assets": self.quarto_assets.dict(),
+            "quarto_static": self.quarto_static.dict(),
             "quarto_render": self.quarto_render,
             "quarto_verbose": self.quarto_verbose,
         }
@@ -169,6 +196,10 @@ class Context:
             env.BLOG / "resume/index.tex",
         )
 
+    def __validate_static(self, static: Iterable[pathlib.Path]) -> Node:
+        logger.debug("Validating `Context.static`.")
+        return Node.fromPaths(*static, env.BLOG / "js")
+
     def __validate_filters(
         self,
         filters: Iterable[pathlib.Path],
@@ -182,13 +213,26 @@ class Context:
 
     def is_ignored_path(self, path: pathlib.Path) -> bool:
         # NOTE: Do not ignore filters that are being watched.
-        if self.quarto_filters.has_prefix(path):
-            return False
-        elif self.quarto_assets.has_prefix(path):
+        if (
+            self.quarto_filters.has_prefix(path)
+            or self.quarto_assets.has_prefix(path)
+            or self.quarto_static.has_prefix(path)
+        ):
             return False
 
         # NOTE: See if the path lies in ignore directories.
         return self.ignore.has_prefix(path)
+
+    # def __call__(self, path: pathlib.Path) -> QuartoTargetType | None:
+    #
+    #     if self.quarto_assets.has_prefix(path):
+    #         return QuartoTargetType.asset
+    #     elif self.quarto_filters.has_prefix(path):
+    #         return QuartoTargetType.filter
+    #     elif self.quarto_static.has_prefix(path):
+    #         return QuartoTargetType.static
+    #
+    #     return None
 
 
 class BlogHandler(FileSystemEventHandler):
@@ -227,6 +271,7 @@ class BlogHandler(FileSystemEventHandler):
         ".html",
         ".css",
         ".scss",
+        ".js",
         ".tex",
     }
 
@@ -338,6 +383,8 @@ class BlogHandler(FileSystemEventHandler):
         # NOTE: If a qmd file was modified, then rerender the modified ``qmd``
         #       If a watched filter (from ``--quarto-filter``) is changed, do
         #       it for the last file.
+        print(path)
+
         if path.suffix == ".qmd":
             self.render_qmd(path)
             self.path_last_qmd = path
@@ -363,6 +410,12 @@ class BlogHandler(FileSystemEventHandler):
                 f"tiggering rerender of `{self.path_last_qmd}`."
             )
             self.render_qmd(self.path_last_qmd, tt=tt)
+        elif self.context.quarto_static.has_prefix(path):
+            path_dest = env.BUILD / os.path.relpath(path, env.BLOG)
+            msg = "Copying `%s` to `%s`." % (path, path_dest)
+            logger.info(msg)
+            rich.print("[green]" + msg)
+            shutil.copy(path, path_dest)
         else:
             self._ignored.add(path)
 
