@@ -29,6 +29,46 @@ resume:
         concentration: Applied Mathematics
         start: August 2015
         stop: December 2019
+    projects:
+      type: list
+      container:
+        classes: ["floaty-container-wide", "py-3"]
+        titles: true
+        size_item: 64
+      tooltip:
+        include: true
+        text: Click to learn more about my experience.
+      overlay:
+        include: false
+        size_icon: 128
+      content:
+        - title: My Website
+          href: /
+          image:
+            iconify:
+              set: misc
+              name: favicon
+
+        - title: Nvim Configurations
+          href: /projects/nvim-config
+          image:
+            iconify:
+              set: devicon
+              name: neovim
+
+        - title: Automation
+          href: /projects/automation
+          image:
+            iconify:
+              set: material-symbols
+              name: automation-outline
+
+        - title: Captura
+          href: github.com/acederberg/captura
+          image:
+            iconify:
+              set: misc
+              name: favicon-black
 
     # ----------------------------------------------------------------------- #
     # Experience
@@ -747,6 +787,16 @@ floaty:
             name: terminal-bash
 ---
 
+::: { .callout-warning }
+
+### This is an Interactive Resume
+
+This entire resume is interactive, almost anything with animations on hover
+you can click on to learn more _(for instance, the items in the `skills`
+section)_.
+
+:::
+
 <!-- Start Resume --> :::::: { #resume }
 <!-- SIDEBAR ----------------------------------------------------------------->
 <!-- Start Sidebar --------------> :::::: { #resume-sidebar }
@@ -827,10 +877,6 @@ or text me.
 
 <!-- BODY -------------------------------------------------------------------->
 <!-- Start Body -------------> :::::: { #resume-body }
-
-This entire resume is interactive, almost anything with animations on hover
-you can click on to learn more _(for instance, the items in the `skills`
-section)_.
 
 <!-- SKILLS ------------------------------------------------------------------>
 <!-- Start Skills -----------> ::: { #resume-skills }
@@ -935,8 +981,6 @@ For a complete desription and technical details, see [the about page](/projects/
 <!-- MVE --------------------------------------------------------------------->
 
 :::: { #mve .experience experience-item="mve" }
-
-It was a fun time building some software.
 
 - Pivoted company toward SaaS to increase valuation by implementing `Cufflink` SaaS from scratch.
 - Supported Cufflink client dashboard and app by designing, implementing, and testing Cufflink API.
@@ -1072,12 +1116,8 @@ Ensuring developer productivity and efficient software delivery.
 <!-- Projects ---------------------------------------------------------------->
 <!-- Start Projects --------> ::: { #resume-projects }
 
-::: { .under-construction-large }
-
-Currently this section is under construction.
-However, you can learn about projects by using `Projects` in the navigation bar.
-
-:::
+Each project has its own page on this site or a suitable github page, just
+follow the links to learn more.
 
 <!-- Stop Projects ---------> :::
 

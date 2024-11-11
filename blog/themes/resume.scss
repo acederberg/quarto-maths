@@ -69,7 +69,7 @@
   border: none;
 }
 
-$hover_animation: rotate 2s linear !important;
+$hover_animation: rotate 2s linear infinite !important;
 $hover_gradient : conic-gradient(from var(--angle),
   var(--color-hover-1), 30deg,
   var(--color-hover-2), 35deg,

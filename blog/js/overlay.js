@@ -120,7 +120,7 @@ function Overlay(overlay) {
     hideOverlay()
   })
 
-  const overlayClosure = { hideOverlay, hideOverlayContentItems, showOverlay, showOverlayContentItem, slideyControls }
+  const overlayClosure = { hideOverlay, hideOverlayContentItems, showOverlay, showOverlayContentItem }
   hideOverlay(true)
   overlayParamsHook(overlay, overlayClosure)
 

@@ -198,7 +198,12 @@ class Context:
 
     def __validate_static(self, static: Iterable[pathlib.Path]) -> Node:
         logger.debug("Validating `Context.static`.")
-        return Node.fromPaths(*static, env.BLOG / "js")
+        return Node.fromPaths(
+            *static,
+            env.BLOG / "js",
+            env.BLOG / "icons/misc.json",
+            env.BLOG / "icons/favicon.svg",
+        )
 
     def __validate_filters(
         self,
@@ -269,6 +274,8 @@ class BlogHandler(FileSystemEventHandler):
         ".html",
         ".yaml",
         ".html",
+        ".json",
+        ".svg",
         ".css",
         ".scss",
         ".js",
@@ -383,8 +390,6 @@ class BlogHandler(FileSystemEventHandler):
         # NOTE: If a qmd file was modified, then rerender the modified ``qmd``
         #       If a watched filter (from ``--quarto-filter``) is changed, do
         #       it for the last file.
-        print(path)
-
         if path.suffix == ".qmd":
             self.render_qmd(path)
             self.path_last_qmd = path

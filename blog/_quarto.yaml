@@ -13,6 +13,7 @@ project:
     browser: false
 jupyter: python3
 website:
+  favicon: ./icons/favicon.svg
   page-navigation: true
   title: acederberg.io
   site-url: https://acederberg.io

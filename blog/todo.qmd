@@ -36,18 +36,19 @@ Anything that looks off topic/involved should be pushed into the next release.
 
 :::
 
-| Item                              | Completed | Description                                                           |
-| --------------------------------- | --------- | --------------------------------------------------------------------- |
-| Finish HTML Resume `Projects`     |           |                                                                       |
-| Hovering on Floaty Title          | 11/8/2024 | Tooltip should be shown. Or maybe animated border (Chris suggests)    |
-| Finish HTML Resume Skills         | 11/8/2024 | Just need to finish filling out the overlay.                          |
-| Overlay exit icon                 | 11/9/2024 | Might not be boomer proof. Bonus: Navigation and urlparams.           |
-| Finish TeX Resume                 |           | The resume should be able to render as TeX.                           |
-| Finalize Resume Content           |           | Watch the videos Elen showed me, have a few people review if possible |
-| Project: Captura                  |           |                                                                       |
-| Project: Automation               |           |                                                                       |
-| Project: Nvim Gallery             |           |                                                                       |
-| Improve `projects/blog/index.qmd` |           | Finish overlays, round out content, make it look pretty for geusts    |
+| Item                              | Completed  | Description                                                           |
+| --------------------------------- | ---------- | --------------------------------------------------------------------- |
+| Site FavIcon                      | 11/10/2024 | Site needs a favicon                                                  |
+| Finish HTML Resume `Projects`     | 11/10/2024 |                                                                       |
+| Floaty Titles in Link             |            | Floaty titles should be enclosed within the link.                     |
+| Hovering on Floaty Title          | 11/8/2024  | Tooltip should be shown. Or maybe animated border (Chris suggests)    |
+| Finish HTML Resume Skills         | 11/8/2024  | Just need to finish filling out the overlay.                          |
+| Overlay exit icon                 | 11/9/2024  | Might not be boomer proof. Bonus: Navigation and urlparams.           |
+| Finish TeX Resume                 |            | The resume should be able to render as TeX.                           |
+| Finalize Resume Content           |            | Watch the videos Elen showed me, have a few people review if possible |
+| Project: Automation               |            |                                                                       |
+| Project: Nvim Gallery             |            |                                                                       |
+| Improve `projects/blog/index.qmd` |            | Finish overlays, round out content, make it look pretty for geusts    |
 
 ### After Next Release
 
@@ -69,7 +70,9 @@ I will need to return to studying data structures and algorithms for a bit.
 | Improve the initial landing page |           | The initial landing page feels very incomplete, there are listings, but the content is lacking. Generally the landing page does not draw me in - bio should be moved elsewhere. |
 | SVG icon / favicon               |           |                                                                                                                                                                                 |
 | Build checks -> Commit checks    |           | Huge pain in the ass.                                                                                                                                                           |
+| Project: Captura                 |           |                                                                                                                                                                                 |
 | Skills should be collapsable     |           |                                                                                                                                                                                 |
+| Finish Overlay Slidey.           |           |                                                                                                                                                                                 |
 
 ## In General
 
