@@ -96,12 +96,12 @@ floaty:
             name: pandas-wordmark
         key: pandas
         title: Pandas
-      - image:
-          iconify:
-            set: devicon
-            name: kaggle-wordmark
-        key: kaggle
-        title: Kaggle
+      # - image:
+      #     iconify:
+      #       set: devicon
+      #       name: kaggle-wordmark
+      #   key: kaggle
+      #   title: Kaggle
       - image:
           iconify:
             set: devicon
@@ -197,23 +197,31 @@ project.
 
 My favorite tool for text editing.
 
+Neovim is my prefered development environment as it integrates nicely into work through the terminal.
+
 :::
 
 ::: { .overlay-content-item data-key="python" }
 
 The primary language I use in my quarto notebooks.
+Python is by far my favorite high level programming languages.
+Many of the scripts used to develop, deploy, and test this site are written in `python`.
 
 :::
 
 ::: { .overlay-content-item data-key="nodejs" }
 
 My server uses `http-server` to deliver these html pages.
+Additional, plenty of vanilla (browser) javascript is used to make this website interactive,
+for instance to show you this overlay without clunky refreshing.
 
 :::
 
 ::: { .overlay-content-item data-key="kubernetes" }
 
-This is where the containers run.
+This website is served from kubernetes. Further, all routing, middleware, and
+SSL termination for the `acederberg.io` domain is done through `kubernetes`
+using `traefik`.
 
 :::
 
@@ -224,9 +232,15 @@ python {{< iconify devicon python >}}.
 
 :::
 
+<!--
 ::: { .overlay-content-item data-key="kaggle" }
+
 The data science competition platform.
+
+There is a section of this site dedicated to my kaggle assignments.
+
 :::
+-->
 
 ::: { .overlay-content-item data-key="docker" }
 

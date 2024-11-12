@@ -45,6 +45,7 @@ jobs:
             kaggle_json=${{ secrets.KAGGLE_JSON }}
             google_tracking_id=${{ secrets.GOOGLE_TRACKING_ID }}
           build-args: |
+            ACERERBERG_IO_PREVIEW=${ github.event.inputs.preview }
             ACEDERBERG_IO_BUILD_GIT_COMMIT=${{ github.sha }}
             ACEDERBERG_IO_BUILD_GIT_REF=${{ github.ref_name }}
             ACEDERBERG_IO_GOOGLE_TRACKING_ID=${{ secrets.GOOGLE_TRACKING_ID }}

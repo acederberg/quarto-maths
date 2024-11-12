@@ -24,7 +24,7 @@ def get(
     logger.debug("Getting variable `%s`.", varname)
     out = environ.get(f"{ENV_PREFIX}_{varname.upper()}", default)
     if out is None and required:
-        print(f"Could not resolve for variable `{varname}`.")
+        rich.print(f"[red]Could not resolve for variable `{varname}`.")
         raise typer.Exit(1)
 
     return out

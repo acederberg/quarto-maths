@@ -11,7 +11,6 @@ from datetime import datetime
 from typing import Annotated, Iterable
 
 import rich
-import rich.syntax
 import rich.table
 import typer
 import yaml
@@ -19,7 +18,7 @@ from typing_extensions import Doc, Self
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 
-from acederbergio import env
+from acederbergio import env, util
 
 logger = env.create_logger(__name__)
 
@@ -530,14 +529,7 @@ def cmd_server(_context: typer.Context):
 @cli_context.command("show")
 def cmd_context_show(_context: typer.Context):
     context: Context = _context.obj
-
-    s = rich.syntax.Syntax(
-        "---\n" + yaml.dump(context.dict()),
-        "yaml",
-        theme="fruity",
-        background_color="default",
-    )
-    rich.print(s)
+    util.print_yaml("---\n" + yaml.dump(context.dict()))
 
 
 @cli_context.command("test")
