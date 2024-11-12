@@ -162,32 +162,24 @@ function Floaty(name, { liMargin, kind }) {
     // NOTE: Icon and its list item should be clickable.
     if (overlay) li.addEventListener("click", onClick(iconInLi))
 
-    // NOTE: Look for a header. If a header is found, 
+    // NOTE: Look for a header. If a header is found, wrap the content in a link or div.
     const head = li.querySelector("h3")
     if (!head) return
 
     head.classList.remove("anchored")
-    console.log(head.dataset.url)
-
     let wrapper
     if (head.dataset.url) {
       wrapper = document.createElement("a")
       wrapper.href = head.dataset.url
-    }
-    else {
+      wrapper.setAttribute('target', '_blank');
+      wrapper.setAttribute('rel', 'noopener noreferrer');
+    } else {
       wrapper = document.createElement("div")
     }
 
     wrapper.classList.add("floaty-item-wrapper")
-
-    Array.from(li.children).map((child) => {
-      wrapper.append(child)
-    })
-
+    Array.from(li.children).map((child) => wrapper.append(child))
     li.append(wrapper)
-
-
-
   }
 
   function onClick(iconOrRow) {

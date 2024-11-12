@@ -4,5 +4,24 @@ filters:
   - ../filters/under_construction.py
 ---
 
-::: { #under-construction }
-:::
+[View the live version of the resume](/resume).
+
+I thought it would be fun and useful to make an `HTML` version of my resume so that I could go into more detail about particular subjects than in the `PDF` resume I would typically submit during job applications.
+Fortunately, `quarto` {{< iconify misc quarto >}} is capable of rendering `pandoc` markdown into both formats and is incredibly extensible using filters.
+Using `quarto` and some `pandoc` filters, I made an interactive resume viewable within the browser that aims to guide the view using nice graphics.
+
+## Advantages of Multiple Formats
+
+### For the Reader
+
+- It is a better experience to look through a website than to read another `PDF`.
+  Styling and interactivity of websites is not nearly as limited as a `PDF` document.
+- It provides an immediate example of my skills in something relevent to software.
+- A link to the most recent version of my resume is provided in all `PDF` resumes.
+
+### For My Self
+
+- Version control.
+- Integration into something I'd be working on frequently.
+- Editting in my favorite tool `nvim` instead of [overleaf](https://overleaf.com).
+- If I do not have my computer on hand, I can just send somebody a link instead of emailing them a `PDF`.

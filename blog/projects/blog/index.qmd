@@ -1,5 +1,7 @@
 ---
 title: My Blog
+description: About my blog, on which you are likely reading this.
+image: ../../icons/favicon.svg
 format:
   html:
     include-in-header:
@@ -108,23 +110,27 @@ floaty:
         title: Docker
 ---
 
-Here I discuss the implementation of this blog itself as it has been quite a project to do so.
-This is my blog that you are likely viewing this on.
-In my time making this, I have learned quite a bit about [quarto](https://quarto.org) {{< iconify misc quarto >}},
+In my time making this blog, I have learned quite a bit about [quarto](https://quarto.org) {{< iconify misc quarto >}},
 an amazing markup and notebook format for websites, jupyter notebooks, books, articles, and more.
 Almost all blog pages and navigation in this blog is authored using quarto.
 
-In this time, I have also had quite some fun figuring out how to to implement
+I have also had quite some fun figuring out how to to implement
 
 - continuous integration and continuous deployment for this project using github actions {{< iconify logos github-actions>}},
 - a `docker` {{< iconify logos docker-icon >}} image that accomodates `kaggle` {{< iconify logos kaggle >}} api calls and mounting of other secrets duing the build using secrets,
 - and how to create diagrams with [mermaid {{< iconify misc mermaid >}}](https://mermaid.js.org) and [iconify](https://iconify.design).
 
-Further, there are associated projects (in the sidebar) that support this project.
+::: { .callout-note }
+
+### Project Navigation is Available in the Sidebar
+
+There are associated projects that support this project which can view in the sidebar.
 For instance
 
 - the [my neovim configuration](../nvim-config/index.qmd) is designed to make editing `quarto` documents very easy,
 - and the [infrastructure and automation project](../automation) where [pulumi {{< iconify logos pulumi-icon >}}](https://pulumi.com/) and `python` {{< iconify logos python >}} are used to [deploy](./deploy.qmd) the infrastructure to linode {{< iconify logos linode >}}.
+
+:::
 
 ## The Tools That Make it Possible
 
@@ -244,66 +250,3 @@ Thank you to all of my reviewers for their hard work in reviewing and consulting
 - John "Bud" Poston
 
 :::
-
-## Why Have a Blog?
-
-I have always been really into taking notes, so I thought it would be good to get away from paper.
-Working with web pages offers much more flexibility a features than using paper notes and allows me to share them with ease.
-
-### About `leetcode`
-
-::: { #leetcode-icon .floaty-container-single }
-
-::: { .floaty }
-
-{{< iconify misc leetcode-02 size=256px >}}
-
-:::
-
-:::
-
-Data structures and algorithms is a useful subject matter to be knowledgable about in computer science and software.
-Additionally, the subject matter is frequently quized in SDE technical interviews.
-Since I am currently applying for jobs and working on `leetcode` problems, I figured I should start to do some for practice.
-I also wanted to have a record of the problem which I had done and to take more extensive notes on the things that I did not understand or found interesting.
-
-### About the Resume
-
-::: { #leetcode-icon .floaty-container-single }
-
-::: { .floaty }
-
-{{< iconify misc quarto size=256px >}}
-
-:::
-
-:::
-
-I thought it might be helpful to have all of the resumes I distribute contain a link to the most recent version of [my resume](/resume).
-To make this possible, I would have to host it somewhere and thought my blog would be the most suitable place.
-This came with a number of benefits, such as
-
-- having version control over my resume,
-- rendering into multiple formats like `TeX`, `PDF`, and `HTML`,
-- integration of the resume into something I'd be working on frequently,
-- being able to edit in my favorite tool `nvim` instead of [overleaf](https://overleaf.com),
-- having the projects described in the resume have corresponding pages on the same website,
-- having auxilary content available for the resume when everything might not fit.
-
-### About the Projects
-
-::: { #leetcode-icon .floaty-container-single }
-
-::: { .floaty }
-
-{{< iconify devicon github size=256px >}}
-
-:::
-
-:::
-
-I've made a few projects (including this blog) which I wanted to showcase here.
-Each of these will have their own page dedicated them, and should be available in the sidebar.
-For some of the larger projects there might be extensive documentation.
-
-To learn more about the technical details, see the subsequent pages.

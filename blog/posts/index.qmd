@@ -10,12 +10,10 @@ keywords:
   - python
   - blog
   - quarto
-listing: 
+listing:
   type: grid
   image-height: 256px
 page-layout: full
 title-block-banner: true
 image: ./logistic/cobweb-rr-0.9.gif
 ---
-
-

@@ -43,19 +43,12 @@ resume:
         include: false
         size_icon: 128
       content:
-        - title: My Website
+        - title: acederberg.io
           href: /
           image:
             iconify:
               set: misc
               name: favicon
-
-        - title: Nvim Configurations
-          href: /projects/nvim-config
-          image:
-            iconify:
-              set: devicon
-              name: neovim
 
         - title: Automation
           href: /projects/automation
@@ -64,8 +57,15 @@ resume:
               set: material-symbols
               name: automation-outline
 
+        - title: Nvim Configuration
+          href: /projects/nvim-config
+          image:
+            iconify:
+              set: devicon
+              name: neovim
+
         - title: Captura
-          href: github.com/acederberg/captura
+          href: https://github.com/acederberg/captura
           image:
             iconify:
               set: misc
@@ -789,13 +789,14 @@ floaty:
             name: terminal-bash
 ---
 
-::: { .callout-warning }
+::: { .callout-tip collapse="true"}
 
-### This is an Interactive Resume
+### This is an Interactive Resume: Expand for Tips
 
-This entire resume is interactive, almost anything with animations on hover
-you can click on to learn more _(for instance, the items in the `skills`
-section)_.
+This entire resume is interactive, just about everything is interactive.
+_For instance, the items in the `skills` section can be clicked on to learn more about my experience with each particular skill_.
+
+![Demostration](./demo.gif){ fig-align="center" width="70%" }
 
 :::
 
@@ -816,7 +817,11 @@ _This is a placeholder image and will be replaced with an actual headshot soon._
 :::
 
 <!-- Stop Left ------------------> ::::
-<!-- Start Right ----------------> :::: { .column width=60% }
+
+<!-- Start Filler -------------------> ::: { .column width="20%" }
+<!-- Stop Filler --------------------> :::
+
+<!-- Start Right ----------------> :::: { .column width=40% }
 
 ::: { #resume-contact }
 
@@ -867,21 +872,19 @@ or text me.
 
 :::
 
-<!-- End Floaty -------------> :::
-<!-- End Overlay Content ----> :::
-<!-- End Overlay ------------> :::
+<!-- Stop Floaty -------------> :::
+<!-- Stop Overlay Content ----> :::
+<!-- Stop Overlay ------------> :::
 
 :::
 
 <!-- Stop Right -------------> ::::
-<!-- End Columns 1 ----------> :::::
-<!-- End Sidebar ------------> ::::::
+<!-- Stop Columns 1 ----------> :::::
 
-<!-- BODY -------------------------------------------------------------------->
-<!-- Start Body -------------> :::::: { #resume-body }
+<!-- Start Columns 2 ------------> ::::: { .columns }
 
 <!-- SKILLS ------------------------------------------------------------------>
-<!-- Start Skills -----------> ::: { #resume-skills }
+<!-- Start Skills -----------> ::: { #resume-skills .column width=40%}
 
 <!-- Start Floaty -----------> ::: { #resume-skills-floaty }
 <!-- Start Overlay ----------> ::: { #resume-skills-overlay .overlay }
@@ -958,10 +961,22 @@ mandatory for building reliable and secure products.
 
 <!-- STOP DevOps -----------> :::
 
-<!-- Stop Overlay Content --> :::
-<!-- Stop Overlay ------> :::
-<!-- Stop Floaty -------> :::
-<!-- Stop Skills -------> :::
+<!-- Stop Overlay Content -----------> :::
+<!-- Stop Overlay -------------------> :::
+<!-- Stop Floaty --------------------> :::
+<!-- Stop Skills --------------------> :::
+
+<!-- Start Filler -------------------> ::: { .column width="20%" }
+<!-- Stop Filler --------------------> :::
+
+<!-- Projects ---------------------------------------------------------------->
+<!-- Start Projects -----------------> ::: { #resume-projects .column width="40%" }
+<!-- Stop Projects ------------------> :::
+<!-- Stop Columns 2 -----------------> :::
+<!-- Stop Sidebar -------------------> ::::::
+
+<!-- BODY -------------------------------------------------------------------->
+<!-- Start Body -------------> :::::: { #resume-body }
 
 <!-- Start Experience --> ::::: { #resume-experience }
 
@@ -1101,7 +1116,7 @@ Ensuring developer productivity and efficient software delivery.
 
 ::::
 
-<!-- End Experience ----> :::::
+<!-- Stop Experience ----> :::::
 <!-- Start Education ---> ::::: { #education }
 <!-- Start UNM ---------> :::: { #unm .education education-item=unm }
 
@@ -1112,16 +1127,8 @@ Ensuring developer productivity and efficient software delivery.
   Built and programmed sensor arrays using rapberry pi and arduino (using
   `python` and `c`).
 
-<!-- End UNM -----------> ::::
-<!--- End Education ----> :::::
+<!-- Stop UNM -----------> ::::
+<!-- Stop Education ----> :::::
 
-<!-- Projects ---------------------------------------------------------------->
-<!-- Start Projects --------> ::: { #resume-projects }
-
-Each project has its own page on this site or a suitable github page, just
-follow the links to learn more.
-
-<!-- Stop Projects ---------> :::
-
-<!-- End Body ----------> ::::::
-<!-- End Resume   ------> ::::::
+<!-- Stop Body ----------> ::::::
+<!-- Stop Resume   ------> ::::::

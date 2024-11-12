@@ -47,9 +47,8 @@ Anything that looks off topic/involved should be pushed into the next release.
 | Overlay exit icon                 | 11/9/2024  | Might not be boomer proof. Bonus: Navigation and urlparams.           |
 | Finish TeX Resume                 |            | The resume should be able to render as TeX.                           |
 | Finalize Resume Content           |            | Watch the videos Elen showed me, have a few people review if possible |
-| Project: Automation               |            |                                                                       |
-| Project: Nvim Gallery             |            |                                                                       |
 | Improve `projects/blog/index.qmd` |            | Finish overlays, round out content, make it look pretty for geusts    |
+| Improve `projects/index.qmd`      | 11/10/2024 | I want a better commit graph                                          |
 
 ### After Next Release
 
@@ -73,6 +72,9 @@ I will need to return to studying data structures and algorithms for a bit.
 | Project: Captura                 |           |                                                                                                                                                                                 |
 | Skills should be collapsable     |           |                                                                                                                                                                                 |
 | Finish Overlay Slidey.           |           |                                                                                                                                                                                 |
+| Project: Automation              |           |                                                                                                                                                                                 |
+| Project: Nvim Gallery            |           |                                                                                                                                                                                 |
+| Add a better commit graph        |           | I do not know where to put it.                                                                                                                                                  |
 
 ## In General
 
