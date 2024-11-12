@@ -840,7 +840,10 @@ position and compensation.
 <!--
 My preferences are listed in descending order:
 
-1. A hybrid job here in Albuquerque with and office in town or near by.
+1. A hybrid job here in Albuquerque wi
+Here are some other tools I use frequently.
+
+Most of these will be covered in detail in subsequent sections.th and office in town or near by.
 2. A remote job where I can make occasional trips out of town to
    work in the office.
 3. A fully remote job.
@@ -917,9 +920,8 @@ _Most of these will be covered in detail in subsequent sections._
 
 Data is the star of the show and thus the storage, distribution, and retrieval of data is paramount.
 I have plenty of experience developing APIs and ETLs
-
-- in languages like `python` {{< iconify devicons python >}}, and `nodejs` {{< iconify devicons nodejs>}}
-- using database technologies such as `mysql` {{< iconify devicon mysql >}}, `mongodb` {{< iconify devicon mongodb >}}, and `redis` {{< iconify devicon redis >}}.
+in languages like `python` {{< iconify devicons python >}}, and `nodejs` {{< iconify devicons nodejs>}}
+using database technologies such as `mysql` {{< iconify devicon mysql >}}, `mongodb` {{< iconify devicon mongodb >}}, and `redis` {{< iconify devicon redis >}}.
 
 Further, I am familiar with means of consuming APIs like `httpx`, `fetch`,
 and `curl` and protocols like `http` and `websockets`.

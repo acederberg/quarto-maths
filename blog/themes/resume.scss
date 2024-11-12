@@ -61,7 +61,7 @@
   }
 }
 
-#resume #resume-projects li,
+#resume #resume-projects ul li,
 #resume #resume-skills li {
   height: 160px;
   width: 160px;
@@ -69,7 +69,7 @@
   padding: 5px;
 }
 
-#resume #resume-skills .overlay li {
+#resume #resume-skills .overlay ul li {
   border: none;
 }
 
@@ -79,14 +79,14 @@ $hover_gradient : conic-gradient(from var(--angle),
   var(--color-hover-2), 35deg,
   var(--color-hover-1));
 
-#resume #resume-projects li:hover,
-#resume #resume-skills li:hover {
+#resume #resume-projects ul li:hover,
+#resume #resume-skills ul li:hover {
   animation: $hover_animation;
   border-image: $hover_gradient 1 !important;
   transform: scale(1.1);
 }
 
-#resume #resume-skills .overlay li:hover {
+#resume #resume-skills .overlay ul li:hover {
   animation: none;
   border-image: none;
   transform: none;

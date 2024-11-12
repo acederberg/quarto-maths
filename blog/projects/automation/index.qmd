@@ -1,8 +1,15 @@
 ---
-title: Blog and Demo Infrastructure as Code in Linode
+title: Automation
 filters:
   - ../../filters/under_construction.py
 ---
 
-::: { #under-construction }
-:::
+To deploy my blog and to deploy some future projects, I decided I would like to
+set up infrastructure as code using `Pulumi` {{< iconify logos pulumi >}} for
+`linode` {{< iconify logos linode >}}.
+
+[The blog](/projects/blog) has continuous integration and deployment setup using
+github actions, which you can read more about [here](/projects/blog/deploy.html).
+
+I quite prefer `pulumi` over terraform {{< iconify logos terraform >}}, though
+both are quite similar in application _(for more on why, see [why I prefer pulumi](./why-pulumi.qmd).)_.

@@ -27,7 +27,6 @@ website:
         - section: Projects
           href: ./projects
           contents:
-            - text: '---'
             - section: Blog
               contents:
                 - text: About the Blog
@@ -54,7 +53,6 @@ website:
                     - text: Static Quarto Websites in Kubernetes
                       href: ./posts/quarto-kube-static/index.qmd
 
-            - text: '---'
             - section: Nvim Configuration
               contents:
                 - title: Why Even Use Neovim?
@@ -66,7 +64,6 @@ website:
 
 
 
-            - text: '---'
             - section: Blog and Demo Automation
               contents:
                 - title: Blog and Demo Infrastructure as Code on Linode
@@ -75,7 +72,6 @@ website:
                 - title: Blog and Demo Github Actions
                   href: ./projects/automation/actions.qmd
 
-            - text: '---'
             - section: Captura
               contents:
                 - title: What is Captura?

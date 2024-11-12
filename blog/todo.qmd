@@ -62,21 +62,21 @@ I will need to return to studying data structures and algorithms for a bit.
 
 :::
 
-| Item                             | Completed | Description                                                                                                                                                                     |
-| -------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Develop a testing strategy       |           | Need to test backwards compatibility of links, changes in pages, etc.                                                                                                           |
-| `CSS` for mobile                 |           | Should probably move to using grids on resume                                                                                                                                   |
-| Cool icons for skills            |           |                                                                                                                                                                                 |
-| Kubernetes icons                 |           | Need pipeline to work.                                                                                                                                                          |
-| Improve the initial landing page |           | The initial landing page feels very incomplete, there are listings, but the content is lacking. Generally the landing page does not draw me in - bio should be moved elsewhere. |
-| Build checks -> Commit checks    |           | Huge pain in the ass.                                                                                                                                                           |
-| Project: Captura                 |           |                                                                                                                                                                                 |
-| Skills should be collapsable     |           |                                                                                                                                                                                 |
-| Finish Overlay Slidey.           |           |                                                                                                                                                                                 |
-| Project: Automation              |           |                                                                                                                                                                                 |
-| Project: Nvim Gallery            |           |                                                                                                                                                                                 |
-| Add a better commit graph        |           | I do not know where to put it.                                                                                                                                                  |
-| Add built in twitter cards       |           | https://quarto.org/docs/websites/website-tools.html                                                                                                                             |
+| Item                             | Completed  | Description                                                                                                                                                                     |
+| -------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Develop a testing strategy       |            | Need to test backwards compatibility of links, changes in pages, etc.                                                                                                           |
+| `CSS` for mobile                 |            | Should probably move to using grids on resume                                                                                                                                   |
+| Cool icons for skills            |            |                                                                                                                                                                                 |
+| Kubernetes icons                 |            | Need pipeline to work.                                                                                                                                                          |
+| Improve the initial landing page |            | The initial landing page feels very incomplete, there are listings, but the content is lacking. Generally the landing page does not draw me in - bio should be moved elsewhere. |
+| Build checks -> Commit checks    |            | Huge pain in the ass.                                                                                                                                                           |
+| Project: Captura                 |            |                                                                                                                                                                                 |
+| Skills should be collapsable     |            |                                                                                                                                                                                 |
+| Finish Overlay Slidey.           |            |                                                                                                                                                                                 |
+| Project: Automation              | 11/11/2024 | Partial completion, there is more to be done.                                                                                                                                   |
+| Project: Nvim Gallery            |            |                                                                                                                                                                                 |
+| Add a better commit graph        |            | I do not know where to put it.                                                                                                                                                  |
+| Add built in twitter cards       |            | https://quarto.org/docs/websites/website-tools.html                                                                                                                             |
 
 ## In General
 
