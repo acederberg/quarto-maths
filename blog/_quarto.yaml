@@ -14,6 +14,9 @@ project:
 jupyter: python3
 website:
   favicon: ./icons/favicon.svg
+  twitter-card:
+    creator: _acederberg
+  open-graph: true
   page-navigation: true
   title: acederberg.io
   site-url: https://acederberg.io
@@ -107,8 +110,8 @@ format:
   html:
     code-fold: false
     embed-resources: false
-    template-partials:
-      - templates/metadata.html
+    # template-partials:
+    #   - templates/metadata.html
     include-in-header:
       - file: ./includes/iconify.html
       - file: ./includes/external_links.html

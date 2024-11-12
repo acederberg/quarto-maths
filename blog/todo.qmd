@@ -77,6 +77,7 @@ I will need to return to studying data structures and algorithms for a bit.
 | Project: Nvim Gallery            |            |                                                                                                                                                                                 |
 | Add a better commit graph        |            | I do not know where to put it.                                                                                                                                                  |
 | Add built in twitter cards       |            | https://quarto.org/docs/websites/website-tools.html                                                                                                                             |
+| Add error reporting page         |            |                                                                                                                                                                                 |
 
 ## In General
 
