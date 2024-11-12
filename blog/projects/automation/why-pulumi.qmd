@@ -1,0 +1,403 @@
+---
+title: Why Pulumi?
+format:
+  html:
+    page-layout: full
+---
+
+To deploy my blog and to deploy some future projects, I decided I would like to
+set up infrastructure as code using `Pulumi` for `linode` {{< iconify logos linode >}}.
+
+I decided to use `Pulumi` since it can be written [in many languages](https://www.pulumi.com/docs/) _(and not some
+domain specific language, for instance Hashicorp language for terraform)_.
+`Pulumi` would integrate with other automation tasks that I wanted to do using
+`python`, for instance pointing the domain names to the ingress IP address.
+My goal is to be able to have one contiguous entry point for automation - the
+ideal case is where everything runs as one program.
+
+## {{< iconify devicon terraform >}} Why not use Terraform?
+
+**Domain specific languages** are languages targeted to only one particular use
+case. While [it is possible to automate other tasks using scripts in terraform](https://stackoverflow.com/questions/73815171/execute-bash-script-on-ubutnu-using-terraform)
+I would much rather write infrastructure a code in a language in common language
+in which scripts can be written directly.
+Essentially, `HCL` does not have any apparent advantages and
+generally takes a longer time to develop since there are no other compelling
+use cases _(in my opinion)_.
+
+### Why Does Hashicorp Language Exist?
+
+First, it is useful to ask where it came from.
+
+#### The Origins of `HCL`.
+
+`HCL` is very much inspired by (as stated in the [`HCL` github repo README](https://github.com/hashicorp/hcl)
+the so-called [universal configuration language](https://github.com/vstakhov/libucl),
+which aims to be a superset of the `nginx` configuration and `JSON`,
+a popular web-server. Some of the features of `UCL` are:
+
+- Quotations are not required for strings, and braces are not required at the
+  top level.
+
+  ::: { .columns }
+
+  ::: { .column width=49% }
+
+  ```terraform
+  section "breakfast" {
+    eggs = protein
+    toast = carbohydrates
+    coffee = "required"
+  }
+
+  lunch = coffee
+  ```
+
+  :::
+
+  ::: { .column width=2% }
+
+  :::
+
+  ::: { .column width=49% }
+
+  ```json
+  {
+    "breakfast": {
+      "eggs": "protein",
+      "toast": "carbohydrates",
+      "coffee": "required"
+    },
+    "lunch": "coffee"
+  }
+  ```
+
+  :::
+
+  :::
+
+- Providing 'paths' as keys for nested objects.
+
+  ::: { .columns }
+
+  ::: { .column width=49% }
+
+  ```terraform
+  section 'this' 'is' 'a' 'path' {
+    thing = "whatever"
+  }
+  ```
+
+  :::
+
+  ::: { .column width=2% }
+
+  :::
+
+  ::: { .column width=49% }
+
+  ```json
+  {
+    "this": {
+      "is": {
+        "a": {
+          "path": {
+            "thing": "whatever"
+          }
+        }
+      }
+    }
+  }
+  ```
+
+  :::
+
+  :::
+
+- Creation of arrays for repeated keys.
+
+  ::: { .columns }
+
+  ::: { .column width=49% }
+
+  ```terraform
+  section 'my-section'
+    thing = whatever
+    thing = the
+    thing = heck
+  }
+  ```
+
+  :::
+
+  ::: { .column width=2% }
+
+  :::
+
+  ::: { .column width=49% }
+
+  ```json
+  {
+    "my-section": {
+      "thing": ["whatever", "the", "heck"]
+    }
+  }
+  ```
+
+  :::
+
+  :::
+
+- A variety of comment syntaxes, e.g. `#`, `//`, and the multi-line `/* ... */`.
+- Macros and includes, so that a configuration may be broken up into many files
+  and url references.
+- Variables.
+
+The problem with configuration is that it tends to grow, repeat itself, and so on.
+Further, a number of other configuration languages (for instance `TOML` and `YAML`) implement similar features.
+I quite like `UCL`, however it should remain only as a configuration language.
+
+#### The Features of `HCL`.
+
+Control flow, logic, and recursion become necessary when writing out configurations to avoid violating the **DRY** principal.
+`HCL` offers a number of programming language features such as
+
+- collections like tuples and objects,
+- loops using blocks with a `for` attribute,
+- and variables and secrets.
+
+While this is all nice, at this point, it is necessary to ask: **Why not just use an actual programming language?**
+
+#### Declarative Programming
+
+The main reason to use `HCL` _(in my opinion)_ is for declarative configuration - this
+can save developers from the dispatching of API calls to various services and puts it on the providers.
+For the developers to consume the API, an understanding of each providers `API` and how to authenticate against it is required.
+
+However, this is all true of `Pulumi` too. Objects are instantiated to declare
+resources and the developer does not have to get their hands dirty making provider
+API calls and interpreting responses.
+
+## {{< iconify devicon pulumi >}} A Quick Comparison
+
+Here is a comparison of `terraform` and `pulumi` being used to deploy
+some static `error-pages` in `kubernetes` {{< iconify devicon kubernetes >}}.
+
+### Setup
+
+::: {.columns}
+
+::: {.column width=49%}
+
+```terraform
+# Terraform with Kubernetes provider
+# Set up labels
+locals {
+  domain       = var.domain
+  labels       = {
+    "acederberg.io/tier"      = "base"
+    "acederberg.io/component" = "error_pages"
+  }
+  show_details = var.error_pages_show_details ? "1" : "0"
+  template_url = var.error_pages_template_name != "" ? var.error_pages_template_name : "https://tarampampam.github.io/error-pages/"
+  port         = 8080
+}
+
+```
+
+:::
+
+::: {.column width=2%}
+
+:::
+
+::: {.column width=49%}
+
+```python
+# Pulumi with Python
+import pulumi
+import pulumi_kubernetes as k8s
+
+TRAEFIK_NAMESPACE = 'traefik"
+
+config = pulumi.Config()
+labels = {
+    "acederberg.io/tier"      = "base"
+    "acederberg.io/component" = "error_pages"
+}
+```
+
+:::
+
+:::
+
+### Kubernetes Deployment
+
+Side by side comparison of provisioning the error pages deployment in kubernetes using `pulumi` versus `terraform`.
+
+::: {.columns}
+
+::: {.column width=49%}
+
+```terraform
+# Deployment for error pages
+resource "kubernetes_deployment" "error_pages" {
+  metadata {
+    name      = "error-pages"
+    namespace = var.TRAEFIK_NAMESPACE
+    labels    = local.labels
+  }
+
+  spec {
+    replicas = 1
+
+    selector {
+      match_labels = local.labels
+    }
+
+    template {
+      metadata {
+        labels = local.labels
+      }
+
+      spec {
+        container {
+          name  = "error-pages"
+          image = "ghcr.io/tarampampam/error-pages"
+
+          readiness_probe {
+            http_get {
+              path = "/500.html"
+              port = local.port
+            }
+          }
+
+          ports {
+            container_port = local.port
+          }
+
+          env {
+            name  = "SHOW_DETAILS"
+            value = local.show_details
+          }
+
+          env {
+            name  = "TEMPLATE_NAME"
+            value = local.template_url
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+:::
+
+::: {.column width=2%}
+
+:::
+
+::: {.column width=49%}
+
+```python
+container_args = k8s.core.v1.ContainerArgs(
+    name="error-pages",
+    image="ghcr.io/tarampampam/error-pages",
+    readiness_probe=k8s.core.v1.ProbeArgs(
+        http_get=k8s.core.v1.HTTPGetActionArgs(
+            path="/500.html",
+            port=port,
+        )
+    ),
+    ports=[k8s.core.v1.ContainerPortArgs(container_port=port)],
+    env=[  # type: ignore
+        dict(name="SHOW_DETAILS", value=str(1 if show_details else 0)),
+        dict(
+            name="TEMPLATE_NAME",
+            value=config.get(
+                "error_pages_template_name",
+                "https://tarampampam.github.io/error-pages/",
+            ),
+        ),
+    ],
+)
+
+deployment = k8s.apps.v1.Deployment(
+    "error-pages-deployment",
+    metadata=metadata,
+    spec=k8s.apps.v1.DeploymentSpecArgs(
+        replicas=1,
+        selector=selector,
+        template=k8s.core.v1.PodTemplateSpecArgs(
+            metadata=metadata,
+            spec=k8s.core.v1.PodSpecArgs(
+                containers=[container_args],
+            ),
+        ),
+    ),
+)
+```
+
+:::
+
+:::
+
+### Kubernetes Service
+
+Side by side comparison of provisioning the error pages service using `pulumi` versus `terraform`.
+
+::: {.columns}
+
+::: {.column width=49%}
+
+```terraform
+resource "kubernetes_service" "error_pages" {
+  metadata {
+    name      = "error-pages"
+    namespace = var.TRAEFIK_NAMESPACE
+    labels    = local.labels
+  }
+
+  spec {
+    type     = "ClusterIP"
+    selector = local.labels
+
+    port {
+      name       = "error-pages-http"
+      port       = local.port
+      target_port = local.port
+    }
+  }
+}
+```
+
+:::
+
+::: {.column width=2%}
+
+:::
+
+::: {.column width=49%}
+
+```python
+service = k8s.core.v1.Service(
+    "error-pages-service",
+    metadata=metadata,
+    spec=k8s.core.v1.ServiceSpecArgs(
+        type="ClusterIP",
+        selector=labels,
+        ports=[
+            k8s.core.v1.ServicePortArgs(
+                name="error-pages-http",
+                port=port,
+                target_port=port,
+            )
+        ],
+    ),
+)
+```
+
+:::
+
+:::

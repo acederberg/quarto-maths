@@ -54,17 +54,26 @@ class ConfigFloatyItem(pydantic.BaseModel):
         else:
             size = self.image.iconify.size or _parent.container.size_item
 
-        return {
+        out = {
             "data-key": self.key,
-            "data-bs-toggle": "tooltip",
-            "data-bs-title": self.tooltip or self.title,
-            "data-bs-placement": "bottom",
-            "data-bs-custom-class": "floaty-tooltip",
             "aria-label": f"{self.image.iconify.label or self.title}",
             "icon": f"{self.image.iconify.set_}:{self.image.iconify.name}",
             "title": self.title,
             "style": f"font-size: {size}px;",
         }
+
+        # NOTE: Tooltip section should be configured to include tooltips.
+        if _parent.tooltip.include_item:
+            out.update(
+                {
+                    "data-bs-toggle": "tooltip",
+                    "data-bs-title": self.tooltip or self.title,
+                    "data-bs-placement": "bottom",
+                    "data-bs-custom-class": "floaty-tooltip",
+                }
+            )
+
+        return out
 
     def hydrate_iconify_li(
         self,
@@ -79,9 +88,18 @@ class ConfigFloatyItem(pydantic.BaseModel):
             res = pf.Link(res, url=self.href)
 
         out = pf.ListItem(pf.Para(res))
-        util.record("titles", _parent.container.titles)
         if _parent.container.titles:
-            title = pf.Header(pf.Str(self.title), level=3, classes=["floaty-title"])
+            # NOTE: Link must be added via js.
+            attributes = {}
+            if include_link and self.href is not None:
+                attributes["data-url"] = self.href
+
+            title = pf.Header(
+                pf.Str(self.title),
+                level=3,
+                classes=["floaty-title"],
+                attributes=attributes,
+            )
             out.content.append(title)
 
         return out
@@ -185,6 +203,7 @@ class ConfigFloatySectionOverlay(pydantic.BaseModel):
 
 class ConfigFloatySectionTip(pydantic.BaseModel):
     include: FieldInclude
+    include_item: FieldInclude
     classes: FieldClasses
 
     text: Annotated[
@@ -338,6 +357,41 @@ class ConfigFloaty(pydantic.BaseModel):
     floaty: dict[str, ConfigFloatySection[ConfigFloatyItem]]
 
 
+# def wrap_overlay_content(element: pf.Element) -> pf.Element:
+#     """Since it is a pain to wrap ``overlay-content`` in ``overlay-body``
+#     this can be added. This means that
+#
+#     ```qmd
+#     ::: { .overlay }
+#
+#     ::: { .overlay-content }
+#     :::
+#
+#     :::
+#     ```
+#
+#     should become
+#
+#     ```html
+#     <div classes="overlay">
+#         <div classes="overlay-body">
+#             <div classes="overlay-content">
+#             </div>
+#         </div>
+#     </div>
+#     ```
+#     """
+#
+#     # NOTE: Navbar is added by JS.
+#     element.content = (
+#         pf.Div(
+#             *element.content,
+#             classes=["overlay-body"],
+#         ),
+#     )
+#     return element
+
+
 class FilterFloaty(util.BaseFilter):
     filter_name = "floaty"
     filter_config_cls = ConfigFloaty
@@ -354,6 +408,9 @@ class FilterFloaty(util.BaseFilter):
     def __call__(self, element: pf.Element):
         if not isinstance(element, pf.Div):
             return element
+
+        # if "overlay" in element.classes:
+        #     return wrap_overlay_content(element)
 
         if element.identifier not in self.config.floaty or self.doc.format != "html":
             return element

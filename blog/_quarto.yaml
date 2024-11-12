@@ -5,6 +5,7 @@ project:
     - ./robots.txt
     - ./posts/**/*.png
     - ./icons/**/*.json
+    - ./js/*.js
   output-dir: build
   preview:
     host: 0.0.0.0
@@ -12,6 +13,10 @@ project:
     browser: false
 jupyter: python3
 website:
+  favicon: ./icons/favicon.svg
+  twitter-card:
+    creator: _acederberg
+  open-graph: true
   page-navigation: true
   title: acederberg.io
   site-url: https://acederberg.io
@@ -25,7 +30,6 @@ website:
         - section: Projects
           href: ./projects
           contents:
-            - text: '---'
             - section: Blog
               contents:
                 - text: About the Blog
@@ -52,7 +56,6 @@ website:
                     - text: Static Quarto Websites in Kubernetes
                       href: ./posts/quarto-kube-static/index.qmd
 
-            - text: '---'
             - section: Nvim Configuration
               contents:
                 - title: Why Even Use Neovim?
@@ -64,7 +67,6 @@ website:
 
 
 
-            - text: '---'
             - section: Blog and Demo Automation
               contents:
                 - title: Blog and Demo Infrastructure as Code on Linode
@@ -73,7 +75,6 @@ website:
                 - title: Blog and Demo Github Actions
                   href: ./projects/automation/actions.qmd
 
-            - text: '---'
             - section: Captura
               contents:
                 - title: What is Captura?
@@ -104,17 +105,17 @@ website:
       - text: Leetcode
         href: /dsa/leetcode
 theme:
-  # dark: [cyborg, ./themes/commits.css, ./themes/index.css, ./themes/dark.scss, ./themes/dark-default.scss]
-  light: [cosmo, ./themes/commits.css, ./themes/index.css, ./themes/overlay.css, ./themes/floaty.scss, ./themes/resume.css]
+  light: [cosmo, ./themes/index.css, ./themes/overlay.css, ./themes/floaty.scss, ./themes/resume.scss]
 format:
   html:
     code-fold: false
     embed-resources: false
-    template-partials:
-      - templates/metadata.html
+    # template-partials:
+    #   - templates/metadata.html
     include-in-header:
       - file: ./includes/iconify.html
       - file: ./includes/external_links.html
+      - file: ./includes/overlay.html
 
 author:
   - name: Adrian Cederberg

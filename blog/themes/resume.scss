@@ -1,0 +1,102 @@
+/*-- scss:rules --*/
+
+#resume #resume-headshot img {
+  border-radius: 50% !important;
+}
+
+#resume #resume-sidebar h2,
+#resume #resume-sidebar h3,
+#resume #resume-sidebar h4 {
+  border: none;
+  font-size: large;
+  text-align: center;
+}
+
+#resume #resume-sidebar p {
+  font-size: medium;
+}
+
+#resume #resume-sidebar #resume-links p {
+  text-align: center;
+}
+
+#resume #resume-sidebar #resume-links h2 {
+  display: none;
+}
+
+#resume #resume-body ul li p {
+  padding: 0px;
+  margin: 0px;
+}
+
+#resume .progress {
+  background: var(--bs-gray-400);
+  height: 32px;
+}
+
+#resume .progress .progress-bar {
+  color: var(--bs-black);
+  font-size: large !important;
+  text-align: left !important;
+}
+
+// ------------------------------------------------------------------------- //
+// Skills
+
+:root {
+  --angle: 0deg;
+  --color-hover-1: var(--bs-blue);
+  --color-hover-2: var(--bs-white);
+}
+
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes rotate {
+  to {
+    --angle: 360deg;
+  }
+}
+
+#resume #resume-projects ul li,
+#resume #resume-skills li {
+  height: 160px;
+  width: 160px;
+  border: 1px solid var(--bs-body-bg);
+  padding: 5px;
+}
+
+#resume #resume-skills .overlay ul li {
+  border: none;
+}
+
+$hover_animation: rotate 2s linear infinite !important;
+$hover_gradient : conic-gradient(from var(--angle),
+  var(--color-hover-1), 30deg,
+  var(--color-hover-2), 35deg,
+  var(--color-hover-1));
+
+#resume #resume-projects ul li:hover,
+#resume #resume-skills ul li:hover {
+  animation: $hover_animation;
+  border-image: $hover_gradient 1 !important;
+  transform: scale(1.1);
+}
+
+#resume #resume-skills .overlay ul li:hover {
+  animation: none;
+  border-image: none;
+  transform: none;
+  border-color: var(--color-hover-1);
+}
+
+#resume #resume-skills tr:hover {
+  transform: none;
+}
+
+#resume #resume-skills .skills-content {
+  text-align: left;
+}

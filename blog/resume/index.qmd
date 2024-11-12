@@ -17,6 +17,7 @@ format:
 filters:
   - ../filters/under_construction.py
   - ../filters/resume.py
+  - ../filters/floaty.py
 resume:
   body:
     # ----------------------------------------------------------------------- #
@@ -28,6 +29,47 @@ resume:
         concentration: Applied Mathematics
         start: August 2015
         stop: December 2019
+    projects:
+      type: list
+      container:
+        classes: ["floaty-container-wide", "py-3"]
+        titles: true
+        size_item: 64
+      tooltip:
+        include: false
+        include_item: false
+        text: Click to learn more about my experience.
+      overlay:
+        include: false
+        size_icon: 128
+      content:
+        - title: acederberg.io
+          href: /
+          image:
+            iconify:
+              set: misc
+              name: favicon
+
+        - title: Automation
+          href: /projects/automation
+          image:
+            iconify:
+              set: material-symbols
+              name: automation-outline
+
+        - title: Nvim Configuration
+          href: /projects/nvim-config
+          image:
+            iconify:
+              set: devicon
+              name: neovim
+
+        - title: Captura
+          href: https://github.com/acederberg/captura
+          image:
+            iconify:
+              set: misc
+              name: favicon-black
 
     # ----------------------------------------------------------------------- #
     # Experience
@@ -266,20 +308,20 @@ resume:
           titles: true
           size_item: 64
         tooltip:
-          include: false
+          include: true
+          include_item: false
           text: Click to learn more about my experience.
         overlay:
           include: true
-          size_icon: 256
+          size_icon: 128
         content:
-          - title: Software Implementation and Architecture
+          - title: Programming Skills
             key: impl
             since: 2017-08-01
             image:
               iconify:
                 set: misc
                 name: binary
-            tooltip: Click to see more!
           - title: APIs and Databases
             key: api-and-db
             since: 2021-02-01
@@ -301,6 +343,193 @@ resume:
               iconify:
                 set: misc
                 name: devops
+      impl:
+        progress_bar_classes:
+          [
+            "progress-bar-striped",
+            "progress-bar-animated",
+            "bg-indigo",
+            "text-light",
+          ]
+        container:
+          classes: ["floaty-container-wide"]
+          titles: true
+          size_item: 64
+          kind: table
+        tooltip:
+          include: false
+        overlay:
+          size_icon: 32
+          include: false
+        content:
+          - title: Python
+            key: python
+            since: 2017-08-01
+            image:
+              iconify:
+                set: skill-icons
+                name: python-dark
+          - title: Docker
+            key: docker
+            since: 2021-04-01
+            image:
+              iconify:
+                set: devicon
+                name: docker
+          - title: Pipelines
+            since: 2021-07-01
+            image:
+              iconify:
+                set: logos
+                name: github-actions
+          - title: Linux
+            key: linux
+            since: 2019-08-01
+            image:
+              iconify:
+                set: devicon
+                name: linux
+
+          - title: Git
+            key: git
+            since: 2021-01-01
+            image:
+              iconify:
+                set: devicon
+                name: git
+          - title: Vim and NeoVim
+            key: nvim
+            since: 2021-06-01
+            image:
+              iconify:
+                set: devicon
+                name: neovim
+          - title: Javascript
+            key: javascript
+            since: 2021-04-01
+            image:
+              iconify:
+                set: devicon
+                name: javascript
+      api-and-db:
+        progress_bar_classes:
+          [
+            "bg-cyan",
+            "text-light",
+            "progress-bar-animated",
+            "progress-bar-striped",
+          ]
+        container:
+          classes: ["floaty-container-wide"]
+          titles: true
+          size_item: 64
+          kind: table
+        tooltip:
+          include: false
+        overlay:
+          size_icon: 32
+          include: false
+        content:
+          - title: HTTP
+            key: http
+            since: 2021-01-01
+            image:
+              iconify:
+                set: material-symbols
+                name: http
+          - title: Python
+            key: python
+            since: 2017-08-01
+            image:
+              iconify:
+                set: skill-icons
+                name: python-dark
+          - title: MySQL
+            key: mysql
+            since: 2021-02-01
+            image:
+              iconify:
+                set: devicon
+                name: mysql
+          - title: MongoDB
+            key: mongodb
+            since: 2021-07-01
+            image:
+              iconify:
+                set: devicon
+                name: mongodb
+          - title: SqlAlchemy
+            key: sqlalchemy
+            since: 2021-02-01
+            image:
+              iconify:
+                set: devicon
+                name: sqlalchemy
+          - title: FastAPI
+            key: fastapi
+            since: 2022-01-01
+            image:
+              iconify:
+                set: devicon
+                name: fastapi
+
+      uiux:
+        progress_bar_classes:
+          ["text-light", "progress-bar-animated", "progress-bar-striped"]
+        container:
+          classes: ["floaty-container-wide"]
+          titles: true
+          size_item: 64
+          kind: table
+        tooltip:
+          include: false
+        overlay:
+          size_icon: 32
+          include: false
+        content:
+          - title: Jinja
+            key: jinja
+            since: 2021-04-01
+            image:
+              iconify:
+                set: file-icons
+                name: jinja
+          - title: Typescript
+            key: typescript
+            since: 2021-07-01
+            image:
+              iconify:
+                set: devicon
+                name: typescript
+          - title: React
+            key: react
+            since: 2021-07-01
+            image:
+              iconify:
+                set: devicon
+                name: react
+          - title: JavaScript
+            key: js
+            since: 2021-04-01
+            image:
+              iconify:
+                set: devicon
+                name: javascript
+          - title: HTML
+            key: html
+            since: 2021-04-01
+            image:
+              iconify:
+                set: logos
+                name: html-5
+          - title: CSS
+            key: css
+            since: 2021-04-01
+            image:
+              iconify:
+                set: logos
+                name: css-3
+
       devops:
         progress_bar_classes:
           ["bg-success", "progress-bar-animated", "progress-bar-striped"]
@@ -407,6 +636,7 @@ resume:
     # ----------------------------------------------------------------------- #
     # Contact
     contact:
+      use: bootstrap
       tooltip:
         include: true
         text: Click any row to learn more about each contact method.
@@ -427,7 +657,7 @@ resume:
             iconify:
               set: hugeicons
               name: smart-phone-01
-
+            bootstrap: phone
         - title: Email
           key: email
           value: adrn.cederberg123@gmail.com
@@ -435,7 +665,7 @@ resume:
             iconify:
               set: hugeicons
               name: mail-01
-
+            bootstrap: envelope
         - title: Location
           key: location
           value: Albuquerque, New Mexico
@@ -443,13 +673,138 @@ resume:
             iconify:
               set: hugeicons
               name: location-01
+            bootstrap: compass
+floaty:
+  impl-etc:
+    container:
+      type: list
+      size_item: 64
+    overlay:
+      include: false
+      size_icon: 0
+    tooltip:
+      include: false
+    content:
+      - title: Lua
+        key: lua
+        image:
+          iconify:
+            set: devicon
+            name: lua
+      - title: Go
+        key: go
+        image:
+          iconify:
+            set: devicon
+            name: go
+      - title: JSON
+        key: json
+        image:
+          iconify:
+            set: devicon
+            name: json
+      - title: YAML
+        key: yaml
+        image:
+          iconify:
+            set: devicon
+            name: yaml
+      - image:
+          iconify:
+            set: misc
+            name: quarto
+        key: quarto
+        title: Quarto
+      - image:
+          iconify:
+            set: devicon
+            name: latex
+        key: latex
+        title: Latex
+      - image:
+          iconify:
+            set: misc
+            name: mermaid
+        key: mermaid
+        title: Mermaidjs
+      - image:
+          iconify:
+            set: devicon
+            name: pandas-wordmark
+        key: pandas
+        title: Pandas
+      - title: Typescript
+        key: typescript
+        image:
+          iconify:
+            set: devicon
+            name: typescript
+      - title: React
+        key: react
+        image:
+          iconify:
+            set: devicon
+            name: react
+      - title: HTML
+        key: html
+        image:
+          iconify:
+            set: logos
+            name: html-5
+      - title: CSS
+        key: css
+        image:
+          iconify:
+            set: logos
+            name: css-3
+      - title: Pydantic
+        key: pydantic
+        image:
+          iconify:
+            set: simple-icons
+            name: pydantic
+      - title: FastAPI
+        key: fastapi
+        image:
+          iconify:
+            name: fastapi
+            set: devicon
+      - title: FastAPI
+        key: typer
+        image:
+          iconify:
+            name: typer
+            set: simple-icons
+      - title: pytest
+        key: pytest
+        image:
+          iconify:
+            name: pytest
+            set: simple-icons
+      - title: ZSH
+        key: zsh
+        image:
+          iconify:
+            set: codicon
+            name: terminal-bash
 ---
+
+::: { .callout-tip collapse="true"}
+
+### This is an Interactive Resume: Expand for Tips
+
+This entire resume is interactive, just about everything is interactive.
+_For instance, the items in the `skills` section can be clicked on to learn more about my experience with each particular skill_.
+
+![Demostration](./demo.gif){ fig-align="center" width="70%" }
+
+:::
 
 <!-- Start Resume --> :::::: { #resume }
 <!-- SIDEBAR ----------------------------------------------------------------->
-<!-- Start Sidebar --> :::::: { #resume-sidebar }
-<!-- Start Columns 1 --> ::::: { .columns }
-<!-- Start Left --> :::: { .column width=40% }
+<!-- Start Sidebar --------------> :::::: { #resume-sidebar }
+<!-- Start Columns 1 ------------> ::::: { .columns }
+<!-- Start Left -----------------> :::: { .column width=40% }
 
 ::: { #resume-headshot }
 
@@ -461,14 +816,18 @@ _This is a placeholder image and will be replaced with an actual headshot soon._
 
 :::
 
-<!-- Stop Left --> ::::
-<!-- Start Right --> :::: { .column width=60% }
+<!-- Stop Left ------------------> ::::
+
+<!-- Start Filler -------------------> ::: { .column width="20%" }
+<!-- Stop Filler --------------------> :::
+
+<!-- Start Right ----------------> :::: { .column width=40% }
 
 ::: { #resume-contact }
 
-<!-- Begin Floaty --> ::: { #resume-contact-floaty }
-<!-- Begin Overlay --> ::: { .overlay }
-<!-- Begin Overlay Content --> ::: { .overlay-content }
+<!-- Begin Floaty ---------------> ::: { #resume-contact-floaty }
+<!-- Begin Overlay --------------> ::: { #resume-contact-overlay .overlay }
+<!-- Begin Overlay Content ------> ::: { .overlay-content }
 
 ::: { .overlay-content-item data-key=location }
 
@@ -481,7 +840,10 @@ position and compensation.
 <!--
 My preferences are listed in descending order:
 
-1. A hybrid job here in Albuquerque with and office in town or near by.
+1. A hybrid job here in Albuquerque wi
+Here are some other tools I use frequently.
+
+Most of these will be covered in detail in subsequent sections.th and office in town or near by.
 2. A remote job where I can make occasional trips out of town to
    work in the office.
 3. A fully remote job.
@@ -513,104 +875,110 @@ or text me.
 
 :::
 
-<!-- End Floaty --> :::
-<!-- End Overlay Content --> :::
-<!-- End Overlay --> :::
+<!-- Stop Floaty -------------> :::
+<!-- Stop Overlay Content ----> :::
+<!-- Stop Overlay ------------> :::
 
 :::
 
-<!-- Stop Right --> ::::
-<!-- End Columns 1 --> :::::
+<!-- Stop Right -------------> ::::
+<!-- Stop Columns 1 ----------> :::::
 
-<!-- End Sidebar -------> ::::::
-
-<!-- BODY -------------------------------------------------------------------->
-<!-- Start Body --------> :::::: { #resume-body }
+<!-- Start Columns 2 ------------> ::::: { .columns }
 
 <!-- SKILLS ------------------------------------------------------------------>
-<!-- Start Skills ----------> ::: { #resume-skills }
+<!-- Start Skills -----------> ::: { #resume-skills .column width=40%}
 
-Click on any of the following items to learn more.
-
-<!-- Start Floaty ----------> ::: { #resume-skills-floaty }
-<!-- Start Overlay ---------> ::: { .overlay }
+<!-- Start Floaty -----------> ::: { #resume-skills-floaty }
+<!-- Start Overlay ----------> ::: { #resume-skills-overlay .overlay }
 <!-- Start Overlay Content --> ::: { .overlay-content }
 
-::: { .overlay-content-item data-key="uiux" }
+<!-- Start impl ------------> ::: { .overlay-content-item data-key="impl" }
 
-For instance, you are probably viewing this resume on my blog.
+::: { #impl .pt-5 }
+:::
 
-My blog uses a mix of server side rendering in `python` using
-`quarto` and `panflute` along with vanilla `javascript`
-running in the browser to implement reactivity.
+### Other Tools { .py-5 }
 
-::: { .under-construction-medium .my-5 }
+Here are some other tools I use frequently.
 
-Soon an enumeration of my ui/ux skills will be here.
+_Most of these will be covered in detail in subsequent sections._
+
+::: { #impl-etc .pt-5 }
 
 :::
 
-:::
+<!-- Stop impl ------------> :::
 
-::: { .overlay-content-item data-key="impl" }
+<!-- Start API and DB ------> ::: { .overlay-content-item data-key="api-and-db" }
 
-I have been seriously writing code since about 2017 (and a little
-before).
-
-::: { .under-construction-medium .my-5 }
-
-Soon an enumeration of general software skills will be here.
+::: { #api-and-db .py-5 }
 
 :::
 
-:::
+::: { .skills-content .py-5 }
 
-<!--
-::: { .overlay-content-item data-key="" }
-
-Through my various projects I have developed habits conducive to
-building and shipping projects. I always:
-
-1. have a plan and a timeline,
-2. enforce effective design patterns and testing,
-3. and use version control.
-
-:::
--->
-
-::: { .overlay-content-item data-key="api-and-db" }
-
-Data storage and retrieval is an essential part of all modern web
-applications. I have plenty of experience developing APIs and ETLs
+Data is the star of the show and thus the storage, distribution, and retrieval of data is paramount.
+I have plenty of experience developing APIs and ETLs
 in languages like `python` {{< iconify devicons python >}}, and `nodejs` {{< iconify devicons nodejs>}}
-using database technologies such as
-`mysql` {{< iconify devicon mysql >}},
-`mongodb` {{< iconify devicon mongodb >}},
-and `redis` {{< iconify devicon redis >}}.
+using database technologies such as `mysql` {{< iconify devicon mysql >}}, `mongodb` {{< iconify devicon mongodb >}}, and `redis` {{< iconify devicon redis >}}.
 
-::: { .under-construction-medium .my-5 }
-
-Soon an enumeration of my database and API skills will be here.
+Further, I am familiar with means of consuming APIs like `httpx`, `fetch`,
+and `curl` and protocols like `http` and `websockets`.
 
 :::
 
+<!-- STOP API and DB ------> :::
+
+<!-- Start UIUX -----------> ::: { .overlay-content-item data-key="uiux" }
+
+::: { #uiux .py-5 }
+
 :::
 
-::: { .overlay-content-item data-key="devops" }
+::: { .skills-content .py-5 }
+
+While APIs and the backend aggregate, transform, and serve data, the data is
+of little use in assertaining the 'big picture' without visualization and
+interactivity.
+For instance, you are probably viewing this resume on my blog - would you read
+my resume if it were [in `YAML` format](/link-to-yaml)?
+
+:::
+
+<!-- Stop UIUX -------------> :::
+
+<!-- Start DevOps -----------> ::: { .overlay-content-item data-key="devops" }
+
+::: { #devops .py-5 }
+:::
+
+::: { .skills-content .py-5 }
 
 A service is not useful or accessible unless it is deployed, and
 deploying a website manually is a thing of the past. Automation is
 mandatory for building reliable and secure products.
 
-::: { #devops }
 :::
 
-:::
+<!-- STOP DevOps -----------> :::
 
-<!-- Stop Overlay Content --> :::
-<!-- Stop Overlay ------> :::
-<!-- Stop Floaty -------> :::
-<!-- Stop Skills -------> :::
+<!-- Stop Overlay Content -----------> :::
+<!-- Stop Overlay -------------------> :::
+<!-- Stop Floaty --------------------> :::
+<!-- Stop Skills --------------------> :::
+
+<!-- Start Filler -------------------> ::: { .column width="20%" }
+<!-- Stop Filler --------------------> :::
+
+<!-- Projects ---------------------------------------------------------------->
+<!-- Start Projects -----------------> ::: { #resume-projects .column width="40%" }
+<!-- Stop Projects ------------------> :::
+<!-- Stop Columns 2 -----------------> :::
+<!-- Stop Sidebar -------------------> ::::::
+
+<!-- BODY -------------------------------------------------------------------->
+<!-- Start Body -------------> :::::: { #resume-body }
 
 <!-- Start Experience --> ::::: { #resume-experience }
 
@@ -633,8 +1001,6 @@ For a complete desription and technical details, see [the about page](/projects/
 
 :::: { #mve .experience experience-item="mve" }
 
-It was a fun time building some software.
-
 - Pivoted company toward SaaS to increase valuation by implementing `Cufflink` SaaS from scratch.
 - Supported Cufflink client dashboard and app by designing, implementing, and testing Cufflink API.
 - Guarenteed platform stability and reproducibility by architecting and implementing pipelines and IaC.
@@ -644,7 +1010,7 @@ It was a fun time building some software.
 - Enhanced organizational security by securing Cufflink APIs, Cufflink Dashboard, and Azure organization.
 
 <!-- Start Floaty --------------> ::: { #mve-floaty }
-<!-- Start Overlay -------------> ::: { .overlay }
+<!-- Start Overlay -------------> ::: { .overlay #mve-overlay }
 <!-- Start Overlay Content -----> ::: { .overlay-content }
 
 ::: { .overlay-content-item data-key="fastapi" }
@@ -752,7 +1118,7 @@ Ensuring developer productivity and efficient software delivery.
 
 ::::
 
-<!-- End Experience ----> :::::
+<!-- Stop Experience ----> :::::
 <!-- Start Education ---> ::::: { #education }
 <!-- Start UNM ---------> :::: { #unm .education education-item=unm }
 
@@ -763,20 +1129,8 @@ Ensuring developer productivity and efficient software delivery.
   Built and programmed sensor arrays using rapberry pi and arduino (using
   `python` and `c`).
 
-<!-- End UNM -----------> ::::
-<!--- End Education ----> :::::
+<!-- Stop UNM -----------> ::::
+<!-- Stop Education ----> :::::
 
-<!-- Projects ---------------------------------------------------------------->
-<!-- Start Projects --------> ::: { #resume-projects }
-
-::: { .under-construction-large }
-
-Currently this section is under construction.
-However, you can learn about projects by using `Projects` in the navigation bar.
-
-:::
-
-<!-- Stop Projects ---------> :::
-
-<!-- End Body ----------> ::::::
-<!-- End Resume   ------> ::::::
+<!-- Stop Body ----------> ::::::
+<!-- Stop Resume   ------> ::::::

@@ -3,42 +3,87 @@ import json
 import os
 import pathlib
 from datetime import datetime
-from typing import Annotated, Any, Optional
+from typing import Annotated, Any, Literal, Optional
 
 import httpx
+import rich
 import toml
 import typer
 import yaml
 
-from acederbergio import env
+from acederbergio import env, util
 
 logger = env.create_logger(__name__)
 
 QUARTO = env.BLOG / "_quarto.yaml"
 QUARTO_VARIABLES = env.BLOG / "_variables.yaml"
 
+AnnouncementPositionValues = {"above-navbar", "below-navbar"}
+AnnouncementPosition = Literal["below-navbar", "above-navbar"]
+AnnouncementTypeValues = {
+    "primary",
+    "secondary",
+    "success",
+    "danger",
+    "warning",
+    "info",
+    "light",
+    "dark",
+}
+AnnouncementType = Literal[
+    "primary",
+    "secondary",
+    "success",
+    "danger",
+    "warning",
+    "info",
+    "light",
+    "dark",
+]
+
 
 class Context:
     dry: bool
+    preview: bool
 
     quarto_variables: pathlib.Path
     quarto: pathlib.Path
+    _quarto_config: None | dict[str, Any]
 
     def __init__(
         self,
         dry: bool,
         *,
+        preview: bool = True,
         quarto: pathlib.Path = QUARTO,
         quarto_variables: pathlib.Path = QUARTO_VARIABLES,
     ):
         self.dry = dry
+        self.preview = preview
+
         self.quarto = quarto
         self.quarto_variables = quarto_variables
+        self._quarto_config = None
 
-    def set_tracking_id(self, google_tracking_id: str):
+    @property
+    def quarto_config(self) -> dict[str, Any]:
         logger.debug("Loading `%s`.", self.quarto)
+        if self._quarto_config is not None:
+            return self._quarto_config
+
         with open(self.quarto, "r") as file:
             data = yaml.safe_load(file)
+
+        self._quarto_config = data
+        return data
+
+    def quarto_config_save(self) -> None:
+        logger.debug("Dumping updated `%s`.", self.quarto)
+        with open(self.quarto, "w") as file:
+            yaml.safe_dump(self.quarto_config, file)
+
+    def set_tracking_id(self, google_tracking_id: str):
+        data = self.quarto_config
 
         logger.debug("Updating `%s`.", self.quarto)
         if (website := data.get("website")) is None:
@@ -51,15 +96,38 @@ class Context:
 
         website["google-analytics"] = google_tracking_id
         if self.dry:
-            print("---")
-            print("# _quarto.yaml\n")
-            print(yaml.dump(website))
+            util.print_yaml(
+                self.quarto_config["website"]["google-analytics"],
+                name="_quarto.yaml website.google-analytics",
+            )
+
+        self.quarto_config_save()
+
+    def set_announcement(
+        self,
+        content: str,
+        *,
+        type_: AnnouncementType,
+        position: AnnouncementPosition,
+    ):
+        announcement = {
+            "icon": "arrow-down",
+            "dismissable": True,
+            "content": content,
+            "type": type_,
+            "position": position,
+        }
+        self.quarto_config["website"].update(announcement=announcement)
+        if self.dry:
+            util.print_yaml(
+                self.quarto_config["website"]["announcement"],
+                name="_quarto.yaml website.announcement",
+            )
             return
 
-        logger.debug("Dumping updated `%s`.", self.quarto)
+        self.quarto_config_save()
 
-        with open(self.quarto, "w") as file:
-            yaml.safe_dump(data, file)
+        return
 
     def spawn_variables(
         self,
@@ -77,9 +145,7 @@ class Context:
         }
 
         if self.dry:
-            print("---")
-            print("# _variables.yaml\n")
-            print(yaml.dump(data))
+            util.print_yaml(data, name="_variables.yaml")
             return
 
         with open(self.quarto_variables, "w") as file:
@@ -108,9 +174,7 @@ class Context:
         }
 
         if self.dry:
-            print("---")
-            print("# iconsets")
-            print(yaml.dump(urls))
+            util.print_yaml(urls, name="iconsets")
             return
 
         await asyncio.gather(
@@ -131,18 +195,68 @@ class Context:
             json.dump(response.json(), file)
 
 
-FlagBuildGitCommit = Annotated[Optional[str], typer.Option("--build-git-commit")]
-FlagBuildGitRef = Annotated[Optional[str], typer.Option("--build-git-ref")]
-FlagInclude = Annotated[list[str], typer.Option("--include")]
+FlagBuildGitCommit = Annotated[
+    Optional[str],
+    typer.Option(
+        "--build-git-commit",
+        help="Git commit to put into the build information page.",
+    ),
+]
+FlagBuildGitRef = Annotated[
+    Optional[str],
+    typer.Option(
+        "--build-git-ref",
+        help="Git commit to put into the build information page.",
+    ),
+]
+FlagIconsetsInclude = Annotated[
+    list[str],
+    typer.Option(
+        "--include",
+        help="Which iconify iconsets to include. Mostly for tests.",
+    ),
+]
 FlagGoogleTrackingId = Annotated[
     Optional[str],
     typer.Option("--google-tracking-id"),
 ]
-FlagDry = Annotated[bool, typer.Option("--dry/--for-real")]
+FlagDry = Annotated[
+    bool,
+    typer.Option(
+        "--dry/--for-real",
+        help="Do a dry run or not.",
+    ),
+]
+
+FlagAnnouncementContent = Annotated[
+    str,
+    typer.Option("--content", help="Content for the announcement."),
+]
+
+FlagAnnouncementType = Annotated[
+    str,
+    typer.Option("--type", help="Color of the announcement bar."),
+]
+FlagAnnouncementPosition = Annotated[
+    str,
+    typer.Option("--position", help="Position of the announcement bar."),
+]
+FlagPreview = Annotated[
+    bool,
+    typer.Option(
+        "--preview/--production",
+        help="Is this reconfiguration for the production site?",
+    ),
+]
 
 
-def create_context(context: typer.Context, dry: FlagDry = True):
-    context_data = Context(dry)
+def create_context(
+    context: typer.Context,
+    dry: FlagDry = True,
+    preview: FlagPreview = False,
+):
+    env_preview = env.get("preview") == "1"
+    context_data = Context(dry, preview=preview or env_preview)
     context.obj = context_data
 
 
@@ -157,6 +271,31 @@ def google_analytics(
     context: Context = _context.obj
     google_tracking_id = env.require("google_tracking_id", _google_tracking_id)
     context.set_tracking_id(google_tracking_id)
+
+
+@cli.command("announcement")
+def announcement(
+    _context: typer.Context,
+    content: FlagAnnouncementContent,
+    position: FlagAnnouncementPosition = "below-navbar",
+    type_: FlagAnnouncementType = "success",
+):
+    if position not in AnnouncementPositionValues:
+        rich.print(
+            f"[red]Invalid value `{position}` for `--position`, "
+            "must be one of `AnnouncementPositionValues`."
+        )
+        raise typer.Exit(104)
+
+    if type_ not in AnnouncementTypeValues:
+        rich.print(
+            f"[red]Invalid value `{type_}` for `--type`, "
+            "must be one of `AnnouncementPositionValues`."
+        )
+        raise typer.Exit(105)
+
+    context: Context = _context.obj
+    context.set_announcement(content, position=position, type_=type_)  # type: ignore
 
 
 @cli.command("build-info")
@@ -179,7 +318,7 @@ def build_info(
 @cli.command("icons")
 def icons(
     _context: typer.Context,
-    _include: FlagInclude = list(),
+    _include: FlagIconsetsInclude = list(),
 ):
 
     with open(env.PYPROJECT_TOML, "r") as file:
@@ -201,9 +340,16 @@ def main(
     _build_git_commit: FlagBuildGitCommit = None,
     _build_git_ref: FlagBuildGitRef = None,
     _google_tracking_id: FlagGoogleTrackingId = None,
-    _include: FlagInclude = list(),
+    _include: FlagIconsetsInclude = list(),
+    content: FlagAnnouncementContent = "This is a preview build.",
+    position: FlagAnnouncementPosition = "below-navbar",
+    type_: FlagAnnouncementType = "success",
 ):
+    context: Context = _context.obj
     google_analytics(_context, _google_tracking_id)
+    if context.preview:
+        announcement(_context, content, position=position, type_=type_)
+
     build_info(_context, _build_git_commit, _build_git_ref)
     icons(_context, _include)
 

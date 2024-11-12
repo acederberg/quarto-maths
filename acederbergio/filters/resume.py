@@ -444,21 +444,25 @@ class ConfigBody(pydantic.BaseModel):
             description="Education experience configuration.",
         ),
     ]
+    projects: Annotated[
+        floaty.ConfigFloatySection[floaty.ConfigFloatyItem] | None,
+        pydantic.Field(default=None, description="Projects configuration."),
+    ]
 
-    def hydrate_projects(self, _: pf.Doc, element: pf.Element) -> pf.Element:
-        """Body projects."""
-        # if self.doc.format == "html":
-        #     projects = self.config.sidebar.projects.hydrate_html(
-        #         pf.Div(identifier="_projects", classes=["floaty"])
-        #     )
-        # else:
-        #     projects = pf.Para(pf.Str("Paceholder content"))
+    def hydrate_projects(self, doc: pf.Doc, element: pf.Element) -> pf.Element:
+        if self.projects is None:
+            return element
 
+        if doc.format == "html":
+            do_floaty(self.projects, doc, element)
+        else:
+            pf.Para(pf.Str("Paceholder content"))
+        #
         element.content = (
             pf.Header(pf.Str("Projects"), level=2),
             *element.content,
-            # projects,
         )
+
         return element
 
     def hydrate_education(self, _: pf.Doc, element: pf.Element) -> pf.Element:
