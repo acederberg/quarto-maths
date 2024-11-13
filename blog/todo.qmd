@@ -79,6 +79,19 @@ I will need to return to studying data structures and algorithms for a bit.
 | Add built in twitter cards       |            | https://quarto.org/docs/websites/website-tools.html                                                                                                                             |
 | Add error reporting page         |            |                                                                                                                                                                                 |
 
+### Testing
+
+Testing will be a pipeline of commands dispatchable via the `acederbergio` command.
+I would like to add the database since I would like to later use a database to
+allow user error reports and inquiries.
+
+| Item                      | Completed | Description                       |
+| ------------------------- | --------- | --------------------------------- |
+| Setup mongoDB             |
+| Pull sitemap and listings |
+| Spellcheck                |           | Need aspell output to be readable |
+| Metadata Checks           |
+
 ## In General
 
 There are some things that must be handled in general.
