@@ -7,14 +7,8 @@ description: Build data.
 # | echo: false
 import json
 
-build_info = dict(
-    build_git_ref="{{< var build_git_ref >}}",
-    build_git_commit="{{< var build_git_commit >}}",
-    build_timestamp="{{< var build_timestamp >}}",
-    build_isoformat="{{< var build_isoformat >}}",
-)
+with open("build.json", "r") as file:
+    build_info = json.load(file)
+
 print(json.dumps(build_info, indent=2))
-#
-# with open("build.json", "w") as file:
-#     json.dump(build_info, file)
 ```
