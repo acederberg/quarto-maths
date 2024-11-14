@@ -217,6 +217,19 @@ for instance to show you this overlay without clunky refreshing.
 
 :::
 
+::: { .overlay-content-item data-key="mermaid" }
+
+Mermaid is an excellent tool for creating diagrams using javascript.
+
+:::
+
+::: { .overlay-content-item data-key="linode" }
+
+Linode is a minimal cloud platform on which the kubernetes {{< iconify logos kubernetes >}} cluster
+this blog runs in is hosted.
+
+:::
+
 ::: { .overlay-content-item data-key="kubernetes" }
 
 This website is served from kubernetes. Further, all routing, middleware, and

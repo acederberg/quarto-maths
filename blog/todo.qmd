@@ -85,12 +85,12 @@ Testing will be a pipeline of commands dispatchable via the `acederbergio` comma
 I would like to add the database since I would like to later use a database to
 allow user error reports and inquiries.
 
-| Item                      | Completed | Description                       |
-| ------------------------- | --------- | --------------------------------- |
-| Setup mongoDB             |
-| Pull sitemap and listings |
-| Spellcheck                |           | Need aspell output to be readable |
-| Metadata Checks           |
+| Item                      | Completed  | Description                       |
+| ------------------------- | ---------- | --------------------------------- |
+| Setup mongoDB             | 11/13/2024 |                                   |
+| Pull sitemap and listings | 11/13/2024 |                                   |
+| Spellcheck                |            | Need aspell output to be readable |
+| Metadata Checks           | 11/13/2024 |                                   |
 
 ## In General
 

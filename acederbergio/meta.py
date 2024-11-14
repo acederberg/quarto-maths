@@ -15,7 +15,7 @@ logger = logging.getLogger("acederbergio.meta")
 
 
 EXPECT_TWITTER = {"description", "title", "image", "card"}
-EXPECT_OPEN_GRAPH = {"description", "title", "image", "type", "url"}
+EXPECT_OPEN_GRAPH = {"description", "title", "image"}  # , "type", "url"}
 
 
 def load_listings(build_dir: pathlib.Path) -> list[dict[str, Any]]:

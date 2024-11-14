@@ -1,5 +1,6 @@
 ---
 title: Kaggle Assignments
+image: ../icons/kaggle.svg
 description: |
   Blog posts about my kaggle assignments and competitions.
 extra:
@@ -14,7 +15,7 @@ keywords:
   - python
   - blog
   - quarto
-listing: 
+listing:
   type: grid
   image-height: 256px
 page-layout: full
@@ -30,4 +31,3 @@ title-block-banner: true
     </p>
   </figure>
 </div>
-
