@@ -3,11 +3,18 @@ title: Build Data
 description: Build data.
 ---
 
-## Build Data
+```{python}
+# | echo: false
+import json
 
-```yaml
-build_git_ref: {{< var build_git_ref >}}
-build_git_commit: {{< var build_git_commit >}}
-build_timestamp: {{< var build_timestamp >}}
-build_isoformat: {{< var build_isoformat >}}
+build_info = dict(
+    build_git_ref="{{< var build_git_ref >}}",
+    build_git_commit="{{< var build_git_commit >}}",
+    build_timestamp="{{< var build_timestamp >}}",
+    build_isoformat="{{< var build_isoformat >}}",
+)
+print(json.dumps(build_info, indent=2))
+#
+# with open("build.json", "w") as file:
+#     json.dump(build_info, file)
 ```

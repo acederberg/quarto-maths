@@ -1,4 +1,4 @@
-build_git_commit: '1234'
-build_git_ref: main
-build_isoformat: '2024-10-23T17:18:11.802528'
-build_timestamp: 1729703891.802528
+git_commit: 4c47faac4f7ed3ec157e7d6e23ffec6e6153974d
+git_ref: feature/tests
+time: '2024-11-14T02:18:17.201818'
+timestamp: 1731550697

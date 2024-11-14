@@ -2,10 +2,11 @@ import asyncio
 import json
 import os
 import pathlib
-from datetime import datetime
 from typing import Annotated, Any, Literal, Optional
 
+import git
 import httpx
+import pydantic
 import rich
 import toml
 import typer
@@ -42,10 +43,31 @@ AnnouncementType = Literal[
 ]
 
 
+class BuildInfo(util.HasTimestamp):
+    git_ref: Annotated[str, pydantic.Field()]
+    git_commit: Annotated[str, pydantic.Field()]
+
+    @classmethod
+    def fromRepo(
+        cls,
+        _git_commit: str | None = None,
+        _git_ref: str | None = None,
+    ):
+        _git_commit = env.get("build_git_commit", _git_commit)
+        _git_ref = env.get("build_git_ref", _git_ref)
+
+        repo = git.Repo(env.ROOT)
+        git_ref = _git_ref or str(repo.head.ref)
+        git_commit = _git_commit or str(repo.head.commit)
+
+        return cls(git_ref=git_ref, git_commit=git_commit)  # type: ignore
+
+
 class Context:
     dry: bool
     preview: bool
 
+    build_json: pathlib.Path
     quarto_variables: pathlib.Path
     quarto: pathlib.Path
     _quarto_config: None | dict[str, Any]
@@ -57,10 +79,12 @@ class Context:
         preview: bool = True,
         quarto: pathlib.Path = QUARTO,
         quarto_variables: pathlib.Path = QUARTO_VARIABLES,
+        build_json: pathlib.Path = env.BUILD_JSON,
     ):
         self.dry = dry
         self.preview = preview
 
+        self.build_json = build_json
         self.quarto = quarto
         self.quarto_variables = quarto_variables
         self._quarto_config = None
@@ -131,18 +155,16 @@ class Context:
 
     def spawn_variables(
         self,
-        build_git_commit,
-        build_git_ref,
+        *,
+        _git_commit: str | None = None,
+        _git_ref: str | None = None,
     ):
 
         logger.debug("Adding variables to ``_variables.yaml``.")
-        now = datetime.now()
-        data = {
-            "build_git_commit": build_git_commit,
-            "build_git_ref": build_git_ref,
-            "build_timestamp": datetime.timestamp(now),
-            "build_isoformat": now.isoformat(),
-        }
+        data = BuildInfo.fromRepo(
+            _git_commit=_git_commit,
+            _git_ref=_git_ref,
+        ).model_dump(mode="json")
 
         if self.dry:
             util.print_yaml(data, name="_variables.yaml")
@@ -150,6 +172,9 @@ class Context:
 
         with open(self.quarto_variables, "w") as file:
             yaml.dump(data, file)
+
+        with open(self.build_json, "w") as file:
+            json.dump(data, file)
 
     async def get_iconsets(self, config: dict[str, Any], include: set[str]) -> None:
         """See ``[tool.acederbergio.icons]`` in pyproject toml."""
@@ -301,18 +326,15 @@ def announcement(
 @cli.command("build-info")
 def build_info(
     _context: typer.Context,
-    _build_git_commit: FlagBuildGitCommit = None,
-    _build_git_ref: FlagBuildGitRef = None,
+    _git_commit: FlagBuildGitCommit = None,
+    _git_ref: FlagBuildGitRef = None,
 ):
     # kubernetes_json = env.ICONS_SETS / "kubernetes.json"
     # if not os.path.exists(kubernetes_json):
     #     raise ValueError("Cannot find `{kubernetes_json}`.")
 
     context: Context = _context.obj
-    build_git_commit = env.require("build_git_commit", _build_git_commit)
-    build_git_ref = env.require("build_git_ref", _build_git_ref)
-
-    context.spawn_variables(build_git_commit, build_git_ref)
+    context.spawn_variables(_git_commit=_git_commit, _git_ref=_git_ref)
 
 
 @cli.command("icons")

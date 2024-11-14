@@ -73,6 +73,7 @@ else:
     ICONS = require_path("icons", BLOG / "icons")
 
 ICONS_SETS = require_path("icon_sets", ICONS / "sets")
+BUILD_JSON = require_path("build_json", BUILD / "build.json")
 
 
 def create_logger(name: str):
