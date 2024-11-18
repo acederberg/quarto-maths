@@ -2,6 +2,7 @@ import asyncio
 import json
 import os
 import pathlib
+import re
 from typing import Annotated, Any, Literal, Optional
 
 import git
@@ -43,9 +44,24 @@ AnnouncementType = Literal[
 ]
 
 
+def validate_commit_hash(value):
+    if not re.fullmatch("[0-9a-f]{40}", value):
+        raise ValueError(
+            "Invalid Git Commit Hash: Must be a 40-character hexadecimal string."
+        )
+    return value
+
+
+FieldGitHash = Annotated[
+    str,
+    pydantic.Field(),
+    pydantic.BeforeValidator(validate_commit_hash),
+]
+
+
 class BuildInfo(util.HasTimestamp):
     git_ref: Annotated[str, pydantic.Field()]
-    git_commit: Annotated[str, pydantic.Field()]
+    git_commit: FieldGitHash
 
     @classmethod
     def fromRepo(

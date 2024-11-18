@@ -1,3 +1,11 @@
+"""This module should contain build quality assurance and scripts. There are
+a few goals here:
+
+1. Ensure pages that previously existed still do exist.
+2. Ensure pages do not drift too far from the last.
+3. Execute selenium scripts to make sure that things still work.
+"""
+
 import pathlib
 import xml.etree.ElementTree as ET
 from datetime import datetime
@@ -9,15 +17,19 @@ import pymongo
 import requests
 import rich
 import typer
+from pymongo.results import DeleteResult
+from typing_extensions import Self
 
 from acederbergio import config, db, env, util
 
 SITEMAP_NAMESPACE = {"ns": "http://www.sitemaps.org/schemas/sitemap/0.9"}
-MONGO_COLLECTION = "siteMetadata"
+MONGO_COLLECTION = "metadata"
+
+logger = env.create_logger(__name__)
 
 
 class SiteMapURLSet(pydantic.BaseModel):
-    loc: str
+    loc: Annotated[str | None, pydantic.Field()]
     lastmod: datetime
     changefreq: Annotated[str | None, pydantic.Field(default=None)]
     priority: Annotated[float | None, pydantic.Field(lt=1, gt=0, default=None)]
@@ -37,14 +49,16 @@ class SiteMap(pydantic.BaseModel):
 
     @classmethod
     def fromXML(cls, xml: str):
+        logger.debug("Parsing sitemap `XML`.")
+
         tree = ET.fromstring(xml)
         items = tree.findall("ns:url", SITEMAP_NAMESPACE)
         urlset = (SiteMapURLSet._fromXML(url) for url in items)
         return cls(urlset={item["loc"]: item for item in urlset})  # type: ignore
 
 
-class SiteSource(pydantic.BaseModel):
-    kind: Literal["site", "directory"]
+class Source(pydantic.BaseModel):
+    kind: Literal["test", "site", "directory"]
     site: Annotated[
         pydantic.AnyHttpUrl | None,
         pydantic.Field(default=None),
@@ -54,6 +68,18 @@ class SiteSource(pydantic.BaseModel):
         pydantic.Field(default=None),
     ]
 
+    def require_site(self) -> pydantic.AnyHttpUrl:
+        if (source_site := self.site) is None:
+            raise ValueError("Need site.")
+
+        return source_site
+
+    def require_directory(self) -> pathlib.Path:
+        if (source_dir := self.directory) is None:
+            raise ValueError("Need directory.")
+
+        return source_dir
+
     def mongo_match(self) -> dict[str, Any]:
         _m = self.model_dump(mode="json", exclude_none=True)
         _m = {f"source.{key}": value for key, value in _m.items()}
@@ -61,6 +87,9 @@ class SiteSource(pydantic.BaseModel):
 
     @pydantic.model_validator(mode="before")
     def check_one_source(cls, v):
+
+        if v.get("kind") == "test":
+            return v
 
         source_site = v.get("site")
         source_directory = v.get("directory")
@@ -72,7 +101,33 @@ class SiteSource(pydantic.BaseModel):
             raise ValueError("Cannot specify both of ``--directory`` and ``--site``.")
 
         v["kind"] = "site" if source_site is not None else "directory"
+
         return v
+
+    def _get_content(self, name: str) -> str:
+        if self.kind == "directory":
+            with open(p := self.require_directory() / name, "r") as file:
+                logger.debug("Loading `%s` from file `%s`.", name, p)
+                data = file.read()
+
+            return data
+        elif self.kind == "test":
+            raise ValueError(
+                "`_get_content` should never be called when `kind='test'`."
+                "Instead, make sure to pass `_site_map` and `_build_info` to "
+                "`Handler`."
+            )
+
+        url = str(self.require_site()) + "/" + name
+        logger.debug("Loading `%s` from url `%s`.", name, url)
+
+        if (response := requests.get(url)).status_code != 200:
+            rich.print(
+                f"[red]Unexpected repsonse `{response.status_code}` for request to `{response.request.url}`."
+            )
+            raise typer.Exit(206)
+
+        return response.content.decode()
 
 
 # class ListingItem(pydantic.BaseModel):
@@ -84,8 +139,8 @@ class SiteSource(pydantic.BaseModel):
 # Listings = list[ListingItem]
 
 
-class SiteMetadataSearch(pydantic.BaseModel):
-    source: Annotated[SiteSource | None, pydantic.Field(default=None)]
+class Search(pydantic.BaseModel):
+    source: Annotated[Source | None, pydantic.Field(default=None)]
     commit: Annotated[str | None, pydantic.Field(default=None)]
     ref: Annotated[str | None, pydantic.Field(default=None)]
     mongo_id: db.FieldObjectId
@@ -97,7 +152,7 @@ class SiteMetadataSearch(pydantic.BaseModel):
         if self.ref is not None:
             query["build_info.git_ref"] = self.ref
         if self.mongo_id is not None:
-            query["_id"] = self.mongo_id
+            query["_id"] = bson.ObjectId(self.mongo_id)
 
         if len(query) > 1:
             query = {"$or": [{k: v} for k, v in query.items()]}
@@ -112,26 +167,38 @@ class SiteMetadataSearch(pydantic.BaseModel):
 
     def aggr_top(self) -> db.Aggr:
 
-        aggr: db.Aggr = [{"$match": self.find()}]
-        aggr.append(
+        aggr: db.Aggr = [
+            {"$match": {**self.find(), "before": None}},
+            {"$sort": {"timestamp": -1}},
             {
-                "$group": {
-                    "timestamp": {"$max": "$timestamp"},
-                    "_id": "$build_info.git_commit",
+                "$project": {
+                    "timestamp": "$timestamp",
+                    "_id": "$_id",
+                    "labels": "$labels",
                 }
-            }
-        )
-        aggr.append({"$limit": 1})
-        aggr.append({"$project": {"building_info": "$build_info"}})
-        print(aggr)
+            },
+            {"$limit": 1},
+        ]
 
         return aggr
 
 
-class SiteMetadata(util.HasTimestamp):
+Labels = dict[str, int | str] | None
+
+
+class Minimal(util.HasTimestamp):
+    # Structure attributes
     build_info: config.BuildInfo
+
+    labels: Annotated[Labels, pydantic.Field(default=None)]
+    mongo_id: db.FieldObjectId
+    after: db.FieldId
+    before: db.FieldId
+
+
+class Metadata(Minimal):
     site_map: SiteMap
-    source: SiteSource
+    source: Source
 
     def aggr_neighbors(self, *, exclude_self=True) -> db.Aggr:
         commit = self.build_info.git_commit
@@ -144,59 +211,104 @@ class SiteMetadata(util.HasTimestamp):
     def aggr_history(self) -> db.Aggr:
 
         aggr = self.aggr_neighbors(exclude_self=False)
-        aggr.append({"$project": {"build_info": "$build_info"}})
+        aggr.append(
+            {
+                "$project": {
+                    "build_info": "$build_info",
+                    "before": "$before",
+                    "after": "$after",
+                    "time": "$time",
+                    "labels": "$labels",
+                }
+            }
+        )
 
         return aggr
 
+    def updates_append(self, next: Self):
+        """Append  ``next`` to the linked list."""
 
-class SiteMetadataHistory(pydantic.BaseModel):
+        head = self
 
-    source: SiteSource
-    builds: list[config.BuildInfo]
+        update_head = dict(before=next.mongo_id)
+        update_next = dict(after=head.mongo_id)
+
+        return (
+            ({"_id": bson.ObjectId(head.mongo_id)}, {"$set": update_head}),
+            ({"_id": bson.ObjectId(next.mongo_id)}, {"$set": update_next}),
+        )
+
+    # def aggr_position(self):
+    #     return [
+    #         {"$match": {"_id": bson.ObjectId(self.mongo_id)}},
+    #         {"$project": {"before": "$before", "after": "$after"}},
+    #         {"$limit": 1},
+    #     ]
+
+    @classmethod
+    def updates_append_ids(
+        cls,
+        *,
+        mongo_id_head: bson.ObjectId,
+        mongo_id_next: bson.ObjectId,
+    ):
+        update_head = dict(before=mongo_id_next)
+        update_next = dict(after=mongo_id_head)
+
+        return (
+            ({"_id": mongo_id_head}, {"$set": update_head}),
+            ({"_id": mongo_id_next}, {"$set": update_next}),
+        )
+
+    @classmethod
+    def updates_pop(cls, mongo_id_head: bson.ObjectId):
+        return ({"_id": mongo_id_head}, {"$set": {"before": None}})
 
 
-class SiteMetdataHandler:
-    context: "ContextSite"
+class History(pydantic.BaseModel):
+    source: Source
+    items: list[Minimal]
+
+
+class Handler:
+    source: Source
+    db_config: db.Config
+
+    _collection_name: str
     _client: pymongo.MongoClient | None
-    # _listings: Listings | None
     _site_map: SiteMap | None
     _build_info: config.BuildInfo | None
-    _metadata: SiteMetadata | None
+    _metadata: Metadata | None
 
-    def __init__(self, context: "ContextSite"):
-        self.context = context
+    def __init__(
+        self,
+        source: Source,
+        *,
+        db_config: db.Config | None = None,
+        _site_map: SiteMap | None = None,
+        _build_info: config.BuildInfo | None = None,
+        _collection_name: str = MONGO_COLLECTION,
+    ):
+        self.source = source
+        self.db_config = db_config if db_config is not None else db.Config()  # type: ignore
+
         self._client = None
-        # self._listings = None
-        self._site_map = None
-        self._build_info = None
+        self._site_map = _site_map
+        self._build_info = _build_info
+
         self._metadata = None
-
-    def _get_content(self, name: str) -> str:
-        if self.context.source.kind == "directory":
-            with open(self.context.require_directory() / name, "r") as file:
-                data = file.read()
-
-            return data
-
-        response = requests.get(str(self.context.require_site()) + "/" + name)
-        if response.status_code != 200:
-            rich.print(
-                f"[red]Unexpected repsonse `{response.status_code}` for request to `{response.request.url}`."
-            )
-            raise typer.Exit()
-
-        return response.content.decode()
+        self._collection_name = _collection_name
 
     @property
     def client(self):
         if self._client is None:
-            self._client = db.create_client(_mongodb_url=str(self.context.mongodb_url))
+            self._client = self.db_config.create_client()
         return self._client
 
     @property
     def collection(self):
-        db = self.client["acederbergio"]
-        return db[MONGO_COLLECTION]
+        db = self.client[self.db_config.database]
+        return db[self._collection_name]
 
     # @property
     # def listings(self) -> Listings:
@@ -211,7 +323,7 @@ class SiteMetdataHandler:
     def site_map(self) -> SiteMap:
 
         if self._site_map is None:
-            self._site_map = SiteMap.fromXML(self._get_content("sitemap.xml"))
+            self._site_map = SiteMap.fromXML(self.source._get_content("sitemap.xml"))
 
         return self._site_map
 
@@ -220,36 +332,38 @@ class SiteMetdataHandler:
 
         if self._build_info is None:
             self._build_info = config.BuildInfo.model_validate_json(
-                self._get_content("build.json")
+                self.source._get_content("build.json")
             )
 
         return self._build_info  # type: ignore
 
-    @property
-    def metadata(self) -> SiteMetadata:
-        if self._metadata is None:
-            self._metadata = SiteMetadata.model_validate(
-                {
-                    "build_info": self.build_info,
-                    "source": self.context.source,
-                    "site_map": self.site_map,
-                }
-            )
-
-        return self._metadata
+    def metadata(
+        self,
+        _time: datetime | None = None,
+        labels: Labels = None,
+    ) -> Metadata:
+        v = {
+            "labels": labels,
+            "build_info": self.build_info,
+            "source": self.source,
+            "site_map": self.site_map,
+        }
+        if _time is not None:
+            v["time"] = _time
+        return Metadata.model_validate(v)
 
     def get(
         self,
-        params: SiteMetadataSearch,
-    ) -> SiteMetadata | None:
+        params: Search,
+    ) -> Metadata | None:
 
         q = params.find()
         raw = self.collection.find_one(q)
         if raw is None:
             return None
-        return SiteMetadata.model_validate(raw)
+        return Metadata.model_validate(raw)
 
-    def require(self, params: SiteMetadataSearch) -> SiteMetadata:
+    def require(self, params: Search) -> Metadata:
         data = self.get(params)
         if data is None:
             f = params.model_dump(exclude_none=True)
@@ -257,7 +371,12 @@ class SiteMetdataHandler:
 
         return data
 
-    def push(self, *, force: bool = False) -> bson.ObjectId | None:
+    def push(
+        self,
+        *,
+        force: bool = False,
+        **metadata_args,
+    ) -> bson.ObjectId | None:
         """For the specified source, check if there is already a document (via
         git commit hash from ``build.json``).
 
@@ -268,21 +387,67 @@ class SiteMetdataHandler:
         commit = self.build_info.git_commit
         collection = self.collection
 
-        params = SiteMetadataSearch(commit=commit, source=self.context.source)  # type: ignore
+        params = Search(commit=commit, source=self.source)  # type: ignore
+        print("params", params.model_dump(mode="json"))
         if not force and (self.get(params)) is not None:
             return
 
-        return collection.insert_one(self.metadata.model_dump(mode="json")).inserted_id
+        metadata_id_top = self.top()
+
+        # NOTE: Add data, ensure linked list structure.
+        metadata = self.metadata(**metadata_args)
+        metadata_id = collection.insert_one(
+            metadata.model_dump(mode="json")
+        ).inserted_id
+
+        if metadata_id_top:
+            qs = Metadata.updates_append_ids(
+                mongo_id_head=metadata_id_top,
+                mongo_id_next=metadata_id,
+            )
+            collection.update_one(*qs[0])
+            collection.update_one(*qs[1])
+
+        return metadata_id
+
+    def pop(self) -> Metadata | None:
+
+        top = self.top()
+        if top is None:
+            return None
+
+        collection = self.collection
+        params = Search(_id=top, source=self.source)  # type: ignore
+        removed_raw = collection.find_one(match := params.find())
+        if removed_raw is None:
+            raise ValueError("Top vanished.")
+
+        # NOTE: Detach from new head.
+        removed = Metadata.model_validate(removed_raw)
+        if removed.after:
+            q = Metadata.updates_pop(bson.ObjectId(removed.after))
+            res = self.collection.update_one(*q)
+
+        # NOTE: Delete once detached.
+        res = self.collection.delete_one(match)
+        if not res.acknowledged or res.raw_result["n"] != 1:
+            raise ValueError(f"Database error: `{res}`.")
+
+        return removed
 
     def top(self) -> bson.ObjectId | None:
         collection = self.collection
-        param = SiteMetadataSearch(source=self.context.source)  # type: ignore
-        res = collection.aggregate(param.aggr_top()).next()
-        return res["_id"]
+        param = Search(source=self.source)  # type: ignore
+        q = param.aggr_top()
+        res = tuple(collection.aggregate(q))
+        if len(res) == 0:
+            return None
+
+        return res[0]["_id"]
 
     def diff(
         self,
-        params: SiteMetadataSearch | None = None,
+        params: Search | None = None,
     ) -> dict[str, set[str]] | None:
         """For now, just look for urls that have been deleted."""
 
@@ -295,13 +460,13 @@ class SiteMetdataHandler:
             if not metadata_prev_commit:
                 return None
 
-            param = SiteMetadataSearch(  # type: ignore
+            param = Search(  # type: ignore
                 commit=metadata_prev_commit,
-                source=self.context.source,
+                source=self.source,
             )
             metadata_prev = self.require(param)
 
-        metadata = self.metadata
+        metadata = self.metadata()
         metadata_neighbors = metadata.aggr_neighbors(exclude_self=True)
 
         if not len(metadata_neighbors):
@@ -316,78 +481,56 @@ class SiteMetdataHandler:
             "destroyed": site_map - site_map_prev,
         }
 
-    def history(self) -> SiteMetadataHistory:
+    def history(self) -> History:
         """Get history for the specified source."""
 
         collection = self.collection
-        metadata = self.metadata
-        history = metadata.aggr_history()
-        res = map(
-            lambda item: item["build_info"],
-            collection.aggregate(history),
-        )
+        metadata = self.metadata()
+        q = metadata.aggr_history()
+        items = collection.aggregate(q)
 
-        return SiteMetadataHistory(
-            builds=res,  # type:ignore
+        return History(
+            items=items,  # type: ignore
             source=metadata.source,
         )
 
 
 FlagSourceSite = Annotated[str | None, typer.Option("--site")]
 FlagSourceDirectory = Annotated[str | None, typer.Option("--directory", "-d")]
-FlagMongodbURL = Annotated[str | None, typer.Option("--mongodb-url")]
 FlagForce = Annotated[bool, typer.Option("--force/--no-force")]
 
 
-class ContextSite(pydantic.BaseModel):
+class Context(pydantic.BaseModel):
     """Context for the ``site`` command."""
 
-    source: SiteSource
-    mongodb_url: Annotated[
-        pydantic.MongoDsn,
-        pydantic.Field(),
-    ]
-
-    def require_site(self) -> pydantic.AnyHttpUrl:
-        if (source_site := self.source.site) is None:
-            raise ValueError("Need site.")
-
-        return source_site
-
-    def require_directory(self) -> pathlib.Path:
-        if (source_dir := self.source.directory) is None:
-            raise ValueError("Need directory.")
-
-        return source_dir
-
-    @pydantic.model_validator(mode="before")
-    def check_mongodb(cls, v):
-        v["mongodb_url"] = v.get("mongodb_url") or env.get("mongodb_url")
-        return v
+    source: Source
 
     @classmethod
     def callback(
         cls,
         context: typer.Context,
-        _mongodb_url: FlagMongodbURL = None,
         source_site: FlagSourceSite = None,
         source_directory: FlagSourceDirectory = None,
     ):
         try:
-            context.obj = ContextSite(  # type:ignore
-                mongodb_url=_mongodb_url,  # type: ignore
+            context.obj = Context(
+                mongodb=db.Config(),  # type:ignore
                 source=dict(site=source_site, directory=source_directory),  # type: ignore
             )
         except pydantic.ValidationError as err:
 
+            rich.print("[red]Configuration Errors:")
             for line in err.errors():
                 rich.print(f'[red]{ line["msg"] }: {str(set(line["loc"]))}')
 
             raise typer.Exit(201) from err
 
+    def create_handler(self) -> Handler:
+        return Handler(self.source)
+
 
 cli = typer.Typer(pretty_exceptions_enable=False)
-site = typer.Typer(callback=ContextSite.callback, pretty_exceptions_enable=False)
+site = typer.Typer(callback=Context.callback, pretty_exceptions_enable=False)
 
 cli.add_typer(site, name="site")
 
@@ -396,7 +539,7 @@ cli.add_typer(site, name="site")
 @site.command("push")
 def metadata_append(_context: typer.Context, *, force: FlagForce = False):
     "Pull source data into mongodb and keep."
-    handler = SiteMetdataHandler(_context.obj)
+    handler = _context.obj.create_handler()
     _id = handler.push(force=force)
 
     if _id is None:
@@ -404,17 +547,21 @@ def metadata_append(_context: typer.Context, *, force: FlagForce = False):
         rich.print(f"[yellow]Data already exists for commit `{commit}`.")
         raise typer.Exit(203)
 
-    data = handler.get(SiteMetadataSearch(_id=_id))  # type: ignore
-    assert data is not None
-    util.print_yaml(data["build_info"], name="build info")
+    # handler.client.close
+    data = handler.get(Search(_id=_id))  # type: ignore
+    if data is None:
+        rich.print(f"[red]Could not find object with `{_id = }`.")
+        raise typer.Exit(204)
+
+    util.print_yaml(data.build_info.model_dump(mode="json"), name="build info")
     return
 
 
 @site.command("diff")
 def metadata_diff(_context: typer.Context, commit: str):
     "Check source data against mongodb log."
-    handler = SiteMetdataHandler(_context.obj)
-    params = SiteMetadataSearch(commit=commit)  # type: ignore
+    handler = _context.obj.create_handler()
+    params = Search(commit=commit)  # type: ignore
     diff = handler.diff(params)
     if diff is None:
         rich.print("[yellow]No entries to compare to.")
@@ -426,7 +573,7 @@ def metadata_diff(_context: typer.Context, commit: str):
 
 @site.command("history")
 def metadata_history(_context: typer.Context):
-    handler = SiteMetdataHandler(_context.obj)
+    handler = _context.obj.create_handler()
     res = handler.history()
     util.print_yaml(res.model_dump(mode="json"), name="history")
 
@@ -438,11 +585,23 @@ def metadata_top(
     _context: typer.Context,
     full: bool = False,
 ):
-    handler = SiteMetdataHandler(_context.obj)
-    commit = handler.top()
-    res = handler.get(SiteMetadataSearch(commit=commit))  # type: ignore
+    handler = _context.obj.create_handler()
 
+    if (_id := handler.top()) is None:
+        rich.print("[red]No data for source.")
+        return
+
+    res = handler.get(Search(_id=_id))  # type: ignore
     print_site_metadata(res, full=full)
+
+
+@site.command("pop")
+def metadata_pop(_context: typer.Context):
+    handler = _context.obj.create_handler()
+    res = handler.pop()
+    util.print_yaml(res)
+
+    return
 
 
 @site.command("get")
@@ -453,12 +612,12 @@ def metadata_get(
     _id: str | None = None,
     full: bool = False,
 ):
-    handler = SiteMetdataHandler(_context.obj)
-    params = SiteMetadataSearch(
+    handler = _context.obj.create_handler()
+    params = Search(
         commit=commit,
         ref=ref,
         _id=_id,  # type: ignore
-        source=handler.context.source,
+        source=handler.source,
     )
     res = handler.get(params)
     print_site_metadata(res, full=full)
@@ -478,10 +637,5 @@ def print_site_metadata(res, *, full: bool):
 
 @site.command("show")
 def metadata_show(_context: typer.Context):
-    handler = SiteMetdataHandler(_context.obj)
-    util.print_yaml(handler.metadata.model_dump(), name="metadata")
-
-
-@cli.command("ping")
-def ping(_mongodb_url: FlagMongodbURL = None):
-    db.check_client(_mongodb_url)
+    handler = _context.obj.create_handler()
+    util.print_yaml(handler.metadata().model_dump(), name="metadata")

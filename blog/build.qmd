@@ -6,9 +6,19 @@ description: Build data.
 ```{python}
 # | echo: false
 import json
+from acederbergio import env
+from acederbergio import util
 
-with open("build.json", "r") as file:
+with open(env.BUILD_JSON, "r") as file:
     build_info = json.load(file)
 
-print(json.dumps(build_info, indent=2))
+util.print_yaml(
+    build_info,
+    name=f"Build info from: `{env.BUILD_JSON}`",
+    pretty=False,
+)
 ```
+
+<!-- <script> -->
+<!--   document.querySelector(".cell-output pre code") -->
+<!-- </script> -->
