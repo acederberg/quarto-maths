@@ -17,7 +17,8 @@ import pymongo
 import requests
 import rich
 import typer
-from pymongo.results import DeleteResult
+import yaml_settings_pydantic as ysp
+from pymongo.collection import Collection
 from typing_extensions import Self
 
 from acederbergio import config, db, env, util
@@ -58,6 +59,7 @@ class SiteMap(pydantic.BaseModel):
 
 
 class Source(pydantic.BaseModel):
+    name: str
     kind: Literal["test", "site", "directory"]
     site: Annotated[
         pydantic.AnyHttpUrl | None,
@@ -130,13 +132,33 @@ class Source(pydantic.BaseModel):
         return response.content.decode()
 
 
-# class ListingItem(pydantic.BaseModel):
-#
-#     items: list[pathlib.Path]
-#     listing: pathlib.Path
-#
-#
-# Listings = list[ListingItem]
+class SourceReport(pydantic.BaseModel):
+    source: Source
+    count: int
+    timestamp_terminal: int
+    timestamp_initial: int
+    build_info: config.BuildInfo
+
+    @classmethod
+    def aggr(cls, *, source_names: list[str]):
+        return [
+            {"$sort": {"timestamp": 1}},
+            {
+                "$match": {
+                    "source.name": {"$in": source_names},
+                },
+            },
+            {
+                "$group": {
+                    "_id": "$source.name",
+                    "count": {"$count": {}},
+                    "timestamp_initial": {"$min": "$timestamp"},
+                    "timestamp_terminal": {"$max": "$timestamp"},
+                    "source": {"$first": "$source"},
+                    "build_info": {"$last": "$build_info"},
+                }
+            },
+        ]
 
 
 class Search(pydantic.BaseModel):
@@ -187,7 +209,6 @@ Labels = dict[str, int | str] | None
 
 
 class Minimal(util.HasTimestamp):
-    # Structure attributes
     build_info: config.BuildInfo
 
     labels: Annotated[Labels, pydantic.Field(default=None)]
@@ -228,22 +249,10 @@ class Metadata(Minimal):
     def updates_append(self, next: Self):
         """Append  ``next`` to the linked list."""
 
-        head = self
-
-        update_head = dict(before=next.mongo_id)
-        update_next = dict(after=head.mongo_id)
-
-        return (
-            ({"_id": bson.ObjectId(head.mongo_id)}, {"$set": update_head}),
-            ({"_id": bson.ObjectId(next.mongo_id)}, {"$set": update_next}),
+        return self.updates_append_ids(
+            mongo_id_head=bson.ObjectId(self.mongo_id),
+            mongo_id_next=bson.ObjectId(next.mongo_id),
         )
-
-    # def aggr_position(self):
-    #     return [
-    #         {"$match": {"_id": bson.ObjectId(self.mongo_id)}},
-    #         {"$project": {"before": "$before", "after": "$after"}},
-    #         {"$limit": 1},
-    #     ]
 
     @classmethod
     def updates_append_ids(
@@ -309,15 +318,6 @@ class Handler:
     def collection(self):
         db = self.client[self.db_config.database]
         return db[self._collection_name]
-
-    # @property
-    # def listings(self) -> Listings:
-    #     if self._listings is None:
-    #         self._listings = pydantic.TypeAdapter(Listings).validate_json(
-    #             self.get_content("listings.json")
-    #         )
-    #
-    #     return self._listings
 
     @property
     def site_map(self) -> SiteMap:
@@ -494,13 +494,111 @@ class Handler:
             source=metadata.source,
         )
 
+    @classmethod
+    def sources(cls, collection: Collection) -> list[Source]:
+        """Get all sources specified within the database"""
 
-FlagSourceSite = Annotated[str | None, typer.Option("--site")]
-FlagSourceDirectory = Annotated[str | None, typer.Option("--directory", "-d")]
+        res = collection.aggregate(
+            [
+                {
+                    "$group": {
+                        "_id": "$source.name",
+                        "source": {"$first": "$source"},
+                    }
+                }
+            ]
+        )
+        return [Source.model_validate(item["source"]) for item in res]
+
+    @classmethod
+    def report(
+        cls, collection: Collection, *, source_names: list[str]
+    ) -> list[SourceReport]:
+        q = SourceReport.aggr(source_names=source_names)
+        items = collection.aggregate(q)
+
+        return list(SourceReport.model_validate(item) for item in items)
+
+
+# --------------------------------------------------------------------------- #
+
+CONFIG = env.CONFIGS / "sources.yaml"
+
+
+def print_site_metadata(res, *, full: bool):
+    if res is None:
+        rich.print("[red]No document found.")
+        raise typer.Exit(0)
+
+    exclude = set()
+    if not full:
+        exclude.add("site_map")
+
+    util.print_yaml(res.model_dump(mode="json", exclude=exclude))
+
+
+class Config(ysp.BaseYamlSettings):
+    model_config = ysp.YamlSettingsConfigDict(
+        yaml_files={CONFIG: ysp.YamlFileConfigDict(required=True)},
+        env_prefix=env.name("mongodb_"),
+    )
+    default: Annotated[str, pydantic.Field(default=None)]
+    sources: Annotated[dict[str, Source], pydantic.Field(default=None)]
+
+    @pydantic.field_validator("sources", mode="before")
+    def populate_source_names(cls, v):
+        if not isinstance(v, dict):
+            return v
+
+        # NOTE: Assumes that dict is JSON like.
+        return {key: {**value, "name": key} for key, value in v.items()}
+
+    @pydantic.model_validator(mode="after")
+    def default_in_sources(self) -> Self:
+        if self.default not in self.sources:
+            raise ValueError(f"No configuration for source `{self.default}`.")
+
+        return self
+
+    @pydantic.computed_field
+    @property
+    def use(self) -> Source:
+        return self.sources[self.default]
+
+
+FlagSourceNames = Annotated[
+    list[str],
+    typer.Option("--source", help="A list of sources."),
+]
+FlagSourceName = Annotated[
+    str | None,
+    typer.Option(
+        "--source",
+        help="Specify a source using its keys in ``sources.yaml``.",
+    ),
+]
+FlagSourceSite = Annotated[
+    str | None,
+    typer.Option(
+        "--site",
+        help="Specify a using a source site. This must include the protocol.",
+    ),
+]
+FlagSourceDirectory = Annotated[
+    str | None,
+    typer.Option(
+        "--directory",
+        "-d",
+        help=(
+            "Specify using a directory source. This must be a valid path in "
+            "the current working directory."
+        ),
+    ),
+]
 FlagForce = Annotated[bool, typer.Option("--force/--no-force")]
 
 
-class Context(pydantic.BaseModel):
+class ContextMetadata(pydantic.BaseModel):
     """Context for the ``site`` command."""
 
     source: Source
@@ -509,36 +607,55 @@ class Context(pydantic.BaseModel):
     def callback(
         cls,
         context: typer.Context,
+        source_name: FlagSourceName = None,
         source_site: FlagSourceSite = None,
         source_directory: FlagSourceDirectory = None,
     ):
-        try:
-            context.obj = Context(
-                mongodb=db.Config(),  # type:ignore
-                source=dict(site=source_site, directory=source_directory),  # type: ignore
-            )
-        except pydantic.ValidationError as err:
 
-            rich.print("[red]Configuration Errors:")
-            for line in err.errors():
-                rich.print(f'[red]{ line["msg"] }: {str(set(line["loc"]))}')
+        # NOTE: Using source explicity from CLI
+        if source_site is not None or source_directory is not None:
+            try:
+                source = Source(  # type: ignore
+                    name="typer",
+                    site=source_site,
+                    directory=source_directory,
+                )
+            except pydantic.ValidationError as err:
 
-            raise typer.Exit(201) from err
+                rich.print("[red]Configuration Errors:")
+                for line in err.errors():
+                    rich.print(f'[red]{ line["msg"] }: {str(set(line["loc"]))}')
+
+                raise typer.Exit(201) from err
+
+            return
+        else:
+            # NOTE: Source from configuration.
+            v = {}
+            if source_name:
+                v["default"] = source_name
+
+            config = Config.model_validate(v)
+            source = config.use
+
+        context.obj = cls(source=source)
 
     def create_handler(self) -> Handler:
         return Handler(self.source)
 
 
 cli = typer.Typer(pretty_exceptions_enable=False)
-site = typer.Typer(callback=Context.callback, pretty_exceptions_enable=False)
-
-cli.add_typer(site, name="site")
+sources = typer.Typer()
+metadata = typer.Typer(callback=ContextMetadata.callback)
+cli.add_typer(sources, name="sources")
+cli.add_typer(metadata, name="metadata")
 
 
 # NOTE: Would like to pass either a directory or site.
-@site.command("push")
+@metadata.command("push")
 def metadata_append(_context: typer.Context, *, force: FlagForce = False):
     "Pull source data into mongodb and keep."
+
     handler = _context.obj.create_handler()
     _id = handler.push(force=force)
 
@@ -557,9 +674,10 @@ def metadata_append(_context: typer.Context, *, force: FlagForce = False):
     return
 
 
-@site.command("diff")
+@metadata.command("diff")
 def metadata_diff(_context: typer.Context, commit: str):
     "Check source data against mongodb log."
+
     handler = _context.obj.create_handler()
     params = Search(commit=commit)  # type: ignore
     diff = handler.diff(params)
@@ -571,8 +689,10 @@ def metadata_diff(_context: typer.Context, commit: str):
     return
 
 
-@site.command("history")
+@metadata.command("history")
 def metadata_history(_context: typer.Context):
+    """Show metadata history."""
+
     handler = _context.obj.create_handler()
     res = handler.history()
     util.print_yaml(res.model_dump(mode="json"), name="history")
@@ -580,11 +700,13 @@ def metadata_history(_context: typer.Context):
     return
 
 
-@site.command("top")
+@metadata.command("top")
 def metadata_top(
     _context: typer.Context,
     full: bool = False,
 ):
+    """Show the most recent metadata."""
+
     handler = _context.obj.create_handler()
 
     if (_id := handler.top()) is None:
@@ -595,8 +717,10 @@ def metadata_top(
     print_site_metadata(res, full=full)
 
 
-@site.command("pop")
+@metadata.command("pop")
 def metadata_pop(_context: typer.Context):
+    """Remove the most recent metadata."""
+
     handler = _context.obj.create_handler()
     res = handler.pop()
     util.print_yaml(res)
@@ -604,7 +728,7 @@ def metadata_pop(_context: typer.Context):
     return
 
 
-@site.command("get")
+@cli.command("get")
 def metadata_get(
     _context: typer.Context,
     commit: str | None = None,
@@ -612,6 +736,8 @@ def metadata_get(
     _id: str | None = None,
     full: bool = False,
 ):
+    """Get metadata from mongodb."""
+
     handler = _context.obj.create_handler()
     params = Search(
         commit=commit,
@@ -623,19 +749,53 @@ def metadata_get(
     print_site_metadata(res, full=full)
 
 
-def print_site_metadata(res, *, full: bool):
-    if res is None:
-        rich.print("[red]No document found.")
-        raise typer.Exit(0)
-
-    exclude = set()
-    if not full:
-        exclude.add("site_map")
-
-    util.print_yaml(res.model_dump(mode="json", exclude=exclude))
-
-
-@site.command("show")
+@cli.command("show")
 def metadata_show(_context: typer.Context):
+    """Show metadata built from source."""
+
     handler = _context.obj.create_handler()
     util.print_yaml(handler.metadata().model_dump(), name="metadata")
+
+
+@cli.command("config")
+def metadata_config():
+    """Show the sources config."""
+
+    util.print_yaml(
+        Config.model_validate({}),
+        name=str(CONFIG),
+        exclude_none=True,
+    )
+
+
+@sources.command("show")
+def sources_show():
+    """Show all sources existing in database."""
+    db_config = db.Config.model_validate({})
+    client = db_config.create_client()
+    collection = client[db_config.database][MONGO_COLLECTION]
+
+    util.print_yaml(
+        Handler.sources(collection),
+        items=True,
+        name="sources",
+        exclude_none=True,
+    )
+
+
+@sources.command("report")
+def sources_report(source_names: FlagSourceNames = list()):
+    "Report for a source."
+
+    if not len(source_names):
+        rich.print("[red]At least one source is required.")
+        raise typer.Exit(207)
+    db_config = db.Config.model_validate({})
+    client = db_config.create_client()
+    collection = client[db_config.database][MONGO_COLLECTION]
+
+    util.print_yaml(
+        Handler.report(collection, source_names=source_names),
+        items=True,
+        exclude_none=True,
+    )

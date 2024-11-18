@@ -3,7 +3,7 @@ import typer
 from acederbergio.config import cli as cli_config
 from acederbergio.db import cli as cli_db
 from acederbergio.env import cli as cli_env
-from acederbergio.iconify_kubernetes import cli as cli_iconify_kubernetes
+from acederbergio.iconify import cli as cli_iconify_kubernetes
 from acederbergio.verify import cli as cli_verify
 from acederbergio.watch import cli as cli_watch
 
