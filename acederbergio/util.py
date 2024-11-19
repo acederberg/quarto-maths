@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 from typing import Annotated
 
@@ -10,6 +11,7 @@ import yaml
 def print_yaml(
     data,
     *,
+    as_json: bool = False,
     items: bool = False,
     name: str | None = None,
     pretty: bool = True,
@@ -20,14 +22,18 @@ def print_yaml(
     elif isinstance(data, pydantic.BaseModel):
         data = data.model_dump(mode="json", **kwargs_model_dump)
 
-    code = "---\n" + (f"# {name}\n" if name is not None else "") + yaml.dump(data)
+    if not as_json:
+        code = "---\n" + (f"# {name}\n" if name is not None else "") + yaml.dump(data)
+    else:
+        code = json.dumps(data, indent=2)
+
     if not pretty:
         print(code)
         return
 
     s = rich.syntax.Syntax(
         code,
-        "yaml",
+        "yaml" if not as_json else "json",
         theme="fruity",
         background_color="default",
     )

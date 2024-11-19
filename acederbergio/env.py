@@ -9,6 +9,8 @@ import typer
 import yaml
 from rich import syntax
 
+from acederbergio import util
+
 logger = logging.getLogger(__name__)
 logging.basicConfig(
     level=logging.WARNING,
@@ -109,27 +111,40 @@ def create_logger(name: str):
     return logger
 
 
-cli = typer.Typer()
+cli = typer.Typer(help="Environment variables tools.")
+
+
+@cli.command("find")
+def find(varnames: list[str]):
+    """Show environment name for a variable."""
+
+    util.print_yaml(
+        [
+            {
+                "name": varname,
+                "name_env": name(varname),
+                "value": get(varname),
+            }
+            for varname in varnames
+        ],
+        name="found",
+    )
 
 
 @cli.command("show")
 def show_environ():
-    rich.print(
-        syntax.Syntax(
-            "---\n"
-            + yaml.dump(
-                {
-                    "root": str(ROOT),
-                    "scripts": str(SCRIPTS),
-                    "blog": str(BLOG),
-                    "build": str(BUILD),
-                    "icons": str(ICONS),
-                    "icon_sets": str(ICONS_SETS),
-                    "configs": str(CONFIGS),
-                }
-            ),
-            "yaml",
-            theme="fuity",
-            background_color="default",
-        )
+    """Show the current environment as interpretted by ``env.py``. Note that
+    not all of these are able to be set directly.
+    """
+    util.print_yaml(
+        {
+            "root": str(ROOT),
+            "scripts": str(SCRIPTS),
+            "blog": str(BLOG),
+            "build": str(BUILD),
+            "icons": str(ICONS),
+            "icon_sets": str(ICONS_SETS),
+            "configs": str(CONFIGS),
+        },
+        name="variables",
     )

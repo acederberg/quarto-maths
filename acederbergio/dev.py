@@ -1,3 +1,13 @@
+"""Scripts for development.
+
+This includes a custom watcher because I do not like the workflow I am forced
+into be ``quarto preview``. A few problems I aim to solve here are:
+
+1. Keeping static assets up to date.
+2. Rendering the last rendered file when other non-qmd assets are written.
+3. Putting debug messages.
+"""
+
 import contextlib
 import http.server as http_server
 import os
@@ -468,25 +478,42 @@ def serve():
     )
 
 
+# =========================================================================== #
+
 FlagQuartoRender = Annotated[
     bool,
-    typer.Option("--quarto-render/--dry"),
+    typer.Option(
+        "--quarto-render/--dry", help="Render writes or only watch for writes."
+    ),
 ]
 FlagQuartoFilters = Annotated[
     list[pathlib.Path],
-    typer.Option("--quarto-filter"),
+    typer.Option("--quarto-filter", help="Additional filters to watch."),
 ]
 FlagQuartoVerbose = Annotated[
     bool,
-    typer.Option("--quarto-verbose"),
+    typer.Option(
+        "--quarto-verbose",
+        help=(
+            "Print quarto output to the terminal. Note that output is "
+            "available in ``error.txt`` in the quarto build directory or by "
+            "the development server."
+        ),
+    ),
 ]
 FlagQuartoAsset = Annotated[
     list[pathlib.Path],
-    typer.Option("--quarto-asset"),
+    typer.Option(
+        "--quarto-asset",
+        help=(
+            "Additional assets to watch. Assets will trigger rerenders of "
+            "the last document when written to."
+        ),
+    ),
 ]
 FlagIgnore = Annotated[
     list[pathlib.Path],
-    typer.Option("--ignore"),
+    typer.Option("--ignore", help="Additional files too ignore."),
 ]
 
 
@@ -507,12 +534,19 @@ def callback(
     )
 
 
-cli = typer.Typer(callback=callback)
-cli.add_typer(cli_context := typer.Typer(), name="context")
+cli = typer.Typer(
+    callback=callback,
+    help="Blog development server and watcher.",
+)
+cli_context = typer.Typer(
+    help="Watcher context debugging help.",
+)
+cli.add_typer(cli_context, name="context")
 
 
 @cli.command("render")
 def cmd_watch(_context: typer.Context):
+    """Watch for changes and trigger rerenders."""
     context: Context = _context.obj
 
     watch(context)
@@ -520,6 +554,7 @@ def cmd_watch(_context: typer.Context):
 
 @cli.command("server")
 def cmd_server(_context: typer.Context):
+    """Run the development server and watch for changes."""
     context: Context = _context.obj
 
     threading.Thread(target=serve).start()
@@ -528,8 +563,9 @@ def cmd_server(_context: typer.Context):
 
 @cli_context.command("show")
 def cmd_context_show(_context: typer.Context):
+    """Show the current watcher context. Use for watcher debugging."""
     context: Context = _context.obj
-    util.print_yaml("---\n" + yaml.dump(context.dict()))
+    util.print_yaml(context.dict())
 
 
 @cli_context.command("test")
@@ -539,6 +575,8 @@ def cmd_context_test(
     max_depth: int = 3,
     max_rows: int = 50,
 ):
+    """Given a directory, see what the watcher will ignore. Use for watcher debugging."""
+
     context: Context = _context.obj
     watcher = BlogHandler(context)
 

@@ -77,6 +77,7 @@ def create_metadatas(uuid: str, source: verify.Source, site_map: verify.SiteMap)
             build_info=create_build_info(index),
             site_map=site_map,
             labels={
+                "origin": "pytest",
                 "pytest.index": index,
                 "pytest.uuid": uuid,
                 "pytest.helper": "create_metadatas",
@@ -108,6 +109,7 @@ def db_config():
 @pytest.fixture(scope="session")
 def source() -> verify.Source:
     return verify.Source(
+        name="test",
         kind="test",
         directory=None,
         site="http://test.site.local",  # type: ignore
@@ -243,26 +245,26 @@ class TestSource:
         """Make sure that the validator works as expected."""
 
         with pytest.raises(pydantic.ValidationError) as err:
-            verify.Source(kind="site")  # type: ignore
+            verify.Source(name="pytest", kind="site")  # type: ignore
 
         msg = str(err.value)
         assert "At least one of ``--directory`` or ``" in msg
 
         with pytest.raises(pydantic.ValidationError) as err:
-            verify.Source(directory=env.BUILD, site="https://localhost:3333")  # type: ignore
+            verify.Source(name="pytest", directory=env.BUILD, site="https://localhost:3333")  # type: ignore
 
         msg = str(err.value)
         assert "Cannot specify both of ``--directory`` and ``--site``." in msg
 
-        verify.Source(kind="test")  # type: ignore
-        verify.Source(kind="site", site="https://acederberg.io")  # type: ignore
-        verify.Source(kind="directory", directory=env.BUILD)  # type: ignore
+        verify.Source(name="pytest", kind="test")  # type: ignore
+        verify.Source(name="pytest", kind="site", site="https://acederberg.io")  # type: ignore
+        verify.Source(name="pytest", kind="directory", directory=env.BUILD)  # type: ignore
 
     @pytest.mark.parametrize(
         "_source",
         [
-            verify.Source(kind="site", site="https://acederberg.io"),  # type: ignore
-            verify.Source(kind="directory", directory=env.BUILD),  # type: ignore
+            verify.Source(name="pytest", kind="site", site="https://acederberg.io"),  # type: ignore
+            verify.Source(name="pytest", kind="directory", directory=env.BUILD),  # type: ignore
         ],
     )
     def test_get_content(self, _source: verify.Source):

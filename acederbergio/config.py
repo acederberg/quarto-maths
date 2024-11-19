@@ -1,3 +1,14 @@
+"""Build configuration scripts.
+
+This includes chores like:
+
+- Adding google analytics.
+- Adding transient banners.
+- Creating `build.json`.
+- Downloading icon sets.
+
+"""
+
 import asyncio
 import json
 import os
@@ -84,7 +95,6 @@ class Context:
     preview: bool
 
     build_json: pathlib.Path
-    quarto_variables: pathlib.Path
     quarto: pathlib.Path
     _quarto_config: None | dict[str, Any]
 
@@ -94,7 +104,6 @@ class Context:
         *,
         preview: bool = True,
         quarto: pathlib.Path = QUARTO,
-        quarto_variables: pathlib.Path = QUARTO_VARIABLES,
         build_json: pathlib.Path = env.BUILD_JSON,
     ):
         self.dry = dry
@@ -102,7 +111,6 @@ class Context:
 
         self.build_json = build_json
         self.quarto = quarto
-        self.quarto_variables = quarto_variables
         self._quarto_config = None
 
     @property
@@ -185,9 +193,6 @@ class Context:
         if self.dry:
             util.print_yaml(data, name="_variables.yaml")
             return
-
-        with open(self.quarto_variables, "w") as file:
-            yaml.dump(data, file)
 
         with open(self.build_json, "w") as file:
             json.dump(data, file)
@@ -301,13 +306,14 @@ def create_context(
     context.obj = context_data
 
 
-cli = typer.Typer(callback=create_context)
+cli = typer.Typer(callback=create_context, help="Build configuration scripts.")
 
 
 @cli.command("google-analytics")
 def google_analytics(
     _context: typer.Context, _google_tracking_id: FlagGoogleTrackingId = None
 ):
+    "Add google analytics."
 
     context: Context = _context.obj
     google_tracking_id = env.require("google_tracking_id", _google_tracking_id)
@@ -321,6 +327,8 @@ def announcement(
     position: FlagAnnouncementPosition = "below-navbar",
     type_: FlagAnnouncementType = "success",
 ):
+    "Add the announcement bar."
+
     if position not in AnnouncementPositionValues:
         rich.print(
             f"[red]Invalid value `{position}` for `--position`, "
@@ -345,9 +353,7 @@ def build_info(
     _git_commit: FlagBuildGitCommit = None,
     _git_ref: FlagBuildGitRef = None,
 ):
-    # kubernetes_json = env.ICONS_SETS / "kubernetes.json"
-    # if not os.path.exists(kubernetes_json):
-    #     raise ValueError("Cannot find `{kubernetes_json}`.")
+    "Create ``build.json``."
 
     context: Context = _context.obj
     context.spawn_variables(_git_commit=_git_commit, _git_ref=_git_ref)
@@ -358,6 +364,7 @@ def icons(
     _context: typer.Context,
     _include: FlagIconsetsInclude = list(),
 ):
+    "Download icon sets for build."
 
     with open(env.PYPROJECT_TOML, "r") as file:
         config = toml.load(file)
@@ -383,6 +390,8 @@ def main(
     position: FlagAnnouncementPosition = "below-navbar",
     type_: FlagAnnouncementType = "success",
 ):
+    """Run all of the build configuration steps."""
+
     context: Context = _context.obj
     google_analytics(_context, _google_tracking_id)
     if context.preview:

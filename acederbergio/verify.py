@@ -7,6 +7,7 @@ a few goals here:
 """
 
 import pathlib
+import re
 import xml.etree.ElementTree as ET
 from datetime import datetime
 from typing import Annotated, Any, Literal
@@ -25,6 +26,7 @@ from acederbergio import config, db, env, util
 
 SITEMAP_NAMESPACE = {"ns": "http://www.sitemaps.org/schemas/sitemap/0.9"}
 MONGO_COLLECTION = "metadata"
+LABEL_PATTERN = re.compile("(?P<key>[a-zA-Z_*.]+)=(?P<value>[a-zA-Z_*]+)")
 
 logger = env.create_logger(__name__)
 
@@ -83,9 +85,9 @@ class Source(pydantic.BaseModel):
         return source_dir
 
     def mongo_match(self) -> dict[str, Any]:
-        _m = self.model_dump(mode="json", exclude_none=True)
-        _m = {f"source.{key}": value for key, value in _m.items()}
-        return _m
+        # _m = self.model_dump(mode="json", exclude_none=True)
+        # _m = {f"source.{key}": value for key, value in _m.items()}
+        return {"source.name": self.name}
 
     @pydantic.model_validator(mode="before")
     def check_one_source(cls, v):
@@ -220,6 +222,9 @@ class Minimal(util.HasTimestamp):
 class Metadata(Minimal):
     site_map: SiteMap
     source: Source
+
+    def minify(self) -> Minimal:
+        return Minimal.model_validate(self.model_dump())
 
     def aggr_neighbors(self, *, exclude_self=True) -> db.Aggr:
         commit = self.build_info.git_commit
@@ -388,7 +393,6 @@ class Handler:
         collection = self.collection
 
         params = Search(commit=commit, source=self.source)  # type: ignore
-        print("params", params.model_dump(mode="json"))
         if not force and (self.get(params)) is not None:
             return
 
@@ -481,7 +485,9 @@ class Handler:
             "destroyed": site_map - site_map_prev,
         }
 
-    def history(self) -> History:
+    def history(
+        self,
+    ) -> History:
         """Get history for the specified source."""
 
         collection = self.collection
@@ -566,6 +572,13 @@ class Config(ysp.BaseYamlSettings):
         return self.sources[self.default]
 
 
+FlagLabel = Annotated[
+    list[str],
+    typer.Option(
+        "--label",
+        help="Labels for metadata. Should be specified like 'key=value'.",
+    ),
+]
 FlagSourceNames = Annotated[
     list[str],
     typer.Option("--source", help="A list of sources."),
@@ -644,20 +657,57 @@ class ContextMetadata(pydantic.BaseModel):
         return Handler(self.source)
 
 
-cli = typer.Typer(pretty_exceptions_enable=False)
-sources = typer.Typer()
-metadata = typer.Typer(callback=ContextMetadata.callback)
+cli = typer.Typer(
+    pretty_exceptions_enable=False,
+    help="Tools for verifying site integrity.",
+)
+sources = typer.Typer(
+    help="Tools for viewing sources in the database.",
+)
+metadata = typer.Typer(
+    callback=ContextMetadata.callback,
+    help="Tools for manipulating and comparing metadata.",
+)
 cli.add_typer(sources, name="sources")
 cli.add_typer(metadata, name="metadata")
 
 
+@cli.command("config")
+def metadata_config():
+    """Show the sources config."""
+
+    util.print_yaml(
+        Config.model_validate({}),
+        name=str(CONFIG),
+        exclude_none=True,
+    )
+
+
 # NOTE: Would like to pass either a directory or site.
 @metadata.command("push")
-def metadata_append(_context: typer.Context, *, force: FlagForce = False):
+def metadata_push(
+    _context: typer.Context,
+    *,
+    force: FlagForce = False,
+    labels_raw: FlagLabel = list(),
+    full: bool = False,
+):
     "Pull source data into mongodb and keep."
 
+    labels_matched = (
+        label_matched
+        for label_raw in labels_raw
+        if (label_matched := LABEL_PATTERN.match(label_raw)) is not None
+    )
+
+    labels = {v.group("key"): v.group("value") for v in labels_matched}
+    labels.update({"typer.command": "push"})
+
     handler = _context.obj.create_handler()
-    _id = handler.push(force=force)
+    _id = handler.push(
+        force=force,
+        labels=labels,
+    )
 
     if _id is None:
         commit = handler.build_info.git_commit
@@ -670,7 +720,10 @@ def metadata_append(_context: typer.Context, *, force: FlagForce = False):
         rich.print(f"[red]Could not find object with `{_id = }`.")
         raise typer.Exit(204)
 
-    util.print_yaml(data.build_info.model_dump(mode="json"), name="build info")
+    if not full:
+        data = data.minify()
+
+    util.print_yaml(data, name="build info")
     return
 
 
@@ -718,17 +771,22 @@ def metadata_top(
 
 
 @metadata.command("pop")
-def metadata_pop(_context: typer.Context):
+def metadata_pop(
+    _context: typer.Context,
+    full: bool = False,
+):
     """Remove the most recent metadata."""
 
     handler = _context.obj.create_handler()
     res = handler.pop()
+    if not full:
+        res = res.minify()
     util.print_yaml(res)
 
     return
 
 
-@cli.command("get")
+@metadata.command("get")
 def metadata_get(
     _context: typer.Context,
     commit: str | None = None,
@@ -749,23 +807,16 @@ def metadata_get(
     print_site_metadata(res, full=full)
 
 
-@cli.command("show")
-def metadata_show(_context: typer.Context):
+@metadata.command("show")
+def metadata_show(_context: typer.Context, full: bool = False):
     """Show metadata built from source."""
 
     handler = _context.obj.create_handler()
-    util.print_yaml(handler.metadata().model_dump(), name="metadata")
+    metadata = handler.metadata()
+    if not full:
 
-
-@cli.command("config")
-def metadata_config():
-    """Show the sources config."""
-
-    util.print_yaml(
-        Config.model_validate({}),
-        name=str(CONFIG),
-        exclude_none=True,
-    )
+        metadata = pydantic.TypeAdapter(Minimal).validate_python(metadata.model_dump())
+    util.print_yaml(metadata.model_dump(), name="metadata")
 
 
 @sources.command("show")

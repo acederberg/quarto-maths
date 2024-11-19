@@ -78,16 +78,20 @@ class Config(ysp.BaseYamlSettings):
         context.obj = cls()  # type: ignore
 
 
-cli = typer.Typer(callback=Config.typerCallback)
+cli = typer.Typer(callback=Config.typerCallback, help="Mongodb connections.")
 
 
 @cli.command("config")
 def config(context: typer.Context):
+    """View the current database configuration."""
+
     util.print_yaml(context.obj, name="MongoDB Config")  # type: ignore
 
 
 @cli.command("ping")
 def ping(context: typer.Context):
+    """Verify database connectivity."""
+
     config: Config = context.obj
     client = config.create_client()
     rich.print("[green]Connecting...")
