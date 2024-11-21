@@ -170,7 +170,7 @@ class Search(pydantic.BaseModel):
     mongo_id: db.FieldObjectId
 
     def find(self) -> dict[str, Any]:
-        query = {}
+        query: dict[str, Any] = {}
         if self.commit is not None:
             query["build_info.git_commit"] = self.commit
         if self.ref is not None:
@@ -411,7 +411,7 @@ class Handler:
         _time: datetime | None = None,
         labels: Labels = None,
     ) -> Metadata:
-        v = {
+        v: dict[str, Any] = {
             "labels": labels,
             "build_info": self.build_info,
             "source": self.source,
@@ -467,7 +467,7 @@ class Handler:
 
         params = Search(commit=commit, source=self.source)  # type: ignore
         if not force and (self.get(params)) is not None:
-            return
+            return None
 
         metadata_id_top = self.top()
 
@@ -533,12 +533,12 @@ class Handler:
             if metadata_prev is None:
                 return None
         else:
-            metadata_prev_commit = self.top()
-            if not metadata_prev_commit:
+            metadata_prev_id = self.top()
+            if not metadata_prev_id:
                 return None
 
             param = Search(  # type: ignore
-                commit=metadata_prev_commit,
+                _id=metadata_prev_id,  # type: ignore
                 source=self.source,
             )
             metadata_prev = self.require(param)
@@ -547,7 +547,7 @@ class Handler:
         metadata_neighbors = metadata.aggr_neighbors(exclude_self=True)
 
         if not len(metadata_neighbors):
-            return
+            return None
 
         # NOTE: Check containment.
         site_map_prev = set(metadata_prev.site_map.urlset)
@@ -646,7 +646,7 @@ class Config(ysp.BaseYamlSettings):
 
         return self
 
-    @pydantic.computed_field
+    @pydantic.computed_field  # type: ignore[prop-decorator]
     @property
     def use(self) -> Source:
         return self.sources[self.default]
@@ -712,8 +712,8 @@ class ContextMetadata(pydantic.BaseModel):
             try:
                 source = Source(  # type: ignore
                     name="typer",
-                    site=source_site,
-                    directory=source_directory,
+                    site=source_site,  # type: ignore
+                    directory=source_directory,  # type: ignore
                 )
             except pydantic.ValidationError as err:
 

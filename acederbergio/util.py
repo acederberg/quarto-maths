@@ -53,7 +53,7 @@ class HasTimestamp(pydantic.BaseModel):
         pydantic.Field(default_factory=lambda: datetime.now()),
     ]
 
-    @pydantic.computed_field
+    @pydantic.computed_field  # type: ignore[prop-decorator]
     @property
     def timestamp(self) -> int:
         return int(datetime.timestamp(self.time))

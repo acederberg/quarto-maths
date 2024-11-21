@@ -1,4 +1,3 @@
-import contextlib
 import datetime
 import random
 import uuid
@@ -199,7 +198,7 @@ def data(
     collection = db[MONGO_COLLECTION_PURE]
     collection.delete_many({})
 
-    return dict(_id=_ids, commit=commits)
+    return dict(_id=_ids, commit=commits)  # type: ignore[dict-item]
 
 
 # --------------------------------------------------------------------------- #
@@ -322,7 +321,7 @@ class TestHandler:
         top_mongo_id = handler.top()
         assert top_mongo_id is not None
 
-        top = handler.get(verify.Search(_id=top_mongo_id))  # type: ignore
+        handler.get(verify.Search(_id=top_mongo_id))  # type: ignore
         # assert top.pytest.index == POPULATE_COUNT - 1
 
         items: list[bson.ObjectId] = []

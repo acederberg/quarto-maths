@@ -23,7 +23,6 @@ from typing import Annotated, Iterable
 import rich
 import rich.table
 import typer
-import yaml
 from typing_extensions import Doc, Self
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer

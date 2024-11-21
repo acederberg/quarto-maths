@@ -84,7 +84,7 @@ def load(path: pathlib.Path) -> str:
     element = next((ee for ee in elements if ee.getAttribute("id") == "layer1"), None)
 
     if element is None:
-        console.print(f"Could not find ``layer1`` of ``{path}``.")
+        rich.print(f"[red]Could not find ``layer1`` of ``{path}``.")
         raise typer.Exit(1)
 
     return element.toxml("utf-8").decode()

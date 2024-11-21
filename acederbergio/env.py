@@ -6,8 +6,6 @@ from typing import Any
 import pydantic
 import rich.logging
 import typer
-import yaml
-from rich import syntax
 
 from acederbergio import util
 
