@@ -158,7 +158,7 @@ class SourceReport(pydantic.BaseModel):
                     "timestamp_terminal": {"$max": "$timestamp"},
                     "source": {"$first": "$source"},
                     "build_info": {"$last": "$build_info"},
-                }
+                },
             },
         ]
 
@@ -213,6 +213,7 @@ Labels = dict[str, int | str] | None
 class Minimal(util.HasTimestamp):
     build_info: config.BuildInfo
 
+    depth: Annotated[int | None, pydantic.Field(default=None)]
     labels: Annotated[Labels, pydantic.Field(default=None)]
     mongo_id: db.FieldObjectId
     after: db.FieldId
@@ -237,19 +238,21 @@ class Metadata(Minimal):
     def aggr_history(self) -> db.Aggr:
 
         aggr = self.aggr_neighbors(exclude_self=False)
-        aggr.append(
-            {
-                "$project": {
-                    "build_info": "$build_info",
-                    "before": "$before",
-                    "after": "$after",
-                    "time": "$time",
-                    "labels": "$labels",
-                }
-            }
-        )
+        aggr.append(self.project_min())
 
         return aggr
+
+    @classmethod
+    def project_min(cls):
+        return {
+            "$project": {
+                "build_info": "$build_info",
+                "before": "$before",
+                "after": "$after",
+                "time": "$time",
+                "labels": "$labels",
+            }
+        }
 
     def updates_append(self, next: Self):
         """Append  ``next`` to the linked list."""
@@ -277,6 +280,67 @@ class Metadata(Minimal):
     @classmethod
     def updates_pop(cls, mongo_id_head: bson.ObjectId):
         return ({"_id": mongo_id_head}, {"$set": {"before": None}})
+
+    @classmethod
+    def aggr_linkedlist(
+        cls,
+        source: Source,
+        *,
+        depth: int | None = None,
+    ):
+
+        match = {"$match": {"before": None, **source.mongo_match()}}
+        lookup = {
+            "$graphLookup": {
+                "from": "metadata",
+                "startWith": "$after",
+                "connectFromField": "after",
+                "connectToField": "_id",
+                "as": "items",
+                "depthField": "depth",
+            },
+        }
+        fix_depth = {
+            "$addFields": {
+                "items": {
+                    "$map": {
+                        "input": "$items",
+                        "as": "item",
+                        "in": {
+                            "$mergeObjects": [
+                                "$$item",
+                                {"depth": {"$add": ["$$item.depth", 1]}},
+                            ]
+                        },
+                    }
+                }
+            }
+        }
+
+        q = [match, lookup, fix_depth]
+        if depth is not None:
+            q.append({"$limit": depth})
+
+        return q
+
+    @classmethod
+    def aggr_linkedlist_item(
+        cls,
+        source: Source,
+        *,
+        depth: int | None = None,
+    ):
+        q = cls.aggr_linkedlist(source, depth=depth)
+        q.append(
+            {
+                "$project": {
+                    "_id": "$_id",
+                    "found": {"$last": "$items"},
+                }
+            }
+        )
+
+        return q
 
 
 class History(pydantic.BaseModel):
@@ -356,6 +420,15 @@ class Handler:
         if _time is not None:
             v["time"] = _time
         return Metadata.model_validate(v)
+
+    def find(self, depth: int):
+        """Look back some number of entries since the top."""
+
+        q = Metadata.aggr_linkedlist_item(self.source, depth=depth)
+        res = self.collection.aggregate(q).next()
+
+        # util.print_yaml(res)
+        return Metadata.model_validate(res["found"])
 
     def get(
         self,
@@ -487,18 +560,25 @@ class Handler:
 
     def history(
         self,
+        use_timestamp: bool = True,
     ) -> History:
         """Get history for the specified source."""
 
         collection = self.collection
         metadata = self.metadata()
-        q = metadata.aggr_history()
+        q = (
+            metadata.aggr_history()
+            if use_timestamp
+            else metadata.aggr_linkedlist(self.source)
+        )
+        print(q)
         items = collection.aggregate(q)
 
-        return History(
-            items=items,  # type: ignore
-            source=metadata.source,
-        )
+        if not use_timestamp:
+            items = items.next()["items"]
+            # items.append()
+
+        return History(items=items, source=metadata.source)  # type: ignore
 
     @classmethod
     def sources(cls, collection: Collection) -> list[Source]:
@@ -609,6 +689,8 @@ FlagSourceDirectory = Annotated[
     ),
 ]
 FlagForce = Annotated[bool, typer.Option("--force/--no-force")]
+FlagDepth = Annotated[int, typer.Option("--depth", "-d")]
+FlagFull = Annotated[bool, typer.Option("--full/--partial")]
 
 
 class ContextMetadata(pydantic.BaseModel):
@@ -690,7 +772,7 @@ def metadata_push(
     *,
     force: FlagForce = False,
     labels_raw: FlagLabel = list(),
-    full: bool = False,
+    full: FlagFull = False,
 ):
     "Pull source data into mongodb and keep."
 
@@ -743,11 +825,17 @@ def metadata_diff(_context: typer.Context, commit: str):
 
 
 @metadata.command("history")
-def metadata_history(_context: typer.Context):
+def metadata_history(
+    _context: typer.Context,
+    use_timestamp: Annotated[
+        bool,
+        typer.Option("--timestamp/--linked-list"),
+    ] = True,
+):
     """Show metadata history."""
 
     handler = _context.obj.create_handler()
-    res = handler.history()
+    res = handler.history(use_timestamp=use_timestamp)
     util.print_yaml(res.model_dump(mode="json"), name="history")
 
     return
@@ -756,7 +844,7 @@ def metadata_history(_context: typer.Context):
 @metadata.command("top")
 def metadata_top(
     _context: typer.Context,
-    full: bool = False,
+    full: FlagFull = False,
 ):
     """Show the most recent metadata."""
 
@@ -773,7 +861,7 @@ def metadata_top(
 @metadata.command("pop")
 def metadata_pop(
     _context: typer.Context,
-    full: bool = False,
+    full: FlagFull = False,
 ):
     """Remove the most recent metadata."""
 
@@ -792,7 +880,7 @@ def metadata_get(
     commit: str | None = None,
     ref: str | None = None,
     _id: str | None = None,
-    full: bool = False,
+    full: FlagFull = False,
 ):
     """Get metadata from mongodb."""
 
@@ -807,8 +895,22 @@ def metadata_get(
     print_site_metadata(res, full=full)
 
 
+@metadata.command("find")
+def metadata_find(
+    _context: typer.Context,
+    *,
+    depth: FlagDepth,
+    full: FlagFull = False,
+):
+    """Find an entry ``--depth`` far back."""
+
+    handler = _context.obj.create_handler()
+    res = handler.find(depth)
+    print_site_metadata(res, full=full)
+
+
 @metadata.command("show")
-def metadata_show(_context: typer.Context, full: bool = False):
+def metadata_show(_context: typer.Context, full: FlagFull = False):
     """Show metadata built from source."""
 
     handler = _context.obj.create_handler()
