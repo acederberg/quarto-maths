@@ -98,9 +98,16 @@ jobs:
 
           cd blog
           poetry install
+      - name: Start MongoDB
+        uses: supercharge/mongodb-github-action@1.11.0
+        with:
+          mongodb-version: latest
       - name: Pytest.
         run: |
+          export  ACEDERBERG_IO_MONGODB_URL=mongodb://localhost:27017
+          echo "ACEDERBERG_IO_MONGODB_URL=mongodb://localhost:27017" >> "GITHUB_ENV"
           source .venv/bin/activate
+          poetry run acederbergio db config
           poetry run coverage run -m pytest
           poetry run coverage html
       - name: Upload Coverage Report.
