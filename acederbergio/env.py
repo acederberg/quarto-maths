@@ -1,7 +1,7 @@
 import logging
 import pathlib
 from os import environ
-from typing import Any
+from typing import Annotated, Any, Literal
 
 import pydantic
 import rich.logging
@@ -17,6 +17,11 @@ logging.basicConfig(
 )
 
 ENV_PREFIX = "ACEDERBERG_IO"
+ENV_POSSIBLE = {"development", "ci", "production"}
+FieldEnv = Annotated[
+    Literal["development", "ci", "production"],
+    pydantic.Field(default="development"),
+]
 
 
 def name(varname: str) -> str:
@@ -98,6 +103,12 @@ else:
 
 ICONS_SETS = require_path("icon_sets", ICONS / "sets")
 BUILD_JSON = require_path("build_json", BLOG / "build.json")
+
+
+if (_ENV := require("env", "development").lower()) not in ENV_POSSIBLE:
+    raise ValueError(f"Value for `env` must be one of `{ENV_POSSIBLE}`.")
+
+ENV: FieldEnv = _ENV  # type: ignore
 
 
 def create_logger(name: str):

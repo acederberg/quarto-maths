@@ -104,8 +104,12 @@ jobs:
           mongodb-version: latest
       - name: Pytest.
         run: |
-          export  ACEDERBERG_IO_MONGODB_URL=mongodb://localhost:27017
+          export ACEDERBERG_IO_MONGODB_URL=mongodb://localhost:27017
+          export ACEDERBERG_IO_ENV=ci
+
           echo "ACEDERBERG_IO_MONGODB_URL=mongodb://localhost:27017" >> "GITHUB_ENV"
+          echo "ACEDERBERG_IO_ENV=ci" >> "GITHUB_ENV"
+
           source .venv/bin/activate
           poetry run acederbergio db config
           poetry run coverage run -m pytest

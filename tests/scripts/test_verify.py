@@ -259,6 +259,7 @@ class TestSource:
         verify.Source(name="pytest", kind="site", site="https://acederberg.io")  # type: ignore
         verify.Source(name="pytest", kind="directory", directory=env.BUILD)  # type: ignore
 
+    @pytest.mark.skipif(env.ENV == "ci", reason="`PYTEST_NO_BUILD` was `1`.")
     @pytest.mark.parametrize(
         "_source",
         [
