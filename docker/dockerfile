@@ -101,8 +101,8 @@ RUN \
     && poetry install --no-root --with quarto"
 
 
+COPY ./acederbergio /quarto/app/acederbergio
 RUN \
-  --mount=type=bind,target=/quarto/app/acederbergio,source=./acederbergio \
   bash -c "\
     source $ACEDERBERG_IO_VENV/bin/activate \
     && touch README.md \
@@ -125,14 +125,15 @@ ARG ACEDERBERG_IO_PREVIEW
 ENV \
   ACEDERBERG_IO_BUILD_GIT_COMMIT="${ACEDERBERG_IO_BUILD_GIT_COMMIT}" \
   ACEDERBERG_IO_BUILD_GIT_REF="${ACEDERBERG_IO_BUILD_GIT_REF}" \
-  ACEDERBERG_IO_PREVIEW="${ACEDERBERG_IO_PREVIEW}"
+  ACEDERBERG_IO_PREVIEW="${ACEDERBERG_IO_PREVIEW}" \
+  ACEDERBERG_IO_LOG_LEVEL="INFO"
 
 RUN \
   --mount=type=secret,id=kaggle_json,target=/quarto/kaggle.json,required \
   --mount=type=secret,id=google_tracking_id,env=ACEDERBERG_IO_GOOGLE_TRACKING_ID,required \
   bash -c "\
     source $ACEDERBERG_IO_VENV/bin/activate \
-    poetry run python -m acederbergio.config all \
+    && poetry run acederbergio config --for-real all \
     && poetry run quarto render blog"
 
 # end snippet builder

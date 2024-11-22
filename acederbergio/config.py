@@ -83,11 +83,13 @@ class BuildInfo(util.HasTimestamp):
         _git_commit = env.get("build_git_commit", _git_commit)
         _git_ref = env.get("build_git_ref", _git_ref)
 
-        repo = git.Repo(env.ROOT)
-        git_ref = _git_ref or str(repo.head.ref)
-        git_commit = _git_commit or str(repo.head.commit)
+        if _git_commit is None or _git_ref is None:
+            logger.debug("Getting repository information from repository.")
+            repo = git.Repo(env.ROOT)
+            _git_ref = _git_ref or str(repo.head.ref)
+            _git_commit = _git_commit or str(repo.head.commit)
 
-        return cls(git_ref=git_ref, git_commit=git_commit)  # type: ignore
+        return cls(git_ref=_git_ref, git_commit=_git_commit)  # type: ignore
 
 
 class Context:
@@ -200,6 +202,9 @@ class Context:
     async def get_iconsets(self, config: dict[str, Any], include: set[str]) -> None:
         """See ``[tool.acederbergio.icons]`` in pyproject toml."""
 
+        if not os.path.exists(env.ICONS_SETS):
+            os.mkdir(env.ICONS_SETS)
+
         icons = config["tool"]["acederbergio"]["icons"]
         origin = icons["origin"]
 
@@ -218,6 +223,7 @@ class Context:
             for iconset in icons["sets"]
             if iconset["name"] in include
         }
+        print(urls)
 
         if self.dry:
             util.print_yaml(urls, name="iconsets")
@@ -298,7 +304,7 @@ FlagPreview = Annotated[
 
 def create_context(
     context: typer.Context,
-    dry: FlagDry = True,
+    dry: FlagDry = env.ENV != "ci",
     preview: FlagPreview = False,
 ):
     env_preview = env.get("preview") == "1"
@@ -316,6 +322,7 @@ def google_analytics(
     "Add google analytics."
 
     context: Context = _context.obj
+    rich.print(f"[green]Adding google analytics to ``{context.quarto}``.")
     google_tracking_id = env.require("google_tracking_id", _google_tracking_id)
     context.set_tracking_id(google_tracking_id)
 
@@ -344,6 +351,7 @@ def announcement(
         raise typer.Exit(105)
 
     context: Context = _context.obj
+    rich.print(f"[green]Adding announcement to ``{context.quarto}``.")
     context.set_announcement(content, position=position, type_=type_)  # type: ignore
 
 
@@ -356,6 +364,7 @@ def build_info(
     "Create ``build.json``."
 
     context: Context = _context.obj
+    rich.print(f"[green]Adding build metadata in ``{context.build_json}``.")
     context.spawn_variables(_git_commit=_git_commit, _git_ref=_git_ref)
 
 
@@ -369,6 +378,7 @@ def icons(
     with open(env.PYPROJECT_TOML, "r") as file:
         config = toml.load(file)
 
+    rich.print("[green]Cloning iconify iconsets.")
     if not _include:
         _include = list(
             item["name"] for item in config["tool"]["acederbergio"]["icons"]["sets"]

@@ -113,7 +113,7 @@ ENV: FieldEnv = _ENV  # type: ignore
 
 def create_logger(name: str):
 
-    level = require("log_level", "WARNING")
+    level = require("log_level", "WARNING").upper()
     logger = logging.getLogger(name)
     logger.setLevel(level)
 
