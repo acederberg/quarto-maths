@@ -1,11 +1,13 @@
 import logging
 import pathlib
 from os import environ
+from typing import Annotated, Any, Literal
 
+import pydantic
 import rich.logging
 import typer
-import yaml
-from rich import syntax
+
+from acederbergio import util
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -15,6 +17,15 @@ logging.basicConfig(
 )
 
 ENV_PREFIX = "ACEDERBERG_IO"
+ENV_POSSIBLE = {"development", "ci", "production"}
+FieldEnv = Annotated[
+    Literal["development", "ci", "production"],
+    pydantic.Field(default="development"),
+]
+
+
+def name(varname: str) -> str:
+    return f"{ENV_PREFIX}_{varname.upper()}"
 
 
 def get(
@@ -22,7 +33,7 @@ def get(
 ) -> str | None:
 
     logger.debug("Getting variable `%s`.", varname)
-    out = environ.get(f"{ENV_PREFIX}_{varname.upper()}", default)
+    out = environ.get(name(varname), default)
     if out is None and required:
         rich.print(f"[red]Could not resolve for variable `{varname}`.")
         raise typer.Exit(1)
@@ -31,6 +42,7 @@ def get(
 
 
 def require(varname: str, default: str | None = None) -> str:
+    """Require a setting from the environment."""
 
     var = get(varname, default, required=True)  # type: ignore
     if not var:
@@ -41,6 +53,7 @@ def require(varname: str, default: str | None = None) -> str:
 
 
 def require_path(varname: str, default: pathlib.Path | None = None) -> pathlib.Path:
+    """Require a setting  from environment that is an actual path."""
 
     var = get(varname)
     if var is not None:
@@ -53,57 +66,94 @@ def require_path(varname: str, default: pathlib.Path | None = None) -> pathlib.P
     return default
 
 
+def create_validator(varname: str, default: str | None = None):
+    """Make a validator for ``varname``."""
+
+    # NOTE: default < env < flag
+    def validator(v: Any) -> Any:
+        if v is not None:
+            return v
+        fook = get(varname, default)
+        return fook
+
+    return pydantic.AfterValidator(validator)
+
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SCRIPTS = require_path("scripts", ROOT / "acederbergio")
 
 # If installed directly.
 if ROOT.parts[-1] != "site-packages":
     BLOG = ROOT / "blog"
+    PYPROJECT_TOML = ROOT / "pyproject.toml"
+    CONFIGS = require_path("config_dir", ROOT / "config")
+
     BUILD = BLOG / "build"
     ICONS = BLOG / "icons"
-    PYPROJECT_TOML = ROOT / "pyproject.toml"
 
 else:
     # NOTE: When fully installed, must export ACEDERBERGIO_BLOG and ACEDERBERGIO_BUILD
     #       since they will not be included.
     BLOG = require_path("blog")
     PYPROJECT_TOML = require_path("pyproject_toml")
+    CONFIGS = require_path("config_dir", pathlib.Path.home() / "config")
 
     BUILD = require_path("build", BLOG / "build")
     ICONS = require_path("icons", BLOG / "icons")
 
 ICONS_SETS = require_path("icon_sets", ICONS / "sets")
+BUILD_JSON = require_path("build_json", BLOG / "build.json")
+
+
+if (_ENV := require("env", "development").lower()) not in ENV_POSSIBLE:
+    raise ValueError(f"Value for `env` must be one of `{ENV_POSSIBLE}`.")
+
+ENV: FieldEnv = _ENV  # type: ignore
 
 
 def create_logger(name: str):
 
-    level = require("log_level", "WARNING")
+    level = require("log_level", "WARNING").upper()
     logger = logging.getLogger(name)
     logger.setLevel(level)
 
     return logger
 
 
-cli = typer.Typer()
+cli = typer.Typer(help="Environment variables tools.")
+
+
+@cli.command("find")
+def find(varnames: list[str]):
+    """Show environment name for a variable."""
+
+    util.print_yaml(
+        [
+            {
+                "name": varname,
+                "name_env": name(varname),
+                "value": get(varname),
+            }
+            for varname in varnames
+        ],
+        name="found",
+    )
 
 
 @cli.command("show")
 def show_environ():
-    rich.print(
-        syntax.Syntax(
-            "---\n"
-            + yaml.dump(
-                {
-                    "root": str(ROOT),
-                    "scripts": str(SCRIPTS),
-                    "blog": str(BLOG),
-                    "build": str(BUILD),
-                    "icons": str(ICONS),
-                    "icon_sets": str(ICONS_SETS),
-                }
-            ),
-            "yaml",
-            theme="fuity",
-            background_color="default",
-        )
+    """Show the current environment as interpretted by ``env.py``. Note that
+    not all of these are able to be set directly.
+    """
+    util.print_yaml(
+        {
+            "root": str(ROOT),
+            "scripts": str(SCRIPTS),
+            "blog": str(BLOG),
+            "build": str(BUILD),
+            "icons": str(ICONS),
+            "icon_sets": str(ICONS_SETS),
+            "configs": str(CONFIGS),
+        },
+        name="variables",
     )

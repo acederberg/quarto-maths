@@ -1,10 +1,21 @@
 services:
+  db:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: '${ACEDERBERG_IO_MONGO_ROOT_PASSWORD-changeme}'
+    volumes:
+      - .data:/data/db
   server:
     build:
       context: ..
       dockerfile: docker/dockerfile
       target: develop
     container_name: quarto-server
+    depends_on:
+      db:
+        condition: service_started
     environment:
       KAGGLE_CONFIG_DIR: /home/docker/app/config/kaggle
     image: acederberg/blog-dev:0.2.2

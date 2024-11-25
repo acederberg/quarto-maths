@@ -27,17 +27,27 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Setup Docker Buildx.
         uses: docker/setup-buildx-action@v3
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: acederberg/blog
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{version}}
+            type=sha,format=long,prefix=,suffix=
+
       - name: Build Server Image.
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./docker/dockerfile
           target: production
-          tags: |
-            acederberg/blog:${{ github.ref_name }}
-            acederberg/blog:${{ github.sha }}
-            acederberg/blog:latest
-          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          push: ${{ github.event_name != 'pull_request' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           load: true
@@ -45,6 +55,7 @@ jobs:
             kaggle_json=${{ secrets.KAGGLE_JSON }}
             google_tracking_id=${{ secrets.GOOGLE_TRACKING_ID }}
           build-args: |
+            ACEDERBERG_IO_ENV=production
             ACERERBERG_IO_PREVIEW=${ github.event.inputs.preview }
             ACEDERBERG_IO_BUILD_GIT_COMMIT=${{ github.sha }}
             ACEDERBERG_IO_BUILD_GIT_REF=${{ github.ref_name }}

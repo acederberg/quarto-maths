@@ -1,8 +1,8 @@
-from acederbergio import env, watch
+from acederbergio import dev, env
 
 
 def test_ignore_node():
-    node = watch.Node(False)
+    node = dev.Node(False)
 
     assert not node.has_prefix(p := "/home/docker/.venv")
 
@@ -22,7 +22,7 @@ def test_ignore_node():
 
 def test_context():
 
-    context = watch.Context()
+    context = dev.Context()
     assert context.is_ignored_path(env.BUILD / "index.html")
     assert not context.is_ignored_path(env.BLOG / "filters")
     assert not context.is_ignored_path(env.BLOG / "filters/floaty.py")

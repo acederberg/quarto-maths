@@ -6,6 +6,7 @@ project:
     - ./posts/**/*.png
     - ./icons/**/*.json
     - ./js/*.js
+    - build.json
   output-dir: build
   preview:
     host: 0.0.0.0

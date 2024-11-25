@@ -125,6 +125,8 @@ Some icons contain svg incompatable with iconify.
 **However, such icons will often work with mermaid**
 Since I only really want these icons for `mermaid` I do not care, however,
 I found that certain icons (in my case `k8s:limits` make `iconify`) unable to use the whole image set.
+
+<!--
 The code reproducing this is below:
 
 ```{.html include="iconify.html"}
@@ -133,6 +135,7 @@ The code reproducing this is below:
 
 For those curious, the minimal content to reproduce the error is [is available here](./iconify.html).
 Deleting `limits` and its associated alias fix the problem and then the `k8s:node` icon can be foundd.
+-->
 
 :::
 
@@ -164,7 +167,7 @@ pip install typer
 
 and the final step is as easy as copying and pasting the script below:
 
-```{.python include="../../../scripts/iconify_kubernetes.py"}
+```{.python include="../../../acederbergio/iconify.py"}
 
 ```
 

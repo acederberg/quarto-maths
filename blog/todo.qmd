@@ -78,6 +78,21 @@ I will need to return to studying data structures and algorithms for a bit.
 | Add a better commit graph        |            | I do not know where to put it.                                                                                                                                                  |
 | Add built in twitter cards       |            | https://quarto.org/docs/websites/website-tools.html                                                                                                                             |
 | Add error reporting page         |            |                                                                                                                                                                                 |
+| Scripts need testing             |            |                                                                                                                                                                                 |
+
+### Testing
+
+Testing will be a pipeline of commands dispatchable via the `acederbergio` command.
+I would like to add the database since I would like to later use a database to
+allow user error reports and inquiries.
+
+| Item                      | Completed  | Description                                                |
+| ------------------------- | ---------- | ---------------------------------------------------------- |
+| Setup mongoDB             | 11/13/2024 |                                                            |
+| Pull sitemap and listings | 11/13/2024 |                                                            |
+| Spellcheck                |            | Need aspell output to be readable                          |
+| Metadata Checks           | 11/13/2024 |                                                            |
+| Tests for metadata checks | 11/18/2024 | Because if it is not consisten why bother having it at all |
 
 ## In General
 

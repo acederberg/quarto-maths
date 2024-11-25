@@ -18,6 +18,9 @@ typer = "^0.12.5"
 
 # NOTE: These are dependencies required to make the notebooks work.
 pydantic = "^2.9.2"
+motor = "^3.6.0"
+gitpython = "^3.1.43"
+yaml-settings-pydantic = "^2.3.2"
 [tool.poetry.group.quarto.dependencies]
 scikit-learn = "^1.5.1"
 numpy = "^2.0.0"

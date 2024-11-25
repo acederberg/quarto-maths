@@ -1,11 +1,24 @@
+"""Build configuration scripts.
+
+This includes chores like:
+
+- Adding google analytics.
+- Adding transient banners.
+- Creating `build.json`.
+- Downloading icon sets.
+
+"""
+
 import asyncio
 import json
 import os
 import pathlib
-from datetime import datetime
+import re
 from typing import Annotated, Any, Literal, Optional
 
+import git
 import httpx
+import pydantic
 import rich
 import toml
 import typer
@@ -42,11 +55,48 @@ AnnouncementType = Literal[
 ]
 
 
+def validate_commit_hash(value):
+    if not re.fullmatch("[0-9a-f]{40}", value):
+        raise ValueError(
+            "Invalid Git Commit Hash: Must be a 40-character hexadecimal string."
+        )
+    return value
+
+
+FieldGitHash = Annotated[
+    str,
+    pydantic.Field(),
+    pydantic.BeforeValidator(validate_commit_hash),
+]
+
+
+class BuildInfo(util.HasTimestamp):
+    git_ref: Annotated[str, pydantic.Field()]
+    git_commit: FieldGitHash
+
+    @classmethod
+    def fromRepo(
+        cls,
+        _git_commit: str | None = None,
+        _git_ref: str | None = None,
+    ):
+        _git_commit = env.get("build_git_commit", _git_commit)
+        _git_ref = env.get("build_git_ref", _git_ref)
+
+        if _git_commit is None or _git_ref is None:
+            logger.debug("Getting repository information from repository.")
+            repo = git.Repo(env.ROOT)
+            _git_ref = _git_ref or str(repo.head.ref)
+            _git_commit = _git_commit or str(repo.head.commit)
+
+        return cls(git_ref=_git_ref, git_commit=_git_commit)  # type: ignore
+
+
 class Context:
     dry: bool
     preview: bool
 
-    quarto_variables: pathlib.Path
+    build_json: pathlib.Path
     quarto: pathlib.Path
     _quarto_config: None | dict[str, Any]
 
@@ -56,13 +106,13 @@ class Context:
         *,
         preview: bool = True,
         quarto: pathlib.Path = QUARTO,
-        quarto_variables: pathlib.Path = QUARTO_VARIABLES,
+        build_json: pathlib.Path = env.BUILD_JSON,
     ):
         self.dry = dry
         self.preview = preview
 
+        self.build_json = build_json
         self.quarto = quarto
-        self.quarto_variables = quarto_variables
         self._quarto_config = None
 
     @property
@@ -131,28 +181,29 @@ class Context:
 
     def spawn_variables(
         self,
-        build_git_commit,
-        build_git_ref,
+        *,
+        _git_commit: str | None = None,
+        _git_ref: str | None = None,
     ):
 
         logger.debug("Adding variables to ``_variables.yaml``.")
-        now = datetime.now()
-        data = {
-            "build_git_commit": build_git_commit,
-            "build_git_ref": build_git_ref,
-            "build_timestamp": datetime.timestamp(now),
-            "build_isoformat": now.isoformat(),
-        }
+        data = BuildInfo.fromRepo(
+            _git_commit=_git_commit,
+            _git_ref=_git_ref,
+        ).model_dump(mode="json")
 
         if self.dry:
             util.print_yaml(data, name="_variables.yaml")
             return
 
-        with open(self.quarto_variables, "w") as file:
-            yaml.dump(data, file)
+        with open(self.build_json, "w") as file:
+            json.dump(data, file)
 
     async def get_iconsets(self, config: dict[str, Any], include: set[str]) -> None:
         """See ``[tool.acederbergio.icons]`` in pyproject toml."""
+
+        if not os.path.exists(env.ICONS_SETS):
+            os.mkdir(env.ICONS_SETS)
 
         icons = config["tool"]["acederbergio"]["icons"]
         origin = icons["origin"]
@@ -172,6 +223,7 @@ class Context:
             for iconset in icons["sets"]
             if iconset["name"] in include
         }
+        print(urls)
 
         if self.dry:
             util.print_yaml(urls, name="iconsets")
@@ -252,7 +304,7 @@ FlagPreview = Annotated[
 
 def create_context(
     context: typer.Context,
-    dry: FlagDry = True,
+    dry: FlagDry = env.ENV != "ci",
     preview: FlagPreview = False,
 ):
     env_preview = env.get("preview") == "1"
@@ -260,15 +312,17 @@ def create_context(
     context.obj = context_data
 
 
-cli = typer.Typer(callback=create_context)
+cli = typer.Typer(callback=create_context, help="Build configuration scripts.")
 
 
 @cli.command("google-analytics")
 def google_analytics(
     _context: typer.Context, _google_tracking_id: FlagGoogleTrackingId = None
 ):
+    "Add google analytics."
 
     context: Context = _context.obj
+    rich.print(f"[green]Adding google analytics to ``{context.quarto}``.")
     google_tracking_id = env.require("google_tracking_id", _google_tracking_id)
     context.set_tracking_id(google_tracking_id)
 
@@ -280,6 +334,8 @@ def announcement(
     position: FlagAnnouncementPosition = "below-navbar",
     type_: FlagAnnouncementType = "success",
 ):
+    "Add the announcement bar."
+
     if position not in AnnouncementPositionValues:
         rich.print(
             f"[red]Invalid value `{position}` for `--position`, "
@@ -295,24 +351,21 @@ def announcement(
         raise typer.Exit(105)
 
     context: Context = _context.obj
+    rich.print(f"[green]Adding announcement to ``{context.quarto}``.")
     context.set_announcement(content, position=position, type_=type_)  # type: ignore
 
 
 @cli.command("build-info")
 def build_info(
     _context: typer.Context,
-    _build_git_commit: FlagBuildGitCommit = None,
-    _build_git_ref: FlagBuildGitRef = None,
+    _git_commit: FlagBuildGitCommit = None,
+    _git_ref: FlagBuildGitRef = None,
 ):
-    # kubernetes_json = env.ICONS_SETS / "kubernetes.json"
-    # if not os.path.exists(kubernetes_json):
-    #     raise ValueError("Cannot find `{kubernetes_json}`.")
+    "Create ``build.json``."
 
     context: Context = _context.obj
-    build_git_commit = env.require("build_git_commit", _build_git_commit)
-    build_git_ref = env.require("build_git_ref", _build_git_ref)
-
-    context.spawn_variables(build_git_commit, build_git_ref)
+    rich.print(f"[green]Adding build metadata in ``{context.build_json}``.")
+    context.spawn_variables(_git_commit=_git_commit, _git_ref=_git_ref)
 
 
 @cli.command("icons")
@@ -320,10 +373,12 @@ def icons(
     _context: typer.Context,
     _include: FlagIconsetsInclude = list(),
 ):
+    "Download icon sets for build."
 
     with open(env.PYPROJECT_TOML, "r") as file:
         config = toml.load(file)
 
+    rich.print("[green]Cloning iconify iconsets.")
     if not _include:
         _include = list(
             item["name"] for item in config["tool"]["acederbergio"]["icons"]["sets"]
@@ -345,6 +400,8 @@ def main(
     position: FlagAnnouncementPosition = "below-navbar",
     type_: FlagAnnouncementType = "success",
 ):
+    """Run all of the build configuration steps."""
+
     context: Context = _context.obj
     google_analytics(_context, _google_tracking_id)
     if context.preview:

@@ -14,12 +14,53 @@ import requests
 import rich.console
 import typer
 
-from acederbergio import env
+from acederbergio import env, util
 
-path_here = pathlib.Path(__file__).resolve().parent
-path_icons_json = path_here / "icons.json"
-path_svg = path_here / "svg"
+PATH_HERE = pathlib.Path(__file__).resolve().parent
+PATH_ICONS_JSON = PATH_HERE / "icons.json"
+PATH_SVG = PATH_HERE / "svg"
 DELIM = "_"
+
+abbr = {
+    "pvc": "persistent_volume-claim",
+    "svc": "service",
+    "vol": "volume",
+    "rb": "role-binding",
+    "rs": "replica-set",
+    "ing": "ingress",
+    "secret": "secret",
+    "pv": "persistent-volume",
+    "cronjob": "cron-job",
+    "sts": "stateful-set",
+    "pod": "pod",
+    "cm": "config-map",
+    "deploy": "deployment",
+    "sc": "storage-class",
+    "hpa": "horizontal-pod-autoscaler",
+    "crd": "custom-resource-definition",
+    "quota": "resource-quota",
+    "psp": "pod-security-policy",
+    "sa": "service-account",
+    "role": "role",
+    "c-role": "cluster-role",
+    "ns": "namespace",
+    "node": "node",
+    "job": "job",
+    "ds": "daemon-set",
+    "ep": "endpoint",
+    "crb": "cluster-role-binding",
+    "limits": "limit-range",
+    "control-plane": "control-plane",
+    "k-proxy": "kube-proxy",
+    "sched": "scheduler",
+    "api": "api-server",
+    "c-m": "controller-manager",
+    "c-c-m": "cloud-controller-manager",
+    "kubelet": "kubelet",
+    "group": "group",
+    "user": "user",
+    "netpol": "network-policy",
+}
 
 
 def walk(directory: pathlib.Path):
@@ -43,7 +84,7 @@ def load(path: pathlib.Path) -> str:
     element = next((ee for ee in elements if ee.getAttribute("id") == "layer1"), None)
 
     if element is None:
-        console.print(f"Could not find ``layer1`` of ``{path}``.")
+        rich.print(f"[red]Could not find ``layer1`` of ``{path}``.")
         raise typer.Exit(1)
 
     return element.toxml("utf-8").decode()
@@ -51,7 +92,7 @@ def load(path: pathlib.Path) -> str:
 
 def create_name(path: pathlib.Path):
     """Create name from ``path``."""
-    head, _ = os.path.splitext(os.path.relpath(path, path_svg))
+    head, _ = os.path.splitext(os.path.relpath(path, PATH_SVG))
     pieces = head.split("/")
 
     # NOTE: Labeled icons are the default. When an icon is unlabeled, just
@@ -110,7 +151,7 @@ def create_iconify_icon(path: pathlib.Path) -> dict[str, Any]:
 
 def create_icons():
     """Create ``$.icons``."""
-    return {create_name(item): create_iconify_icon(item) for item in walk(path_svg)}
+    return {create_name(item): create_iconify_icon(item) for item in walk(PATH_SVG)}
 
 
 def create_iconify_json(include: set[str] = set()):
@@ -124,53 +165,12 @@ def create_iconify_json(include: set[str] = set()):
     return {"icons": icons, "prefix": "k8s", "aliases": aliases}
 
 
-cli = typer.Typer()
-console = rich.console.Console()
-
-abbr = {
-    "pvc": "persistent_volume-claim",
-    "svc": "service",
-    "vol": "volume",
-    "rb": "role-binding",
-    "rs": "replica-set",
-    "ing": "ingress",
-    "secret": "secret",
-    "pv": "persistent-volume",
-    "cronjob": "cron-job",
-    "sts": "stateful-set",
-    "pod": "pod",
-    "cm": "config-map",
-    "deploy": "deployment",
-    "sc": "storage-class",
-    "hpa": "horizontal-pod-autoscaler",
-    "crd": "custom-resource-definition",
-    "quota": "resource-quota",
-    "psp": "pod-security-policy",
-    "sa": "service-account",
-    "role": "role",
-    "c-role": "cluster-role",
-    "ns": "namespace",
-    "node": "node",
-    "job": "job",
-    "ds": "daemon-set",
-    "ep": "endpoint",
-    "crb": "cluster-role-binding",
-    "limits": "limit-range",
-    "control-plane": "control-plane",
-    "k-proxy": "kube-proxy",
-    "sched": "scheduler",
-    "api": "api-server",
-    "c-m": "controller-manager",
-    "c-c-m": "cloud-controller-manager",
-    "kubelet": "kubelet",
-    "group": "group",
-    "user": "user",
-    "netpol": "network-policy",
-}
+cli = typer.Typer(help="Tool for generating the kubernetes iconify icon set.")
 
 
 @cli.command("pull")
 def pull(gh_token: Optional[str] = None):
+    """Download the svgs from github using the API."""
 
     url_icons = "https://api.github.com/repos/kubernetes/community/contents/icons"
     gh_token = env.require("gh_token", gh_token)
@@ -190,14 +190,14 @@ def pull(gh_token: Optional[str] = None):
 
     def walk_clone(directory_relpath: str):
 
-        directory_path = path_here / directory_relpath
+        directory_path = PATH_HERE / directory_relpath
         directory_url = url_icons + "/" + directory_relpath
 
         if not os.path.exists(directory_path):
-            print(f"Making directory `{directory_path}`.")
+            rich.print(f"[green]Making directory `{directory_path}`.")
             os.mkdir(directory_path)
 
-        print(f"Checking contents of `{directory_path}`.")
+        rich.print(f"[green]Checking contents of `{directory_path}`.")
         data = get(directory_url)
 
         for item in data:
@@ -215,9 +215,9 @@ def pull(gh_token: Optional[str] = None):
             #       download_url field, however it is probably faster to do
             #       this.
             item_path = directory_path / item["name"]
-            print(f"Inspecting `{item_relpath}`.")
+            rich.print(f"[green]Inspecting `{item_relpath}`.")
             if not os.path.exists(item_path) and item_path.suffix == ".svg":
-                print(f"Dumping content to `{item_path}`.")
+                rich.print(f"[green]Dumping content to `{item_path}`.")
 
                 item_data = get(item_url)
                 with open(item_path, "w") as file:
@@ -228,11 +228,12 @@ def pull(gh_token: Optional[str] = None):
 
 @cli.command("make")
 def main(include: list[str] = list(), out: Optional[pathlib.Path] = None):
+    """Create kubernetes iconify json."""
 
     iconify = create_iconify_json(set(include))
 
     if out is None:
-        print(json.dumps(iconify, indent=2))
+        util.print_yaml(iconify, as_json=True)
         return
 
     with open(out, "w") as file:
@@ -241,18 +242,22 @@ def main(include: list[str] = list(), out: Optional[pathlib.Path] = None):
 
 @cli.command("aliases")
 def aliases(include: list[str] = list()):
-    names: Any = map(create_name, walk(path_svg))
+    """Generate aliases and print to console."""
+
+    names: Any = map(create_name, walk(PATH_SVG))
     if include:
         _include = set(include)
         names = filter(lambda item: item in _include, names)
 
     aliases = create_aliases(names)
-    print(json.dumps(aliases))
+    util.print_yaml(aliases, as_json=True)
 
 
 @cli.command("names")
 def names():
-    print(json.dumps(list(map(create_name, walk(path_svg)))))
+    """Generate names and print to console."""
+
+    util.print_yaml(list(map(create_name, walk(PATH_SVG))), as_json=True)
 
 
 if __name__ == "__main__":

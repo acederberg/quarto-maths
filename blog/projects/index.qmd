@@ -1,5 +1,6 @@
 ---
 title: Projects
+image: ../icons/favicon.svg
 listing:
   image-height: 256px;
   type: grid

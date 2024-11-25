@@ -3,11 +3,22 @@ title: Build Data
 description: Build data.
 ---
 
-## Build Data
+```{python}
+# | echo: false
+import json
+from acederbergio import env
+from acederbergio import util
 
-```yaml
-build_git_ref: {{< var build_git_ref >}}
-build_git_commit: {{< var build_git_commit >}}
-build_timestamp: {{< var build_timestamp >}}
-build_isoformat: {{< var build_isoformat >}}
+with open(env.BUILD_JSON, "r") as file:
+    build_info = json.load(file)
+
+util.print_yaml(
+    build_info,
+    name=f"Build info from: `{env.BUILD_JSON}`",
+    pretty=False,
+)
 ```
+
+<!-- <script> -->
+<!--   document.querySelector(".cell-output pre code") -->
+<!-- </script> -->

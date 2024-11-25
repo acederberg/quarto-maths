@@ -1,5 +1,6 @@
 ---
 title: Nvim Configuration
+image: ./gallery/lazy.png
 format:
   gfm:
     preview-mode: raw
