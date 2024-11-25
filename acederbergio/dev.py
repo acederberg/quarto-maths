@@ -20,9 +20,11 @@ import time
 from datetime import datetime
 from typing import Annotated, Iterable
 
+import pydantic
 import rich
 import rich.table
 import typer
+import yaml_settings_pydantic as ysp
 from typing_extensions import Doc, Self
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
@@ -114,21 +116,120 @@ class Node:
 #
 
 
-class Context:
-    quarto_render: bool
-    quarto_verbose: bool
+class ConfigRender(pydantic.BaseModel):
+    verbose: Annotated[bool, pydantic.Field(default=False)]
+    flags: Annotated[
+        list[str],
+        pydantic.Field(
+            default_factory=list,
+            description="Additional flags for ``quarto render``.",
+        ),
+    ]
 
-    quarto_filters: Annotated[Node, Doc("Trie for matching watched filters.")]
-    quarto_assets: Annotated[
+
+def create_set_defaults_validator(defaults: set[pathlib.Path]):
+    def wrapper(v):
+        if not isinstance(v, Iterable):
+            return v
+
+        v = set(v) | defaults
+        return v
+
+    return pydantic.BeforeValidator(wrapper)
+
+
+class ConfigWatch(pydantic.BaseModel):
+    filters: Annotated[
+        set[pathlib.Path],
+        pydantic.Field(default_factory=set, validate_default=True),
+        create_set_defaults_validator(
+            {
+                env.SCRIPTS / "filters",
+                env.BLOG / "filters",
+            }
+        ),
+    ]
+    assets: Annotated[
+        set[pathlib.Path],
+        pydantic.Field(default_factory=set, validate_default=True),
+        create_set_defaults_validator(
+            {
+                env.BLOG / "includes",
+                env.BLOG / "templates",
+                env.BLOG / "themes",
+                env.BLOG / "_quarto.yaml",
+                env.BLOG / "resume/template.tex",
+                env.BLOG / "resume/title.tex",
+                env.BLOG / "resume/resume.yaml",
+            }
+        ),
+    ]
+    static: Annotated[
+        set[pathlib.Path],
+        pydantic.Field(default_factory=set, validate_default=True),
+        create_set_defaults_validator(
+            {
+                env.BLOG / "js",
+                env.BLOG / "icons/misc.json",
+                env.BLOG / "icons/favicon.svg",
+            }
+        ),
+    ]
+    ignore: Annotated[
+        set[pathlib.Path],
+        pydantic.Field(default_factory=set, validate_default=True),
+        create_set_defaults_validator(
+            {
+                env.BLOG / "build",
+                env.BLOG / ".quarto",
+                env.BLOG / "_freeze",
+                env.BLOG / "site_libs",
+                env.ROOT / ".git",
+                env.ROOT / ".venv",
+                env.BLOG / "resume/test.tex",
+                env.BLOG / "resume/index.tex",
+            }
+        ),
+    ]
+
+
+class Config(ysp.BaseYamlSettings):
+    model_config = ysp.YamlSettingsConfigDict(
+        yaml_files={env.CONFIGS / "dev.yaml": ysp.YamlFileConfigDict(required=False)}
+    )
+
+    render: Annotated[
+        ConfigRender,
+        pydantic.Field(
+            default_factory=dict,
+            description="Settings for rendering.",
+        ),
+    ]
+    watch: Annotated[
+        ConfigWatch,
+        pydantic.Field(
+            description="Settings for the watcher.",
+            default_factory=dict,
+        ),
+    ]
+
+
+class Context:
+    config: Config
+    render: bool
+    render_verbose: bool
+
+    filters: Annotated[Node, Doc("Trie for matching watched filters.")]
+    assets: Annotated[
         Node,
         Doc(
             "Trie for matching watched assets.\nThis should not include assets "
             "that ought to be literally coppied an pasted into their "
             "respective places in ``build``, for instance "
-            "``icons/misc.json``.These should be in ``quarto_static``."
+            "``icons/misc.json``.These should be in ``static``."
         ),
     ]
-    quarto_static: Annotated[
+    static: Annotated[
         Node,
         Doc(
             "Trie for watching static assets.\nThis should contain assets that "
@@ -148,88 +249,49 @@ class Context:
 
     def __init__(
         self,
+        config: Config,
+        *,
         quarto_verbose: bool = False,
-        quarto_filters: Iterable[pathlib.Path] | None = None,
-        quarto_render: bool = True,
-        quarto_assets: Iterable[pathlib.Path] | None = None,
-        quarto_static: Iterable[pathlib.Path] | None = None,
+        filters: Iterable[pathlib.Path] | None = None,
+        render: bool = True,
+        assets: Iterable[pathlib.Path] | None = None,
+        static: Iterable[pathlib.Path] | None = None,
         ignore: Iterable[pathlib.Path] | None = None,
     ):
-        self.quarto_render = quarto_render
-        self.quarto_verbose = quarto_verbose
-        self.quarto_filters = self.__validate_filters(quarto_filters or set())
-        self.quarto_assets = self.__validate_assets(quarto_assets or set())
-        self.quarto_static = self.__validate_static(quarto_static or set())
+        self.config = config
+        watch = self.config.watch
 
-        self.ignore = self.__validate_ignore(ignore or set())
+        self.render = render
+        self.quarto_verbose = quarto_verbose or self.config.render.verbose
+        self.filters = self.__validate_trie(filters or set(), watch.filters)
+        self.assets = self.__validate_trie(assets or set(), watch.assets)
+        self.static = self.__validate_trie(static or set(), watch.static)
+        self.ignore = self.__validate_trie(ignore or set(), watch.ignore)
 
     def dict(self):
         out = {
             "ignore_trie": self.ignore.dict(),
-            "quarto_filters": self.quarto_filters.dict(),
-            "quarto_assets": self.quarto_assets.dict(),
-            "quarto_static": self.quarto_static.dict(),
-            "quarto_render": self.quarto_render,
+            "filters": self.filters.dict(),
+            "assets": self.assets.dict(),
+            "static": self.static.dict(),
+            "render": self.render,
             "quarto_verbose": self.quarto_verbose,
         }
         return out
 
-    def __validate_assets(self, assets: Iterable[pathlib.Path]) -> Node:
-
-        logger.debug("Validating `context.quarto_assets`.")
-        assets_trie = Node.fromPaths(
-            *assets,
-            env.BLOG / "includes",
-            env.BLOG / "templates",
-            env.BLOG / "themes",
-            env.BLOG / "_quarto.yaml",
-            env.BLOG / "resume/template.tex",
-            env.BLOG / "resume/title.tex",
-            env.BLOG / "resume/resume.yaml",
-        )
-
-        return assets_trie
-
-    def __validate_ignore(self, ignore: Iterable[pathlib.Path]) -> Node:
-        logger.debug("Validating `Context.ignore`.")
-        return Node.fromPaths(
-            *ignore,
-            env.BLOG / "build",
-            env.BLOG / ".quarto",
-            env.BLOG / "_freeze",
-            env.BLOG / "site_libs",
-            env.ROOT / ".git",
-            env.ROOT / ".venv",
-            env.BLOG / "resume/test.tex",
-            env.BLOG / "resume/index.tex",
-        )
-
-    def __validate_static(self, static: Iterable[pathlib.Path]) -> Node:
-        logger.debug("Validating `Context.static`.")
-        return Node.fromPaths(
-            *static,
-            env.BLOG / "js",
-            env.BLOG / "icons/misc.json",
-            env.BLOG / "icons/favicon.svg",
-        )
-
-    def __validate_filters(
+    def __validate_trie(
         self,
-        filters: Iterable[pathlib.Path],
+        from_init: Iterable[pathlib.Path],
+        from_config: Iterable[pathlib.Path],
     ) -> Node:
-        logger.debug("Validating `context.filters`.")
-        return Node.fromPaths(
-            *filters,
-            env.SCRIPTS / "filters",
-            env.BLOG / "filters",
-        )
+        return Node.fromPaths(*from_init, *from_config)
 
     def is_ignored_path(self, path: pathlib.Path) -> bool:
         # NOTE: Do not ignore filters that are being watched.
         if (
-            self.quarto_filters.has_prefix(path)
-            or self.quarto_assets.has_prefix(path)
-            or self.quarto_static.has_prefix(path)
+            self.filters.has_prefix(path)
+            or self.assets.has_prefix(path)
+            or self.static.has_prefix(path)
         ):
             return False
 
@@ -238,11 +300,11 @@ class Context:
 
     # def __call__(self, path: pathlib.Path) -> QuartoTargetType | None:
     #
-    #     if self.quarto_assets.has_prefix(path):
+    #     if self.assets.has_prefix(path):
     #         return QuartoTargetType.asset
-    #     elif self.quarto_filters.has_prefix(path):
+    #     elif self.filters.has_prefix(path):
     #         return QuartoTargetType.filter
-    #     elif self.quarto_static.has_prefix(path):
+    #     elif self.static.has_prefix(path):
     #         return QuartoTargetType.static
     #
     #     return None
@@ -321,17 +383,15 @@ class BlogHandler(FileSystemEventHandler):
         if tt is None:
             tt = self.get_time_modified(path)
 
-        if not self.context.quarto_render:
+        if not self.context.render:
             logger.info("Not rendering `%s` because dry run.", path)
             return
 
         logger.info("Rendering quarto at `%s`", path)
-        rich.print(f"[green]{tt} -> Starting render for `{path}`.")
-        out = subprocess.run(
-            ["quarto", "render", str(path)],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
+        cmd = ["quarto", "render", str(path), *self.context.config.render.flags]
+
+        rich.print(f"[green]{tt} -> Starting render for `{path}`. Command: `{cmd}`.")
+        out = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         with open(error_output, "w") as file:
             file.write(out.stdout.decode())
@@ -401,9 +461,9 @@ class BlogHandler(FileSystemEventHandler):
         if path.suffix == ".qmd":
             self.render_qmd(path)
             self.path_last_qmd = path
-        elif self.context.quarto_filters.has_prefix(
+        elif self.context.filters.has_prefix(path) or self.context.assets.has_prefix(
             path
-        ) or self.context.quarto_assets.has_prefix(path):
+        ):
             tt = self.get_time_modified(path)
             if self.path_last_qmd is None:
                 logger.info("No render to dispatch from changes in `%s`.", path)
@@ -423,7 +483,7 @@ class BlogHandler(FileSystemEventHandler):
                 f"tiggering rerender of `{self.path_last_qmd}`."
             )
             self.render_qmd(self.path_last_qmd, tt=tt)
-        elif self.context.quarto_static.has_prefix(path):
+        elif self.context.static.has_prefix(path):
             path_dest = env.BUILD / os.path.relpath(path, env.BLOG)
             msg = "Copying `%s` to `%s`." % (path, path_dest)
             logger.info(msg)
@@ -485,7 +545,7 @@ FlagQuartoRender = Annotated[
         "--quarto-render/--dry", help="Render writes or only watch for writes."
     ),
 ]
-FlagQuartoFilters = Annotated[
+FlagFilters = Annotated[
     list[pathlib.Path],
     typer.Option("--quarto-filter", help="Additional filters to watch."),
 ]
@@ -500,7 +560,7 @@ FlagQuartoVerbose = Annotated[
         ),
     ),
 ]
-FlagQuartoAsset = Annotated[
+FlagAsset = Annotated[
     list[pathlib.Path],
     typer.Option(
         "--quarto-asset",
@@ -519,16 +579,17 @@ FlagIgnore = Annotated[
 def callback(
     context: typer.Context,
     quarto_verbose: FlagQuartoVerbose = False,
-    quarto_filters: FlagQuartoFilters = list(),
-    quarto_render: FlagQuartoRender = True,
-    quarto_assets: FlagQuartoAsset = list(),
+    render: FlagQuartoRender = True,
+    filters: FlagFilters = list(),
+    assets: FlagAsset = list(),
     ignore: FlagIgnore = list(),
 ):
     context.obj = Context(
+        Config.model_validate({}),
         quarto_verbose=quarto_verbose,
-        quarto_filters=quarto_filters,
-        quarto_render=quarto_render,
-        quarto_assets=quarto_assets,
+        filters=filters,
+        render=render,
+        assets=assets,
         ignore=ignore,
     )
 
