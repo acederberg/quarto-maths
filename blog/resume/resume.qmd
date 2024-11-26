@@ -1,0 +1,10 @@
+---
+title: Adrian Cederberg
+subtitle: Software Engineer | Resume v5
+format:
+  pdf:
+    template: template.tex
+    keep-tex: true
+    template-partials:
+      - ./title.tex
+---

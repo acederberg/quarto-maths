@@ -1,3 +1,5 @@
+:::: { #mve .experience experience-item="mve" }
+
 Architected building management and analytics SaaS for existing and potential
 customers.
 Designed, implemented, and tested APIs, continuous integration and
@@ -16,3 +18,5 @@ dashboard and deliver new releases.
 
 - Kick-started admin dashboard to enhance company data operations and monitor
   data pipelines using `NextJS`.
+
+::::

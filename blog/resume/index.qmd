@@ -815,61 +815,44 @@ _For instance, the items in the `skills` section can be clicked on to learn more
 
 :::
 
-{{< include "./partials/contact.qmd" >}}
+{{< include "./partials/_contact.qmd" >}}
 
-<!-- Stop Left ------------------> ::::
+<!-- Stop Left ----------------------> ::::
 
 <!-- Start Filler -------------------> ::: { .column width="10%" }
 <!-- Stop Filler --------------------> :::
 
-<!-- Start Right ----------------> :::: { .column width=60% }
+<!-- Start Right --------------------> :::: { .column width=60% }
 
-{{< include ./partials/profile.qmd >}}
+{{< include ./partials/_profile.qmd >}}
 
-<!-- Stop Right -------------> ::::
-<!-- Stop Columns 1 ----------> :::::
+<!-- Stop Right ---------------------> ::::
+<!-- Stop Columns 1 -----------------> :::::
 
-<!-- Start Columns 2 ------------> ::::: { .columns }
+<!-- Start Columns 2 ----------------> ::::: { .columns }
 
-<!-- SKILLS ------------------------------------------------------------------>
-
-{{< include ./partials/skills.qmd >}}
+{{< include ./partials/_skills.qmd >}}
 
 <!-- Start Filler -------------------> ::: { .column width="2%" }
 <!-- Stop Filler --------------------> :::
 
-<!-- Projects ---------------------------------------------------------------->
 <!-- Start Projects -----------------> ::: { #resume-projects .column width="49%" }
 <!-- Stop Projects ------------------> :::
 <!-- Stop Columns 2 -----------------> :::
 <!-- Stop Sidebar -------------------> ::::::
 
 <!-- BODY -------------------------------------------------------------------->
-<!-- Start Body -------------> :::::: { #resume-body }
+<!-- Start Body ---------------------> :::::: { #resume-body }
 
-<!-- Start Experience --> ::::: { #resume-experience }
+<!-- Start Experience ---------------> ::::: { #resume-experience }
 
-<!-- CONSULTING -------------------------------------------------------------->
+{{< include ./partials/_consulting.qmd >}}
 
-:::: { #consulting .experience experience-item="consulting" }
+{{< include ./partials/_mve.qmd >}}
 
-{{< include ./partials/consulting.qmd >}}
+<!-- Stop Experience ----------------> :::::
 
-::::
+{{< include ./partials/_education.qmd >}}
 
-<!-- MVE --------------------------------------------------------------------->
-
-:::: { #mve .experience experience-item="mve" }
-
-{{< include ./partials/mve.qmd >}}
-
-{{< include ./partials/mve-overlay.qmd >}}
-
-::::
-
-<!-- Stop Experience ----> :::::
-
-{{< include ./partials/education.qmd >}}
-
-<!-- Stop Body ----------> ::::::
-<!-- Stop Resume   ------> ::::::
+<!-- Stop Body ----------------------> ::::::
+<!-- Stop Resume   ------------------> ::::::

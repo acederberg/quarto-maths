@@ -1,5 +1,7 @@
 """Scripts for development.
 
+
+
 This includes a custom watcher because I do not like the workflow I am forced
 into be ``quarto preview``. A few problems I aim to solve here are:
 
@@ -10,8 +12,10 @@ into be ``quarto preview``. A few problems I aim to solve here are:
 
 import contextlib
 import http.server as http_server
+import json
 import os
 import pathlib
+import re
 import shutil
 import socket
 import subprocess
@@ -378,8 +382,18 @@ class BlogHandler(FileSystemEventHandler):
     def get_time_modified(self, path: pathlib.Path):
         return datetime.fromtimestamp(self.tt_last[path]).strftime("%H:%M:%S")
 
-    def render_qmd(self, path: pathlib.Path, *, tt: str | None = None):
-        error_output = env.BUILD / "error.txt"
+    def render_qmd(
+        self,
+        path: pathlib.Path,
+        *,
+        tt: str | None = None,
+        origin: pathlib.Path | None = None,
+    ):
+        """Render ``qmd``.
+
+        If it fails, put the error content in the page."""
+
+        error_output = env.BUILD / "error.json"
         if tt is None:
             tt = self.get_time_modified(path)
 
@@ -393,16 +407,30 @@ class BlogHandler(FileSystemEventHandler):
         rich.print(f"[green]{tt} -> Starting render for `{path}`. Command: `{cmd}`.")
         out = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-        with open(error_output, "w") as file:
-            file.write(out.stdout.decode())
-            file.write(out.stderr.decode())
-
         if out.returncode != 0:
             logger.info("Quarto render failed for path `%s`.", path)
-            rich.print(
-                f"[red]{tt} -> Failed to render `{path}`. See error output "
-                "in `http://localhost:3000/error.txt`."
-            )
+            rich.print(f"[red]{tt} -> Failed to render `{path}`.")
+
+            # NOTE: This content will be read in by error.qmd and then copied into
+            #       place so that the error is displayed on refresh.
+            with open(error_output, "w") as file:
+
+                def clean(v):
+                    ansi_escape = re.compile(r"\x1b\[.*?m")
+                    return ansi_escape.sub("", v)
+
+                json.dump(
+                    {
+                        "origin": str(origin or path),
+                        "command": [" ".join(cmd)],
+                        "timestamp": tt,
+                        "stderr": clean(out.stdout.decode()).split("\n"),
+                        "stdout": clean(out.stderr.decode()).split("\n"),
+                    },
+                    file,
+                    indent=2,
+                )
+
         else:
             logger.info("Quarto render succeeded for path `%s`.", path)
             rich.print(f"[green]{tt} -> Rendered `{path}`.")
@@ -458,11 +486,17 @@ class BlogHandler(FileSystemEventHandler):
         # NOTE: If a qmd file was modified, then rerender the modified ``qmd``
         #       If a watched filter (from ``--quarto-filter``) is changed, do
         #       it for the last file.
-        if path.suffix == ".qmd":
+        # NOTE: [About template partials](https://quarto.org/docs/authoring/includes.html).
+        #       I will start all of my partials with an `_` and place them in a
+        #       ``partials`` folder.
+        is_partial = path.parent.name != "partials" and path.name.startswith("_")
+        if path.suffix == ".qmd" and not is_partial:
             self.render_qmd(path)
             self.path_last_qmd = path
-        elif self.context.filters.has_prefix(path) or self.context.assets.has_prefix(
-            path
+        elif (
+            self.context.filters.has_prefix(path)
+            or self.context.assets.has_prefix(path)
+            or is_partial
         ):
             tt = self.get_time_modified(path)
             if self.path_last_qmd is None:
@@ -482,7 +516,7 @@ class BlogHandler(FileSystemEventHandler):
                 f"[blue]{tt} -> Changes detected in `{path}`, "
                 f"tiggering rerender of `{self.path_last_qmd}`."
             )
-            self.render_qmd(self.path_last_qmd, tt=tt)
+            self.render_qmd(self.path_last_qmd, tt=tt, origin=path)
         elif self.context.static.has_prefix(path):
             path_dest = env.BUILD / os.path.relpath(path, env.BLOG)
             msg = "Copying `%s` to `%s`." % (path, path_dest)

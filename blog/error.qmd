@@ -1,0 +1,49 @@
+---
+title: Render Error Output
+format:
+  html:
+    page-layout: full
+    include-in-header:
+      - ./includes/error.html
+---
+
+```{=html}
+<style>
+  .terminal {
+    background: var(--bs-gray-200);
+    color: var(--bs-red);
+  }
+
+  .terminal span {
+    width: 100%;
+    display: block;
+    color: var(--bs-red);
+  }
+</style>
+```
+
+Error from changes in <code><span id=origin>origin</span></code> at <code><span id="timestamp">timestamp<span></code>.
+
+### `command`
+
+```{.terminal .p-2 #error-command}
+
+```
+
+### `stdout`
+
+```{.terminal .p-2 #error-stdout}
+
+```
+
+### `stderr`
+
+```{.terminal .p-2 #error-stderr}
+
+```
+
+```{=html}
+<script type="module">
+  hydrateError()
+</script>
+```
