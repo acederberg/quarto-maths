@@ -1,0 +1,18 @@
+Architected building management and analytics SaaS for existing and potential
+customers.
+Designed, implemented, and tested APIs, continuous integration and
+delivery, and infrastructure as code projects to reliably power a customer
+dashboard and deliver new releases.
+
+- Ensured confidentiality, security, and accuracy of customer data from the
+  Cufflink API using `OAuth`, `MySQL`, and `PyTest`.
+
+- Enhanced developer productivity,
+  maximized platform uptime,
+  ensured platform stability and reproducibility,
+  and guaranteed rapid software delivery by designing and
+  implementing pipelines and infrastructure as code using
+  `Bitbucket` pipelines, `Helm`, and `Terraform` with `Azure`.
+
+- Kick-started admin dashboard to enhance company data operations and monitor
+  data pipelines using `NextJS`.

@@ -1,0 +1,57 @@
+::: { #resume-contact }
+
+<!-- Begin Floaty ---------------> ::: { #resume-contact-floaty }
+<!-- Begin Overlay --------------> ::: { #resume-contact-overlay .overlay }
+<!-- Begin Overlay Content ------> ::: { .overlay-content }
+
+::: { .overlay-content-item data-key=location }
+
+I currently reside in Albuquerque, New Mexico and have lived here
+since I was about seven years old.
+
+I quite like it here, but am open to relocate for the right
+position and compensation.
+
+<!--
+My preferences are listed in descending order:
+
+1. A hybrid job here in Albuquerque wi
+Here are some other tools I use frequently.
+
+Most of these will be covered in detail in subsequent sections.th and office in town or near by.
+2. A remote job where I can make occasional trips out of town to
+   work in the office.
+3. A fully remote job.
+4. A fully on-premise job where relocation is provided.
+
+**I will not provide my full address here, this is included for
+resume parsers and the like so that they can begin do more for
+autofill.
+If you need my full address, please reach out to me by email or
+phone.**
+-->
+
+:::
+
+::: { .overlay-content-item data-key=phone }
+
+I am available by phone Monday - Friday, 8 AM - 4 PM MST.
+I do not pick up please feel free to leave a voice mail.
+If you want to schedule a meeting, please text me or email me
+in advance.
+
+:::
+
+::: { .overlay-content-item data-key=email }
+
+For inquiries not requiring an immediate response - You can expect
+a response within the day. If your need is urgent, please just call
+or text me.
+
+:::
+
+<!-- Stop Floaty -------------> :::
+<!-- Stop Overlay Content ----> :::
+<!-- Stop Overlay ------------> :::
+
+:::

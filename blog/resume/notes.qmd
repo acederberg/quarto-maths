@@ -1,0 +1,88 @@
+---
+title: Resume Making Notes
+---
+
+|                                                                                                                                   |
+| --------------------------------------------------------------------------------------------------------------------------------- |
+| [Cold Emailing](https://www.youtube.com/watch?v=a3E7Mcvhbms)                                                                      |
+| [Andrew LeCivita's Resume Playlist](https://www.youtube.com/watch?v=bhwEsfXS6y8&list=PLxjGQaV8rAh1glEkrBHNksnV-KyVIHGGi&index=2)) |
+
+## From Andrew LeCivita - [Resume Tips](https://www.youtube.com/watch?v=bhwEsfXS6y8&t=9s)
+
+### Consider the Audience
+
+The resume is for recruiters and HR.
+They will typically look at the header first.
+**Top Center** is a very important point to draw attention to.
+
+- Do not include an objective statement.
+- Education should not be at the top! Give them more up front.
+- Do not go immediately into your work history. This will require further
+  scanning on the part of the recruiter.
+- Do not use tables. Applicant tracking systems do not like them.
+- Resume should be evidence of your capabilities!
+- Do not worry about white space.
+
+Providing a career profile at the top is very helpful. An example show follow
+the format of
+
+```default
+{{ carreer profile }}
+
+{{ statement of competencies }}
+```
+
+which helps eliminate `skills` sections. This eleminates a listing or table.
+**DO NOT USE LISTINGS OR TABLES!**
+
+Using listings makes it look like you're trying to hide something, according to
+Mr. LeCivita.
+
+### Focus on Your Impact!
+
+Think about the **STAR** method.
+Focus on results and use measurements!
+
+### Reflection
+
+Everything he says here is stuff that I have failed to do in previous versions
+of my resume, so this feedback is very useful. In particular, I will make sure
+not to include listings and tables in my pdf resume (they will stay in the
+site since running out of space is not a concern there).
+
+I should try to investigate some applicant trashing systems too.
+
+## Adrew LeCivita - [4 Resume Writing Strategies](https://www.youtube.com/watch?v=EBokaUxGvfc)
+
+Create intrigue!
+
+Make it more than a work history - the resume is a marketing device.
+Nobody cares about features, they care about results.
+
+The top of the resume is the most important real estate of the resume! Do not waste it.
+Do not straight up list skills.
+
+### The Career Profile
+
+Mr LeCivita emphasizes that, just like an abstract for a research paper, people
+want a quick breakdown of their skills. It allows you to control the narrative.
+
+It should save the reader time, and get them to decide to talk to you by its end.
+
+### Highlights
+
+Career highlights should save the reader from having to parse your work experience.
+Do not focus that which you are most proud of, it is more important to give them highlights based off of problems you solved.
+
+### Listings
+
+Above, when I said listings are not to be used, I meant this in regard to skills.
+The work experiences (and possibly the highlights) will use bullets to help the audience parse the resume quickly.
+Listing items should be like **STAR** but each should express
+
+- The result (first).
+- How the result was accomplished.
+
+Keep housekeeping items out of the listings - this could include context, etc.
+Do not overwhelm the reader. Put achievements in the bullets.
+Save bullets for impactful business value events.

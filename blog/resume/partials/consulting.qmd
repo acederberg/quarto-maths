@@ -1,0 +1,8 @@
+I started my own consultancy and am working on registering my business and getting some customers.
+For a complete desription and technical details, see [the about page](/projects/blog).
+
+- Delivered [acederberg.io](https://acederberg.io){ data-bs-toggle="tooltip" data-bs-title="My blog" } to advertise services,
+  distribute resume, host blog posts and notes, and showcase projects.
+- Ensured site reliability of [acederberg.io](https://acederberg.io){ data-bs-toggle="tooltip" data-bs-title="My blog" } and future
+  web services with CI/CD and IaC.
+- To support future commercial products, built [captura](https://github.com/acederberg){ data-bs-toggle="tooltip" data-bs-title="Captura on github" }.

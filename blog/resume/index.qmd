@@ -1,6 +1,6 @@
 ---
 title: Adrian Cederberg
-subtitle: Resume v5
+subtitle: Software Engineer | Resume v5
 format:
   html:
     toc: false
@@ -597,9 +597,8 @@ resume:
     # Links
     links:
       container:
-        # classes: ["floaty-container-macos", "pt-3", "px-5"]
+        classes: ["floaty-container-macos", "pt-3", "px-5"]
         size_item: 32
-        type: table
       tooltip:
         text: Click on any of the icons to open in a new tab.
       overlay:
@@ -643,8 +642,8 @@ resume:
       container:
         include: true
         size_item: 32
-        # classes: ["floaty-container-macos", "pt-3", "px-5"]
-        # include_titles: true
+        classes: ["floaty-container-macos", "pt-3", "px-5"]
+        titles: false
         kind: table
       overlay:
         include: true
@@ -789,6 +788,8 @@ floaty:
             name: terminal-bash
 ---
 
+<!-- Start Resume --> :::::: { #resume }
+
 ::: { .callout-tip collapse="true"}
 
 ### This is an Interactive Resume: Expand for Tips
@@ -800,15 +801,13 @@ _For instance, the items in the `skills` section can be clicked on to learn more
 
 :::
 
-<!-- Start Resume --> :::::: { #resume }
 <!-- SIDEBAR ----------------------------------------------------------------->
 <!-- Start Sidebar --------------> :::::: { #resume-sidebar }
+
 <!-- Start Columns 1 ------------> ::::: { .columns }
-<!-- Start Left -----------------> :::: { .column width=40% }
+<!-- Start Left -----------------> :::: { .column width=30% }
 
 ::: { #resume-headshot }
-
-_This is a placeholder image and will be replaced with an actual headshot soon._
 
 :::
 
@@ -816,70 +815,16 @@ _This is a placeholder image and will be replaced with an actual headshot soon._
 
 :::
 
+{{< include "./partials/contact.qmd" >}}
+
 <!-- Stop Left ------------------> ::::
 
-<!-- Start Filler -------------------> ::: { .column width="20%" }
+<!-- Start Filler -------------------> ::: { .column width="10%" }
 <!-- Stop Filler --------------------> :::
 
-<!-- Start Right ----------------> :::: { .column width=40% }
+<!-- Start Right ----------------> :::: { .column width=60% }
 
-::: { #resume-contact }
-
-<!-- Begin Floaty ---------------> ::: { #resume-contact-floaty }
-<!-- Begin Overlay --------------> ::: { #resume-contact-overlay .overlay }
-<!-- Begin Overlay Content ------> ::: { .overlay-content }
-
-::: { .overlay-content-item data-key=location }
-
-I currently reside in Albuquerque, New Mexico and have lived here
-since I was about seven years old.
-
-I quite like it here, but am open to relocate for the right
-position and compensation.
-
-<!--
-My preferences are listed in descending order:
-
-1. A hybrid job here in Albuquerque wi
-Here are some other tools I use frequently.
-
-Most of these will be covered in detail in subsequent sections.th and office in town or near by.
-2. A remote job where I can make occasional trips out of town to
-   work in the office.
-3. A fully remote job.
-4. A fully on-premise job where relocation is provided.
-
-**I will not provide my full address here, this is included for
-resume parsers and the like so that they can begin do more for
-autofill.
-If you need my full address, please reach out to me by email or
-phone.**
--->
-
-:::
-
-::: { .overlay-content-item data-key=phone }
-
-I am available by phone Monday - Friday, 8 AM - 4 PM MST.
-I do not pick up please feel free to leave a voice mail.
-If you want to schedule a meeting, please text me or email me
-in advance.
-
-:::
-
-::: { .overlay-content-item data-key=email }
-
-For inquiries not requiring an immediate response - You can expect
-a response within the day. If your need is urgent, please just call
-or text me.
-
-:::
-
-<!-- Stop Floaty -------------> :::
-<!-- Stop Overlay Content ----> :::
-<!-- Stop Overlay ------------> :::
-
-:::
+{{< include ./partials/profile.qmd >}}
 
 <!-- Stop Right -------------> ::::
 <!-- Stop Columns 1 ----------> :::::
@@ -887,92 +832,14 @@ or text me.
 <!-- Start Columns 2 ------------> ::::: { .columns }
 
 <!-- SKILLS ------------------------------------------------------------------>
-<!-- Start Skills -----------> ::: { #resume-skills .column width=40%}
 
-<!-- Start Floaty -----------> ::: { #resume-skills-floaty }
-<!-- Start Overlay ----------> ::: { #resume-skills-overlay .overlay }
-<!-- Start Overlay Content --> ::: { .overlay-content }
+{{< include ./partials/skills.qmd >}}
 
-<!-- Start impl ------------> ::: { .overlay-content-item data-key="impl" }
-
-::: { #impl .pt-5 }
-:::
-
-### Other Tools { .py-5 }
-
-Here are some other tools I use frequently.
-
-_Most of these will be covered in detail in subsequent sections._
-
-::: { #impl-etc .pt-5 }
-
-:::
-
-<!-- Stop impl ------------> :::
-
-<!-- Start API and DB ------> ::: { .overlay-content-item data-key="api-and-db" }
-
-::: { #api-and-db .py-5 }
-
-:::
-
-::: { .skills-content .py-5 }
-
-Data is the star of the show and thus the storage, distribution, and retrieval of data is paramount.
-I have plenty of experience developing APIs and ETLs
-in languages like `python` {{< iconify devicons python >}}, and `nodejs` {{< iconify devicons nodejs>}}
-using database technologies such as `mysql` {{< iconify devicon mysql >}}, `mongodb` {{< iconify devicon mongodb >}}, and `redis` {{< iconify devicon redis >}}.
-
-Further, I am familiar with means of consuming APIs like `httpx`, `fetch`,
-and `curl` and protocols like `http` and `websockets`.
-
-:::
-
-<!-- STOP API and DB ------> :::
-
-<!-- Start UIUX -----------> ::: { .overlay-content-item data-key="uiux" }
-
-::: { #uiux .py-5 }
-
-:::
-
-::: { .skills-content .py-5 }
-
-While APIs and the backend aggregate, transform, and serve data, the data is
-of little use in assertaining the 'big picture' without visualization and
-interactivity.
-For instance, you are probably viewing this resume on my blog - would you read
-my resume if it were [in `YAML` format](/link-to-yaml)?
-
-:::
-
-<!-- Stop UIUX -------------> :::
-
-<!-- Start DevOps -----------> ::: { .overlay-content-item data-key="devops" }
-
-::: { #devops .py-5 }
-:::
-
-::: { .skills-content .py-5 }
-
-A service is not useful or accessible unless it is deployed, and
-deploying a website manually is a thing of the past. Automation is
-mandatory for building reliable and secure products.
-
-:::
-
-<!-- STOP DevOps -----------> :::
-
-<!-- Stop Overlay Content -----------> :::
-<!-- Stop Overlay -------------------> :::
-<!-- Stop Floaty --------------------> :::
-<!-- Stop Skills --------------------> :::
-
-<!-- Start Filler -------------------> ::: { .column width="20%" }
+<!-- Start Filler -------------------> ::: { .column width="2%" }
 <!-- Stop Filler --------------------> :::
 
 <!-- Projects ---------------------------------------------------------------->
-<!-- Start Projects -----------------> ::: { #resume-projects .column width="40%" }
+<!-- Start Projects -----------------> ::: { #resume-projects .column width="49%" }
 <!-- Stop Projects ------------------> :::
 <!-- Stop Columns 2 -----------------> :::
 <!-- Stop Sidebar -------------------> ::::::
@@ -986,14 +853,7 @@ mandatory for building reliable and secure products.
 
 :::: { #consulting .experience experience-item="consulting" }
 
-I started my own consultancy and am working on registering my business and getting some customers.
-For a complete desription and technical details, see [the about page](/projects/blog).
-
-- Delivered [acederberg.io](https://acederberg.io){ data-bs-toggle="tooltip" data-bs-title="My blog" } to advertise services,
-  distribute resume, host blog posts and notes, and showcase projects.
-- Ensured site reliability of [acederberg.io](https://acederberg.io){ data-bs-toggle="tooltip" data-bs-title="My blog" } and future
-  web services with CI/CD and IaC.
-- To support future commercial products, built [captura](https://github.com/acederberg){ data-bs-toggle="tooltip" data-bs-title="Captura on github" }.
+{{< include ./partials/consulting.qmd >}}
 
 ::::
 
@@ -1001,136 +861,15 @@ For a complete desription and technical details, see [the about page](/projects/
 
 :::: { #mve .experience experience-item="mve" }
 
-- Pivoted company toward SaaS to increase valuation by implementing `Cufflink` SaaS from scratch.
-- Supported Cufflink client dashboard and app by designing, implementing, and testing Cufflink API.
-- Guarenteed platform stability and reproducibility by architecting and implementing pipelines and IaC.
-- Ensured excellent customer experience by providing $99.99\%$ uptime with IaC and self testing Helm releases.
-- Enhanced developer productivity and rapid software delivery using CI/CD in Bitbucket and Azure.
-- Ensured API delivery of accurate data from devices and data pipelines via rigorous testing.
-- Enhanced organizational security by securing Cufflink APIs, Cufflink Dashboard, and Azure organization.
+{{< include ./partials/mve.qmd >}}
 
-<!-- Start Floaty --------------> ::: { #mve-floaty }
-<!-- Start Overlay -------------> ::: { .overlay #mve-overlay }
-<!-- Start Overlay Content -----> ::: { .overlay-content }
-
-::: { .overlay-content-item data-key="fastapi" }
-
-The main framework we used for Cufflink API services written in `python`.
-
-:::
-
-::: { .overlay-content-item data-key="terraform" }
-
-The tool I used to write all of our infrastructure as code (aka `IaC`).
-
-:::
-
-::: { .overlay-content-item data-key="bitbucket" }
-
-The repository host and tools for Continuous Integration and Deployment (aka `CI/CD`).
-I used Bitbucket pipelines to automate a number of tasks for developers, including
-(but not limited to) running software test suites, container builds, and
-production and preview deployments.
-
-:::
-
-::: { .overlay-content-item data-key="kubernetes" }
-
-Running containerized API and dashboard services and data pipeline `cronjobs`.
-
-:::
-
-::: { .overlay-content-item data-key="helm" }
-
-Ensuring that `kubernetes` resources were reproducible and service testing hooks.
-
-:::
-
-::: { .overlay-content-item data-key="docker" }
-
-Containerization of services (microservices) and consistent developer environment across platforms.
-
-:::
-
-::: { .overlay-content-item data-key="python" }
-
-Language of choice for all back end services (APIs) and data pipelines.
-
-:::
-
-::: { .overlay-content-item data-key="nodejs" }
-
-Language of choice for all front end services (dashboard and app).
-
-:::
-
-::: { .overlay-content-item data-key="react" }
-
-Framework of choice for all front end services (dashboard and app).
-
-:::
-
-::: { .overlay-content-item data-key="auth0" }
-
-OAuth token authentication in APIs and login in dashboard and app.
-
-:::
-
-::: { .overlay-content-item data-key="sqlalchemy" }
-
-Backend services to talk to to `mysql` with ease.
-
-:::
-
-::: { .overlay-content-item data-key="mysql" }
-
-Primary database for storing time-series data and customer metadata.
-
-:::
-
-::: { .overlay-content-item data-key="mongodb" }
-
-Resource grouping and real time usage and spend.
-
-:::
-
-::: { .overlay-content-item data-key="azure" }
-
-Hosting infrastructure and organization active directory.
-
-:::
-
-::: { .overlay-content-item data-key="cicd" }
-
-Ensuring developer productivity and efficient software delivery.
-
-:::
-
-::: { .overlay-content-item data-key="traefik" }
-
-`kubernetes` ingress, middleware, and SSL termination with ACME certificates.
-
-:::
-
-<!-- Stop Overlay Content ------> :::
-<!-- Stop Overlay --------------> :::
-<!-- Stop Floaty ---------------> :::
+{{< include ./partials/mve-overlay.qmd >}}
 
 ::::
 
 <!-- Stop Experience ----> :::::
-<!-- Start Education ---> ::::: { #education }
-<!-- Start UNM ---------> :::: { #unm .education education-item=unm }
 
-- Improved student outcomes as tutor and exam proctor in remedial algebra.
-  Ensured thorough student feedback by grading algebra, linear algebra, and
-  ordinary differential equations homework.
-- Documented efficient air plasma production using electricity and magnetism.
-  Built and programmed sensor arrays using rapberry pi and arduino (using
-  `python` and `c`).
-
-<!-- Stop UNM -----------> ::::
-<!-- Stop Education ----> :::::
+{{< include ./partials/education.qmd >}}
 
 <!-- Stop Body ----------> ::::::
 <!-- Stop Resume   ------> ::::::

@@ -1,5 +1,5 @@
 from datetime import date, timedelta
-from typing import Annotated, Any, Callable, Iterable
+from typing import Annotated, Any, Callable
 
 import panflute as pf
 import pydantic
@@ -8,6 +8,7 @@ from typing_extensions import Unpack
 from acederbergio.filters import floaty, util
 
 ELEMENTS_SIDEBAR = {
+    "resume-profile",
     "resume-contact",
     "resume-skills",
     "resume-headshot",
@@ -187,14 +188,12 @@ class ConfigEducationItem(BaseExperienceItem):
 class ConfigContactItem(floaty.ConfigFloatyItem):
     value: str
 
-    def hydrate_iconify_tr(self, *args, _parent, **kwargs):
+    def hydrate_iconify_tr(self, **kwargs: Unpack[floaty.IconifyKwargs]):
+        row = super().hydrate_iconify_tr(**kwargs)
         extra = pf.TableCell(pf.Para(pf.Str(self.value)))
-        return super().hydrate_iconify_tr(
-            *args,
-            cells_extra=[extra],
-            _parent=_parent,
-            **kwargs,
-        )
+        row.content = (*row.content, extra)
+
+        return row
 
 
 TODAY = date.today()
@@ -256,17 +255,12 @@ class ConfigSkillsItem(floaty.ConfigFloatyItem):
 
     def hydrate_iconify_tr(
         self,
-        *args,
-        cells_extra: Iterable[pf.TableCell] | None = None,
         **kwargs: Unpack[floaty.IconifyKwargs],
     ):
         progress = pf.TableCell(self.hydrate_progress_bar(_parent=kwargs["_parent"]))  # type: ignore
 
-        el = super().hydrate_iconify_tr(
-            *args,
-            cells_extra=(progress, *(cells_extra or tuple())),
-            **kwargs,
-        )
+        el = super().hydrate_iconify_tr(**kwargs)
+        el.content.append(progress)
         return el
 
 
@@ -328,6 +322,14 @@ class ConfigSidebar(pydantic.BaseModel):
         ),
     ]
 
+    def hydrate_profile(self, doc: pf.Doc, element: pf.Element) -> pf.Element:
+        element.content = (
+            pf.Header(pf.Str("Career Profile"), level=2),
+            *element.content,
+        )
+
+        return element
+
     def hydrate_contact(self, doc: pf.Doc, element: pf.Element) -> pf.Element:
         """Sidebar skills."""
         if self.contact is None:
@@ -338,10 +340,10 @@ class ConfigSidebar(pydantic.BaseModel):
         else:
             pf.Para(pf.Str("Paceholder content"))
         #
-        element.content = (
-            pf.Header(pf.Str("Contact"), level=2),
-            *element.content,
-        )
+        # element.content = (
+        #     pf.Header(pf.Str("Contact"), level=2),
+        #     *element.content,
+        # )
 
         return element
 
@@ -417,10 +419,10 @@ class ConfigSidebar(pydantic.BaseModel):
             ...
             # = pf.Para(pf.Str("Paceholder content"))
 
-        element.content = (
-            pf.Header(pf.Str("Links"), level=2),
-            *element.content,
-        )
+        # element.content = (
+        #     pf.Header(pf.Str("Links"), level=2),
+        #     *element.content,
+        # )
         return element
 
     def __call__(self, doc: pf.Doc, element: pf.Element) -> pf.Element:

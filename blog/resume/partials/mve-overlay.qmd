@@ -1,0 +1,106 @@
+<!-- Start Floaty --------------> ::: { #mve-floaty }
+<!-- Start Overlay -------------> ::: { .overlay #mve-overlay }
+<!-- Start Overlay Content -----> ::: { .overlay-content }
+
+::: { .overlay-content-item data-key="fastapi" }
+
+The main framework we used for Cufflink API services written in `python`.
+
+:::
+
+::: { .overlay-content-item data-key="terraform" }
+
+The tool I used to write all of our infrastructure as code (aka `IaC`).
+
+:::
+
+::: { .overlay-content-item data-key="bitbucket" }
+
+The repository host and tools for Continuous Integration and Deployment (aka `CI/CD`).
+I used Bitbucket pipelines to automate a number of tasks for developers, including
+(but not limited to) running software test suites, container builds, and
+production and preview deployments.
+
+:::
+
+::: { .overlay-content-item data-key="kubernetes" }
+
+Running containerized API and dashboard services and data pipeline `cronjobs`.
+
+:::
+
+::: { .overlay-content-item data-key="helm" }
+
+Ensuring that `kubernetes` resources were reproducible and service testing hooks.
+
+:::
+
+::: { .overlay-content-item data-key="docker" }
+
+Containerization of services (microservices) and consistent developer environment across platforms.
+
+:::
+
+::: { .overlay-content-item data-key="python" }
+
+Language of choice for all back end services (APIs) and data pipelines.
+
+:::
+
+::: { .overlay-content-item data-key="nodejs" }
+
+Language of choice for all front end services (dashboard and app).
+
+:::
+
+::: { .overlay-content-item data-key="react" }
+
+Framework of choice for all front end services (dashboard and app).
+
+:::
+
+::: { .overlay-content-item data-key="auth0" }
+
+OAuth token authentication in APIs and login in dashboard and app.
+
+:::
+
+::: { .overlay-content-item data-key="sqlalchemy" }
+
+Backend services to talk to to `mysql` with ease.
+
+:::
+
+::: { .overlay-content-item data-key="mysql" }
+
+Primary database for storing time-series data and customer metadata.
+
+:::
+
+::: { .overlay-content-item data-key="mongodb" }
+
+Resource grouping and real time usage and spend.
+
+:::
+
+::: { .overlay-content-item data-key="azure" }
+
+Hosting infrastructure and organization active directory.
+
+:::
+
+::: { .overlay-content-item data-key="cicd" }
+
+Ensuring developer productivity and efficient software delivery.
+
+:::
+
+::: { .overlay-content-item data-key="traefik" }
+
+`kubernetes` ingress, middleware, and SSL termination with ACME certificates.
+
+:::
+
+<!-- Stop Overlay Content ------> :::
+<!-- Stop Overlay --------------> :::
+<!-- Stop Floaty ---------------> :::

@@ -77,12 +77,12 @@ class ConfigFloatyItem(pydantic.BaseModel):
 
     def hydrate_iconify_li(
         self,
-        *args,
+        *,
         include_link: bool,
         **kwargs: Unpack[IconifyKwargs],
     ):
         _parent = kwargs["_parent"]
-        res = self.hydrate_iconify(*args, **kwargs)
+        res = self.hydrate_iconify(**kwargs)
 
         if include_link and self.href is not None:
             res = pf.Link(res, url=self.href)
@@ -106,20 +106,19 @@ class ConfigFloatyItem(pydantic.BaseModel):
 
     def hydrate_iconify_tr(
         self,
-        *args,
-        cells_extra: Iterable[pf.TableCell] | None = None,
+        # cells_extra: Iterable[pf.TableCell] | None = None,
         **kwargs: Unpack[IconifyKwargs],
     ):
 
         kwargs["inline"] = False
         cells: Iterable[pf.TableCell]
-        cells = [pf.TableCell(self.hydrate_iconify(*args, **kwargs))]
+        cells = [pf.TableCell(self.hydrate_iconify(**kwargs))]
 
         if kwargs["_parent"].container.titles:
             cells.append(pf.TableCell(pf.Para(pf.Str(self.title))))
 
-        if cells_extra is not None:
-            cells = (*cells, *cells_extra)
+        # if cells_extra is not None:
+        #     cells = (*cells, *cells_extra)
 
         return pf.TableRow(*cells)
 

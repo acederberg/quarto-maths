@@ -1,0 +1,80 @@
+<!-- Start Skills -----------> ::: { #resume-skills .column width=49%}
+
+<!-- Start Floaty -----------> ::: { #resume-skills-floaty }
+<!-- Start Overlay ----------> ::: { #resume-skills-overlay .overlay }
+<!-- Start Overlay Content --> ::: { .overlay-content }
+
+<!-- Start impl ------------> ::: { .overlay-content-item data-key="impl" }
+
+::: { #impl .pt-5 }
+:::
+
+### Other Tools { .py-5 }
+
+Here are some other tools I use frequently.
+
+_Most of these will be covered in detail in subsequent sections._
+
+::: { #impl-etc .pt-5 }
+
+:::
+
+<!-- Stop impl ------------> :::
+
+<!-- Start API and DB ------> ::: { .overlay-content-item data-key="api-and-db" }
+
+::: { #api-and-db .py-5 }
+
+:::
+
+::: { .skills-content .py-5 }
+
+Data is the star of the show and thus the storage, distribution, and retrieval of data is paramount.
+I have plenty of experience developing APIs and ETLs
+in languages like `python` {{< iconify devicons python >}}, and `nodejs` {{< iconify devicons nodejs>}}
+using database technologies such as `mysql` {{< iconify devicon mysql >}}, `mongodb` {{< iconify devicon mongodb >}}, and `redis` {{< iconify devicon redis >}}.
+
+Further, I am familiar with means of consuming APIs like `httpx`, `fetch`,
+and `curl` and protocols like `http` and `websockets`.
+
+:::
+
+<!-- STOP API and DB ------> :::
+
+<!-- Start UIUX -----------> ::: { .overlay-content-item data-key="uiux" }
+
+::: { #uiux .py-5 }
+
+:::
+
+::: { .skills-content .py-5 }
+
+While APIs and the backend aggregate, transform, and serve data, the data is
+of little use in assertaining the 'big picture' without visualization and
+interactivity.
+For instance, you are probably viewing this resume on my blog - would you read
+my resume if it were [in `YAML` format](/link-to-yaml)?
+
+:::
+
+<!-- Stop UIUX -------------> :::
+
+<!-- Start DevOps -----------> ::: { .overlay-content-item data-key="devops" }
+
+::: { #devops .py-5 }
+:::
+
+::: { .skills-content .py-5 }
+
+A service is not useful or accessible unless it is deployed, and
+deploying a website manually is a thing of the past. Automation is
+mandatory for building reliable and secure products.
+
+:::
+
+<!-- STOP DevOps -----------> :::
+
+<!-- Stop Overlay Content -----------> :::
+<!-- Stop Overlay -------------------> :::
+<!-- Stop Floaty --------------------> :::
+<!-- Stop Skills --------------------> :::

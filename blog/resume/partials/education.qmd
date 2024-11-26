@@ -1,0 +1,12 @@
+<!-- Start Education ---> ::::: { #education }
+<!-- Start UNM ---------> :::: { #unm .education education-item=unm }
+
+- Improved student outcomes as tutor and exam proctor in remedial algebra.
+  Ensured thorough student feedback by grading algebra, linear algebra, and
+  ordinary differential equations homework.
+- Documented efficient air plasma production using electricity and magnetism.
+  Built and programmed sensor arrays using rapberry pi and arduino (using
+  `python` and `c`).
+
+<!-- Stop UNM -----------> ::::
+<!-- Stop Education ----> :::::

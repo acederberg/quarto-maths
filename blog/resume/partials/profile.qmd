@@ -1,0 +1,11 @@
+::: { #resume-profile .py-5 }
+
+I am a software engineer and development operations engineer with success in
+building software as a service from scratch, developing APIs, quality assurance
+and containerization, enhancing and automating developer workflows and
+productivity, and architecting highly reliable deployments and infrastructure.
+
+I have a background in mathematics and engineering and very high standards for my own work.
+Some of my favorite technologies are `python`, `linux`, `docker`, `pulumi`, and `javascript`.
+
+:::
