@@ -1,0 +1,13 @@
+::: { #resume-projects }
+
+::: { .content-visible when-format="latex" }
+
+- [Website](https://acederberg.io/projects/website) - My website for inquiries and blog posts.
+- [Captura](https://github.com/acederberg/captura) - A permissions graph API.
+- [Automation](https://acederberg.io/projects/automation) - Automation for this website and other projects.
+- [NeoVim Configuration](https://acederberg.io/projects/nvim) - Configuration for my favorite text editor.
+- [Python TLSH](https://github.com/acederberg/py-tlsh) - Python fuzzy hashing project using TLSH in pure python.
+
+:::
+
+:::

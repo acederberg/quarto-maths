@@ -5,12 +5,13 @@ format:
     page-layout: full
     include-in-header:
       - ./includes/error.html
+    theme: cyborg
 ---
 
 ```{=html}
 <style>
   .terminal {
-    background: var(--bs-gray-200);
+    background: var(--bs-black);
     color: var(--bs-red);
   }
 
@@ -19,10 +20,14 @@ format:
     display: block;
     color: var(--bs-red);
   }
+
+  code {
+    background: var(--bs-gray-900);
+  }
 </style>
 ```
 
-Error from changes in <code><span id=origin>origin</span></code> at <code><span id="timestamp">timestamp<span></code>.
+Error from changes in <span id=origin>origin</span> at <span id="timestamp">timestamp<span>.
 
 ### `command`
 

@@ -58,216 +58,218 @@ resume:
       title: Senior Software Engineer
       start: January 2022
       stop: December 2023
-      tools:
-        overlay:
-          include: true
-          size_icon: 256
-        container:
-          size_item: 48
-          size_item_margin: 8
-          kind: list
-          classes: ["floaty-container-macos", "pt-3", "px-3"]
-        tooltip:
-          include: false
-        content:
-          - image:
-              iconify:
-                name: fastapi
-                set: devicon
-            key: fastapi
-            title: FastAPI
-          - image:
-              iconify:
-                name: terraform
-                set: devicon
-            key: terraform
-            title: Terraform
-          - image:
-              iconify:
-                name: bitbucket
-                set: devicon
-            key: bitbucket
-            title: Bitbucket
-          - image:
-              iconify:
-                name: kubernetes
-                set: devicon
-            key: kubernetes
-            title: Kubernetes
-          - image:
-              iconify:
-                name: helm
-                set: devicon
-            key: helm
-            title: Helm
-          - image:
-              iconify:
-                name: docker
-                set: devicon
-            key: docker
-            title: Docker
-          - image:
-              iconify:
-                name: python
-                set: devicon
-            key: python
-            title: Python
-          - image:
-              iconify:
-                name: nodejs
-                set: devicon
-            key: nodejs
-            title: NodeJS
-          - image:
-              iconify:
-                name: react
-                set: devicon
-            key: react
-            title: React
-          - image:
-              iconify:
-                name: auth0-icon
-                set: logos
-            key: auth0
-            title: Auth0
-          - image:
-              iconify:
-                name: sqlalchemy
-                set: devicon
-            key: sqlalchemy
-            title: SQLAlchemy
-          - image:
-              iconify:
-                name: mysql
-                set: devicon
-            key: mysql
-            title: MySQL
-          - image:
-              iconify:
-                name: mongodb
-                set: devicon
-            key: mongodb
-            title: MongoDB
-          - image:
-              iconify:
-                name: azure
-                set: devicon
-            key: azure
-            title: Azure
-          - image:
-              iconify:
-                name: github-actions
-                set: logos
-            key: cicd
-            title: Bitbucket Pipelines
-          - image:
-              iconify:
-                name: traefikproxy
-                set: devicon
-            key: traefik
-            title: Traefik
+      # NOTE: THESE SHOULD GO INTO OVERLAY!
+      # tools:
+      #   overlay:
+      #     include: true
+      #     size_icon: 256
+      #   container:
+      #     size_item: 48
+      #     size_item_margin: 8
+      #     kind: list
+      #     classes: ["floaty-container-macos", "pt-3", "px-3"]
+      #   tooltip:
+      #     include: false
+      #   content:
+      #     - image:
+      #         iconify:
+      #           name: fastapi
+      #           set: devicon
+      #       key: fastapi
+      #       title: FastAPI
+      #     - image:
+      #         iconify:
+      #           name: terraform
+      #           set: devicon
+      #       key: terraform
+      #       title: Terraform
+      #     - image:
+      #         iconify:
+      #           name: bitbucket
+      #           set: devicon
+      #       key: bitbucket
+      #       title: Bitbucket
+      #     - image:
+      #         iconify:
+      #           name: kubernetes
+      #           set: devicon
+      #       key: kubernetes
+      #       title: Kubernetes
+      #     - image:
+      #         iconify:
+      #           name: helm
+      #           set: devicon
+      #       key: helm
+      #       title: Helm
+      #     - image:
+      #         iconify:
+      #           name: docker
+      #           set: devicon
+      #       key: docker
+      #       title: Docker
+      #     - image:
+      #         iconify:
+      #           name: python
+      #           set: devicon
+      #       key: python
+      #       title: Python
+      #     - image:
+      #         iconify:
+      #           name: nodejs
+      #           set: devicon
+      #       key: nodejs
+      #       title: NodeJS
+      #     - image:
+      #         iconify:
+      #           name: react
+      #           set: devicon
+      #       key: react
+      #       title: React
+      #     - image:
+      #         iconify:
+      #           name: auth0-icon
+      #           set: logos
+      #       key: auth0
+      #       title: Auth0
+      #     - image:
+      #         iconify:
+      #           name: sqlalchemy
+      #           set: devicon
+      #       key: sqlalchemy
+      #       title: SQLAlchemy
+      #     - image:
+      #         iconify:
+      #           name: mysql
+      #           set: devicon
+      #       key: mysql
+      #       title: MySQL
+      #     - image:
+      #         iconify:
+      #           name: mongodb
+      #           set: devicon
+      #       key: mongodb
+      #       title: MongoDB
+      #     - image:
+      #         iconify:
+      #           name: azure
+      #           set: devicon
+      #       key: azure
+      #       title: Azure
+      #     - image:
+      #         iconify:
+      #           name: github-actions
+      #           set: logos
+      #       key: cicd
+      #       title: Bitbucket Pipelines
+      #     - image:
+      #         iconify:
+      #           name: traefikproxy
+      #           set: devicon
+      #       key: traefik
+      #       title: Traefik
 
     consulting:
       organization: acederberg.io
       title: Founder
       start: January 2024
       stop: Now
-      tools:
-        overlay:
-          include: false
-          size_icon: 256
-        container:
-          size_item: 48
-          size_item_margin: 8
-          kind: list
-          classes: ["floaty-container-macos", "pt-3", "px-3"]
-        tooltip:
-          include: false
-        content:
-          - image:
-              iconify:
-                set: misc
-                name: quarto
-            key: quarto
-            title: Quarto
-          - image:
-              iconify:
-                set: devicon
-                name: latex
-            key: latex
-            title: Latex
-          - image:
-              iconify:
-                set: devicon
-                name: pulumi
-            key: pulumi
-            title: Pulumi
-          - image:
-              iconify:
-                set: logos
-                name: github-icon
-            key: github
-            title: Github
-          - image:
-              iconify:
-                set: devicon
-                name: git
-            key: git
-            title: Git
-          - image:
-              iconify:
-                set: devicon
-                name: neovim
-            key: neovim
-            title: Neovim
-          - image:
-              iconify:
-                set: devicon
-                name: python-wordmark
-            key: python
-            title: Python
-          - image:
-              iconify:
-                set: devicon
-                name: nodejs-wordmark
-            key: nodejs
-            title: Nodejs
-          - image:
-              iconify:
-                set: misc
-                name: mermaid
-            key: mermaid
-            title: Mermaidjs
-          - image:
-              iconify:
-                set: logos
-                name: linode
-            key: linode
-            title: Linode
-          - image:
-              iconify:
-                set: logos
-                name: kubernetes
-            key: kubernetes
-            title: Kubernetes
-          - image:
-              iconify:
-                set: devicon
-                name: pandas-wordmark
-            key: pandas
-            title: Pandas
-          - image:
-              iconify:
-                set: devicon
-                name: kaggle-wordmark
-            key: kaggle
-            title: Kaggle
-          - image:
-              iconify:
-                set: devicon
-                name: docker-wordmark
-            key: docker
-            title: Docker
+      # NOTE: THESE SHOULD GO INTO OVERLAY!
+      # tools:
+      #   overlay:
+      #     include: false
+      #     size_icon: 256
+      #   container:
+      #     size_item: 48
+      #     size_item_margin: 8
+      #     kind: list
+      #     classes: ["floaty-container-macos", "pt-3", "px-3"]
+      #   tooltip:
+      #     include: false
+      #   content:
+      #     - image:
+      #         iconify:
+      #           set: misc
+      #           name: quarto
+      #       key: quarto
+      #       title: Quarto
+      #     - image:
+      #         iconify:
+      #           set: devicon
+      #           name: latex
+      #       key: latex
+      #       title: Latex
+      #     - image:
+      #         iconify:
+      #           set: devicon
+      #           name: pulumi
+      #       key: pulumi
+      #       title: Pulumi
+      #     - image:
+      #         iconify:
+      #           set: logos
+      #           name: github-icon
+      #       key: github
+      #       title: Github
+      #     - image:
+      #         iconify:
+      #           set: devicon
+      #           name: git
+      #       key: git
+      #       title: Git
+      #     - image:
+      #         iconify:
+      #           set: devicon
+      #           name: neovim
+      #       key: neovim
+      #       title: Neovim
+      #     - image:
+      #         iconify:
+      #           set: devicon
+      #           name: python-wordmark
+      #       key: python
+      #       title: Python
+      #     - image:
+      #         iconify:
+      #           set: devicon
+      #           name: nodejs-wordmark
+      #       key: nodejs
+      #       title: Nodejs
+      #     - image:
+      #         iconify:
+      #           set: misc
+      #           name: mermaid
+      #       key: mermaid
+      #       title: Mermaidjs
+      #     - image:
+      #         iconify:
+      #           set: logos
+      #           name: linode
+      #       key: linode
+      #       title: Linode
+      #     - image:
+      #         iconify:
+      #           set: logos
+      #           name: kubernetes
+      #       key: kubernetes
+      #       title: Kubernetes
+      #     - image:
+      #         iconify:
+      #           set: devicon
+      #           name: pandas-wordmark
+      #       key: pandas
+      #       title: Pandas
+      #     - image:
+      #         iconify:
+      #           set: devicon
+      #           name: kaggle-wordmark
+      #       key: kaggle
+      #       title: Kaggle
+      #     - image:
+      #         iconify:
+      #           set: devicon
+      #           name: docker-wordmark
+      #       key: docker
+      #       title: Docker
 
   headshot:
     url: https://avatars.githubusercontent.com/u/77076023?v=4
@@ -569,6 +571,7 @@ resume:
       - title: Linkedin
         href: https://www.linkedin.com/in/adrian-cederberg-b453571b9
         description: My profile on linkedin.
+        font_awesome: faLinkedin
         image:
           iconify:
             set: devicon
@@ -578,15 +581,17 @@ resume:
       - title: Github
         href: https://github.com/acederberg
         description: My github account.
+        font_awesome: faGithub
         image:
           iconify:
             set: devicon
             name: github
             label: Github
 
-      - title: Blog
+      - title: Website
         href: https://acederberg.io
-        description: My Blog
+        description: My Website
+        font_awesome: faCubes
         image:
           iconify:
             set: hugeicons
@@ -613,6 +618,7 @@ resume:
       - title: Phone
         key: phone
         value: (505) 589 - 6914
+        font_awesome: faPhone
         image:
           iconify:
             set: hugeicons
@@ -621,6 +627,7 @@ resume:
       - title: Email
         key: email
         value: adrn.cederberg123@gmail.com
+        font_awesome: faEnvelope
         image:
           iconify:
             set: hugeicons
@@ -628,7 +635,8 @@ resume:
           bootstrap: envelope
       - title: Location
         key: location
-        value: Albuquerque, New Mexico
+        value: Albuquerque, NM
+        font_awesome: faLocationArrow
         image:
           iconify:
             set: hugeicons

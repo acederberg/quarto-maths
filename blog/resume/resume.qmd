@@ -14,25 +14,34 @@ filters:
 
 <!-- START RESUME --------------------------------> ::: { #resume }
 
+<!-- START LEFT ----------------------------------> ::: { #left .minipage minipage-width=".49" .minipage-first }
+
 {{< include ./partials/_title.qmd >}}
-
-<!-- START LEFT ----------------------------------> ::: { #left .minipage minipage-width=".49" minipage-height="0.95" .minipage-first }
-
-{{< include ./partials/_contact.qmd >}}
-
-{{< include ./partials/_links.qmd >}}
-
-{{< include ./partials/_profile.qmd >}}
 
 <!-- STOP LEFT -----------------------------------> :::
 
-::: { #filler .minipage minipage-width="0.02" minipage-height="0.95" }
+{{< include ./partials/_tex_filler.qmd >}}
 
-\hfill
+<!-- START RIGHT ---------------------------------> ::: { #left .minipage minipage-width=".49" .minipage-final }
+
+::: { #contact-minipage .minipage minipage-width=".49" .minipage-first minipage-height="unset" }
+
+{{< include ./partials/_contact.qmd >}}
 
 :::
 
-<!-- START RIGHT ---------------------------------> ::: { #right .minipage minipage-width=".49"  minipage-height="0.95" .minipage-final }
+::: { #links-minipage .minipage minipage-width=".49" .minipage-final minipage-height="unset" }
+
+{{< include ./partials/_links.qmd >}}
+
+:::
+
+<!-- STOP RIGHT -----------------------------------> :::
+
+<!-- START LEFT ----------------------------------> ::: { #left .minipage minipage-width=".49" minipage-height="0.80" .minipage-first }
+
+{{< include ./partials/_profile.qmd >}}
+
 <!-- START EXPERIENCE ----------------------------> :::: { #resume-experience }
 
 {{< include ./partials/_consulting.qmd >}}
@@ -41,7 +50,21 @@ filters:
 
 <!-- STOP EXPERIENCE -----------------------------> ::::
 
-{{< include ./partials/_education.qmd >}}
+<!-- STOP LEFT -----------------------------------> :::
+
+{{< include ./partials/_tex_filler.qmd >}}
+
+<!-- START RIGHT ---------------------------------> ::: { #right .minipage minipage-width=".49"  minipage-height="0.80" .minipage-final }
+
+{{< include ./partials/_skills.qmd >}}
+
+{{< include ./partials/_projects.qmd >}}
+
+<!-- START EDUCATION ------------------------------> :::: { #resume-education }
+
+{{< include ./partials/_unm.qmd >}}
+
+<!-- STOP EDUCATION ------------------------------> ::::
 
 <!-- STOP RIGHT ----------------------------------> :::
 <!-- STOP RESUME ---------------------------------> :::

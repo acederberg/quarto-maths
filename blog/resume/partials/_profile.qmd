@@ -6,12 +6,4 @@ containerization, enhancing and automating developer workflows and
 productivity, and architecting highly reliable deployments and infrastructure.
 Background in applied mathematics and engineering.
 
-::: { .content-visible when-format=latex }
-
-_The most up to date version of this resume can be found
-[on my blog](https://acederberg.io/resume/resume.pdf) along with the
-[html version](https://acederberg.io/resume)._
-
-:::
-
 :::

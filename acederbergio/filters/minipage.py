@@ -33,11 +33,13 @@ class FilterMinipage(util.BaseFilter):
 
         env_start += f"[{align}]"
 
-        height = float(el.attributes.get("minipage-height", "0.99"))
-        if not (0 <= height <= 1):
-            raise ValueError
+        height_raw = el.attributes.get("minipage-height", "unset")
+        if height_raw != "unset":
+            height = float(height_raw)
+            if not (0 <= height <= 1):
+                raise ValueError
 
-        env_start += rf"[{height}\textheight]" if height < 1 else r"[\textheight]"
+            env_start += rf"[{height}\textheight]" if height < 1 else r"[\textheight]"
 
         width = float(el.attributes.get("minipage-width", "0.49"))
         if not (0 <= width <= 1):
@@ -48,7 +50,7 @@ class FilterMinipage(util.BaseFilter):
         util.record()
         util.record(el.identifier)
         util.record(el.classes)
-        util.record("height", height)
+        util.record("height", height_raw)
         util.record("width", width)
         util.record("align", align)
         util.record(env_start)

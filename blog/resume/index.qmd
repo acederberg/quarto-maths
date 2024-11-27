@@ -27,48 +27,78 @@ _For instance, the items in the `skills` section can be clicked on to learn more
 
 :::
 
+<!---
+
+###############################################################################
+###############################################################################
+
+NOTE: The first set of columns should contain the headshot, links, contact,
+      and profile. Column configurations are here since many sections may
+      go into each column.
+
+
+
+--->
+
 <!-- Start Columns 1 ------------> ::::: { .columns }
-<!-- Start Left -----------------> :::: { .column width=30% }
+<!--- Start Left -----------------> :::: { .column width=30% }
 
-::: { #resume-headshot }
-
-:::
+{{< include "./partials/_headshot.qmd" >}}
 
 {{< include "./partials/_links.qmd" >}}
 
 {{< include "./partials/_contact.qmd" >}}
 
-<!-- Stop Left ----------------------> ::::
+<!--- Stop Left ----------------------> ::::
 
-<!-- Start Filler -------------------> ::: { .column width="10%" }
-<!-- Stop Filler --------------------> :::
+<!--- Start Filler -------------------> ::: { .column width="1%" }
+<!--- Stop Filler --------------------> :::
 
-<!-- Start Right --------------------> :::: { .column width=60% }
+<!---
+###############################################################################
+###############################################################################
+
+NOTE: This section should contain education, profile, and experience.
+      It needs some work since it is not very pretty.
+
+
+
+--->
+<!--- Start Right --------------------> :::: { .column width=69% }
 
 {{< include ./partials/_profile.qmd >}}
 
-<!-- Stop Right ---------------------> ::::
-<!-- Stop Columns 1 -----------------> :::::
-
-<!-- Start Columns 2 ----------------> ::::: { .columns }
-
 {{< include ./partials/_skills.qmd >}}
 
-<!-- Start Filler -------------------> ::: { .column width="2%" }
-<!-- Stop Filler --------------------> :::
-
-<!-- Start Projects -----------------> ::: { #resume-projects .column width="49%" }
-<!-- Stop Projects ------------------> :::
-<!-- Stop Columns 2 -----------------> :::
-
-<!-- Start Experience ---------------> ::::: { #resume-experience }
+<!--- Start Experience ---------------> ::::: { #resume-experience .py-3 }
 
 {{< include ./partials/_consulting.qmd >}}
 
 {{< include ./partials/_mve.qmd >}}
 
-<!-- Stop Experience ----------------> :::::
+<!--- Stop Experience ----------------> :::::
 
-{{< include ./partials/_education.qmd >}}
+{{< include ./partials/_projects.qmd >}}
 
-<!-- Stop Resume   ------------------> ::::::
+<!-- Start Education -----------------> ::::: { #resume-education .py-3 }
+
+{{< include ./partials/_unm.qmd >}}
+
+<!--- Stop Edication -----------------> :::::
+
+<!--- Stop Right ---------------------> ::::
+<!--- Stop Columns 1 -----------------> :::::
+
+<!---
+
+###############################################################################
+###############################################################################
+
+NOTE: This second batch of columns will include skills and projects. Both of
+      these should include overlays with descriptions of each item.
+
+
+
+--->
+
+<!--- Stop Resume   ------------------> ::::::

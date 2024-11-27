@@ -1,3 +1,4 @@
+import itertools
 from datetime import date, timedelta
 from typing import Annotated, Any, Callable
 
@@ -25,6 +26,7 @@ def get_hydrate(
     if element.identifier not in elements:
         return None
 
+    util.record(element.identifier)
     meth_name = element.identifier.replace("resume-", "hydrate_")
     hydrator = getattr(instance, meth_name)
     return hydrator
@@ -85,8 +87,14 @@ class BaseExperienceItem(pydantic.BaseModel):
 
     def create_header_html(self) -> tuple[pf.Element, ...]:
         return (
-            pf.Header(pf.Str(self.title), level=3),  # type: ignore[attr-defined]
-            pf.Para(pf.Strong(pf.Str(self.organization))),
+            pf.Header(
+                pf.Str(self.title),  # type: ignore[attr-defined]
+                pf.Space(),
+                pf.Str("|"),
+                pf.Space(),
+                pf.Strong(pf.Str(self.organization)),
+                level=3,
+            ),
             pf.Para(pf.Emph(*self.create_start_stop())),
         )
 
@@ -165,7 +173,11 @@ class ConfigEducationItem(BaseExperienceItem):
         return self.degree
 
 
-class ConfigContactItem(floaty.ConfigFloatyItem):
+class ConfigLinkItem(floaty.ConfigFloatyItem):
+    font_awesome: str
+
+
+class ConfigContactItem(ConfigLinkItem):
     value: str
 
     def hydrate_iconify_tr(self, **kwargs: Unpack[floaty.IconifyKwargs]):
@@ -291,7 +303,7 @@ class ConfigResume(pydantic.BaseModel):
         ),
     ]
     links: Annotated[
-        floaty.ConfigFloatySection[floaty.ConfigFloatyItem] | None,
+        floaty.ConfigFloatySection[ConfigLinkItem] | None,
         pydantic.Field(
             default=None,
             description=(
@@ -336,12 +348,42 @@ class ConfigResume(pydantic.BaseModel):
         if doc.format == "html":
             do_floaty(self.contact, doc, element)
         else:
-            pf.Para(pf.Str("Paceholder content"))
-        #
-        # element.content = (
-        #     pf.Header(pf.Str("Contact"), level=2),
-        #     *element.content,
-        # )
+            listed = (
+                pf.RawInline(
+                    "\\%s { %s } \\label{%s} \\hfill \\\\\n"
+                    % (item.font_awesome, item.value, item.key),
+                    format="latex",
+                )
+                for item in self.contact.content.values()
+            )
+            element.content = (*element.content, pf.Para(*listed))
+
+        return element
+
+    def hydrate_links(self, doc: pf.Doc, element: pf.Element) -> pf.Element:
+        """Sidebar links."""
+        if self.links is None:
+            return element
+
+        if doc.format == "html":
+            do_floaty(self.links, doc, element)
+        else:
+            listed = (
+                pf.Plain(
+                    pf.Link(
+                        pf.RawInline(
+                            "\\%s { %s }" % (item.font_awesome, item.title),
+                            format="latex",
+                        ),
+                        url=item.href,
+                        title=item.title,
+                    ),
+                    pf.RawInline(" \\hfill \\\\\n"),
+                )
+                for item in self.links.content.values()
+                if item.href is not None
+            )
+            element.content = (*element.content, *listed)
 
         return element
 
@@ -406,23 +448,6 @@ class ConfigResume(pydantic.BaseModel):
         element.content = (headshot, *element.content)
         return element
 
-    def hydrate_links(self, doc: pf.Doc, element: pf.Element) -> pf.Element:
-        """Sidebar links."""
-        if self.links is None:
-            return element
-
-        if doc.format == "html":
-            do_floaty(self.links, doc, element)
-        else:
-            ...
-            # = pf.Para(pf.Str("Paceholder content"))
-
-        # element.content = (
-        #     pf.Header(pf.Str("Links"), level=2),
-        #     *element.content,
-        # )
-        return element
-
     def hydrate_projects(self, doc: pf.Doc, element: pf.Element) -> pf.Element:
         if self.projects is None:
             return element
@@ -460,6 +485,7 @@ class ConfigResume(pydantic.BaseModel):
             return element
 
         if (hydrator := get_hydrate(self, element)) is not None:
+            util.record(hydrator.__name__)
             return hydrator(doc, element)
 
         config: Any

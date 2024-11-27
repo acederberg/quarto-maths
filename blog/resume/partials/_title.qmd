@@ -1,7 +1,11 @@
 ::: { #resume-title .content-visble when-format="latex"}
 
 ```{=latex}
-{\Large \textbf{Adrian Cederberg} \textbar{} Software Engineer}
+{\Large \textbf{Adrian Cederberg} \\ Software Engineer} \\
+
+\href{https://acederberg.io/resume/resume.pdf}{\faFilePdf { Most Recent Resume }} \hfill
+\href{https://acederberg.io/resume/index.html}{\faCubes { Resume on Website }}
+\\
 ```
 
 :::

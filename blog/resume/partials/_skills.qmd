@@ -1,10 +1,19 @@
-<!-- Start Skills -----------> ::: { #resume-skills .column width=49%}
+<!-- Start Skills -----------> ::: { #resume-skills }
+
+::: { .content-visible when-format="latex" }
+
+- **Software Engineering**: I've been writing software seriously for the last 7 years and have successfully delivered APIs, dashboards, technical reports, and more.
+- **Devops Engineering**: Saved dev hours with pipelines and automation. Provided uptime greater than $99.99\%$ and resiliant with infrastructure as code and CI/CD.
+- **REST, Data, and Web**: Designed APIs and database schemas ensuring delivery and privacy of accurate data. Ensured excellent user experiences and smooth user interface performance.
+
+:::
+
+::: { .content-hidden when-format="latex" }
 
 <!-- Start Floaty -----------> ::: { #resume-skills-floaty }
 <!-- Start Overlay ----------> ::: { #resume-skills-overlay .overlay }
 <!-- Start Overlay Content --> ::: { .overlay-content }
-
-<!-- Start impl ------------> ::: { .overlay-content-item data-key="impl" }
+<!-- Start impl -------------> ::: { .overlay-content-item data-key="impl" }
 
 ::: { #impl .pt-5 }
 :::
@@ -53,7 +62,7 @@ While APIs and the backend aggregate, transform, and serve data, the data is
 of little use in assertaining the 'big picture' without visualization and
 interactivity.
 For instance, you are probably viewing this resume on my blog - would you read
-my resume if it were [in `YAML` format](/link-to-yaml)?
+my resume if it were in `YAML` format?
 
 :::
 
@@ -72,9 +81,11 @@ mandatory for building reliable and secure products.
 
 :::
 
-<!-- STOP DevOps -----------> :::
-
+<!-- Stop DevOps --------------------> :::
 <!-- Stop Overlay Content -----------> :::
 <!-- Stop Overlay -------------------> :::
 <!-- Stop Floaty --------------------> :::
+
+:::
+
 <!-- Stop Skills --------------------> :::
