@@ -1,6 +1,6 @@
 ::: { #resume-contact }
 
-<!-- Begin Floaty ---------------> ::: { #resume-contact-floaty }
+<!-- Begin Floaty ---------------> ::: { #resume-contact-floaty .content-visible when-format="html"}
 <!-- Begin Overlay --------------> ::: { #resume-contact-overlay .overlay }
 <!-- Begin Overlay Content ------> ::: { .overlay-content }
 

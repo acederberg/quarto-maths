@@ -7,18 +7,20 @@ from typing_extensions import Unpack
 
 from acederbergio.filters import floaty, util
 
-ELEMENTS_SIDEBAR = {
+ELEMENTS = {
     "resume-profile",
     "resume-contact",
     "resume-skills",
     "resume-headshot",
     "resume-links",
+    "resume-experience",
+    "resume-projects",
+    "resume-education",
 }
-ELEMENTS_BODY = {"resume-experience", "resume-projects", "resume-education"}
 
 
 def get_hydrate(
-    instance, element: pf.Element, elements: set[str]
+    instance, element: pf.Element, elements: set[str] = ELEMENTS
 ) -> Callable[[pf.Doc, pf.Element], pf.Element] | None:
     if element.identifier not in elements:
         return None
@@ -36,6 +38,8 @@ def do_floaty(
     Only floaties with overlay content should need to include their own
     floaty explicitly.
     """
+    if doc.format != "html":
+        return
 
     if not element.identifier:
         raise ValueError("Missing identifier for div.")
@@ -65,22 +69,10 @@ def do_floaty(
         element.content.append(floaty)
 
 
-# class ExperienceContentItem(pydantic.BaseModel):
-#     text: str
-#     draft: Annotated[bool, pydantic.Field(default=False)]
-#
-#     @pydantic.model_validator(mode="before")
-#     def from_string(cls, v):
-#         if isinstance(v, str):
-#             return {"text": v, "draft": False}
-#         return v
-
-
 class BaseExperienceItem(pydantic.BaseModel):
     organization: str
     start: str
     stop: str
-    # content: Annotated[list[ExperienceContentItem] | None, pydantic.Field(default=None)]
 
     def create_start_stop(self):
         return (
@@ -101,42 +93,30 @@ class BaseExperienceItem(pydantic.BaseModel):
     def create_header_tex(self) -> tuple[pf.Element]:
         header_textbar = (
             pf.Space(),
-            pf.RawInline("\\textbar{}", format="latex"),
+            pf.RawInline("\\hfill", format="latex"),
             pf.Space(),
         )
         return (
             pf.Header(
+                pf.Str(self.organization),
+                level=3,
+            ),
+            pf.Header(
                 pf.Str(self.title),  # type: ignore[attr-defined]
                 *header_textbar,
-                pf.Str(self.organization),
-                pf.Space(),
-                pf.RawInline("\\hfill", format="latex"),
-                pf.Space(),
-                *self.create_start_stop(),
-                level=3,
+                pf.Emph(*self.create_start_stop()),
+                level=4,
             ),
         )
 
     def hydrate(self, doc: pf.Doc, element: pf.Element) -> pf.Element:
+
         if doc.format == "latex":
             head_elements = self.create_header_tex()
         else:
             head_elements = self.create_header_html()
 
-        # if self.content is not None:
-        #     element.content = (
-        #         *element.content,
-        #         pf.BulletList(
-        #             *(
-        #                 pf.ListItem(pf.Para(pf.Str(item.text)))
-        #                 for item in self.content
-        #                 if not item.draft
-        #             )
-        #         ),
-        #     )
-
         element.content = (*head_elements, *element.content)
-
         return element
 
 
@@ -182,7 +162,7 @@ class ConfigEducationItem(BaseExperienceItem):
 
     @pydantic.computed_field
     def title(self) -> str:
-        return self.degree + ", " + self.concentration
+        return self.degree
 
 
 class ConfigContactItem(floaty.ConfigFloatyItem):
@@ -297,8 +277,7 @@ class ConfigHeadshot(pydantic.BaseModel):
     description: Annotated[str, pydantic.Field()]
 
 
-class ConfigSidebar(pydantic.BaseModel):
-    tex_width: Annotated[float, pydantic.Field(lt=1, gt=0, default=0.35)]
+class ConfigResume(pydantic.BaseModel):
     headshot: Annotated[ConfigHeadshot | None, pydantic.Field(default=None)]
     skills: Annotated[
         dict[str, ConfigSkills] | None,
@@ -320,6 +299,25 @@ class ConfigSidebar(pydantic.BaseModel):
                 "``$.overlay.include=False`` so that links are clickable."
             ),
         ),
+    ]
+
+    experience: Annotated[
+        dict[str, ConfigExperienceItem] | None,
+        pydantic.Field(
+            default=None,
+            description="Work experience configuration.",
+        ),
+    ]
+    education: Annotated[
+        dict[str, ConfigEducationItem] | None,
+        pydantic.Field(
+            default=None,
+            description="Education experience configuration.",
+        ),
+    ]
+    projects: Annotated[
+        floaty.ConfigFloatySection[floaty.ConfigFloatyItem] | None,
+        pydantic.Field(default=None, description="Projects configuration."),
     ]
 
     def hydrate_profile(self, doc: pf.Doc, element: pf.Element) -> pf.Element:
@@ -425,32 +423,6 @@ class ConfigSidebar(pydantic.BaseModel):
         # )
         return element
 
-    def __call__(self, doc: pf.Doc, element: pf.Element) -> pf.Element:
-        if (hydrator := get_hydrate(self, element, ELEMENTS_SIDEBAR)) is not None:
-            return hydrator(doc, element)
-        return element
-
-
-class ConfigBody(pydantic.BaseModel):
-    experience: Annotated[
-        dict[str, ConfigExperienceItem] | None,
-        pydantic.Field(
-            default=None,
-            description="Work experience configuration.",
-        ),
-    ]
-    education: Annotated[
-        dict[str, ConfigEducationItem] | None,
-        pydantic.Field(
-            default=None,
-            description="Education experience configuration.",
-        ),
-    ]
-    projects: Annotated[
-        floaty.ConfigFloatySection[floaty.ConfigFloatyItem] | None,
-        pydantic.Field(default=None, description="Projects configuration."),
-    ]
-
     def hydrate_projects(self, doc: pf.Doc, element: pf.Element) -> pf.Element:
         if self.projects is None:
             return element
@@ -487,7 +459,7 @@ class ConfigBody(pydantic.BaseModel):
         if not isinstance(element, pf.Div):
             return element
 
-        if (hydrator := get_hydrate(self, element, ELEMENTS_BODY)) is not None:
+        if (hydrator := get_hydrate(self, element)) is not None:
             return hydrator(doc, element)
 
         config: Any
@@ -498,31 +470,6 @@ class ConfigBody(pydantic.BaseModel):
         if "education" in element.classes and self.education is not None:
             config = self.education[element.attributes["education-item"]]
             return config.hydrate(doc, element)
-
-        return element
-
-
-class ConfigResume(pydantic.BaseModel):
-    # NOTE: These are required so tex layout is not whacky.
-    sidebar: Annotated[
-        ConfigSidebar,
-        pydantic.Field(
-            description="Sidebar content configuration.",
-        ),
-    ]
-    body: Annotated[
-        ConfigBody,
-        pydantic.Field(
-            description="Main body configuration.",
-        ),
-    ]
-
-    def __call__(self, doc: pf.Doc, element: pf.Element):
-        if self.sidebar is not None:
-            element = self.sidebar(doc, element)
-
-        if self.body is not None:
-            element = self.body(doc, element)
 
         return element
 
@@ -542,50 +489,11 @@ class FilterResume(util.BaseFilter):
         self.doc = doc
         self.config = ConfigResume.model_validate(doc.get_metadata("resume"))  # type: ignore
 
-    def layout(self, element: pf.Element):
-
-        # NOTE: ``HTML`` formatting is to be done using bootstrap in the
-        #       document itself. Bootstrap divs (obviously) only affect ``HTML``.
-        if self.doc.format == "html":
-            pass
-
-        elif self.doc.format == "latex":
-
-            size = self.config.sidebar.tex_width
-            if element.identifier == "resume-sidebar":
-                element.content = (
-                    pf.RawBlock(
-                        "\\begin{minipage}[t][0.7\\textheight][t]{"
-                        + str(size)
-                        + "\\textwidth}",
-                        format="latex",
-                    ),
-                    *element.content,
-                )
-
-            elif element.identifier == "resume-body":
-                # NOTE: End of minipage must be next to start of next for columns.
-                element.content = (
-                    pf.RawBlock(
-                        "\\end{minipage}\\hfill\\begin{minipage}[t][0.7\\textheight][t]{"
-                        + str(1 - size - 0.05)
-                        + "\\textwidth}",
-                        format="latex",
-                    ),
-                    *element.content,
-                    pf.RawBlock("\\end{minipage}", format="latex"),
-                )
-
-            elif element.identifier == "resume":
-                ...
-
-        return element
-
     def __call__(self, element: pf.Element):
         if not isinstance(element, pf.Div):
             return element
 
-        element = self.layout(element)
+        # element = self.layout(element)
         element = self.config(self.doc, element)
 
         return element

@@ -162,8 +162,7 @@ class ConfigWatch(pydantic.BaseModel):
                 env.BLOG / "templates",
                 env.BLOG / "themes",
                 env.BLOG / "_quarto.yaml",
-                env.BLOG / "resume/template.tex",
-                env.BLOG / "resume/title.tex",
+                env.BLOG / "resume/templates",
                 env.BLOG / "resume/resume.yaml",
             }
         ),
@@ -489,7 +488,7 @@ class BlogHandler(FileSystemEventHandler):
         # NOTE: [About template partials](https://quarto.org/docs/authoring/includes.html).
         #       I will start all of my partials with an `_` and place them in a
         #       ``partials`` folder.
-        is_partial = path.parent.name != "partials" and path.name.startswith("_")
+        is_partial = path.parent.name == "partials" and path.name.startswith("_")
         if path.suffix == ".qmd" and not is_partial:
             self.render_qmd(path)
             self.path_last_qmd = path

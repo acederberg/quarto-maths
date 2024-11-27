@@ -1,0 +1,750 @@
+resume:
+  # ----------------------------------------------------------------------- #
+  # Education
+  education:
+    unm:
+      organization: University of New Mexico
+      degree: Bachelors of Science
+      concentration: Applied Mathematics
+      start: August 2015
+      stop: December 2019
+  projects:
+    type: list
+    container:
+      classes: ["floaty-container-wide", "py-3"]
+      titles: true
+      size_item: 64
+    tooltip:
+      include: false
+      include_item: false
+      text: Click to learn more about my experience.
+    overlay:
+      include: false
+      size_icon: 128
+    content:
+      - title: acederberg.io
+        href: /
+        image:
+          iconify:
+            set: misc
+            name: favicon
+
+      - title: Automation
+        href: /projects/automation
+        image:
+          iconify:
+            set: material-symbols
+            name: automation-outline
+
+      - title: Nvim Configuration
+        href: /projects/nvim-config
+        image:
+          iconify:
+            set: devicon
+            name: neovim
+
+      - title: Captura
+        href: https://github.com/acederberg/captura
+        image:
+          iconify:
+            set: misc
+            name: favicon-black
+
+  # ----------------------------------------------------------------------- #
+  # Experience
+  experience:
+    mve:
+      organization: Mountain Vector Energy
+      title: Senior Software Engineer
+      start: January 2022
+      stop: December 2023
+      tools:
+        overlay:
+          include: true
+          size_icon: 256
+        container:
+          size_item: 48
+          size_item_margin: 8
+          kind: list
+          classes: ["floaty-container-macos", "pt-3", "px-3"]
+        tooltip:
+          include: false
+        content:
+          - image:
+              iconify:
+                name: fastapi
+                set: devicon
+            key: fastapi
+            title: FastAPI
+          - image:
+              iconify:
+                name: terraform
+                set: devicon
+            key: terraform
+            title: Terraform
+          - image:
+              iconify:
+                name: bitbucket
+                set: devicon
+            key: bitbucket
+            title: Bitbucket
+          - image:
+              iconify:
+                name: kubernetes
+                set: devicon
+            key: kubernetes
+            title: Kubernetes
+          - image:
+              iconify:
+                name: helm
+                set: devicon
+            key: helm
+            title: Helm
+          - image:
+              iconify:
+                name: docker
+                set: devicon
+            key: docker
+            title: Docker
+          - image:
+              iconify:
+                name: python
+                set: devicon
+            key: python
+            title: Python
+          - image:
+              iconify:
+                name: nodejs
+                set: devicon
+            key: nodejs
+            title: NodeJS
+          - image:
+              iconify:
+                name: react
+                set: devicon
+            key: react
+            title: React
+          - image:
+              iconify:
+                name: auth0-icon
+                set: logos
+            key: auth0
+            title: Auth0
+          - image:
+              iconify:
+                name: sqlalchemy
+                set: devicon
+            key: sqlalchemy
+            title: SQLAlchemy
+          - image:
+              iconify:
+                name: mysql
+                set: devicon
+            key: mysql
+            title: MySQL
+          - image:
+              iconify:
+                name: mongodb
+                set: devicon
+            key: mongodb
+            title: MongoDB
+          - image:
+              iconify:
+                name: azure
+                set: devicon
+            key: azure
+            title: Azure
+          - image:
+              iconify:
+                name: github-actions
+                set: logos
+            key: cicd
+            title: Bitbucket Pipelines
+          - image:
+              iconify:
+                name: traefikproxy
+                set: devicon
+            key: traefik
+            title: Traefik
+
+    consulting:
+      organization: acederberg.io
+      title: Founder
+      start: January 2024
+      stop: Now
+      tools:
+        overlay:
+          include: false
+          size_icon: 256
+        container:
+          size_item: 48
+          size_item_margin: 8
+          kind: list
+          classes: ["floaty-container-macos", "pt-3", "px-3"]
+        tooltip:
+          include: false
+        content:
+          - image:
+              iconify:
+                set: misc
+                name: quarto
+            key: quarto
+            title: Quarto
+          - image:
+              iconify:
+                set: devicon
+                name: latex
+            key: latex
+            title: Latex
+          - image:
+              iconify:
+                set: devicon
+                name: pulumi
+            key: pulumi
+            title: Pulumi
+          - image:
+              iconify:
+                set: logos
+                name: github-icon
+            key: github
+            title: Github
+          - image:
+              iconify:
+                set: devicon
+                name: git
+            key: git
+            title: Git
+          - image:
+              iconify:
+                set: devicon
+                name: neovim
+            key: neovim
+            title: Neovim
+          - image:
+              iconify:
+                set: devicon
+                name: python-wordmark
+            key: python
+            title: Python
+          - image:
+              iconify:
+                set: devicon
+                name: nodejs-wordmark
+            key: nodejs
+            title: Nodejs
+          - image:
+              iconify:
+                set: misc
+                name: mermaid
+            key: mermaid
+            title: Mermaidjs
+          - image:
+              iconify:
+                set: logos
+                name: linode
+            key: linode
+            title: Linode
+          - image:
+              iconify:
+                set: logos
+                name: kubernetes
+            key: kubernetes
+            title: Kubernetes
+          - image:
+              iconify:
+                set: devicon
+                name: pandas-wordmark
+            key: pandas
+            title: Pandas
+          - image:
+              iconify:
+                set: devicon
+                name: kaggle-wordmark
+            key: kaggle
+            title: Kaggle
+          - image:
+              iconify:
+                set: devicon
+                name: docker-wordmark
+            key: docker
+            title: Docker
+
+  headshot:
+    url: https://avatars.githubusercontent.com/u/77076023?v=4
+    title: Headshot
+    description: Its'a Me!
+  # ----------------------------------------------------------------------- #
+  # Skills
+  skills:
+    main:
+      type: list
+      container:
+        classes: ["floaty-container-wide", "py-3"]
+        titles: true
+        size_item: 64
+      tooltip:
+        include: true
+        include_item: false
+        text: Click to learn more about my experience.
+      overlay:
+        include: true
+        size_icon: 128
+      content:
+        - title: Programming Skills
+          key: impl
+          since: 2017-08-01
+          image:
+            iconify:
+              set: misc
+              name: binary
+        - title: APIs and Databases
+          key: api-and-db
+          since: 2021-02-01
+          image:
+            iconify:
+              set: misc
+              name: api
+        - title: Dashboards and UIs
+          key: uiux
+          since: 2021-05-01
+          image:
+            iconify:
+              set: misc
+              name: dashboard
+        - title: DevOps Engineering
+          key: devops
+          since: 2021-06-01
+          image:
+            iconify:
+              set: misc
+              name: devops
+    impl:
+      progress_bar_classes: ["progress-bar-striped", "progress-bar-animated", "bg-indigo", "text-light"]
+      container:
+        classes: ["floaty-container-wide"]
+        titles: true
+        size_item: 64
+        kind: table
+      tooltip:
+        include: false
+      overlay:
+        size_icon: 32
+        include: false
+      content:
+        - title: Python
+          key: python
+          since: 2017-08-01
+          image:
+            iconify:
+              set: skill-icons
+              name: python-dark
+        - title: Docker
+          key: docker
+          since: 2021-04-01
+          image:
+            iconify:
+              set: devicon
+              name: docker
+        - title: Pipelines
+          since: 2021-07-01
+          image:
+            iconify:
+              set: logos
+              name: github-actions
+        - title: Linux
+          key: linux
+          since: 2019-08-01
+          image:
+            iconify:
+              set: devicon
+              name: linux
+
+        - title: Git
+          key: git
+          since: 2021-01-01
+          image:
+            iconify:
+              set: devicon
+              name: git
+        - title: Vim and NeoVim
+          key: nvim
+          since: 2021-06-01
+          image:
+            iconify:
+              set: devicon
+              name: neovim
+        - title: Javascript
+          key: javascript
+          since: 2021-04-01
+          image:
+            iconify:
+              set: devicon
+              name: javascript
+    api-and-db:
+      progress_bar_classes: ["bg-cyan", "text-light", "progress-bar-animated", "progress-bar-striped"]
+      container:
+        classes: ["floaty-container-wide"]
+        titles: true
+        size_item: 64
+        kind: table
+      tooltip:
+        include: false
+      overlay:
+        size_icon: 32
+        include: false
+      content:
+        - title: HTTP
+          key: http
+          since: 2021-01-01
+          image:
+            iconify:
+              set: material-symbols
+              name: http
+        - title: Python
+          key: python
+          since: 2017-08-01
+          image:
+            iconify:
+              set: skill-icons
+              name: python-dark
+        - title: MySQL
+          key: mysql
+          since: 2021-02-01
+          image:
+            iconify:
+              set: devicon
+              name: mysql
+        - title: MongoDB
+          key: mongodb
+          since: 2021-07-01
+          image:
+            iconify:
+              set: devicon
+              name: mongodb
+        - title: SqlAlchemy
+          key: sqlalchemy
+          since: 2021-02-01
+          image:
+            iconify:
+              set: devicon
+              name: sqlalchemy
+        - title: FastAPI
+          key: fastapi
+          since: 2022-01-01
+          image:
+            iconify:
+              set: devicon
+              name: fastapi
+
+    uiux:
+      progress_bar_classes: ["text-light", "progress-bar-animated", "progress-bar-striped"]
+      container:
+        classes: ["floaty-container-wide"]
+        titles: true
+        size_item: 64
+        kind: table
+      tooltip:
+        include: false
+      overlay:
+        size_icon: 32
+        include: false
+      content:
+        - title: Jinja
+          key: jinja
+          since: 2021-04-01
+          image:
+            iconify:
+              set: file-icons
+              name: jinja
+        - title: Typescript
+          key: typescript
+          since: 2021-07-01
+          image:
+            iconify:
+              set: devicon
+              name: typescript
+        - title: React
+          key: react
+          since: 2021-07-01
+          image:
+            iconify:
+              set: devicon
+              name: react
+        - title: JavaScript
+          key: js
+          since: 2021-04-01
+          image:
+            iconify:
+              set: devicon
+              name: javascript
+        - title: HTML
+          key: html
+          since: 2021-04-01
+          image:
+            iconify:
+              set: logos
+              name: html-5
+        - title: CSS
+          key: css
+          since: 2021-04-01
+          image:
+            iconify:
+              set: logos
+              name: css-3
+
+    devops:
+      progress_bar_classes: ["bg-success", "progress-bar-animated", "progress-bar-striped"]
+      container:
+        classes: ["floaty-container-wide"]
+        titles: true
+        size_item: 64
+        kind: table
+      tooltip:
+        include: false
+      overlay:
+        size_icon: 32
+        include: false
+      content:
+        - title: Docker
+          key: docker
+          since: 2021-04-01
+          image:
+            iconify:
+              set: devicon
+              name: docker
+        - title: Pipelines
+          since: 2021-07-01
+          image:
+            iconify:
+              set: logos
+              name: github-actions
+        - title: Terraform
+          key: terraform
+          since: 2022-04-01
+          image:
+            iconify:
+              set: devicon
+              name: terraform
+        - title: Kuberenetes
+          key: k8s
+          since: 2022-04-01
+          image:
+            iconify:
+              set: devicon
+              name: kubernetes
+        - title: Ansible
+          key: ansible
+          since: 2021-10-01
+          image:
+            iconify:
+              set: devicon
+              name: ansible
+        - title: Cloud
+          key: cloud
+          since: 2021-06-01
+          image:
+            iconify:
+              set: hugeicons
+              name: cloud
+
+        - title: Pulumi
+          key: pulumi
+          since: 2024-01-01
+          image:
+            iconify:
+              set: devicon
+              name: pulumi
+  # ----------------------------------------------------------------------- #
+  # Links
+  links:
+    container:
+      classes: ["floaty-container-macos", "pt-3", "px-5"]
+      size_item: 32
+    tooltip:
+      text: Click on any of the icons to open in a new tab.
+    overlay:
+      include: false
+      size_icon: 64
+    content:
+      - title: Linkedin
+        href: https://www.linkedin.com/in/adrian-cederberg-b453571b9
+        description: My profile on linkedin.
+        image:
+          iconify:
+            set: devicon
+            name: linkedin
+            label: Linkedin
+
+      - title: Github
+        href: https://github.com/acederberg
+        description: My github account.
+        image:
+          iconify:
+            set: devicon
+            name: github
+            label: Github
+
+      - title: Blog
+        href: https://acederberg.io
+        description: My Blog
+        image:
+          iconify:
+            set: hugeicons
+            name: house-01
+            label: Blog
+
+  # ----------------------------------------------------------------------- #
+  # Contact
+  contact:
+    use: bootstrap
+    tooltip:
+      include: true
+      text: Click any row to learn more about each contact method.
+    container:
+      include: true
+      size_item: 32
+      classes: ["floaty-container-macos", "pt-3", "px-5"]
+      titles: false
+      kind: table
+    overlay:
+      include: true
+      size_icon: 128
+    content:
+      - title: Phone
+        key: phone
+        value: (505) 589 - 6914
+        image:
+          iconify:
+            set: hugeicons
+            name: smart-phone-01
+          bootstrap: phone
+      - title: Email
+        key: email
+        value: adrn.cederberg123@gmail.com
+        image:
+          iconify:
+            set: hugeicons
+            name: mail-01
+          bootstrap: envelope
+      - title: Location
+        key: location
+        value: Albuquerque, New Mexico
+        image:
+          iconify:
+            set: hugeicons
+            name: location-01
+          bootstrap: compass
+floaty:
+  impl-etc:
+    container:
+      type: list
+      size_item: 64
+    overlay:
+      include: false
+      size_icon: 0
+    tooltip:
+      include: false
+    content:
+      - title: Lua
+        key: lua
+        image:
+          iconify:
+            set: devicon
+            name: lua
+      - title: Go
+        key: go
+        image:
+          iconify:
+            set: devicon
+            name: go
+      - title: JSON
+        key: json
+        image:
+          iconify:
+            set: devicon
+            name: json
+      - title: YAML
+        key: yaml
+        image:
+          iconify:
+            set: devicon
+            name: yaml
+      - image:
+          iconify:
+            set: misc
+            name: quarto
+        key: quarto
+        title: Quarto
+      - image:
+          iconify:
+            set: devicon
+            name: latex
+        key: latex
+        title: Latex
+      - image:
+          iconify:
+            set: misc
+            name: mermaid
+        key: mermaid
+        title: Mermaidjs
+      - image:
+          iconify:
+            set: devicon
+            name: pandas-wordmark
+        key: pandas
+        title: Pandas
+      - title: Typescript
+        key: typescript
+        image:
+          iconify:
+            set: devicon
+            name: typescript
+      - title: React
+        key: react
+        image:
+          iconify:
+            set: devicon
+            name: react
+      - title: HTML
+        key: html
+        image:
+          iconify:
+            set: logos
+            name: html-5
+      - title: CSS
+        key: css
+        image:
+          iconify:
+            set: logos
+            name: css-3
+      - title: Pydantic
+        key: pydantic
+        image:
+          iconify:
+            set: simple-icons
+            name: pydantic
+      - title: FastAPI
+        key: fastapi
+        image:
+          iconify:
+            name: fastapi
+            set: devicon
+      - title: FastAPI
+        key: typer
+        image:
+          iconify:
+            name: typer
+            set: simple-icons
+      - title: pytest
+        key: pytest
+        image:
+          iconify:
+            name: pytest
+            set: simple-icons
+      - title: ZSH
+        key: zsh
+        image:
+          iconify:
+            set: codicon
+            name: terminal-bash
+

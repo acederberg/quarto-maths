@@ -16,7 +16,7 @@ dashboard and deliver new releases.
   implementing pipelines and infrastructure as code using
   `Bitbucket` pipelines, `Helm`, and `Terraform` with `Azure`.
 
-- Kick-started admin dashboard to enhance company data operations and monitor
+- Kick started admin dashboard to enhance company data operations and monitor
   data pipelines using `NextJS`.
 
 ::::

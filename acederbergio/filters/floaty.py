@@ -405,6 +405,9 @@ class FilterFloaty(util.BaseFilter):
         )
 
     def __call__(self, element: pf.Element):
+        if self.doc.format != "html":
+            return element
+
         if not isinstance(element, pf.Div):
             return element
 

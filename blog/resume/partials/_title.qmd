@@ -1,0 +1,7 @@
+::: { #resume-title .content-visble when-format="latex"}
+
+```{=latex}
+{\Large \textbf{Adrian Cederberg} \textbar{} Software Engineer}
+```
+
+:::
