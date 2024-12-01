@@ -1,5 +1,6 @@
 ---
 title: Adrian Cederberg
+orientation: landscape
 subtitle: Software Engineer | Resume v5
 format:
   pdf:

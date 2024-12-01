@@ -571,7 +571,6 @@ class Handler:
             if use_timestamp
             else metadata.aggr_linkedlist(self.source)
         )
-        print(q)
         items = collection.aggregate(q)
 
         if not use_timestamp:

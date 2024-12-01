@@ -8,25 +8,6 @@ format:
     theme: cyborg
 ---
 
-```{=html}
-<style>
-  .terminal {
-    background: var(--bs-black);
-    color: var(--bs-red);
-  }
-
-  .terminal span {
-    width: 100%;
-    display: block;
-    color: var(--bs-red);
-  }
-
-  code {
-    background: var(--bs-gray-900);
-  }
-</style>
-```
-
 Error from changes in <span id=origin>origin</span> at <span id="timestamp">timestamp<span>.
 
 ### `command`

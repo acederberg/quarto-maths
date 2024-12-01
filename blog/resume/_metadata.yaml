@@ -598,6 +598,16 @@ resume:
             name: house-01
             label: Blog
 
+      - title: Resume
+        href: https://acederberg.io/resume/resume.pdf
+        description: Most Recent Version of Resume
+        font_awaesome: faFilePdf
+        image:
+          iconify:
+            set: hugeicons
+            name: document
+            label: Resume
+
   # ----------------------------------------------------------------------- #
   # Contact
   contact:

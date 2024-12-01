@@ -1,4 +1,6 @@
 import logging
+import logging.handlers
+import os
 import pathlib
 from os import environ
 from typing import Annotated, Any, Literal
@@ -104,18 +106,32 @@ else:
 ICONS_SETS = require_path("icon_sets", ICONS / "sets")
 BUILD_JSON = require_path("build_json", BLOG / "build.json")
 
+DEV = BUILD / "dev"
+if not os.path.exists(DEV):
+    os.mkdir(DEV)
+
 
 if (_ENV := require("env", "development").lower()) not in ENV_POSSIBLE:
     raise ValueError(f"Value for `env` must be one of `{ENV_POSSIBLE}`.")
 
 ENV: FieldEnv = _ENV  # type: ignore
+ENV_IS_DEV = ENV == "development"
+
+
+socket_handler = None
+if ENV_IS_DEV:
+    socket_handler = util.SocketHandler(str(ROOT / "blog.socket"), None)
+    socket_handler.setFormatter(util.JSONFormatter())
 
 
 def create_logger(name: str):
 
-    level = require("log_level", "WARNING").upper()
+    level = require("log_level", "DEBUG").upper()
     logger = logging.getLogger(name)
-    logger.setLevel(level)
+
+    if ENV_IS_DEV and socket_handler is not None:
+        logger.addHandler(socket_handler)
+        logger.setLevel(level)
 
     return logger
 

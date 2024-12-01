@@ -39,7 +39,7 @@ class BaseFilter(abc.ABC):
                 f"Missing attribute `filter_name` of `{cls.__name__}`."
             )
 
-        cls.filter_log = env.BUILD / f"{cls.filter_name}.txt"
+        cls.filter_log = env.DEV / f"{cls.filter_name}.txt"
         return super().__init_subclass__()
 
     @abc.abstractmethod

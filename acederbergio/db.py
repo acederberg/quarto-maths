@@ -3,13 +3,14 @@
 """
 
 import json
-from typing import Annotated, Any
+from typing import Annotated, Any, Type
 
 import bson
 import pydantic
 import rich
 import typer
 import yaml_settings_pydantic as ysp
+from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 
@@ -45,9 +46,9 @@ FlagURL = Annotated[str, typer.Option("--mongodb-url"), pydantic.Field(URL)]
 FlagDatabase = Annotated[str, pydantic.Field(DATABASE)]
 
 
-def create_client(*, _mongodb_url: str | None = None):
+def create_client(*, _mongodb_url: str | None = None, cls: Type = MongoClient):
     mongodb_url = env.require("mongodb_url", _mongodb_url)
-    return MongoClient(mongodb_url, server_api=ServerApi("1"))
+    return cls(mongodb_url, server_api=ServerApi("1"))
 
 
 class Config(ysp.BaseYamlSettings):
@@ -60,8 +61,11 @@ class Config(ysp.BaseYamlSettings):
     database: FlagDatabase
     url: FlagURL
 
-    def create_client(self):
+    def create_client(self) -> MongoClient:
         return create_client(_mongodb_url=self.url)
+
+    def create_client_async(self) -> AsyncIOMotorClient:
+        return create_client(_mongodb_url=self.url, cls=AsyncIOMotorClient)
 
     # NOTE: While CLI flags can be use with ``cli_parse_args``, it does not look
     #       too good with ``typer``. It would be a great deal of work for something

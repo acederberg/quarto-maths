@@ -27,6 +27,8 @@ services:
     ports:
       - target: 3000
         published: 3000
+      - target: 3030
+        published: 3030
     tty: true
     volumes:
       - .venv:/home/docker/.venv
@@ -36,4 +38,5 @@ services:
       #       every time. If there are permissions issues with the volume, just
       #       do ``rm -r ./docker/.venv`` on the host system.
       - /home/docker/app/docker/.venv
+      - /home/docker/app/docker/.data
       # - 'kaggle.json:/home/quarto/.config/

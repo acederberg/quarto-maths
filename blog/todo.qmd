@@ -45,7 +45,7 @@ Anything that looks off topic/involved should be pushed into the next release.
 | Hovering on Floaty Title            | 11/8/2024  | Tooltip should be shown. Or maybe animated border (Chris suggests).     |
 | Finish HTML Resume Skills           | 11/8/2024  | Just need to finish filling out the overlay.                            |
 | Overlay exit icon                   | 11/9/2024  | Might not be boomer proof. Bonus: Navigation and urlparams.             |
-| Finish TeX Resume                   |            | The resume should be able to render as TeX.                             |
+| Finish TeX Resume                   | 11/27/2024 | The resume should be able to render as TeX.                             |
 | Finalize Resume Content             |            | Watch the videos Elen showed me, have a few people review if possible.  |
 | Improve `projects/blog/index.qmd`   | 11/11/2024 | Finish overlays, round out content, make it look pretty for geusts.     |
 | Improve `projects/index.qmd`        | 11/10/2024 | I want a better commit graph                                            |
@@ -81,6 +81,7 @@ I will need to return to studying data structures and algorithms for a bit.
 | Add error reporting page         |            |                                                                                                                                                                                 |
 | Scripts need testing             |            |                                                                                                                                                                                 |
 | Generic cover letter             |            | I would like to use AI to generate cover letters more specific to some postings too.                                                                                            |
+| Logs to socket.                  |            | I would like to have logs in the browser and to not have to keep the dev server open in the terminal.                                                                           |
 
 ### Testing
 
@@ -88,16 +89,17 @@ Testing will be a pipeline of commands dispatchable via the `acederbergio` comma
 I would like to add the database since I would like to later use a database to
 allow user error reports and inquiries.
 
-| Item                      | Completed  | Description                                                |
-| ------------------------- | ---------- | ---------------------------------------------------------- |
-| Setup mongoDB             | 11/13/2024 |                                                            |
-| Pull sitemap and listings | 11/13/2024 |                                                            |
-| Spellcheck                |            | Need aspell output to be readable                          |
-| Metadata Checks           | 11/13/2024 |                                                            |
-| Tests for metadata checks | 11/18/2024 | Because if it is not consisten why bother having it at all |
-| Fuzzy hashing checks      |            | Need a good fuzzy hashing library first.                   |
-| Selenium                  |            | Use it to check the functionality of custom componants.    |
-| Beutiful soup.            |            | Make sure that links are valid.                            |
+| Item                      | Completed  | Description                                                                                     |
+| ------------------------- | ---------- | ----------------------------------------------------------------------------------------------- |
+| Setup mongoDB             | 11/13/2024 |                                                                                                 |
+| Pull sitemap and listings | 11/13/2024 |                                                                                                 |
+| Spellcheck                |            | Need aspell output to be readable                                                               |
+| Metadata Checks           | 11/13/2024 |                                                                                                 |
+| Tests for metadata checks | 11/18/2024 | Because if it is not consisten why bother having it at all                                      |
+| Fuzzy hashing checks      |            | Need a good fuzzy hashing library first.                                                        |
+| Selenium                  |            | Use it to check the functionality of custom componants.                                         |
+| Beutiful soup.            |            | Make sure that links are valid.                                                                 |
+| Resume Testing            |            | I would like to run the resume through applicant trashing systems, AI suggestions, and parsers. |
 
 ### The Resume AI and Parsing Project
 
@@ -114,13 +116,14 @@ provide only the content and not the formatting.
 
 There are some things that must be handled in general.
 
-| Item                    | Completed | Description             |
-| ----------------------- | --------- | ----------------------- |
-| LinkedIn profile review |           |                         |
-| Fiver                   |           |                         |
-| NM ICS                  |           |                         |
-| Follow up with AZC      |           |                         |
-| include-code-files      |           | Need to add code files. |
+| Item                     | Completed | Description             |
+| ------------------------ | --------- | ----------------------- |
+| LinkedIn profile review  |           |                         |
+| Fiver                    |           |                         |
+| NM ICS                   |           |                         |
+| Follow up with AZC       |           |                         |
+| include-code-files       |           | Need to add code files. |
+| Add zsh to dev container |           | Gotta go fast.          |
 
 <script>
   Array

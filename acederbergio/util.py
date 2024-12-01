@@ -1,4 +1,6 @@
 import json
+import logging
+import logging.handlers
 from datetime import datetime
 from typing import Annotated
 
@@ -57,3 +59,66 @@ class HasTimestamp(pydantic.BaseModel):
     @property
     def timestamp(self) -> int:
         return int(datetime.timestamp(self.time))
+
+
+# Thanks mCoding: https://www.youtube.com/watch?v=9L77QExPmI0
+class JSONFormatter(logging.Formatter):
+    fmt_keys: set[str]
+
+    @property
+    def fmt_keys_default(self) -> set[str]:
+        return {
+            # "args",
+            # "asctime",
+            "created",
+            # "exc_info",
+            # "exc_text",
+            "filename",
+            "funcName",
+            "levelname",
+            "levelno",
+            "lineno",
+            "module",
+            # "msecs",
+            "msg",
+            "name",
+            "pathname",
+            # "process",
+            # "processName",
+            # "relativeCreated",
+            # "stack_info",
+            # "thread",
+            "threadName",
+            # "taskName",
+        }
+
+    def __init__(self, *, fmt_keys: list[str] | None = None):
+        super().__init__()
+        self.fmt_keys = (
+            (set(fmt_keys)) if fmt_keys is not None else self.fmt_keys_default
+        )
+        if "message" in self.fmt_keys:
+            raise ValueError("Cannot specify `message` in format keys.")
+
+    def format(self, record: logging.LogRecord) -> str:
+        line = {key: getattr(record, key, None) for key in self.fmt_keys}
+        line.update(msg=record.getMessage())
+        if record.exc_info is not None:
+            line.update(exc_info=self.formatException(record.exc_info))
+        if record.stack_info is not None:
+            line.update(stack_info=self.formatStack(record.stack_info))
+
+        return json.dumps(line, default=str) + "\n"
+
+
+class SocketHandler(logging.handlers.SocketHandler):
+
+    def emit(self, record: logging.LogRecord):
+        """Emit a record without pickling.
+
+        Ideally, the formatter is ``JSONFormatter`` from above.
+        """
+        try:
+            self.send(self.format(record).encode())
+        except Exception:
+            self.handleError(record)
