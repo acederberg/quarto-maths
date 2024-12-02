@@ -51,6 +51,10 @@ def create_client(*, _mongodb_url: str | None = None, cls: Type = MongoClient):
     return cls(mongodb_url, server_api=ServerApi("1"))
 
 
+class HasMongoId(pydantic.BaseModel):
+    mongo_id: FieldObjectId
+
+
 class Config(ysp.BaseYamlSettings):
 
     model_config = ysp.YamlSettingsConfigDict(

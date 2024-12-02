@@ -47,18 +47,31 @@ def print_yaml(
 #     def __init__(self, *args, fake: Callable[[], Any] | None = None, **kwargs):
 #         super().__init__(*args, **kwargs)
 #         self.fake = fake
+FieldTime = Annotated[
+    datetime,
+    pydantic.Field(default_factory=lambda: datetime.now()),
+]
+FieldTimestamp = Annotated[int, pydantic.Field(gt=0), pydantic.BeforeValidator(int)]
 
 
 class HasTimestamp(pydantic.BaseModel):
-    time: Annotated[
-        datetime,
-        pydantic.Field(default_factory=lambda: datetime.now()),
-    ]
+    time: FieldTime
 
     @pydantic.computed_field  # type: ignore[prop-decorator]
     @property
     def timestamp(self) -> int:
         return int(datetime.timestamp(self.time))
+
+
+class HasTime(pydantic.BaseModel):
+    """Inverse of ``HasTimestamp``."""
+
+    timestamp: FieldTimestamp
+
+    @pydantic.computed_field
+    @property
+    def time(self) -> datetime:
+        return datetime.fromtimestamp(self.timestamp)
 
 
 # Thanks mCoding: https://www.youtube.com/watch?v=9L77QExPmI0
