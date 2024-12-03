@@ -14,13 +14,14 @@ import contextlib
 import json
 import os
 import pathlib
-import re
 import shutil
 import subprocess
+import sys
 import time
 from datetime import datetime
 from typing import Annotated, Any, Iterable
 
+import bson
 import fastapi
 import fastapi.staticfiles
 import motor
@@ -31,10 +32,9 @@ import rich.table
 import typer
 import uvicorn
 import uvicorn.config
+import watchfiles
 import yaml_settings_pydantic as ysp
 from typing_extensions import Doc, Self
-from watchdog.events import FileSystemEvent, FileSystemEventHandler
-from watchdog.observers import Observer
 
 from acederbergio import db, env, util
 from acederbergio.api import routes, schemas
@@ -115,13 +115,6 @@ class Node:
             out.update({k: v.dict() for k, v in self.children.items()})
 
         return out
-
-
-# class QuartoTargetType(enum.Enum, str):
-#     filter = "filter"
-#     asset = "asset"
-#     static = "static"
-#
 
 
 class ConfigRender(pydantic.BaseModel):
@@ -293,11 +286,11 @@ class Context:
         return self._client
 
     @property
-    def db(self):
+    def db(self) -> motor.motor_asyncio.AsyncIOMotorDatabase:
         if self._collection is None:
             self._db = self.client[self.database.database]
 
-        return self._db
+        return self._db  # type: ignore
 
     def dict(self):
         out = {
@@ -341,16 +334,12 @@ class Context:
     #     return None
 
 
-class BlogHandler(FileSystemEventHandler):
+class BlogHandler:
     context: Context
 
     _ignored: Annotated[
         set[pathlib.Path],
-        Doc("Cache for paths that make it past ``is_event_ignored``."),
-    ]
-    _path_memo: Annotated[
-        dict[str, pathlib.Path],
-        Doc("Cache map of seen paths to their resolved paths."),
+        Doc("Cache for paths that make it past ``is_path_ignored``."),
     ]
 
     tt_tolerance: Annotated[
@@ -382,11 +371,13 @@ class BlogHandler(FileSystemEventHandler):
         ".js",
         ".tex",
     }
+    mongo_id: bson.ObjectId
 
     def __init__(
         self,
         context: Context,
         *,
+        mongo_id: bson.ObjectId,
         tt_tolerance: int = 5,
     ):
 
@@ -397,19 +388,13 @@ class BlogHandler(FileSystemEventHandler):
         self.context = context
 
         self._ignored = set()
-        self._path_memo = dict()
 
-    def get_path(self, event: FileSystemEvent):
-        _path_str = str(event.src_path)
-        if event.src_path not in self._path_memo:
-            self._path_memo[_path_str] = pathlib.Path(_path_str).resolve()
-
-        return self._path_memo[_path_str]
+        self.mongo_id = mongo_id
 
     def get_time_modified(self, path: pathlib.Path):
         return datetime.fromtimestamp(self.tt_last[path]).strftime("%H:%M:%S")
 
-    def render_qmd(
+    async def render_qmd(
         self,
         path: pathlib.Path,
         *,
@@ -430,20 +415,24 @@ class BlogHandler(FileSystemEventHandler):
         logger.info("Rendering quarto at `%s`", path)
         cmd = ["quarto", "render", str(path), *self.context.config.render.flags]
 
-        rich.print(f"[green]{tt} -> Starting render for `{path}`. Command: `{cmd}`.")
+        logger.info("Starting render for `%s`. Command: `%s`.", path, cmd)
         out_raw = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out = schemas.LogQuartoItem.fromCompletedProcess(path or origin, out_raw)
 
-        # if out.returncode != 0:
-        #     logger.info("Quarto render failed for path `%s`.", path)
-        #     rich.print(f"[red]{tt} -> Failed to render `{path}`.")
-        # else:
-        #     logger.info("Quarto render succeeded for path `%s`.", path)
-        #     rich.print(f"[green]{tt} -> Rendered `{path}`.")
-        #
-        # if self.context.quarto_verbose:
-        #     print(out.stdout)
-        #     print(out.stderr.decode())
+        if out_raw.returncode:
+            logger.info(
+                "Failed to render `%s`. Exit code `%s`.", path, out_raw.returncode
+            )
+        else:
+            logger.info("Rendered `%s`.", path)
+
+        logger.debug("Pushing quarto logs document.")
+        data = schemas.LogQuartoItem.fromCompletedProcess(path or origin, out_raw)
+        res = await schemas.LogQuarto.push(
+            self.context.db,
+            self.mongo_id,
+            [data.model_dump(mode="json")],
+        )
+        print(res)
 
     def is_event_from_conform(self, path: pathlib.Path):
         """Check for sequential write events, e.g. from ``conform.nvim``
@@ -460,12 +449,10 @@ class BlogHandler(FileSystemEventHandler):
 
         return False
 
-    def is_event_ignored(
-        self, v: FileSystemEvent | pathlib.Path
-    ) -> pathlib.Path | None:
+    def is_path_ignored(self, path: pathlib.Path) -> bool:
         # NOTE: Resolve path from event and check if the event should be
         #       ignored - next check if the event originates from conform.nvim.
-        path = v if isinstance(v, pathlib.Path) else self.get_path(v)
+
         if path in self._ignored:
             logger.debug("Ignored `%s` since it has already been ignored.", path)
         elif self.context.is_ignored_path(path):
@@ -473,20 +460,22 @@ class BlogHandler(FileSystemEventHandler):
         elif path.suffix not in self.suffixes:
             logger.debug("Ignored event at `%s` because of suffix.", path)
         elif self.is_event_from_conform(path):
-            logger.debug(
-                "Checking if event for path `%s` came from `conform.nvim`.", path
-            )
+            logger.debug("Event for path `%s` came from `conform.nvim`.", path)
         else:
             logger.debug("Not ignoring changes in `%s`.", path)
-            return path
+            return False
 
-        return None
+        return True
 
-    def on_modified(self, event: FileSystemEvent) -> None:
-        if event.is_directory:
+    async def on_modified(self, path: pathlib.Path | str) -> None:
+
+        if isinstance(path, str):
+            path = pathlib.Path(path).resolve()
+
+        if os.path.isdir(path):
             return
 
-        if (path := self.is_event_ignored(event)) is None:
+        if self.is_path_ignored(path) is None:
             return
 
         # NOTE: If a qmd file was modified, then rerender the modified ``qmd``
@@ -497,7 +486,7 @@ class BlogHandler(FileSystemEventHandler):
         #       ``partials`` folder.
         is_partial = path.parent.name == "partials" and path.name.startswith("_")
         if path.suffix == ".qmd" and not is_partial:
-            self.render_qmd(path)
+            await self.render_qmd(path)
             self.path_last_qmd = path
         elif (
             self.context.filters.has_prefix(path)
@@ -507,10 +496,6 @@ class BlogHandler(FileSystemEventHandler):
             tt = self.get_time_modified(path)
             if self.path_last_qmd is None:
                 logger.info("No render to dispatch from changes in `%s`.", path)
-                rich.print(
-                    f"[blue]{tt} -> Changes detected in `{path}`, no "
-                    "``qmd`` to reload."
-                )
                 return
 
             logger.info(
@@ -518,25 +503,13 @@ class BlogHandler(FileSystemEventHandler):
                 self.path_last_qmd,
                 path,
             )
-            rich.print(
-                f"[blue]{tt} -> Changes detected in `{path}`, "
-                f"tiggering rerender of `{self.path_last_qmd}`."
-            )
-            self.render_qmd(self.path_last_qmd, tt=tt, origin=path)
+            await self.render_qmd(self.path_last_qmd, tt=tt, origin=path)
         elif self.context.static.has_prefix(path):
             path_dest = env.BUILD / os.path.relpath(path, env.BLOG)
-            msg = "Copying `%s` to `%s`." % (path, path_dest)
-            logger.info(msg)
-            rich.print("[green]" + msg)
+            logger.info("Copying `%s` to `%s`.", path, path_dest)
             shutil.copy(path, path_dest)
         else:
             self._ignored.add(path)
-
-        # NOTE: Pain in the ass because of transient quarto html files.
-        # elif path.suffix == ".html":
-        #     dest = path_build / os.path.relpath(path, path_here)
-        #     print(f"{path} -> {dest}")
-        #     shutil.copy(path, dest)
 
 
 # =========================================================================== #
@@ -563,9 +536,9 @@ def decode_jsonl(data_raw: bytes) -> list[dict[str, Any]] | None:
 
 class DevApp:
     context: Context
+    tasks: set[asyncio.Task]
 
     def __init__(self, context: Context):
-
         self.context = context
 
     # NOTE: This will allow records to be dynamically handled. Using a database
@@ -579,17 +552,14 @@ class DevApp:
             reader: asyncio.StreamReader, writer: asyncio.StreamWriter
         ):
             logger.log(0, "Data recieved by logging socket.")
-            data = await reader.read(1024)
+            data = await reader.read(4096)
             if (data_decoded := decode_jsonl(data)) is None:
                 return
 
             writer.close()
             await asyncio.gather(
                 writer.wait_closed(),
-                collection.update_one(
-                    {"_id": object_id},
-                    {"$push": {"items": {"$each": data_decoded}}},
-                ),
+                schemas.Log.push(db, mongo_id, data_decoded),
             )
 
         socket_path = (env.ROOT / "blog.socket").resolve()
@@ -597,16 +567,11 @@ class DevApp:
             os.remove(socket_path)
 
         logger.debug("Initializing logging mongodb document.")
-        config = self.context.database
-        client = config.create_client_async()
-        collection = client[config.database]["logs"]
-        res = await collection.insert_one(
-            {
-                "timestamp": datetime.timestamp(datetime.now()),
-                "items": [],
-            }
-        )
-        object_id = res.inserted_id
+        client = self.context.database.create_client_async()
+        db = client[self.context.database.database]
+
+        res = await schemas.Log.spawn(db)
+        mongo_id = res.inserted_id
 
         logger.info("Starting logging socket server.")
         server = await asyncio.start_unix_server(handle_data, path=str(socket_path))
@@ -616,32 +581,46 @@ class DevApp:
 
     async def watch_quarto(self):
         context = self.context
-        event_handler = BlogHandler(context)
-        observer = Observer()
-        observer.schedule(event_handler, env.ROOT, recursive=True)  # type: ignore
-        observer.start()
+
+        logger.debug("Spawning quarto logs document.")
+        res = await schemas.LogQuarto.spawn(self.context.db)
+        handler = BlogHandler(context, mongo_id=res.inserted_id)
+
+        async for changes in watchfiles.awatch(env.ROOT, step=1000):
+            for _, path_raw in changes:
+                await handler.on_modified(path_raw)
+
+    def handle(self, task: asyncio.Task):
         try:
-            while True:
-                await asyncio.sleep(1)
-        finally:
-            observer.stop()
-            observer.join()
+            task.result()
+        except Exception as err:
+            raise ValueError("Task Failure.") from err
 
     @contextlib.asynccontextmanager
     async def lifespan(self, _: fastapi.FastAPI):
 
-        task_handle_log = asyncio.create_task(self.watch_logs())
-        task_watch = asyncio.create_task(self.watch_quarto())
+        self.tasks = {
+            asyncio.create_task(self.watch_logs()),
+            asyncio.create_task(self.watch_quarto()),
+        }
+
+        for task in self.tasks:
+            task.add_done_callback(self.handle)
 
         yield
 
-        task_handle_log.cancel("stop")
-        task_watch.cancel("it")
+        for task in self.tasks:
+            task.cancel()
 
     def create_app(self) -> fastapi.FastAPI:
 
         # NOTE: It would appear all other routes must be attched prior to this mount.
-        app = routes.AppRoute.router
+        app = fastapi.FastAPI(lifespan=self.lifespan)
+
+        api_router = fastapi.APIRouter()
+        routes.AppRoute.__class__.create_router(routes.AppRoute, api_router)
+
+        app.include_router(api_router, prefix=routes.AppRoute.router_args["prefix"])
         app.mount("", fastapi.staticfiles.StaticFiles(directory=env.BUILD))
 
         return app
@@ -790,7 +769,7 @@ def cmd_context_test(
     """Given a directory, see what the watcher will ignore. Use for watcher debugging."""
 
     context: Context = _context.obj
-    watcher = BlogHandler(context)
+    watcher = BlogHandler(context, None)
 
     t = rich.table.Table(title="Ignored Paths")
     t.add_column("Path")
@@ -822,7 +801,7 @@ def cmd_context_test(
                 t.add_row(
                     str(p := path.resolve()),
                     str(context.is_ignored_path(p)),
-                    str(watcher.is_event_ignored(p) is None),
+                    str(watcher.is_path_ignored(p) is None),
                     str(depth),
                 )
                 rows += 1

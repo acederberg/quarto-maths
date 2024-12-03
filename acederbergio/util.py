@@ -51,7 +51,14 @@ FieldTime = Annotated[
     datetime,
     pydantic.Field(default_factory=lambda: datetime.now()),
 ]
-FieldTimestamp = Annotated[int, pydantic.Field(gt=0), pydantic.BeforeValidator(int)]
+FieldTimestamp = Annotated[
+    int,
+    pydantic.Field(
+        gt=0,
+        default_factory=lambda: datetime.timestamp(datetime.now()),
+    ),
+    pydantic.BeforeValidator(int),
+]
 
 
 class HasTimestamp(pydantic.BaseModel):
