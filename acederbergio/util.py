@@ -55,7 +55,7 @@ FieldTimestamp = Annotated[
     int,
     pydantic.Field(
         gt=0,
-        default_factory=lambda: datetime.timestamp(datetime.now()),
+        default_factory=lambda: int(datetime.timestamp(datetime.now())),
     ),
     pydantic.BeforeValidator(int),
 ]

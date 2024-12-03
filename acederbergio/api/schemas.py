@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import http
 import pathlib
@@ -40,21 +41,26 @@ class LogQuartoItem(util.HasTime):
     status_code: int
 
     @classmethod
-    def removeANSIEscape(cls, v):
+    def removeANSIEscape(cls, v: str):
         ansi_escape = re.compile(r"\x1b\[.*?m")
         return ansi_escape.sub("", v)
 
     @classmethod
-    def fromCompletedProcess(
-        cls, origin: pathlib.Path, out: subprocess.CompletedProcess
+    async def fromProcess(
+        cls,
+        origin: pathlib.Path,
+        process: asyncio.subprocess.Process,
+        *,
+        command: list[str],
     ) -> Self:
+        stdout, stderr = await process.communicate()
         return cls.model_validate(
             {
                 "origin": str(origin),
-                "command": out.args,
-                "stderr": cls.removeANSIEscape(out.stdout.decode()).split("\n"),
-                "stdout": cls.removeANSIEscape(out.stderr.decode()).split("\n"),
-                "status_code": out.returncode,
+                "command": command,
+                "stderr": cls.removeANSIEscape(stdout.decode()).split("\n"),
+                "stdout": cls.removeANSIEscape(stderr.decode()).split("\n"),
+                "status_code": process.returncode,
             }
         )
 
