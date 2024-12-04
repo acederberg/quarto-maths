@@ -126,7 +126,7 @@ if ENV_IS_DEV:
 
 def create_logger(name: str):
 
-    level = require("log_level", "DEBUG").upper()
+    level = require("log_level", "INFO").upper()
     logger = logging.getLogger(name)
 
     if ENV_IS_DEV and socket_handler is not None:

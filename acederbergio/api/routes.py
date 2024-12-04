@@ -1,3 +1,4 @@
+import asyncio
 from typing import TypeVar
 
 import fastapi
@@ -61,22 +62,14 @@ class LogRoutesMixins:
         count = log.count
 
         while True:
-            logger.warning("This is a test! Count is `%s`.", count)
+            await asyncio.sleep(1)
 
-            text = await websocket.receive_text()
-            if text == "exit":
-                break
-
-            res = await cls.get(s, database, slice_start=count, slice_count=128)
-            if res is None:
-                await websocket.send_text("null")
+            data = await cls.get(s, database, slice_start=count, slice_count=128)
+            if not data.count:
                 continue
 
-            data = schemas.Log.model_validate(res)
-            await websocket.send_text(data.model_dump_json())
+            await websocket.send_text(data.model_dump_json(indent=2))
             count += data.count
-
-        await websocket.close()
 
 
 # TODO: Make router generic.
@@ -193,7 +186,7 @@ class DevRoutes(base.Router):
     )
 
 
-class AppRoute(base.Router):
+class ApiRoutes(base.Router):
 
     router_args = dict(prefix="/api")
     router: fastapi.FastAPI = fastapi.FastAPI(**router_args)  # type: ignore

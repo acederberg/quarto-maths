@@ -389,7 +389,7 @@ class Filter:
             ``True`` if the file should be included in changes, ``False`` if it
             should be ignored.
         """
-        return self.is_ignored_path(pathlib.Path(path))
+        return not self.is_ignored(pathlib.Path(path))
 
     def __validate_trie(
         self,
@@ -406,25 +406,25 @@ class Filter:
             "static": self.static.dict(),
         }
 
-    def is_ignored_path(self, path: pathlib.Path) -> bool:
+    def is_ignored(self, path: pathlib.Path) -> bool:
         if self.ignore.has_prefix(path):
-            return True
-        # NOTE: Do not ignore filters, assets, or static items that are being watched.
-        elif (
-            self.filters.has_prefix(path)
-            or self.assets.has_prefix(path)
-            or self.static.has_prefix(path)
-        ):
-            return False
+            logger.debug("`%s` ignored explicity.", path)
+            return True  # ignored
         elif path.suffix not in self.suffixes:
             logger.debug("Ignored event at `%s` because of suffix.", path)
             return True
         elif self.is_event_from_conform(path):
             logger.debug("Event for path `%s` came from `conform.nvim`.", path)
             return True
-        else:
-            logger.debug("Not ignoring changes in `%s`.", path)
+        elif (
+            self.filters.has_prefix(path)
+            or self.assets.has_prefix(path)
+            or self.static.has_prefix(path)
+        ):
             return False
+
+        logger.debug("Not ignoring changes in `%s`.", path)
+        return False
 
     def is_event_from_conform(self, path: pathlib.Path):
         """Check for sequential write events, e.g. from ``conform.nvim``
@@ -566,21 +566,28 @@ class Handler:
         shutil.copy(path, path_dest)
 
 
-async def watch(context: Context | None = None):
-    """Watch for changes to quarto files and thier helpers."""
+class Watch:
 
-    if context is None:
-        context = Context()
+    context: Context
+    filter: Filter
+    handler: Handler | None
 
-    logger.debug("Spawning quarto logs document.")
-    res = await schemas.LogQuarto.spawn(context.db)
+    def __init__(self, context: Context | None = None):
+        self.context = context or Context()
+        self.filter = Filter(self.context)
+        self.handler = None
 
-    filter = Filter(context)
-    handler = Handler(context, filter, mongo_id=res.inserted_id)
+    async def __call__(self):
+        """Watch for changes to quarto files and thier helpers."""
 
-    async for changes in watchfiles.awatch(env.ROOT, watch_filter=filter, step=1000):
-        for _, path_raw in changes:
-            await handler(path_raw)
+        res = await schemas.LogQuarto.spawn(self.context.db)
+        self.handler = Handler(self.context, self.filter, mongo_id=res.inserted_id)
+
+        async for changes in watchfiles.awatch(
+            env.ROOT, watch_filter=self.filter, step=1000
+        ):
+            for _, path_raw in changes:
+                await self.handler(path_raw)
 
 
 # =========================================================================== #
@@ -648,7 +655,7 @@ def cmd_context_test(
 
     t = rich.table.Table(title="Ignored Paths")
     t.add_column("Path")
-    t.add_column("Ignored by ``filter.is_ignored_path``")
+    t.add_column("Ignored by ``filter.is_ignored``")
 
     def add_paths(paths: Iterable[pathlib.Path], depth=0, rows=0) -> int:
         """Returns the numver of rows encountered so far so that the table
@@ -674,7 +681,7 @@ def cmd_context_test(
             else:
                 t.add_row(
                     str(p := path.resolve()),
-                    str(filter.is_ignored_path(p)),
+                    str(filter.is_ignored(p)),
                     str(depth),
                 )
                 rows += 1

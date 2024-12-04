@@ -17,10 +17,10 @@ from typing import Any
 
 import fastapi
 import fastapi.staticfiles
-import pydantic
 import typer
 import uvicorn
 import uvicorn.config
+import yaml
 
 from acederbergio import db, env
 from acederbergio.api import quarto, routes, schemas
@@ -63,10 +63,10 @@ class Context:
         _context.obj.update(database=db.Config())  # type: ignore
 
 
-class DevApp:
+class App:
     context: Context
     context_quarto: quarto.Context
-    tasks: set[asyncio.Task]
+    tasks: dict[str, asyncio.Task]
 
     def __init__(self, context: Context, context_quarto: quarto.Context | None = None):
         self.context = context
@@ -83,7 +83,7 @@ class DevApp:
             reader: asyncio.StreamReader, writer: asyncio.StreamWriter
         ):
             logger.log(0, "Data recieved by logging socket.")
-            data = await reader.read(4096)
+            data = await reader.read(2**16)
             if (data_decoded := decode_jsonl(data)) is None:
                 return
 
@@ -112,36 +112,49 @@ class DevApp:
 
     def handle(self, task: asyncio.Task):
         try:
-            task.result()
+            res = task.result()
+            return res
         except Exception as err:
             raise ValueError("Task Failure.") from err
 
     @contextlib.asynccontextmanager
-    async def lifespan(self, _: fastapi.FastAPI):
+    async def lifespan_dev(self, _: fastapi.FastAPI):
+        """Development server lifespan.
 
+        This should start a listener for the logging ``SocketHandler`` and
+        for quarto renders.
+        """
+
+        watch = quarto.Watch()
         self.tasks = {
-            asyncio.create_task(self.watch_logs()),
-            asyncio.create_task(quarto.watch()),
+            "logs": asyncio.create_task(self.watch_logs()),
+            "quarto": asyncio.create_task(watch()),
         }
 
-        for task in self.tasks:
+        for task in self.tasks.values():
             task.add_done_callback(self.handle)
 
         yield
 
-        for task in self.tasks:
+        assert watch.handler is not None
+
+        logger.info("Dumping quarto watcher state.")
+        with open(quarto.PATH_BLOG_HANDLER_STATE, "w") as file:
+            yaml.dump(watch.handler.state.model_dump(mode="json"), file)
+
+        for task in self.tasks.values():
             task.cancel()
 
     def create_app(self) -> fastapi.FastAPI:
 
         # NOTE: It would appear all other routes must be attched prior to this mount.
-        app = fastapi.FastAPI(lifespan=self.lifespan)
+        app = fastapi.FastAPI(lifespan=self.lifespan_dev if env.ENV_IS_DEV else None)
 
         api_router = fastapi.APIRouter()
-        routes.AppRoute.__class__.create_router(routes.AppRoute, api_router)
+        routes.ApiRoutes.__class__.create_router(routes.ApiRoutes, api_router)
 
-        app.include_router(api_router, prefix=routes.AppRoute.router_args["prefix"])
-        app.mount("", fastapi.staticfiles.StaticFiles(directory=env.BUILD))
+        app.include_router(api_router, prefix=routes.ApiRoutes.router_args["prefix"])
+        app.mount("", fastapi.staticfiles.StaticFiles(directory=env.BUILD, html=True))
 
         return app
 
@@ -150,25 +163,27 @@ class DevApp:
 def create_app(context: Context | None = None):
 
     context = context or Context()  # type: ignore
-    app = DevApp(context)
+    app = App(context)
     return app.create_app()
 
 
 def serve(context: Context, **kwargs):
+    """Serve the application.
+
+    The server will include a certain lifespan and particular routes depending
+    on ``env.ENV``. For instance, quarto reloading is only available in
+    development mode.
     """
 
-    This tends to produce an error in the logs when
-    `WATCHFILES_IGNORE_PERMISSION_DENIED=0` is not set.
-    """
+    kwargs["reload_dirs"] = [str(env.SCRIPTS / "api")]
+    kwargs["reload_excludes"] = [env.BLOG, env.ROOT / "docker", env.SCRIPTS / "filters"]
 
-    # kwargs["reload_dirs"] = [env.SCRIPTS]
-    # kwargs["reload_excludes"] = [env.ROOT / "docker"]
     if not kwargs.get("host"):
         kwargs["host"] = "0.0.0.0"
     if not kwargs.get("port"):
         kwargs["port"] = 3000
 
-    if kwargs.get("reload"):
+    if env.ENV_IS_DEV:
         kwargs["factory"] = True
         logger.warning("Ignoring context from command line.")
         uvicorn.run(f"{__name__}:create_app", **kwargs)
@@ -187,22 +202,7 @@ cli = typer.Typer(
 cli.add_typer(quarto.cli, name="context")
 
 
-# @cli.command("render")
-# def cmd_watch(_context: typer.Context):
-#     """Watch for changes and trigger rerenders."""
-#     context: Context = _context.obj
-#
-#     watch(context)
-#
-#
-# @cli.command("fastapi")
-# def cmd_fastapi():
-#
-#     config = db.Config()  # type: ignore
-#     serve(config, reload=True)
-
-
-@cli.command("server")
+@cli.command("dev")
 def cmd_server(_context: typer.Context):
     """Run the development server and watch for changes."""
     context: Context = _context.obj
