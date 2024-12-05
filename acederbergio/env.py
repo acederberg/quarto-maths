@@ -136,6 +136,49 @@ def create_logger(name: str):
     return logger
 
 
+def create_uvicorn_logging_config():
+    """Create the uvicorn logging config.
+
+    This could be kept in a file. But if I decide to package this it can be a
+    real pain to keep such files in the package. Furhter I do not want to
+    maintain two configs.
+    """
+    handlers: dict[str, Any] = {
+        "default": {
+            "class": "rich.logging.RichHandler",
+            "level": "INFO",
+        }
+    }
+
+    formatters: dict[str, Any] = {}
+    if ENV_IS_DEV:
+        formatters.update({"json": {"class": "acederbergio.util.JSONFormatter"}})
+
+        handlers.update(
+            {
+                "socket": {
+                    "class": "acederbergio.util.SocketHandler",
+                    "level": "INFO",
+                    "host": str(ROOT / "blog.socket"),
+                    "port": None,
+                    "formatter": "json",
+                },
+            }
+        )
+
+    out = {
+        "formatters": formatters,
+        "handlers": handlers,
+        "loggers": {
+            "root": {
+                "level": "INFO",
+                "handlers": ["default", "socket"] if ENV_IS_DEV else ["default"],
+            }
+        },
+    }
+    return out
+
+
 cli = typer.Typer(help="Environment variables tools.")
 
 

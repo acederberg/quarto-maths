@@ -518,6 +518,7 @@ class Handler:
 
         logger.debug("Pushing quarto logs document.")
         data = await schemas.LogQuartoItem.fromProcess(
+            path,
             path or origin, process, command=command
         )
 

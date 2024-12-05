@@ -22,7 +22,7 @@ import uvicorn
 import uvicorn.config
 import yaml
 
-from acederbergio import db, env
+from acederbergio import db, env, util
 from acederbergio.api import quarto, routes, schemas
 
 logger = env.create_logger(__name__)
@@ -217,25 +217,7 @@ def cmd_server(_context: typer.Context):
 
 
 # NOTE: Add rich formatting to uvicorn logs.
-uvicorn.config.LOGGING_CONFIG.update(
-    {
-        "formatters": {"json": {"class": "acederbergio.util.JSONFormatter"}},
-        "handlers": {
-            "default": {
-                "class": "rich.logging.RichHandler",
-                "level": "INFO",
-            },
-            "socket": {
-                "class": "acederbergio.util.SocketHandler",
-                "level": "INFO",
-                "host": str(env.ROOT / "blog.socket"),
-                "port": None,
-                "formatter": "json",
-            },
-        },
-        "loggers": {"root": {"level": "INFO", "handlers": ["default", "socket"]}},
-    }
-)
+uvicorn.config.LOGGING_CONFIG.update(env.create_uvicorn_logging_config())
 
 if __name__ == "__main__":
     cli()

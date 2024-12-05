@@ -1,5 +1,6 @@
 /*-- scss:rules --*/
 
+
 .tab-pane {
   max-height: 80vh;
   overflow-y: scroll;
@@ -22,6 +23,14 @@
   color: var(--bs-red);
   filter: contrast(5)
 }
+
+.terminal .quarto-target,
+.terminal .quarto-origin,
+.terminal .quarto-exit-code,
+.terminal .quarto-command {
+  color: var(--bs-white);
+}
+
 
 .terminal .terminal-row:hover {
   background: var(--bs-gray-700);

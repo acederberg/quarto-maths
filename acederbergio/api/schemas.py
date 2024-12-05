@@ -35,6 +35,7 @@ class LogItem(pydantic.BaseModel):
 
 class LogQuartoItem(util.HasTime):
     origin: str
+    target: str
     command: list[str]
     stderr: list[str]
     stdout: list[str]
@@ -48,6 +49,7 @@ class LogQuartoItem(util.HasTime):
     @classmethod
     async def fromProcess(
         cls,
+        target: pathlib.Path,
         origin: pathlib.Path,
         process: asyncio.subprocess.Process,
         *,
@@ -56,6 +58,7 @@ class LogQuartoItem(util.HasTime):
         stdout, stderr = await process.communicate()
         return cls.model_validate(
             {
+                "target": str(target),
                 "origin": str(origin),
                 "command": command,
                 "stderr": cls.removeANSIEscape(stdout.decode()).split("\n"),
@@ -148,11 +151,14 @@ class BaseLog(util.HasTime, db.HasMongoId):
         *,
         slice_start: int | None = None,
         slice_count: int | None = None,
+        **kwargs,
     ):
         """Find the latest log entry."""
 
         collection = db[cls._collection]
-        steps = cls.aggr_latest(slice_start=slice_start, slice_count=slice_count)
+        steps = cls.aggr_latest(
+            slice_start=slice_start, slice_count=slice_count, **kwargs
+        )
 
         async for item in collection.aggregate(steps):
             return item
@@ -189,6 +195,38 @@ class LogQuarto(BaseLog):
         list[LogQuartoItem],
         pydantic.Field(default_factory=list),
     ]
+
+    @classmethod
+    def aggr_latest(
+        cls,
+        *,
+        slice_start: int | None = None,
+        slice_count: int | None = None,
+        error: bool | None = True,
+        do_print: bool = False,
+    ):
+        pipe = super().aggr_latest(slice_start=slice_start, slice_count=slice_count)
+        if error is not None:
+            filter = {
+                "$filter": {
+                    "input": "$items",
+                    "as": "item",
+                    "cond": {"$ne" if error else "$eq": ["$$item.status_code", 0]},
+                }
+            }
+
+            projection = next((item for item in pipe if "$projection" in item), None)
+            if projection is None:
+                projection = {"$project": {"items": filter}}
+                pipe.insert(-1, projection)
+            else:
+                projection.update(items=filter)
+
+        if do_print:
+            print(error)
+            print(pipe)
+
+        return pipe
 
 
 class LogStatus(pydantic.BaseModel):

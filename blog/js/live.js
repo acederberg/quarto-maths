@@ -1,21 +1,6 @@
 
 const uvicornLogPattern = /(?<ip>[\d.]+):(?<port>\d+)\s+-\s+"(?<method>[A-Z]+)\s+(?<path>[^\s]+)\s+(?<protocol>HTTP\/\d+\.\d+)"\s+(?<status>\d+)/;
 
-/*
-// Example log entry
-const logEntry = '172.19.0.1:59142 - "GET /site_libs/quarto-html/53fff1658bb29a86a77f917560521602.css.map HTTP/1.1" 404';
-
-// Match the log entry
-const match = logEntry.match(logPattern);
-
-if (match) {
-  console.log(match.groups); // Parsed log parts
-}
-*/
-
-
-
-
 async function hydrateLiveLogLine(container, item) {
 
   const elem = document.createElement("tr")
@@ -29,7 +14,6 @@ async function hydrateLiveLogLine(container, item) {
   itemName.textContent = item.name + ":" + item.lineno
 
   const matched = item.msg.match(uvicornLogPattern)
-  console.log(matched)
 
   if (!matched) {
     itemMsg.textContent = item.msg
@@ -83,12 +67,6 @@ async function hydrateLiveLogLine(container, item) {
 
   container.appendChild(elem)
 
-  // console.log(container)
-  // const tabItem = container.closest(".tab-item")
-  // if (!tabItem) throw Error("Could not find tab item for table.")
-  //
-  // tabItem.scollTop = tabItem.scrollHeight
-
 }
 
 async function hydrateLiveLog() {
@@ -96,12 +74,11 @@ async function hydrateLiveLog() {
   const parent = document.querySelector("#tab-content-1")
   const container = document.querySelector("#live-logs-server tbody")
   if (!container) throw Error("Could not find `live-logs-server`.")
-  console.log("container", container)
   const ws = new WebSocket("/api/dev/log")
 
   ws.addEventListener(
     "open",
-    () => console.log("Websocket connection opened."),
+    () => console.log("Websocket connection opened for logs."),
   )
   ws.addEventListener(
     "message",
@@ -110,9 +87,65 @@ async function hydrateLiveLog() {
       data.items.map(item => hydrateLiveLogLine(container, item))
 
       parent.scrollTop = parent.scrollHeight
-      console.log(parent.scrollHeight)
     },
   )
 
 
+}
+
+
+
+
+async function hydrateLiveLogQuarto(container, error) {
+  if (!container) throw Error("Could not find `live-logs-quarto`.")
+
+  const ws = new WebSocket(`/api/dev/quarto?error=${error}`)
+  ws.addEventListener(
+    "open",
+    () => console.log("Websocket connection opened for quarto logs."),
+  )
+  ws.addEventListener("message", (event) => {
+    const data = JSON.parse(event.data)
+    if (!data.items.length) {
+      const no_data = document.createElement("span")
+      no_data.innerText = "No data."
+      container.appendChild(no_data)
+      return
+    }
+    const item = data.items[data.items.length - 1]
+
+    container.innerHTML = ''
+
+    const command = document.createElement("span")
+    command.textContent = "Command: " + item.command
+    command.classList.add("terminal-row", "quarto-command")
+
+    const origin = document.createElement("span")
+    origin.textContent = "Origin: " + item.origin
+    origin.classList.add("terminal-row", "quarto-origin")
+
+    const target = document.createElement("span")
+    target.textContent = "Target: " + item.target
+    target.classList.add("terminal-row", "quarto-target")
+
+    const status = document.createElement("span")
+    status.textContent = "Status: " + item.status_code
+    status.classList.add("terminal-row", "quarto-exit-code")
+
+    const spacer = document.createElement("span")
+    spacer.classList.add("terminal-row")
+
+    container.appendChild(command)
+    container.appendChild(origin)
+    container.appendChild(target)
+    container.appendChild(status)
+    container.appendChild(spacer)
+    item.stdout.map(item => {
+      const elem = document.createElement("span")
+      elem.textContent = item
+      elem.classList.add("terminal-row")
+      container.appendChild(elem)
+    })
+
+  })
 }

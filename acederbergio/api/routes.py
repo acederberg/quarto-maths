@@ -52,11 +52,12 @@ class LogRoutesMixins:
         s: type[T_BaseLog],
         websocket: fastapi.WebSocket,
         database: depends.Db,
+        **kwargs,
     ):
         await websocket.accept()
 
         # NOTE: Push out the initial logs.
-        log = await cls.get(s, database)
+        log = await cls.get(s, database, **kwargs)
         await websocket.send_json(log.model_dump(mode="json"))
 
         count = log.count
@@ -65,7 +66,9 @@ class LogRoutesMixins:
             while True:
                 await asyncio.sleep(1)
 
-                data = await cls.get(s, database, slice_start=count, slice_count=128)
+                data = await cls.get(
+                    s, database, slice_start=count, slice_count=128, **kwargs
+                )
                 if not data.count:
                     continue
 
@@ -141,6 +144,7 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
         database: depends.Db,
         slice_start: int | None = None,
         slice_count: int | None = None,
+        error: bool | None = None,
     ) -> schemas.LogQuarto:
         """Get the log for the current instance.
 
@@ -151,6 +155,8 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
             database,
             slice_start=slice_start,
             slice_count=slice_count,
+            do_print=True,
+            error=error,
         )
 
     @classmethod
@@ -170,10 +176,11 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
         cls,
         websocket: fastapi.WebSocket,
         database: depends.Db,
+        error: bool | None = None,
     ):
         """Watch logs. Emits ``JSONL`` log data."""
 
-        await cls.ws(schemas.LogQuarto, websocket, database)
+        await cls.ws(schemas.LogQuarto, websocket, database, error=error)
 
 
 class DevRoutes(base.Router):

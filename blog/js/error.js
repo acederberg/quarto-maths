@@ -19,12 +19,6 @@ async function hydrateError() {
   // error_command.textContent = error_data.command
 
   function addLines(values, parent) {
-    if (!values.length) {
-      const elem = document.createElement("span")
-      elem.innerText = "No content."
-      parent.appendChild(elem)
-      return
-    }
 
     values.map(item => {
       const elem = document.createElement("span")
