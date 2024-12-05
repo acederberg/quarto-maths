@@ -114,6 +114,8 @@ class App:
         try:
             res = task.result()
             return res
+        except asyncio.CancelledError:
+            return
         except Exception as err:
             raise ValueError("Task Failure.") from err
 
@@ -143,7 +145,11 @@ class App:
             yaml.dump(watch.handler.state.model_dump(mode="json"), file)
 
         for task in self.tasks.values():
-            task.cancel()
+            try:
+                task.cancel()
+                await task
+            except asyncio.CancelledError:
+                logger.info("Successfully exitted lifespan task.")
 
     def create_app(self) -> fastapi.FastAPI:
 
@@ -213,13 +219,21 @@ def cmd_server(_context: typer.Context):
 # NOTE: Add rich formatting to uvicorn logs.
 uvicorn.config.LOGGING_CONFIG.update(
     {
+        "formatters": {"json": {"class": "acederbergio.util.JSONFormatter"}},
         "handlers": {
             "default": {
                 "class": "rich.logging.RichHandler",
-                "level": "DEBUG",
+                "level": "INFO",
+            },
+            "socket": {
+                "class": "acederbergio.util.SocketHandler",
+                "level": "INFO",
+                "host": str(env.ROOT / "blog.socket"),
+                "port": None,
+                "formatter": "json",
             },
         },
-        "loggers": {"root": {"level": "INFO", "handlers": ["default"]}},
+        "loggers": {"root": {"level": "INFO", "handlers": ["default", "socket"]}},
     }
 )
 

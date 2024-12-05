@@ -1,0 +1,103 @@
+/*-- scss:rules --*/
+
+.tab-pane {
+  max-height: 80vh;
+  overflow-y: scroll;
+  scrollbar-color:
+    var(--bs-gray-900) var(--bs-body-bg);
+}
+
+.terminal {
+  table-layout: fixed;
+  font-size: medium;
+  border: none;
+  font-family: monospace;
+  background: var(--bs-body-bg);
+  color: var(--bs-red);
+}
+
+.terminal .terminal-row {
+  width: 100%;
+  display: block;
+  color: var(--bs-red);
+  filter: contrast(5)
+}
+
+.terminal .terminal-row:hover {
+  background: var(--bs-gray-700);
+}
+
+.terminal .terminal-row .terminal-row-time {
+  /* width: 16vw; */
+  color: var(--bs-teal);
+}
+
+.terminal .terminal-row .terminal-row-level {
+  color: var(--bs-success);
+  width: 5vw;
+}
+
+.terminal .terminal-row .info {
+  color: var(--bs-info);
+}
+
+.terminal .terminal-row .warning {
+  color: var(--bs-warning);
+}
+
+.terminal .terminal-row .critical {
+  color: var(--bs-danger);
+}
+
+.terminal .terminal-row .terminal-row-msg,
+.terminal .terminal-row .terminal-row-name {
+  color: var(--bs-white);
+}
+
+.terminal .terminal-row .terminal-row-name {
+  text-align: right;
+  width: 15vw;
+}
+
+.terminal .terminal-row .terminal-row-msg {
+  width: 65vw;
+}
+
+.uvicorn-ip {
+  color: var(--bs-green);
+}
+
+.uvicorn-port {
+  color: var(--bs-blue);
+}
+
+.uvicorn-method {
+  color: var(--bs-yellow);
+}
+
+.uvicorn-path {
+  color: var(--bs-white);
+}
+
+.uvicorn-status {
+  color: var(--bs-blue);
+}
+
+.uvicorn-protocol {
+  color: var(--bs-red);
+}
+
+
+.terminal * {
+  border: none;
+}
+
+.terminal td {
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+
+
+code {
+  background: var(--bs-gray-900);
+}

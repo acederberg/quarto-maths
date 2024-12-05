@@ -4,7 +4,7 @@ format:
   html:
     page-layout: full
     include-in-header:
-      - ./includes/error.html
+      - ../includes/error.html
     theme: cyborg
 ---
 

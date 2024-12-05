@@ -57,19 +57,22 @@ class LogRoutesMixins:
 
         # NOTE: Push out the initial logs.
         log = await cls.get(s, database)
-        await websocket.send_text(log.model_dump_json())
+        await websocket.send_json(log.model_dump(mode="json"))
 
         count = log.count
 
-        while True:
-            await asyncio.sleep(1)
+        try:
+            while True:
+                await asyncio.sleep(1)
 
-            data = await cls.get(s, database, slice_start=count, slice_count=128)
-            if not data.count:
-                continue
+                data = await cls.get(s, database, slice_start=count, slice_count=128)
+                if not data.count:
+                    continue
 
-            await websocket.send_text(data.model_dump_json(indent=2))
-            count += data.count
+                await websocket.send_json(data.model_dump(mode="json"))
+                count += data.count
+        except fastapi.WebSocketDisconnect:
+            ...
 
 
 # TODO: Make router generic.

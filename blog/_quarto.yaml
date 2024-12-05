@@ -106,7 +106,12 @@ website:
       - text: Leetcode
         href: /dsa/leetcode
 theme:
-  light: [cosmo, ./themes/index.css, ./themes/overlay.css, ./themes/floaty.scss, ./themes/resume.scss, ./themes/terminal.scss]
+  light:
+    - cosmo
+    - "./themes/*.css"
+    - "./themes/*.scss"
+    # dark:
+    #   - cyborg
 format:
   html:
     code-fold: false

@@ -2,7 +2,7 @@ import json
 import logging
 import logging.handlers
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, Any, Mapping
 
 import pydantic
 import rich
@@ -112,8 +112,18 @@ class JSONFormatter(logging.Formatter):
             # "taskName",
         }
 
-    def __init__(self, *, fmt_keys: list[str] | None = None):
-        super().__init__()
+    def __init__(
+        self,
+        fmt: str | None = None,
+        datefmt: str | None = None,
+        style="%",
+        validate: bool = True,
+        *,
+        defaults: Mapping[str, Any] | None = None,
+        fmt_keys: list[str] | None = None,
+    ) -> None:
+        super().__init__(fmt, datefmt, style, validate, defaults=defaults)
+
         self.fmt_keys = (
             (set(fmt_keys)) if fmt_keys is not None else self.fmt_keys_default
         )
@@ -132,6 +142,9 @@ class JSONFormatter(logging.Formatter):
 
 
 class SocketHandler(logging.handlers.SocketHandler):
+
+    # def __init__(self, host=str(ROOT / "blog.socket"), port=None) -> None:
+    #     super().__init__(host, port)
 
     def emit(self, record: logging.LogRecord):
         """Emit a record without pickling.
