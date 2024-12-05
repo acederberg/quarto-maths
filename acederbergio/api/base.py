@@ -66,16 +66,16 @@ class RouterMeta(type):
         if raw == "websocket":
             meth = "websocket"
         else:
-            meth = next((hh for hh in HTTPMethod if hh.value.lower() == raw), None)
-            if meth is None:
+            _meth: Any = next((hh for hh in HTTPMethod if hh.value.lower() == raw), None)  # type: ignore
+            if _meth is None:
                 logger.warning(f"Could not determine method of `{fn_name}`.")
                 return
 
             # Update status code if not provided.
-            if meth == HTTPMethod.POST and "status" not in info:
+            if _meth == HTTPMethod.POST and "status" not in info:
                 info.update(status_code=201)
 
-            meth = meth.value.lower()
+            meth = _meth.value.lower()  # type
 
         # Find attr
         fn = getattr(T, fn_name, None)

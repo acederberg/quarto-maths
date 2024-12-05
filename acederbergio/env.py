@@ -136,7 +136,7 @@ def create_logger(name: str):
     return logger
 
 
-def create_uvicorn_logging_config():
+def create_uvicorn_logging_config() -> dict[str, Any]:
     """Create the uvicorn logging config.
 
     This could be kept in a file. But if I decide to package this it can be a

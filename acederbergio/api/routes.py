@@ -1,5 +1,5 @@
 import asyncio
-from typing import TypeVar
+from typing import Any, ClassVar, TypeVar
 
 import fastapi
 import fastapi.routing
@@ -19,7 +19,7 @@ class LogRoutesMixins:
     will provide wrappers with annotations that ``fastapi`` will find okay.
     """
 
-    router_routes = {
+    router_routes: ClassVar[dict[str, str | dict[str, Any]]] = {
         "get_log": dict(url=""),
         "get_log_status": dict(url="/status"),
         "delete_log": dict(url=""),

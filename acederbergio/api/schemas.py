@@ -3,7 +3,6 @@ import datetime
 import http
 import pathlib
 import re
-import subprocess
 from typing import Annotated, Any, ClassVar, Self
 
 import bson
@@ -27,7 +26,7 @@ class LogItem(pydantic.BaseModel):
     pathname: str
     threadName: str
 
-    @pydantic.computed_field
+    @pydantic.computed_field  # type: ignore[prop-decorator]
     @property
     def created_time(self) -> datetime.datetime:
         return datetime.datetime.fromtimestamp(self.created)

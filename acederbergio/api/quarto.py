@@ -180,6 +180,7 @@ class ConfigWatch(pydantic.BaseModel):
                 env.ROOT / "docker",
                 env.BLOG / "resume/test.tex",
                 env.BLOG / "resume/index.tex",
+                env.SCRIPTS / "api",
             }
         ),
     ]
@@ -379,7 +380,6 @@ class Filter:
         self.static = self.__validate_trie(static or set(), watch.static)
         self.ignore = self.__validate_trie(ignore or set(), watch.ignore)
 
-        self._ignored = set()
         self.tt_tolerance = tt_tolerance
         self.tt_last = dict()
 
@@ -410,6 +410,8 @@ class Filter:
         if self.ignore.has_prefix(path):
             logger.debug("`%s` ignored explicity.", path)
             return True  # ignored
+        elif path.is_dir():
+            return True
         elif path.suffix not in self.suffixes:
             logger.debug("Ignored event at `%s` because of suffix.", path)
             return True
@@ -518,8 +520,7 @@ class Handler:
 
         logger.debug("Pushing quarto logs document.")
         data = await schemas.LogQuartoItem.fromProcess(
-            path,
-            path or origin, process, command=command
+            path, origin or path, process, command=command
         )
 
         if self.context.render_verbose:

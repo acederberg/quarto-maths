@@ -1,8 +1,13 @@
-from acederbergio import dev, env
+import pathlib
+
+import pytest
+
+from acederbergio import env
+from acederbergio.api import quarto
 
 
 def test_ignore_node():
-    node = dev.Node(False)
+    node = quarto.Node(False)
 
     assert not node.has_prefix(p := "/home/docker/.venv")
 
@@ -20,16 +25,46 @@ def test_ignore_node():
     assert not node.has_prefix("/home")
 
 
-def test_context():
+@pytest.fixture(scope="session")
+def filter() -> quarto.Filter:
+    context = quarto.Context()
+    return quarto.Filter(context)
 
-    context = dev.Context()
-    assert context.is_ignored_path(env.BUILD / "index.html")
-    assert not context.is_ignored_path(env.BLOG / "filters")
-    assert not context.is_ignored_path(env.BLOG / "filters/floaty.py")
-    assert not context.is_ignored_path(env.SCRIPTS / "filters")
-    assert not context.is_ignored_path(env.BLOG / "includes")
-    assert not context.is_ignored_path(env.BLOG / "themes")
-    assert context.is_ignored_path(env.BLOG / ".quarto")
-    assert context.is_ignored_path(env.BLOG / "_freeze")
-    assert context.is_ignored_path(env.BUILD / "site_libs")
-    assert context.is_ignored_path(env.ROOT / ".git")
+
+@pytest.mark.parametrize(
+    "case, result",
+    (
+        # NOTE: Directories are ignored in general, even these ones that are
+        #       watched.
+        (env.BLOG / "filters", True),
+        (env.SCRIPTS / "filters", True),
+        (env.BLOG / "includes", True),
+        (env.BLOG / "themes", True),
+        #
+        # NOTE: Ignored directories are ignored.
+        (env.BLOG / ".quarto", True),
+        (env.BLOG / "_freeze", True),
+        (env.BUILD / "site_libs", True),
+        (env.ROOT / ".git", True),
+        #
+        # NOTE: These should not be ignored.
+        (env.SCRIPTS / "filters/floaty.py", False),
+        (env.SCRIPTS / "filters/__init__.py", False),
+        (env.BLOG / "includes/live.js", False),
+        (env.BLOG / "themes/terminal.scss", False),
+        (env.BLOG / "filters/floaty.py", False),
+        (env.BLOG / "resume/templates/template.tex", False),
+        #
+        # NOTE: These should be ignored.
+        # (env.SCRIPTS / "filters/__pycache__/floaty.pyc", False),
+        (env.BUILD / "index.html", True),
+        (env.ROOT / ".quarto/foo.bar", True),
+        (env.SCRIPTS / "api" / "__init__.py", True),
+        #
+        # NOTE: These have bad extensions.
+        (env.BLOG / "index.ts", True),
+        (env.BUILD / "foo.go", True),
+    ),
+)
+def test_context(filter: quarto.Filter, case: pathlib.Path, result: bool):
+    assert filter.is_ignored(case) is result

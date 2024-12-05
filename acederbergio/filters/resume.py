@@ -1,4 +1,3 @@
-import itertools
 from datetime import date, timedelta
 from typing import Annotated, Any, Callable
 
@@ -98,7 +97,7 @@ class BaseExperienceItem(pydantic.BaseModel):
             pf.Para(pf.Emph(*self.create_start_stop())),
         )
 
-    def create_header_tex(self) -> tuple[pf.Element]:
+    def create_header_tex(self) -> tuple[pf.Element, pf.Element]:
         header_textbar = (
             pf.Space(),
             pf.RawInline("\\hfill", format="latex"),

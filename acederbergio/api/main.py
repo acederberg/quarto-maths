@@ -22,7 +22,7 @@ import uvicorn
 import uvicorn.config
 import yaml
 
-from acederbergio import db, env, util
+from acederbergio import db, env
 from acederbergio.api import quarto, routes, schemas
 
 logger = env.create_logger(__name__)
@@ -157,7 +157,7 @@ class App:
         app = fastapi.FastAPI(lifespan=self.lifespan_dev if env.ENV_IS_DEV else None)
 
         api_router = fastapi.APIRouter()
-        routes.ApiRoutes.__class__.create_router(routes.ApiRoutes, api_router)
+        routes.ApiRoutes.__class__.create_router(routes.ApiRoutes, api_router)  # type: ignore[attr-defined]
 
         app.include_router(api_router, prefix=routes.ApiRoutes.router_args["prefix"])
         app.mount("", fastapi.staticfiles.StaticFiles(directory=env.BUILD, html=True))

@@ -190,7 +190,7 @@ def data(
         commits.append(head.build_info.git_commit)
 
         for q in head.updates_append(item):
-            res = collection.update_one(*q)
+            collection.update_one(*q)
 
         head = item
 

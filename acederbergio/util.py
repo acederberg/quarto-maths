@@ -75,7 +75,7 @@ class HasTime(pydantic.BaseModel):
 
     timestamp: FieldTimestamp
 
-    @pydantic.computed_field
+    @pydantic.computed_field  # type: ignore[prop-decorator]
     @property
     def time(self) -> datetime:
         return datetime.fromtimestamp(self.timestamp)
