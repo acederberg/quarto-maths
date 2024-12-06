@@ -107,8 +107,6 @@ ICONS_SETS = require_path("icon_sets", ICONS / "sets")
 BUILD_JSON = require_path("build_json", BLOG / "build.json")
 
 DEV = BUILD / "dev"
-if not os.path.exists(DEV):
-    os.mkdir(DEV)
 
 
 if (_ENV := require("env", "development").lower()) not in ENV_POSSIBLE:
@@ -116,24 +114,6 @@ if (_ENV := require("env", "development").lower()) not in ENV_POSSIBLE:
 
 ENV: FieldEnv = _ENV  # type: ignore
 ENV_IS_DEV = ENV == "development"
-
-
-socket_handler = None
-if ENV_IS_DEV:
-    socket_handler = util.SocketHandler(str(ROOT / "blog.socket"), None)
-    socket_handler.setFormatter(util.JSONFormatter())
-
-
-def create_logger(name: str):
-
-    level = require("log_level", "INFO").upper()
-    logger = logging.getLogger(name)
-
-    if ENV_IS_DEV and socket_handler is not None:
-        logger.addHandler(socket_handler)
-        logger.setLevel(level)
-
-    return logger
 
 
 def create_uvicorn_logging_config() -> dict[str, Any]:
@@ -144,19 +124,23 @@ def create_uvicorn_logging_config() -> dict[str, Any]:
     maintain two configs.
     """
     handlers: dict[str, Any] = {
-        "default": {
+        "_rich": {
             "class": "rich.logging.RichHandler",
-            "level": "INFO",
-        }
+        },
+        "queue": {
+            "class": "acederbergio.util.QueueHandler",
+            "handlers": ["cfg://handlers._rich"],
+        },
     }
 
     formatters: dict[str, Any] = {}
     if ENV_IS_DEV:
         formatters.update({"json": {"class": "acederbergio.util.JSONFormatter"}})
 
+        handlers["queue"]["handlers"].append("cfg://handlers._socket")
         handlers.update(
             {
-                "socket": {
+                "_socket": {
                     "class": "acederbergio.util.SocketHandler",
                     "level": "INFO",
                     "host": str(ROOT / "blog.socket"),
@@ -167,16 +151,26 @@ def create_uvicorn_logging_config() -> dict[str, Any]:
         )
 
     out = {
+        "version": 1,
         "formatters": formatters,
         "handlers": handlers,
         "loggers": {
             "root": {
                 "level": "INFO",
-                "handlers": ["default", "socket"] if ENV_IS_DEV else ["default"],
+                "handlers": ["queue"] if ENV_IS_DEV else ["rich"],
             }
         },
     }
     return out
+
+
+def create_logger(name: str):
+
+    level = require("log_level", "INFO").upper()
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+
+    return logger
 
 
 cli = typer.Typer(help="Environment variables tools.")

@@ -1,6 +1,7 @@
 import json
 import logging
 import logging.handlers
+import queue
 from datetime import datetime
 from typing import Annotated, Any, Mapping
 
@@ -141,16 +142,32 @@ class JSONFormatter(logging.Formatter):
         return json.dumps(line, default=str) + "\n"
 
 
-class SocketHandler(logging.handlers.SocketHandler):
+LOG_QUEUE: queue.Queue = queue.Queue()
 
-    # def __init__(self, host=str(ROOT / "blog.socket"), port=None) -> None:
-    #     super().__init__(host, port)
+
+class QueueHandler(logging.handlers.QueueHandler):
+    """Used to queue messages that are then handled by ``SocketHandler``."""
+
+    listener: logging.handlers.QueueListener
+
+    def __init__(self, handlers: list[logging.Handler]) -> None:
+        super().__init__(LOG_QUEUE)
+        # NOTE: This next instruction looks stupid, but is really magic. See
+        #       https://rob-blackbourn.medium.com/how-to-use-python-logging-queuehandler-with-dictconfig-1e8b1284e27a
+        _handlers = (handlers[index] for index in range(len(handlers)))
+        self.listener = logging.handlers.QueueListener(LOG_QUEUE, *_handlers)
+        self.listener.start()
+
+
+class SocketHandler(logging.handlers.SocketHandler):
 
     def emit(self, record: logging.LogRecord):
         """Emit a record without pickling.
 
         Ideally, the formatter is ``JSONFormatter`` from above.
         """
+
+        # NOTE: Might be hitting a race condition. Sometim
         try:
             self.send(self.format(record).encode())
         except Exception:

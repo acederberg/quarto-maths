@@ -1,7 +1,10 @@
 
 const uvicornLogPattern = /(?<ip>[\d.]+):(?<port>\d+)\s+-\s+"(?<method>[A-Z]+)\s+(?<path>[^\s]+)\s+(?<protocol>HTTP\/\d+\.\d+)"\s+(?<status>\d+)/;
 
-async function hydrateLiveLogLine(container, item) {
+async function hydrateLiveLogLine(container, item, index, array) {
+
+  itemPrevious = index > 0 ? array[index - 1] : null
+  console.log(itemPrevious)
 
   const elem = document.createElement("tr")
   const itemTime = document.createElement("td")
@@ -9,7 +12,9 @@ async function hydrateLiveLogLine(container, item) {
   const itemMsg = document.createElement("td")
   const itemLevel = document.createElement("td")
 
-  itemTime.textContent = '[' + item.created_time + ']'
+  if (!itemPrevious || item.created_time != itemPrevious.created_time) {
+    itemTime.textContent = '[' + item.created_time + ']'
+  }
   itemLevel.textContent = item.levelname
   itemName.textContent = item.name + ":" + item.lineno
 
@@ -84,7 +89,7 @@ async function hydrateLiveLog() {
     "message",
     (event) => {
       const data = JSON.parse(event.data)
-      data.items.map(item => hydrateLiveLogLine(container, item))
+      data.items.map((item, index, array) => hydrateLiveLogLine(container, item, index, array))
 
       parent.scrollTop = parent.scrollHeight
     },

@@ -12,6 +12,7 @@ into be ``quarto preview``. A few problems I aim to solve here are:
 import asyncio
 import contextlib
 import json
+import logging.config
 import os
 from typing import Any
 
@@ -78,20 +79,19 @@ class App:
     async def watch_logs(self):
         """This should injest the logs from the logger using a unix socket."""
 
+        # state = dict(count=0)
+
         # NOTE: Remove the unix domain socket before startup.
         async def handle_data(
             reader: asyncio.StreamReader, writer: asyncio.StreamWriter
         ):
-            logger.log(0, "Data recieved by logging socket.")
-            data = await reader.read(2**16)
-            if (data_decoded := decode_jsonl(data)) is None:
-                return
 
-            writer.close()
-            await asyncio.gather(
-                writer.wait_closed(),
-                schemas.Log.push(db, mongo_id, data_decoded),
-            )
+            # NOTE: Tried reading all data in socket. Lead to failure to read
+            #       all socket data (race condition?)
+            # It would appear that this does not exit until the server stops,
+            # and does not run every time data is pushed to the socket.
+            async for data in reader:
+                await schemas.Log.push(db, mongo_id, [json.loads(data)])
 
         socket_path = (env.ROOT / "blog.socket").resolve()
         if os.path.exists(socket_path):
@@ -217,7 +217,9 @@ def cmd_server(_context: typer.Context):
 
 
 # NOTE: Add rich formatting to uvicorn logs.
-uvicorn.config.LOGGING_CONFIG.update(env.create_uvicorn_logging_config())
+LOGGING_CONFIG = env.create_uvicorn_logging_config()
+uvicorn.config.LOGGING_CONFIG.update(LOGGING_CONFIG)
+logging.config.dictConfig(LOGGING_CONFIG)
 
 if __name__ == "__main__":
     cli()
