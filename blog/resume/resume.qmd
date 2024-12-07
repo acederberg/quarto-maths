@@ -1,7 +1,8 @@
 ---
 title: Adrian Cederberg
-orientation: landscape
 subtitle: Software Engineer | Resume v5
+extra:
+  orientation: landscape
 format:
   pdf:
     template: ./templates/template.tex

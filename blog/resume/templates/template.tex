@@ -43,10 +43,9 @@
   \KOMAoptions{parskip=half}}
 \makeatother
 \usepackage{xcolor}
-\usepackage[top=1cm,bottom=1cm,left=1cm,right=1cm,landscape]{geometry}
+\usepackage[top=1cm,bottom=1cm,left=1cm,right=1cm,$extra.orientation$]{geometry}
 \setlength{\emergencystretch}{3em} % prevent overfull lines
 \setcounter{secnumdepth}{-\maxdimen} % remove section numbering
-
 
 % Make \paragraph and \subparagraph free-standing
 \makeatletter
@@ -115,6 +114,8 @@
 \renewcommand{\bottomrule}[2]{}
 
 \begin{document}
+
+$metadata.title$
 
 $body$
 

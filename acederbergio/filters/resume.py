@@ -1,8 +1,9 @@
 from datetime import date, timedelta
-from typing import Annotated, Any, Callable
+from typing import Annotated, Any, Callable, Literal
 
 import panflute as pf
 import pydantic
+from pydantic.v1.utils import deep_update
 from typing_extensions import Unpack
 
 from acederbergio.filters import floaty, util
@@ -288,6 +289,10 @@ class ConfigHeadshot(pydantic.BaseModel):
     description: Annotated[str, pydantic.Field()]
 
 
+class ResumeFloatySection(floaty.ConfigFloatySection[floaty.T_ConfigFloatySection]):
+    sep: Annotated[Literal["newline", "pipes"], pydantic.Field("newline")]
+
+
 class ConfigResume(pydantic.BaseModel):
     headshot: Annotated[ConfigHeadshot | None, pydantic.Field(default=None)]
     skills: Annotated[
@@ -295,14 +300,14 @@ class ConfigResume(pydantic.BaseModel):
         pydantic.Field(default=None, description="Skills configuration."),
     ]
     contact: Annotated[
-        floaty.ConfigFloatySection[ConfigContactItem] | None,
+        ResumeFloatySection[ConfigContactItem] | None,
         pydantic.Field(
             default=None,
             description="Contact information configuration.",
         ),
     ]
     links: Annotated[
-        floaty.ConfigFloatySection[ConfigLinkItem] | None,
+        ResumeFloatySection[ConfigLinkItem] | None,
         pydantic.Field(
             default=None,
             description=(
@@ -367,21 +372,37 @@ class ConfigResume(pydantic.BaseModel):
         if doc.format == "html":
             do_floaty(self.links, doc, element)
         else:
-            listed = (
-                pf.Plain(
-                    pf.Link(
-                        pf.RawInline(
-                            "\\%s { %s }" % (item.font_awesome, item.title),
-                            format="latex",
-                        ),
-                        url=item.href,
-                        title=item.title,
+            links = (
+                pf.Link(
+                    pf.RawInline(
+                        "\\%s { %s }" % (item.font_awesome, item.title),
+                        format="latex",
                     ),
-                    pf.RawInline(" \\hfill \\\\\n"),
+                    url=item.href,
+                    title=item.title,
                 )
                 for item in self.links.content.values()
                 if item.href is not None
             )
+
+            util.record("links", self.links.sep)
+            if self.links.sep == "newlines":
+                listed = (
+                    pf.Plain(
+                        link,
+                        pf.RawInline(" \\hfill \\\\\n", format="latex"),
+                    )
+                    for link in links
+                )
+            else:
+                listed = tuple(
+                    pf.Plain(
+                        link,
+                        pf.RawInline(" \\hfill\\textbar{}\\hfill\\n", format="latex"),
+                    )
+                    for link in links
+                )
+                util.record(listed)
             element.content = (*element.content, *listed)
 
         return element
@@ -512,7 +533,15 @@ class FilterResume(util.BaseFilter):
 
     def __init__(self, doc: pf.Doc):
         self.doc = doc
-        self.config = ConfigResume.model_validate(doc.get_metadata("resume"))  # type: ignore
+
+        resume = doc.get_metadata("resume")  # type: ignore
+        resume_overwrites = doc.get_metadata("resume.overwrites")  # type: ignore
+
+        util.record(resume_overwrites)
+
+        self.config = ConfigResume.model_validate(
+            deep_update(resume, resume_overwrites) if resume_overwrites else resume
+        )  # type: ignore
 
     def __call__(self, element: pf.Element):
         if not isinstance(element, pf.Div):

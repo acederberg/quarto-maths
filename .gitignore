@@ -33,3 +33,4 @@ dist
 .data
 config
 blog/resume/resume.tex
+blog/resume/resume*.tex

@@ -13,6 +13,10 @@ services:
       dockerfile: docker/dockerfile
       target: develop
     container_name: quarto-server
+    command:
+      - bash
+      - -c
+      - 'source /home/docker/.bashrc && acederbergio serve dev'
     depends_on:
       db:
         condition: service_started

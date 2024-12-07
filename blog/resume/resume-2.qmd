@@ -1,0 +1,57 @@
+---
+title: Adrian Cederberg
+subtitle: Software Engineer | Resume v5
+format:
+  pdf:
+    template: ./templates/template.tex
+    keep-tex: true
+    template-partials:
+      - ./templates/title.tex
+resume:
+  overwrites:
+    links:
+      sep: pipes
+    contacts:
+      sep: pipes
+filters:
+  - ../filters/resume.py
+  - ../filters/minipage.py
+---
+
+<!-- START RESUME -------------------------------> ::: { #resume }
+
+<!-- START HEAD ---------------------------------> ::: { #head }
+
+{{< include ./partials/_title.qmd >}}
+
+<!-- START HEAD LEFT ---------------------------> ::: { #head-left .minipage minipage-width=".5" .minipage-first }
+
+::: { #resume-latest }
+
+{{< include ./partials/_resume_latest.qmd >}}
+
+{{< include ./partials/_resume_website.qmd >}}
+
+:::
+
+<!-- STOP HEAD LEFT ----------------------------> :::
+
+<!-- START HEAD MIDDLE -------------------------> ::: { #head-middle .minipage minipage-width=".30" }
+
+...
+
+<!-- STOP HEAD MIDDLE --------------------------> :::
+
+<!-- START HEAD RIGHT --------------------------> ::: { #head-right .minipage minipage-width=".20" .minipage-final }
+
+...
+
+<!-- STOP HEAD RIGHT ---------------------------> :::
+
+<!-- STOP HEAD ----------------------------------> :::
+
+{{< include ./partials/_links.qmd >}}
+{{< include ./partials/_contact.qmd >}}
+{{< include ./partials/_profile.qmd >}}
+
+<!-- STOP RESUME --------------------------------> :::

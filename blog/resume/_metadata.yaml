@@ -170,7 +170,7 @@ resume:
 
     consulting:
       organization: acederberg.io
-      title: Founder
+      title: Sole Proprietor
       start: January 2024
       stop: Now
       # NOTE: THESE SHOULD GO INTO OVERLAY!
@@ -598,15 +598,15 @@ resume:
             name: house-01
             label: Blog
 
-      - title: Resume
-        href: https://acederberg.io/resume/resume.pdf
-        description: Most Recent Version of Resume
-        font_awaesome: faFilePdf
-        image:
-          iconify:
-            set: hugeicons
-            name: document
-            label: Resume
+    # - title: Resume
+    #   href: https://acederberg.io/resume/resume.pdf
+    #   description: Most Recent Version of Resume
+    #   font_awaesome: faFilePdf
+    #   image:
+    #     iconify:
+    #       set: hugeicons
+    #       name: document
+    #       label: Resume
 
   # ----------------------------------------------------------------------- #
   # Contact
