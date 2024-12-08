@@ -7,20 +7,73 @@ format:
     page-layout: full
     include-in-header:
       - ../includes/live.html
-    # NOTE: Structure must match that in ``static.yaml``.
     theme:
       light:
         - cyborg
-        - ./terminal.scss
+        - themes/terminal.scss
+        - themes/floaty.scss
+        - themes/index.scss
+        - themes/overlay.scss
+        - themes/resume.scss
 ---
+
+<!--
+I would like to have a list of render times and documents pop up in here.
+Failures should show up as an overlay.
+-->
 
 <!--- Tab controls. -->
 
+::: { #quarto-overlay .overlay }
+
+::: { .overlay-content }
+
+::: { #quarto-overlay-content .p-3 }
+
+:::
+
+:::
+
+:::
+
 ```{=html}
+<style>
+  .overlay-controls {
+    background: red;
+    position: sticky;
+    top: 0;
+    z-index: 900;
+  }
+
+  .overlay-content {
+    border: 5px solid red;
+    width: 90vw;
+    height: 90vh;
+    overflow: hidden;
+  }
+
+  #quarto-overlay-content {
+    overflow-y: scroll;
+    height: 84vh; /* Somehow this makes overflow work. */
+  }
+
+  #quarto-overlay-content .terminal {
+    height: auto;
+    display: block;
+    background: rgba(0, 0,0 ,0);
+    backdrop-filter: blur(3px);
+  }
+
+  .overlay {
+    background-color: rgba(0,0,0,.6);
+    backdrop-filter: blur(1px);
+  }
+</style>
+
 <nav>
   <div class="nav nav-tabs" id="nav-tab" role="tablist">
     <button
-      class="nav-link active"
+      class="nav-link"
       id="tab-1"
       data-bs-toggle="tab"
       data-bs-target="#tab-content-1"
@@ -31,9 +84,8 @@ format:
     >
       Server Logs
     </button>
-
     <button
-      class="nav-link"
+      class="nav-link active"
       id="tab-2"
       data-bs-toggle="tab"
       data-bs-target="#tab-content-2"
@@ -44,29 +96,17 @@ format:
     >
       Quarto Success
     </button>
-    <button
-      class="nav-link"
-      id="tab-3"
-      data-bs-toggle="tab"
-      data-bs-target="#tab-content-3"
-      type="button"
-      role="tab"
-      aria-controls="tab-content-3"
-      aria-selected="false"
-    >
-      Quarto Failures
-    </button>
   </div>
 </nav>
 ```
 
 :::: { #tab-content .tab-content }
 
-::: { #tab-content-1 .tab-pane .fade .show .active }
+::: { #tab-content-1 .tab-pane .fade }
 
 ```{=html}
 <table class="table table-borderless terminal p-2" id="live-logs-server">
-<thead style="display: none;">
+  <thead style="display: none;">
     <tr class="terminal-row">
       <th class="terminal-row-time">Time</th>
       <th class="terminal-row-level">Level</th>
@@ -75,25 +115,26 @@ format:
     </tr>
   </thead>
   <tbody>
-  <tr class="terminal-row"><td class="terminal-row-time">[2024-12-05T15:57:00]</td><td class="terminal-row-level">INFO</td><td class="terminal-row-msg">172.19.0.1:47138 - "GET /api/dev/log HTTP/1.1" 200</td><td class="terminal-row-name">uvicorn.access:476</td></tr>
   </tbody>
 </table>
 ```
 
 :::
 
-::: { #tab-content-2 .tab-pane .fade }
+::: { #tab-content-2 .tab-pane .fade .show .active }
 
-```{.terminal .p-2 #live-logs-quarto-success }
-
-```
-
-:::
-
-::: { #tab-content-3 .tab-pane .fade }
-
-```{.terminal #live-logs-quarto-error}
-
+```{=html}
+<table class="table table-borderless quarto p-2" id="live-logs-quarto">
+  <thead style="display: none;">
+    <tr class="quarto-row">
+      <th class="quarto-row-time">Time</th>
+      <th class="quarto-row-target">Level</th>
+      <th class="quarto-row-origin">Message</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
 ```
 
 :::
@@ -102,12 +143,11 @@ format:
 
 ```{=html}
 <script type="module">
-  hydrateLiveLog()
+  const overlay = Overlay(document.getElementById("quarto-overlay"))
+  globalThis.overlay = overlay
 
-  const quarto_error = document.querySelector("#live-logs-quarto-error code")
-  const quarto_success= document.querySelector("#live-logs-quarto-success code")
-  hydrateLiveLogQuarto(quarto_error, true)
-  hydrateLiveLogQuarto(quarto_success, false)
+  hydrateLiveLog()
+  hydrateLiveLogQuarto(overlay)
 
   const quartoContent = document.getElementById("quarto-content")
   quartoContent.classList.remove("page-columns")

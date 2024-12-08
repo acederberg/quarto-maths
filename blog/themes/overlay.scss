@@ -19,13 +19,14 @@
 /* Optional: Centered content styles */
 .overlay-content {
   display: none;
-  background: rgba(255, 255, 255);
+  background: var(--bs-background);
   text-align: center;
   border-radius: 5px;
   margin: 1%;
   overflow-y: scroll;
+  overflow-x: hide;
   scrollbar-color:
-    var(--bs-gray-300) var(--bs-body-bg);
+    var(--bs-gray-900) var(--bs-body-bg);
 
   z-index: 9000 !important;
   width: 80vh;
@@ -46,12 +47,12 @@ transform: translateX(80vh);
 */
 .overlay-controls {
   display: flex;
-  background: var(--bs-gray-100);
+  background: var(--bs-background);
 }
 
 .overlay-controls-item {
   font-size: 1rem;
-  color: #000;
+  color: #fff;
   cursor: pointer;
   transition: color 0.2s ease;
   z-index: 9001;
@@ -66,7 +67,7 @@ transform: translateX(80vh);
 
 .overlay-controls-exit:hover {
   color: var(--bs-red);
-  background: var(--bs-gray-200);
+  background: var(--bs-background);
 }
 
 .overlay-controls-right:hover,

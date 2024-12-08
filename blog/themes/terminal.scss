@@ -9,6 +9,7 @@
 }
 
 .terminal {
+  text-align: left !important;
   table-layout: fixed;
   font-size: medium;
   border: none;
@@ -16,6 +17,39 @@
   background: var(--bs-body-bg);
   color: var(--bs-red);
 }
+
+.quarto {
+  table-layout: fixed;
+  border: none;
+  background: none;
+  font-family: monospace;
+  font-size: medium;
+  color: var(--bs-white);
+}
+
+
+.quarto-row {
+  transition: background-color 30s;
+}
+
+.quarto-row:hover {
+  background: var(--bs-gray-700);
+  filter: contrast(2);
+}
+
+.quarto-success {
+  background-color: var(--bs-background) !important;
+}
+
+.quarto-failure {
+  background-color: var(--bs-danger) !important;
+}
+
+.quarto .new {
+  background-color: var(--bs-primary) !important;
+}
+
+
 
 .terminal .terminal-row {
   width: 100%;

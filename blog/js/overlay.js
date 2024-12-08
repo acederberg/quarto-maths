@@ -17,18 +17,25 @@ function Overlay(overlay) {
   let length = 0
   Array
     .from(overlayContent.getElementsByClassName("overlay-content-item"))
-    .map(function(elem, index) {
-      const key = elem.dataset.key
-
-      indicesToKeys[index] = key
-      keysToIndices[key] = index
-      overlayContentChildren[key] = elem
-
-      length = length + 1
-    })
+    .map(addContent)
 
   /* ----------------------------------------------------------------------- */
   /* Functions that modify state directly */
+
+  function addContent(elem) {
+    const key = elem.dataset.key
+    console.log(elem.dataset.key)
+    console.log(elem)
+    if (!key) throw Error(`No key for \`${elem}\`.`)
+
+    indicesToKeys[length] = key
+    keysToIndices[key] = length
+    overlayContentChildren[key] = elem
+
+    console.log(indicesToKeys, keysToIndices, overlayContentChildren)
+
+    length = length + 1
+  }
 
   const state = { currentIndex: null, currentKey: null, overlayIsOpen: null }
 
@@ -68,6 +75,7 @@ function Overlay(overlay) {
   // Hide or display an ``overlay-content-item`` by key.
   function showOverlayContentItem(key) {
     key = key || indicesToKeys[0]
+    if (!key) throw Error("Could not determine key.")
 
     // Hide all.
     hideOverlayContentItems()
@@ -120,7 +128,7 @@ function Overlay(overlay) {
     hideOverlay()
   })
 
-  const overlayClosure = { hideOverlay, hideOverlayContentItems, showOverlay, showOverlayContentItem }
+  const overlayClosure = { hideOverlay, hideOverlayContentItems, showOverlay, showOverlayContentItem, addContent }
   hideOverlay(true)
   overlayParamsHook(overlay, overlayClosure)
 
