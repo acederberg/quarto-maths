@@ -24,15 +24,12 @@ function Overlay(overlay) {
 
   function addContent(elem) {
     const key = elem.dataset.key
-    console.log(elem.dataset.key)
-    console.log(elem)
     if (!key) throw Error(`No key for \`${elem}\`.`)
 
     indicesToKeys[length] = key
     keysToIndices[key] = length
     overlayContentChildren[key] = elem
 
-    console.log(indicesToKeys, keysToIndices, overlayContentChildren)
 
     length = length + 1
   }

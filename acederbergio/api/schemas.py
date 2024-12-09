@@ -3,7 +3,7 @@ import datetime
 import http
 import pathlib
 import re
-from typing import Annotated, Any, ClassVar, Self
+from typing import Annotated, Any, ClassVar, Literal, Self
 
 import bson
 import fastapi
@@ -32,7 +32,14 @@ class LogItem(pydantic.BaseModel):
         return datetime.datetime.fromtimestamp(self.created)
 
 
+LogQuartoItemKind = Annotated[
+    Literal["defered", "direct", "static"], pydantic.Field("direct")
+]
+
+
 class LogQuartoItem(util.HasTime):
+
+    kind: LogQuartoItemKind
     origin: str
     target: str
     command: list[str]
@@ -53,6 +60,7 @@ class LogQuartoItem(util.HasTime):
         process: asyncio.subprocess.Process,
         *,
         command: list[str],
+        kind: LogQuartoItemKind,
     ) -> Self:
         stdout, stderr = await process.communicate()
         return cls.model_validate(
@@ -63,6 +71,7 @@ class LogQuartoItem(util.HasTime):
                 "stderr": cls.removeANSIEscape(stdout.decode()).split("\n"),
                 "stdout": cls.removeANSIEscape(stderr.decode()).split("\n"),
                 "status_code": process.returncode,
+                "kind": kind,
             }
         )
 
@@ -104,6 +113,18 @@ class BaseLog(util.HasTime, db.HasMongoId):
         slice_start: int | None = None,
         slice_count: int | None = None,
     ):
+        # counts = {
+        #     f"count{item.title()}": {
+        #         "$size": {
+        #             "$filter": {
+        #                 "input": "$items",
+        #                 "as": "item",
+        #                 "cond": {"$eq": ["$$item.kind", item]},
+        #             }
+        #         }
+        #     }
+        #     for item in ("static", "defered", "direct")
+        # }
         steps = [
             {"$sort": {"timestamp": -1}},
             {"$limit": 1},
@@ -125,6 +146,7 @@ class BaseLog(util.HasTime, db.HasMongoId):
             }
             steps.insert(-1, {"$project": projection})
 
+        # print(steps)
         return steps
 
     @classmethod
@@ -136,7 +158,7 @@ class BaseLog(util.HasTime, db.HasMongoId):
 
         collection = db[cls._collection]
         steps = cls.aggr_latest()
-        steps.append({"$projection": {"_id": "$_id"}})
+        steps.append({"$project": {"_id": "$_id"}})
 
         _ids = await collection.aggregate(steps).to_list(None)
         res = await collection.delete_many({"_ids": {"$in": _ids}})

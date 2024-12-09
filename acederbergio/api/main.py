@@ -127,10 +127,11 @@ class App:
         for quarto renders.
         """
 
+        stop_event = asyncio.Event()  # is set after shutdown.
         watch = quarto.Watch()
         self.tasks = {
             "logs": asyncio.create_task(self.watch_logs()),
-            "quarto": asyncio.create_task(watch()),
+            "quarto": asyncio.create_task(watch(stop_event)),
         }
 
         for task in self.tasks.values():
@@ -138,6 +139,8 @@ class App:
 
         yield
 
+        logger.info("Terminating lifespan tasks.")
+        stop_event.set()
         assert watch.handler is not None
 
         logger.info("Dumping quarto watcher state.")
@@ -146,6 +149,7 @@ class App:
 
         for task in self.tasks.values():
             try:
+                logger.info("Canceling task `%s`.", task)
                 task.cancel()
                 await task
             except asyncio.CancelledError:

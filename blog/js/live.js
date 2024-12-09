@@ -148,18 +148,34 @@ function hydrateLiveLogQuartoLine(item) {
   const elem = document.createElement("tr")
   elem.classList.add(!item.status_code ? "quarto-success" : "quarto-failure")
   elem.classList.add("quarto-row")
+  if (item.kind === "static") elem.classList.add("quarto-static")
 
+  const kind = document.createElement("td")
   const time = document.createElement("td")
   const target = document.createElement("td")
   const origin = document.createElement("td")
+  // const command = document.createElement("td")
+
+  kind.textContent = item.kind
+  kind.classList.add("quarto-log-kind")
 
   time.textContent = item.time
-  target.textContent = item.target
-  origin.textContent = item.origin
+  time.classList.add("quarto-log-time")
 
+  target.textContent = item.target
+  target.classList.add("quarto-log-target")
+
+  origin.textContent = item.origin
+  origin.classList.add("quarto-log-origin")
+
+  // command.textContent = item.command
+  // command.classList.add("quarto-log-command")
+
+  elem.appendChild(kind)
   elem.appendChild(time)
   elem.appendChild(target)
   elem.appendChild(origin)
+  // elem.appendChild(command)
 
   elem.dataset.key = item.timestamp
 
@@ -202,7 +218,6 @@ async function hydrateLiveLogQuarto(overlay) {
         overlay.showOverlay()
         overlay.showOverlayContentItem(item.timestamp)
 
-        console.log(overlayContentItem)
         setTimeout(() => overlayContent.scrollTop = overlayContent.scrollHeight, 100)
       }
       line.addEventListener("click", callback)
@@ -210,13 +225,76 @@ async function hydrateLiveLogQuarto(overlay) {
       if (!state.isFirst) {
         if (item.status_code) callback()
 
-        line.classList.add("new")
-        setTimeout(() => line.classList.remove("new"), 1000)
+        const cls = item.status_code ? "quarto-failure-new" : "quarto-success-new"
+        line.classList.add(cls)
+        setTimeout(() => line.classList.remove(cls), 1000)
       }
 
     })
 
     state.isFirst = false
     parent.scrollTop = parent.scrollHeight
+  })
+}
+
+
+async function hydrateServerResponse(response) {
+  const container = document.querySelector("#quarto-controls-response")
+
+  const url = document.createElement("span")
+  url.textContent = `URL: ${response.url}`
+  url.classList.add("terminal-row")
+
+  const status = document.createElement("span")
+  status.textContent = `Status Code: ${response.status} ${response.statusText}`
+  status.classList.add("terminal-row")
+
+  const content = document.createElement("span")
+  content.textContent = `Response: ${await response.text()}`
+  content.classList.add("terminal-row")
+
+  container.innerHTML = ''
+  container.appendChild(url)
+  container.appendChild(status)
+  container.appendChild(content)
+
+  container.classList.remove("hidden")
+}
+
+
+function addIcon(btn, iconName) {
+  const icon = document.createElement("i")
+  const text = btn.querySelector("text")
+  icon.classList.add("bi", `bi-${iconName}`)
+  btn.insertBefore(icon, text)
+}
+
+
+function hydrateRender() {
+  const btnOne = document.querySelector("#quarto-controls-render-one")
+  const btnMany = document.querySelector("#quarto-controls-render-many")
+  addIcon(btnOne, "hammer")
+  addIcon(btnMany, "hammer")
+}
+
+
+function hydrateClearLogs() {
+  const btn = document.querySelector("#quarto-controls-clear-logs")
+  addIcon(btn, "trash")
+
+  btn.addEventListener("click", async function() {
+    const response = await fetch("/api/dev/log", { method: "DELETE" })
+    await hydrateServerResponse(response)
+  })
+}
+
+
+function hydrateClearRenders() {
+  const btn = document.querySelector("#quarto-controls-clear-renders")
+  addIcon(btn, "trash")
+
+  btn.addEventListener("click", async function() {
+    const response = await fetch("/api/dev/quarto", { method: "DELETE" })
+    await hydrateServerResponse(response)
   })
 }

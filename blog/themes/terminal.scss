@@ -1,8 +1,7 @@
 /*-- scss:rules --*/
 
-
-.tab-pane {
-  max-height: 80vh;
+#tab-content .tab-pane {
+  height: 80vh;
   overflow-y: scroll;
   scrollbar-color:
     var(--bs-gray-900) var(--bs-body-bg);
@@ -18,6 +17,53 @@
   color: var(--bs-red);
 }
 
+/* Ammendments to make overlay look nice. */
+#quarto-overlay .overlay {
+  @extend .overlay;
+  background-color: rgba(0, 0, 0, .6);
+  backdrop-filter: blur(1px);
+}
+
+#quarto-overlay .overlay-content {
+  border: 5px solid red;
+  width: 90vw !important;
+  height: 90vh !important;
+  overflow: hidden;
+}
+
+#quarto-overlay .overlay-controls {
+  background: red;
+  position: sticky;
+  top: 0;
+  z-index: 900;
+
+}
+
+/* #quarto-overlay .overlay-controls-item {} */
+#quarto-overlay .overlay-controls-exit {
+  margin-left: auto;
+}
+
+#quarto-overlay .overlay-controls-exit:hover,
+#quarto-overlay .overlay-controls-right:hover,
+#quarto-overlay .overlay-controls-left:hover {
+  color: red;
+  background: var(--bs-black);
+}
+
+#quarto-overlay-content {
+  overflow-y: scroll;
+  height: 84vh;
+  /* Somehow this (setting height in any way) makes overflow work. */
+  backdrop-filter: blur(3px);
+}
+
+#quarto-overlay-content .terminal {
+  height: auto;
+  display: block;
+  background: rgba(0, 0, 0, 0);
+}
+
 .quarto {
   table-layout: fixed;
   border: none;
@@ -29,27 +75,48 @@
 
 
 .quarto-row {
-  transition: background-color 30s;
+  transition: background-color 30s, color 30s;
 }
 
-.quarto-row:hover {
-  background: var(--bs-gray-700);
-  filter: contrast(2);
-}
 
 .quarto-success {
-  background-color: var(--bs-background) !important;
+  color: var(--bs-green) !important;
 }
 
 .quarto-failure {
-  background-color: var(--bs-danger) !important;
+  background-color: rgba(255, 0, 0, 0.1);
+  border: 1px solid red;
+  color: red;
 }
 
-.quarto .new {
+.quarto-static {
+  background-color: rgba(0, 0, 255, 0.2) !important;
+  border: 1px solid var(--bs-blue);
+  color: var(--bs-blue);
+}
+
+
+.quarto-success-new {
   background-color: var(--bs-primary) !important;
+  color: var(--bs-white) !important;
 }
 
+.quarto-failure-new {
+  background-color: red !important;
+  color: var(--bs-white);
+}
 
+.quarto-log-kind {
+  width: 7vw;
+}
+
+.quarto-log-time {
+  width: 15vw;
+}
+
+/* .quarto-log-target {} */
+/**/
+/* .quarto-log-origin {} */
 
 .terminal .terminal-row {
   width: 100%;
@@ -65,10 +132,6 @@
   color: var(--bs-white);
 }
 
-
-.terminal .terminal-row:hover {
-  background: var(--bs-gray-700);
-}
 
 .terminal .terminal-row .terminal-row-time {
   /* width: 16vw; */
@@ -141,7 +204,27 @@
   padding-bottom: 0px;
 }
 
+#quarto-controls table {
+  border: none;
+}
 
-code {
-  background: var(--bs-gray-900);
+#quarto-controls td {
+  width: 20vw;
+}
+
+#quarto-controls button {
+  width: 15vw;
+}
+
+
+/* code { */
+/*   background: var(--bs-gray-900); */
+/* } */
+
+/* .quarto-controls { */
+/* } */
+
+.nav-tabs .nav-link.active {
+  background-color: var(--bs-black) !important;
+  border-bottom: none;
 }

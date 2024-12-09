@@ -496,7 +496,7 @@ class Handler:
         # tt: str | None = None,
         origin: pathlib.Path | None = None,
     ):
-        """Render ``qmd``.
+        """Render ``qmd`` and add this to the document.
 
         If it fails, put the error content in the page."""
 
@@ -520,7 +520,11 @@ class Handler:
 
         logger.debug("Pushing quarto logs document.")
         data = await schemas.LogQuartoItem.fromProcess(
-            path, origin or path, process, command=command
+            path,
+            origin or path,
+            process,
+            command=command,
+            kind="direct" if path == origin else "defered",
         )
 
         if self.context.render_verbose:
@@ -565,7 +569,27 @@ class Handler:
 
         path_dest = env.BUILD / os.path.relpath(path, env.BLOG)
         logger.info("Copying `%s` to `%s`.", path, path_dest)
-        shutil.copy(path, path_dest)
+        command = ["cp", str(path), str(path_dest)]
+
+        process = await asyncio.create_subprocess_shell(
+            " ".join(command),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        await process.wait()
+        data = await schemas.LogQuartoItem.fromProcess(
+            path,
+            path_dest,
+            process,
+            command=command,
+            kind="static",
+        )
+
+        await schemas.LogQuarto.push(
+            self.context.db,
+            self.mongo_id,
+            [data.model_dump(mode="json")],
+        )
 
 
 class Watch:
@@ -579,14 +603,19 @@ class Watch:
         self.filter = Filter(self.context)
         self.handler = None
 
-    async def __call__(self):
+    async def __call__(self, stop_event: asyncio.Event):
         """Watch for changes to quarto files and thier helpers."""
 
         res = await schemas.LogQuarto.spawn(self.context.db)
         self.handler = Handler(self.context, self.filter, mongo_id=res.inserted_id)
 
+        # NOTE: Shutting this down requires writing to a qmd after reload.
+        #       `stop_event` has made this less of a problem.
         async for changes in watchfiles.awatch(
-            env.ROOT, watch_filter=self.filter, step=1000
+            env.ROOT,
+            watch_filter=self.filter,
+            step=1000,
+            stop_event=stop_event,
         ):
             for _, path_raw in changes:
                 await self.handler(path_raw)
