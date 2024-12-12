@@ -505,7 +505,14 @@ class Handler:
             return
 
         logger.info("Starting render of `%s`.", path)
-        command = ["quarto", "render", str(path), *self.context.config.render.flags]
+        command = [
+            "quarto",
+            "render",
+            str(path),
+            "--metadata",
+            f"file_path={path.relative_to(env.ROOT)}",
+            *self.context.config.render.flags,
+        ]
         process = await asyncio.create_subprocess_shell(
             " ".join(command),
             stdout=subprocess.PIPE,

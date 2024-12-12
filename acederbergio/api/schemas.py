@@ -1,6 +1,7 @@
 import asyncio
 import datetime
 import http
+import os
 import pathlib
 import re
 from typing import Annotated, Any, ClassVar, Literal, Self
@@ -10,7 +11,7 @@ import fastapi
 import motor.motor_asyncio
 import pydantic
 
-from acederbergio import db, util
+from acederbergio import db, env, util
 
 
 class LogItem(pydantic.BaseModel):
@@ -65,8 +66,8 @@ class LogQuartoItem(util.HasTime):
         stdout, stderr = await process.communicate()
         return cls.model_validate(
             {
-                "target": str(target),
-                "origin": str(origin),
+                "target": str(os.path.relpath(target, env.ROOT)),
+                "origin": str(os.path.relpath(origin, env.ROOT)),
                 "command": command,
                 "stderr": cls.removeANSIEscape(stdout.decode()).split("\n"),
                 "stdout": cls.removeANSIEscape(stderr.decode()).split("\n"),
@@ -107,6 +108,25 @@ class BaseLog(util.HasTime, db.HasMongoId):
         return res
 
     @classmethod
+    def aggr_latest_projection(
+        cls,
+        *,
+        slice_start: int | None = None,
+        slice_count: int | None = None,
+    ):
+        if slice_start is None:
+            slice = {"$slice": ["$items", slice_count]}
+        else:
+            slice = {"$slice": ["$items", slice_start, slice_count]}
+
+        return {
+            "_id": "$_id",
+            "count": "$count",
+            "timestamp": "$timestamp",
+            "items": slice,
+        }
+
+    @classmethod
     def aggr_latest(
         cls,
         *,
@@ -128,25 +148,17 @@ class BaseLog(util.HasTime, db.HasMongoId):
         steps = [
             {"$sort": {"timestamp": -1}},
             {"$limit": 1},
-            {"$addFields": {"count": {"$size": "$items"}}},
         ]
 
         # NOTE: Add slice counting to steps.
         if slice_count is not None:
-            if slice_start is None:
-                slice = {"$slice": ["$items", slice_count]}
-            else:
-                slice = {"$slice": ["$items", slice_start, slice_count]}
+            projection = cls.aggr_latest_projection(
+                slice_start=slice_start,
+                slice_count=slice_count,
+            )
+            steps.append({"$project": projection})
 
-            projection = {
-                "_id": "$_id",
-                "count": "$count",
-                "timestamp": "$timestamp",
-                "items": slice,
-            }
-            steps.insert(-1, {"$project": projection})
-
-        # print(steps)
+        steps.append({"$addFields": {"count": {"$size": "$items"}}})
         return steps
 
     @classmethod
@@ -221,33 +233,47 @@ class LogQuarto(BaseLog):
     def aggr_latest(
         cls,
         *,
+        filters: "LogQuartoFilters | None" = None,
         slice_start: int | None = None,
         slice_count: int | None = None,
-        error: bool | None = True,
         do_print: bool = False,
     ):
         pipe = super().aggr_latest(slice_start=slice_start, slice_count=slice_count)
-        if error is not None:
-            filter = {
-                "$filter": {
-                    "input": "$items",
-                    "as": "item",
-                    "cond": {"$ne" if error else "$eq": ["$$item.status_code", 0]},
-                }
-            }
 
-            projection = next((item for item in pipe if "$projection" in item), None)
-            if projection is None:
-                projection = {"$project": {"items": filter}}
-                pipe.insert(-1, projection)
-            else:
-                projection.update(items=filter)
+        #  NOTE: Projections must occur separately.
+        if filters is not None:
+            filter = filters.projection_filter()
+            pipe.insert(0, {"$project": {"items": filter}})
 
         if do_print:
-            print(error)
+            print(filters)
             print(pipe)
 
         return pipe
+
+
+class LogQuartoFilters(pydantic.BaseModel):
+    """Filters for document items returned.
+
+    URL parameters will be arguments that are common to ``get`` for both
+    server logs and render logs.
+    """
+
+    targets: Annotated[list[str] | None, pydantic.Field(default=None)]
+    origins: Annotated[list[str] | None, pydantic.Field(default=None)]
+    errors: Annotated[bool | None, pydantic.Field(default=None)]
+
+    def projection_filter(self):
+        conds: list[dict[str, Any]] = []
+        if self.errors is not None:
+            conds.append({"$ne" if self.errors else "$eq": ["$$item.status_code", 0]})
+        if self.targets is not None:
+            conds.append({"$in": ["$$item.target", self.targets]})
+        if self.origins is not None:
+            conds.append({"$in": ["$$item.origin", self.origins]})
+
+        cond = {"$and": conds}
+        return {"$filter": {"input": "$items", "as": "item", "cond": cond}}
 
 
 class LogStatus(pydantic.BaseModel):
@@ -287,3 +313,7 @@ class AppInfo(pydantic.BaseModel):
             websocket.append(BaseAppRouteInfo.model_validate(item))
 
         return AppInfo(http=http, websocket=websocket, prefix=prefix)
+
+
+class AppState(pydantic.BaseModel):
+    exiting: Annotated[bool, pydantic.Field(False)]

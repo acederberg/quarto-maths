@@ -24,7 +24,7 @@ import uvicorn.config
 import yaml
 
 from acederbergio import db, env
-from acederbergio.api import quarto, routes, schemas
+from acederbergio.api import depends, quarto, routes, schemas
 
 logger = env.create_logger(__name__)
 
@@ -129,12 +129,12 @@ class App:
 
         stop_event = asyncio.Event()  # is set after shutdown.
         watch = quarto.Watch()
-        self.tasks = {
+        tasks = {
             "logs": asyncio.create_task(self.watch_logs()),
             "quarto": asyncio.create_task(watch(stop_event)),
         }
 
-        for task in self.tasks.values():
+        for task in tasks.values():
             task.add_done_callback(self.handle)
 
         yield
@@ -147,7 +147,7 @@ class App:
         with open(quarto.PATH_BLOG_HANDLER_STATE, "w") as file:
             yaml.dump(watch.handler.state.model_dump(mode="json"), file)
 
-        for task in self.tasks.values():
+        for task in tasks.values():
             try:
                 logger.info("Canceling task `%s`.", task)
                 task.cancel()
@@ -221,9 +221,8 @@ def cmd_server(_context: typer.Context):
 
 
 # NOTE: Add rich formatting to uvicorn logs.
-LOGGING_CONFIG = env.create_uvicorn_logging_config()
-uvicorn.config.LOGGING_CONFIG.update(LOGGING_CONFIG)
-logging.config.dictConfig(LOGGING_CONFIG)
+uvicorn.config.LOGGING_CONFIG.update(env.LOGGING_CONFIG)
+logging.config.dictConfig(env.LOGGING_CONFIG)
 
 if __name__ == "__main__":
     cli()

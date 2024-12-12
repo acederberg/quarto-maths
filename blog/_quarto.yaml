@@ -113,6 +113,13 @@ theme:
     - themes/index.scss
     - themes/overlay.scss
     - themes/resume.scss
+    # dark:
+    #   - cyborg
+    #   - themes/terminal.scss
+    #   - themes/floaty.scss
+    #   - themes/index.scss
+    #   - themes/overlay.scss
+    #   - themes/resume.scss
 format:
   html:
     code-fold: false

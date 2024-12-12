@@ -1,6 +1,6 @@
 import logging
+import logging.config
 import logging.handlers
-import os
 import pathlib
 from os import environ
 from typing import Annotated, Any, Literal
@@ -12,11 +12,6 @@ import typer
 from acederbergio import util
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(
-    level=logging.WARNING,
-    handlers=[rich.logging.RichHandler()],
-    format="%(message)s",
-)
 
 ENV_PREFIX = "ACEDERBERG_IO"
 ENV_POSSIBLE = {"development", "ci", "production"}
@@ -116,13 +111,17 @@ ENV: FieldEnv = _ENV  # type: ignore
 ENV_IS_DEV = ENV == "development"
 
 
-def create_uvicorn_logging_config() -> dict[str, Any]:
+def create_logging_config() -> dict[str, Any]:
     """Create the uvicorn logging config.
 
     This could be kept in a file. But if I decide to package this it can be a
     real pain to keep such files in the package. Furhter I do not want to
     maintain two configs.
     """
+
+    # NOTE: Some handlers are underscored so that the alphetical order requirement of
+    #       resolution (handlers to be resolved require a name of an earlier letter
+    #       when using ``cfg://``.
     handlers: dict[str, Any] = {
         "_rich": {
             "class": "rich.logging.RichHandler",
@@ -131,6 +130,10 @@ def create_uvicorn_logging_config() -> dict[str, Any]:
             "class": "acederbergio.util.QueueHandler",
             "handlers": ["cfg://handlers._rich"],
         },
+        "queue_no_stdout": {
+            "class": "acederbergio.util.QueueHandler",
+            "handlers": [],
+        },
     }
 
     formatters: dict[str, Any] = {}
@@ -138,6 +141,7 @@ def create_uvicorn_logging_config() -> dict[str, Any]:
         formatters.update({"json": {"class": "acederbergio.util.JSONFormatter"}})
 
         handlers["queue"]["handlers"].append("cfg://handlers._socket")
+        handlers["queue_no_stdout"]["handlers"].append("cfg://handlers._socket")
         handlers.update(
             {
                 "_socket": {
@@ -150,24 +154,44 @@ def create_uvicorn_logging_config() -> dict[str, Any]:
             }
         )
 
+    config_pandoc_filters = {"level": "INFO", "handlers": ["_socket"]}
+    config_api = {"level": "INFO", "handlers": ["queue"]}
     out = {
         "version": 1,
         "formatters": formatters,
         "handlers": handlers,
         "loggers": {
-            "root": {
-                "level": "INFO",
-                "handlers": ["queue"] if ENV_IS_DEV else ["rich"],
-            }
+            # NOTE: Cannot be added dynamically.
+            "acederbergio.filters.dev": config_pandoc_filters,
+            "acederbergio.filters.floaty": config_pandoc_filters,
+            "acederbergio.filters.minipage": config_pandoc_filters,
+            "acederbergio.filters.resume": config_pandoc_filters,
+            "acederbergio.filters.under_construction": config_pandoc_filters,
+            "acederbergio.filters.util": config_pandoc_filters,
+            # API
+            "acederbergio.api.base": config_api,
+            "acederbergio.api.depends": config_api,
+            "acederbergio.api.main": config_api,
+            "acederbergio.api.quarto": config_api,
+            "acederbergio.api.routes": config_api,
+            "acederbergio.api.schemas": config_api,
+            # ROOT
+            "root": {"level": "INFO", "handlers": ["_rich"]},
         },
     }
     return out
 
 
+LOGGING_CONFIG = create_logging_config()
+logging.config.dictConfig(LOGGING_CONFIG)
+
+
 def create_logger(name: str):
+    """Create a logger."""
 
     level = require("log_level", "INFO").upper()
     logger = logging.getLogger(name)
+    logger.propagate = False
     logger.setLevel(level)
 
     return logger
@@ -210,3 +234,8 @@ def show_environ():
         },
         name="variables",
     )
+
+
+@cli.command("logging")
+def show_logging():
+    util.print_yaml(LOGGING_CONFIG, name="Logging Configuration")

@@ -3,6 +3,8 @@ from typing import Any, ClassVar, TypeVar
 
 import fastapi
 import fastapi.routing
+import pydantic
+from fastapi.websockets import WebSocketState
 
 from acederbergio import env
 from acederbergio.api import base, depends, schemas
@@ -52,30 +54,53 @@ class LogRoutesMixins:
         s: type[T_BaseLog],
         websocket: fastapi.WebSocket,
         database: depends.Db,
+        all: bool = True,
         **kwargs,
     ):
-        await websocket.accept()
 
-        # NOTE: Push out the initial logs.
+        # NOTE: Must listen to hear disconnects. Without this, the websocket
+        #       will never exit (which is what was causing reload to hang.
+        #       Initially I assuemd this was from lifespan events but found that
+        #       the server was still listening from print statements.
+        async def listen():
+            while websocket.client_state == WebSocketState.CONNECTED:
+                await websocket.receive()
+
+        await asyncio.gather(
+            listen(),
+            cls.ws_send(s, websocket, database, all=all, **kwargs),
+        )
+        # NOTE: Does not call ``close`` since closing is only on the part of
+        #       client or on uvicorn reloads.
+
+    @classmethod
+    async def ws_send(
+        cls,
+        s: type[T_BaseLog],
+        websocket: fastapi.WebSocket,
+        database: depends.Db,
+        all,
+        **kwargs,
+    ) -> None:
+
         log = await cls.get(s, database, **kwargs)
-        await websocket.send_json(log.model_dump(mode="json"))
+        # NOTE: Push out the initial logs.
+        if all:
+            await websocket.send_json(log.model_dump(mode="json"))
 
         count = log.count
+        while websocket.client_state == WebSocketState.CONNECTED:
+            await asyncio.sleep(1)
+            print("waiting.", websocket.client_state)
 
-        try:
-            while True:
-                await asyncio.sleep(1)
+            data = await cls.get(
+                s, database, slice_start=count, slice_count=128, **kwargs
+            )
+            if not data.count:
+                continue
 
-                data = await cls.get(
-                    s, database, slice_start=count, slice_count=128, **kwargs
-                )
-                if not data.count:
-                    continue
-
-                await websocket.send_json(data.model_dump(mode="json"))
-                count += data.count
-        except fastapi.WebSocketDisconnect:
-            ...
+            await websocket.send_json(data.model_dump(mode="json"))
+            count += data.count
 
 
 # TODO: Make router generic.
@@ -126,7 +151,8 @@ class LogRoutes(LogRoutesMixins, base.Router):
     ):
         """Watch logs. Emits ``JSONL`` log data."""
 
-        await cls.ws(schemas.Log, websocket, database)
+        await websocket.accept()
+        await cls.ws(schemas.Log, websocket, database, all=True)
 
 
 class QuartoRoutes(LogRoutesMixins, base.Router):
@@ -142,9 +168,9 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
     async def get_log(
         cls,
         database: depends.Db,
+        filters: schemas.LogQuartoFilters,
         slice_start: int | None = None,
         slice_count: int | None = None,
-        error: bool | None = None,
     ) -> schemas.LogQuarto:
         """Get the log for the current instance.
 
@@ -155,13 +181,14 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
             database,
             slice_start=slice_start,
             slice_count=slice_count,
-            do_print=True,
-            error=error,
+            filters=filters,
         )
 
     @classmethod
     async def get_log_status(cls, database: depends.Db) -> schemas.LogStatus:
         """Collection status report."""
+
+        print(depends.AppState.exiting)
 
         return await cls.status(schemas.LogQuarto, database)
 
@@ -176,11 +203,34 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
         cls,
         websocket: fastapi.WebSocket,
         database: depends.Db,
-        error: bool | None = None,
+        all: bool = True,
     ):
-        """Watch logs. Emits ``JSONL`` log data."""
+        """Watch logs. Emits ``JSONL`` log data.
 
-        await cls.ws(schemas.LogQuarto, websocket, database, error=error)
+        Will not emit logs until filtering parameters are sent in.
+        """
+
+        await websocket.accept()
+
+        # NOTE: Because a JSON body can not be sent in with the initial request
+        #       the socket will wait for some filters to be written to it.
+        data = await websocket.receive_json()
+        if data is not None:
+            try:
+                filters = schemas.LogQuartoFilters.model_validate(data)
+            except pydantic.ValidationError as err:
+                # NOTE: https://github.com/Luka967/websocket-close-codes
+                raise fastapi.WebSocketDisconnect(1003, err.json())
+        else:
+            filters = None
+
+        await cls.ws(
+            schemas.LogQuarto,
+            websocket,
+            database,
+            filters=filters,
+            all=all,
+        )
 
 
 class DevRoutes(base.Router):

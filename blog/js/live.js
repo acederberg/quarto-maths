@@ -1,7 +1,7 @@
 
-const uvicornLogPattern = /(?<ip>[\d.]+):(?<port>\d+)\s+-\s+"(?<method>[A-Z]+)\s+(?<path>[^\s]+)\s+(?<protocol>HTTP\/\d+\.\d+)"\s+(?<status>\d+)/;
+const UvicornLogPattern = /(?<ip>[\d.]+):(?<port>\d+)\s+-\s+"(?<method>[A-Z]+)\s+(?<path>[^\s]+)\s+(?<protocol>HTTP\/\d+\.\d+)"\s+(?<status>\d+)/;
 
-async function hydrateLiveLogLine(container, item, index, array) {
+function hydrateServerLogItem(item, index, array) {
 
   itemPrevious = index > 0 ? array[index - 1] : null
 
@@ -17,7 +17,7 @@ async function hydrateLiveLogLine(container, item, index, array) {
   itemLevel.textContent = item.levelname
   itemName.textContent = item.name + ":" + item.lineno
 
-  const matched = item.msg.match(uvicornLogPattern)
+  const matched = item.msg.match(UvicornLogPattern)
 
   if (!matched) {
     itemMsg.textContent = item.msg
@@ -69,15 +69,19 @@ async function hydrateLiveLogLine(container, item, index, array) {
   elem.appendChild(itemMsg)
   elem.appendChild(itemName)
 
-  container.appendChild(elem)
-
+  return elem
 }
 
-async function hydrateLiveLog() {
+function ServerLog({
+  serverLogContainer,
+  serverLogParent,
+}) {
 
-  const parent = document.querySelector("#tab-content-1")
-  const container = document.querySelector("#live-logs-server tbody")
-  if (!container) throw Error("Could not find `live-logs-server`.")
+  // const parent = document.querySelector("#tab-content-1")
+  // const container = document.querySelector("#live-logs-server tbody")
+  if (!serverLogContainer) throw Error("`serverLogContainer` is required.")
+  if (!serverLogParent) throw Error("`serverLogParent` is required.")
+
   const ws = new WebSocket("/api/dev/log")
 
   ws.addEventListener(
@@ -88,17 +92,21 @@ async function hydrateLiveLog() {
     "message",
     (event) => {
       const data = JSON.parse(event.data)
-      data.items.map((item, index, array) => hydrateLiveLogLine(container, item, index, array))
-
-      parent.scrollTop = parent.scrollHeight
+      data.items.map((item, index, array) => {
+        const elem = hydrateServerLogItem(item, index, array)
+        serverLogContainer.appendChild(elem)
+        serverLogParent.scrollTop = serverLogParent.scrollHeight
+      })
     },
   )
 
-
+  return { ws }
 }
 
+// ------------------------------------------------------------------------- //
+// Quarto 
 
-function hydrateQuartoPage(item) {
+function hydrateQuartoOverlayItem(item) {
   container = document.createElement('code')
   container.style.display = 'none'
   container.classList.add('terminal')
@@ -144,7 +152,8 @@ function hydrateQuartoPage(item) {
 }
 
 
-function hydrateLiveLogQuartoLine(item) {
+/* Create quarto table table row for a log item. */
+function hydrateQuartoLogItem(item) {
   const elem = document.createElement("tr")
   elem.classList.add(!item.status_code ? "quarto-success" : "quarto-failure")
   elem.classList.add("quarto-row")
@@ -154,7 +163,6 @@ function hydrateLiveLogQuartoLine(item) {
   const time = document.createElement("td")
   const target = document.createElement("td")
   const origin = document.createElement("td")
-  // const command = document.createElement("td")
 
   kind.textContent = item.kind
   kind.classList.add("quarto-log-kind")
@@ -168,74 +176,119 @@ function hydrateLiveLogQuartoLine(item) {
   origin.textContent = item.origin
   origin.classList.add("quarto-log-origin")
 
-  // command.textContent = item.command
-  // command.classList.add("quarto-log-command")
-
   elem.appendChild(kind)
   elem.appendChild(time)
   elem.appendChild(target)
   elem.appendChild(origin)
-  // elem.appendChild(command)
 
   elem.dataset.key = item.timestamp
 
   return elem
 }
 
-// Should generate a list of rows such that
-// - Clicking on rows should show the full error,
-// - Successful renders show up a blue row,
-// - Failed renders show as a red row,
-// - The latest render error shows up in an overlay.
-async function hydrateLiveLogQuarto(overlay) {
-  const state = { isFirst: true }
-  const parent = document.querySelector("#tab-content-2")
-  const overlayContent = document.querySelector('#quarto-overlay-content')
+/*
+  Add content to overlay.
+  If overlay exists, add new page to overlay content.
+  Define a callback for any subsequent actions callbacks (e.g. clicking on any log items.
+*/
+function QuartoOverlayItem(item, { quartoOverlayControls, quartoOverlayContent }) {
+  if (!quartoOverlayControls || !quartoOverlayContent) return
 
-  const container = document.querySelector("#live-logs-quarto tbody")
-  if (!container) throw Error("Missing container.")
+  const elem = hydrateQuartoOverlayItem(item)
+  quartoOverlayControls.addContent(elem)
+  quartoOverlayContent.appendChild(elem)
 
-  const ws = new WebSocket(`/api/dev/quarto`)
-  ws.addEventListener(
-    "open",
-    () => console.log("Websocket connection opened for quarto logs."),
-  )
-  ws.addEventListener("message", (event) => {
-    const data = JSON.parse(event.data)
-    data.items.map(item => {
-      // NOTE: Add a line to the log output and add page content. Make overlay
-      //       controls aware of the page.
-      const line = hydrateLiveLogQuartoLine(item)
-      const overlayContentItem = hydrateQuartoPage(item)
+  function show() {
+    quartoOverlayControls.showOverlay()
+    quartoOverlayControls.showOverlayContentItem(item.timestamp)
+    setTimeout(() => quartoOverlayContent.scrollTop = quartoOverlayContent.scrollHeight, 100)
+  }
 
-      container.appendChild(line)
-      overlay.addContent(overlayContentItem)
-      overlayContent.appendChild(overlayContentItem)
-
-
-      // Add a listener for clicks, open error.
-      function callback() {
-        overlay.showOverlay()
-        overlay.showOverlayContentItem(item.timestamp)
-
-        setTimeout(() => overlayContent.scrollTop = overlayContent.scrollHeight, 100)
-      }
-      line.addEventListener("click", callback)
-
-      if (!state.isFirst) {
-        if (item.status_code) callback()
-
-        const cls = item.status_code ? "quarto-failure-new" : "quarto-success-new"
-        line.classList.add(cls)
-        setTimeout(() => line.classList.remove(cls), 1000)
-      }
-
-    })
-
-    state.isFirst = false
-    parent.scrollTop = parent.scrollHeight
-  })
+  return { show, elem }
 }
+
+
+
+/*
+  Create a log item and items actions.
+*/
+function QuartoLogItem(item, { quartoLogs }) {
+  if (!quartoLogs) return
+
+  const elem = hydrateQuartoLogItem(item)
+  quartoLogs.appendChild(elem)
+
+  function show() {
+    const classNew = item.status_code ? "quarto-failure-new" : "quarto-success-new"
+    elem.classList.add(classNew)
+    setTimeout(() => elem.classList.remove(classNew), 1000)
+  }
+
+  return { elem, show }
+}
+
+
+/*
+  Add overlay content (if possible).
+  Add log item (if possible).
+*/
+function QuartoItem(item, { quartoLogs, quartoOverlayControls, quartoOverlayContent }) {
+
+  const overlay = QuartoOverlayItem(item, { quartoOverlayControls, quartoOverlayContent })
+  const log = QuartoLogItem(item, { quartoLogs })
+
+  console.log(quartoOverlayControls, quartoOverlayContent)
+  console.log(overlay, log)
+  if (log && quartoOverlayControls) log.elem.addEventListener("click", overlay.show)
+
+  return { overlay, log }
+}
+
+
+/*
+  When a message arrives, ensure that a row is added to the display.
+  When the message is an error, show the overlay with the page scrolled down to the bottom of the content.
+*/
+function Quarto({ filters, all, quartoLogsParent, quartoLogs, quartoOverlayControls, quartoOverlayContent }) {
+
+  /*
+    Show an overlay if there is an item.
+  */
+  function handleMessage(event) {
+    const data = JSON.parse(event.data)
+    console.log(JSON.stringify(data, null, 2))
+    data.items.map(
+      item => {
+        const quartoItem = QuartoItem(item, { quartoLogs, quartoOverlayControls, quartoOverlayContent })
+        console.log(
+          !state.count, quartoItem.overlay, item.status_code
+        )
+        if (!state.count && quartoItem.overlay && item.status_code) quartoItem.overlay.show()
+        if (state.count && quartoItem.log) quartoItem.log.show()
+      }
+    )
+
+    state.count++
+    if (quartoLogsParent) quartoLogsParent.scrollTop = quartoLogsParent.scrollHeight
+  }
+
+  const state = { count: 0 }
+
+  // NOTE: Send in filters for listener so it will start listening.
+  const ws = new WebSocket(`/api/dev/quarto?all=${all || false}`)
+  ws.addEventListener("open", () => {
+    console.log("Sending filters to quarto watch websocket.")
+    ws.send(JSON.stringify(filters || null))
+  })
+  ws.addEventListener("close", (event) => { console.log(event.code, event.reason) })
+  ws.addEventListener("message", handleMessage)
+
+  return { ws, state, handleMessage }
+}
+
+
+// ------------------------------------------------------------------------- //
+// Controls
 
 
 async function hydrateServerResponse(response) {

@@ -26,9 +26,11 @@ def print_yaml(
         data = data.model_dump(mode="json", **kwargs_model_dump)
 
     if not as_json:
-        code = "---\n" + (f"# {name}\n" if name is not None else "") + yaml.dump(data)
+        code = (
+            "---\n" + (f"# {name}\n" if name is not None else "") + yaml.safe_dump(data)
+        )
     else:
-        code = json.dumps(data, indent=2)
+        code = json.dumps(data, indent=2, default=str)
 
     if not pretty:
         print(code)
@@ -142,20 +144,21 @@ class JSONFormatter(logging.Formatter):
         return json.dumps(line, default=str) + "\n"
 
 
-LOG_QUEUE: queue.Queue = queue.Queue()
-
-
 class QueueHandler(logging.handlers.QueueHandler):
     """Used to queue messages that are then handled by ``SocketHandler``."""
 
     listener: logging.handlers.QueueListener
+    handlers: list[logging.Handler]
 
+    # NOTE: Separate queues are required otherwise handlers are overwritten.
     def __init__(self, handlers: list[logging.Handler]) -> None:
-        super().__init__(LOG_QUEUE)
+        super().__init__(q := queue.Queue())
+
         # NOTE: This next instruction looks stupid, but is really magic. See
         #       https://rob-blackbourn.medium.com/how-to-use-python-logging-queuehandler-with-dictconfig-1e8b1284e27a
-        _handlers = (handlers[index] for index in range(len(handlers)))
-        self.listener = logging.handlers.QueueListener(LOG_QUEUE, *_handlers)
+        _handlers = list(handlers[index] for index in range(len(handlers)))
+        self.handlers = _handlers
+        self.listener = logging.handlers.QueueListener(q, *self.handlers)
         self.listener.start()
 
 

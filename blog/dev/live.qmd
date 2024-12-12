@@ -1,20 +1,6 @@
 ---
-title: ""
+title: "Live View"
 navbar: false
-author: ""
-format:
-  html:
-    page-layout: full
-    include-in-header:
-      - ../includes/live.html
-    theme:
-      light:
-        - cyborg
-        - themes/terminal.scss
-        - themes/floaty.scss
-        - themes/index.scss
-        - themes/overlay.scss
-        - themes/resume.scss
 ---
 
 <!--
@@ -22,7 +8,13 @@ I would like to have a list of render times and documents pop up in here.
 Failures should show up as an overlay.
 -->
 
-<!--- Tab controls. -->
+```{=html}
+<style>
+  .quarto-title > h1.title {
+    opacity: 0 !important;
+  }
+</style>
+```
 
 ::: { #quarto-overlay .overlay }
 
@@ -35,6 +27,8 @@ Failures should show up as an overlay.
 :::
 
 :::
+
+<!--- Tab controls. -->
 
 ```{=html}
 <nav id="dev-nav">
@@ -138,7 +132,7 @@ Failures should show up as an overlay.
   <tbody>
     <tr>
       <td>
-        <button id="quarto-controls-render-one" type="button" class="disabled btn btn-outline-info">
+        <button id="quarto-controls-render-one" type="button" class="disabled btn btn-outline-success">
           <text> Render One</text>
         </button>
       </td>
@@ -148,7 +142,7 @@ Failures should show up as an overlay.
     </tr>
     <tr>
       <td>
-        <button id="quarto-controls-render-many" type="button" class="disabled btn btn-outline-info">
+        <button id="quarto-controls-render-many" type="button" class="disabled btn btn-outline-success">
           <text> Render All</text>
         </button>
       </td>
@@ -192,11 +186,20 @@ Failures should show up as an overlay.
 
 ```{=html}
 <script type="module">
-  const overlay = Overlay(document.getElementById("quarto-overlay"))
-  globalThis.overlay = overlay
 
-  hydrateLiveLog()
-  hydrateLiveLogQuarto(overlay)
+  globalThis.serverLog = ServerLog({
+    serverLogContainer: document.querySelector("#live-logs-server tbody"),
+    serverLogParent: document.querySelector("#tab-content-1"),
+  })
+
+  globalThis.quarto = Quarto({
+    all: true,
+    filters: null,
+    quartoOverlayControls: Overlay(document.getElementById("quarto-overlay")),
+    quartoLogs: document.querySelector("#live-logs-quarto tbody"),
+    quartoLogsParent: document.querySelector("#tab-content-2"),
+    quartoOverlayContent: document.querySelector('#quarto-overlay-content'),
+  })
 
   const quartoContent = document.getElementById("quarto-content")
   quartoContent.classList.remove("page-columns")

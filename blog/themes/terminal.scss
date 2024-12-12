@@ -18,10 +18,9 @@
 }
 
 /* Ammendments to make overlay look nice. */
-#quarto-overlay .overlay {
-  @extend .overlay;
-  background-color: rgba(0, 0, 0, .6);
-  backdrop-filter: blur(1px);
+#quarto-overlay {
+  background-color: rgba(0, 0, 0, .3) !important;
+  backdrop-filter: blur(5px) !important;
 }
 
 #quarto-overlay .overlay-content {
@@ -55,7 +54,7 @@
   overflow-y: scroll;
   height: 84vh;
   /* Somehow this (setting height in any way) makes overflow work. */
-  backdrop-filter: blur(3px);
+  backdrop-filter: blur(7px);
 }
 
 #quarto-overlay-content .terminal {
@@ -122,7 +121,6 @@
   width: 100%;
   display: block;
   color: var(--bs-red);
-  filter: contrast(5)
 }
 
 .terminal .quarto-target,

@@ -6,7 +6,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: '${ACEDERBERG_IO_MONGO_ROOT_PASSWORD-changeme}'
     volumes:
-      - .data:/data/db
+      - ~/.blog/data:/data/db
   server:
     build:
       context: ..
@@ -15,8 +15,8 @@ services:
     container_name: quarto-server
     command:
       - bash
-      - -c
-      - 'source /home/docker/.bashrc && acederbergio serve dev'
+      # - -c
+      # - 'source /home/docker/.bashrc && acederbergio serve dev'
     depends_on:
       db:
         condition: service_started
@@ -35,12 +35,12 @@ services:
         published: 3030
     tty: true
     volumes:
-      - .venv:/home/docker/.venv
-      # - '.kaggle-cache:/home/docker/.cache/kagglehub'
+      - ~/.blog/venv:/home/docker/.venv
       - ..:/home/docker/app
-      # NOTE: Because don't want to overwrite local and don't want to reinstall
-      #       every time. If there are permissions issues with the volume, just
-      #       do ``rm -r ./docker/.venv`` on the host system.
-      - /home/docker/app/docker/.venv
-      - /home/docker/app/docker/.data
-      # - 'kaggle.json:/home/quarto/.config/
+      # - '.kaggle-cache:/home/docker/.cache/kagglehub'
+      # # NOTE: Because don't want to overwrite local and don't want to reinstall
+      # #       every time. If there are permissions issues with the volume, just
+      # #       do ``rm -r ./docker/.venv`` on the host system.
+      # - /home/docker/app/docker/.venv
+      # - /home/docker/app/docker/.data
+      # # - 'kaggle.json:/home/quarto/.config/

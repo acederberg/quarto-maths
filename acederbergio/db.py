@@ -27,7 +27,7 @@ def check_object_id(value) -> str | None:
     return value
 
 
-CONFIG = env.CONFIGS / "mongodb.yaml"
+CONFIG = env.CONFIGS / "db.yaml"
 DATABASE = "acederbergio"
 URL = "mongodb://root:changeme@db:27017"
 

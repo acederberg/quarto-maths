@@ -135,9 +135,4 @@ There are some things that must be handled in general.
       console.log(completed)
       completed.closest("tr").classList.add("bg-green")
     })
-
-  // Array
-  //   .from(document.getElementsByTagName("table"))
-  //   .map(item => {
-  //   })
 </script>
