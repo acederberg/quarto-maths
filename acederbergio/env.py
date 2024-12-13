@@ -176,7 +176,7 @@ def create_logging_config() -> dict[str, Any]:
             "acederbergio.api.routes": config_api,
             "acederbergio.api.schemas": config_api,
             # ROOT
-            "root": {"level": "INFO", "handlers": ["_rich"]},
+            "root": config_api,
         },
     }
     return out

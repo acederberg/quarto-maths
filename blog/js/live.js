@@ -237,8 +237,6 @@ function QuartoItem(item, { quartoLogs, quartoOverlayControls, quartoOverlayCont
   const overlay = QuartoOverlayItem(item, { quartoOverlayControls, quartoOverlayContent })
   const log = QuartoLogItem(item, { quartoLogs })
 
-  console.log(quartoOverlayControls, quartoOverlayContent)
-  console.log(overlay, log)
   if (log && quartoOverlayControls) log.elem.addEventListener("click", overlay.show)
 
   return { overlay, log }
@@ -249,10 +247,13 @@ function QuartoItem(item, { quartoLogs, quartoOverlayControls, quartoOverlayCont
   When a message arrives, ensure that a row is added to the display.
   When the message is an error, show the overlay with the page scrolled down to the bottom of the content.
 */
-function Quarto({ filters, all, quartoLogsParent, quartoLogs, quartoOverlayControls, quartoOverlayContent }) {
+function Quarto({ filters, last, quartoLogsParent, quartoLogs, quartoOverlayControls, quartoOverlayContent }) {
 
   /*
-    Show an overlay if there is an item.
+    If there is an overlay, show an overlay if there is an error.
+    If there is a log, put the log item in and call `show` to make it obvious that it is new.
+    If there is not a log, add a banner at the bottom of the page and call `show` to make it obvious that it is new.
+
   */
   function handleMessage(event) {
     const data = JSON.parse(event.data)
@@ -260,11 +261,19 @@ function Quarto({ filters, all, quartoLogsParent, quartoLogs, quartoOverlayContr
     data.items.map(
       item => {
         const quartoItem = QuartoItem(item, { quartoLogs, quartoOverlayControls, quartoOverlayContent })
-        console.log(
-          !state.count, quartoItem.overlay, item.status_code
-        )
-        if (!state.count && quartoItem.overlay && item.status_code) quartoItem.overlay.show()
+        if (quartoItem.overlay && item.status_code) quartoItem.overlay.show()
         if (state.count && quartoItem.log) quartoItem.log.show()
+
+        console.log("quartoItem.overlay", quartoItem.overlay)
+        console.log("quartoItem.log", quartoItem.log)
+
+        if (!quartoItem.log) {
+          const banner = QuartoRenderBanner(item)
+
+          document.body.appendChild(banner.elem)
+          banner.show()
+          quartoItem.overlay && banner.info.addEventListener("click", quartoItem.overlay.show)
+        }
       }
     )
 
@@ -275,7 +284,10 @@ function Quarto({ filters, all, quartoLogsParent, quartoLogs, quartoOverlayContr
   const state = { count: 0 }
 
   // NOTE: Send in filters for listener so it will start listening.
-  const ws = new WebSocket(`/api/dev/quarto?all=${all || false}`)
+  let url = '/api/dev/quarto'
+  if (last) { url = url + `?last=${last}` }
+
+  const ws = new WebSocket(url)
   ws.addEventListener("open", () => {
     console.log("Sending filters to quarto watch websocket.")
     ws.send(JSON.stringify(filters || null))
@@ -284,6 +296,63 @@ function Quarto({ filters, all, quartoLogsParent, quartoLogs, quartoOverlayContr
   ws.addEventListener("message", handleMessage)
 
   return { ws, state, handleMessage }
+}
+
+
+
+function QuartoRenderBanner(item) {
+  // NOTE: Remove the banner if it already exists.
+  const identifier = "quarto-render-notification"
+  banner_og = document.getElementById(identifier)
+  if (banner_og) banner_og.remove()
+
+  // NOTE: Create the banner
+  const colorClass = item.status_code ? "bg-warning" : "bg-success"
+  const banner = document.createElement("div")
+  banner.id = identifier
+  banner.classList.add("position-fixed", "bottom-0", "w-100", "text-white", "text-center", "new", colorClass)
+
+  // Add info icon
+  const info = document.createElement("i");
+  info.style.marginTop = '1px'
+  info.classList.add("bi", !item.status_code ? "bi-info-circle" : "bi-bug", "start-0", "position-absolute", "px-2")
+  banner.appendChild(info)
+
+
+  const bannerText = document.createElement("text")
+  bannerText.innerHTML = `
+      <text>Last rendered at </text>
+      <code>${item.time}</code>
+      <text>from changes in </text>
+      <code>${item.origin}</code>
+      <text>.</text>
+  `
+  banner.appendChild(bannerText)
+
+  // NOTE: Add close button
+  const closeButton = document.createElement("i");
+  closeButton.style.marginTop = '1px'
+  closeButton.classList.add("bi", "bi-x-lg", "end-0", "position-absolute", "px-2")
+
+  // closeButton.classList.add("position-absolute", "top-50", "end-0", "translate-middle-y", "me-3")
+  closeButton.addEventListener("click", () => banner.remove())
+  banner.appendChild(closeButton);
+
+  function show() {
+    const classResult = !item.status_code ? "success" : "failure"
+    const code = Array.from(bannerText.getElementsByTagName("code"))
+
+    code.map(elem => elem.classList.add(colorClass, "new", classResult))
+    banner.classList.add("new", classResult)
+
+    setTimeout(() => {
+      code.map((elem) => elem.classList.remove("new"))
+      banner.classList.remove("new")
+    }, 1500)
+  }
+
+
+  return { elem: banner, info, close, show }
 }
 
 

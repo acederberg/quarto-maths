@@ -52,21 +52,21 @@ class DevFilter(util.BaseFilter):
     filter_name = "dev"
 
     def __call__(self, element: pf.Element) -> pf.Element:
-        # util.record(__name__)
-        # util.record(logger.handlers)
-        if not env.ENV_IS_DEV or self.doc.format != "html":
-            return element
+        return element
 
-        if (
-            not isinstance(element, pf.Div)
-            or not element.identifier == "quarto-overlay"
-        ):
-            return element
+    def prepare(self, doc: pf.Doc) -> None:
+        super().prepare(doc)
+
+        logger.info(
+            "This is a test to ensure that filter logs do not show up in stdout."
+        )
+        if not env.ENV_IS_DEV or self.doc.format != "html":
+            return
 
         file_path = self.doc.get_metadata("file_path")  # type:ignore
         if not file_path:
             logger.warning("Could not find file path.")
-            return element
+            return
 
         # NOTE: Depends on should be a list of paths relative to the project root.
         targets = [file_path]
@@ -74,8 +74,8 @@ class DevFilter(util.BaseFilter):
         if depends_on and isinstance(depends_on, list):
             targets += depends_on
 
-        filters = json.dumps({"targets": targets})
-        return pf.Div(
+        filters = json.dumps({"targets": targets, "last": 1})
+        overlay_and_script = pf.Div(
             pf.Div(
                 pf.Div(
                     pf.Div(
@@ -84,7 +84,7 @@ class DevFilter(util.BaseFilter):
                     ),
                     classes=["overlay-content"],
                 ),
-                classes=["overlay"],
+                classes=["overlay", "with-navbar"],
                 identifier="quarto-overlay",
             ),
             pf.RawBlock(
@@ -92,6 +92,7 @@ class DevFilter(util.BaseFilter):
                 <script>
                   globalThis.quartoDevOverlay = Overlay(document.getElementById("quarto-overlay"))
                   globalThis.quartoDev = Quarto({
+                    last: 1,
                     filters: %s,
                     quartoOverlayControls: globalThis.quartoDevOverlay,
                     quartoOverlayContent: document.querySelector('#quarto-overlay-content'),
@@ -102,6 +103,7 @@ class DevFilter(util.BaseFilter):
                 format="html",
             ),
         )
+        doc.content.insert(0, overlay_and_script)
 
 
 filter = util.create_run_filter(DevFilter)

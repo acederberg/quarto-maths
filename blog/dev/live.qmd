@@ -188,13 +188,14 @@ Failures should show up as an overlay.
 <script type="module">
 
   globalThis.serverLog = ServerLog({
+    last: 32,
     serverLogContainer: document.querySelector("#live-logs-server tbody"),
     serverLogParent: document.querySelector("#tab-content-1"),
   })
 
   globalThis.quarto = Quarto({
-    all: true,
-    filters: null,
+    last: 32,
+    filters: {},
     quartoOverlayControls: Overlay(document.getElementById("quarto-overlay")),
     quartoLogs: document.querySelector("#live-logs-quarto tbody"),
     quartoLogsParent: document.querySelector("#tab-content-2"),

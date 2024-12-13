@@ -13,9 +13,11 @@
   font-size: medium;
   border: none;
   font-family: monospace;
+  font-weight: bolder;
   background: var(--bs-body-bg);
-  color: var(--bs-red);
+  color: red;
 }
+
 
 /* Ammendments to make overlay look nice. */
 #quarto-overlay {
@@ -36,6 +38,14 @@
   top: 0;
   z-index: 900;
 
+}
+
+#quarto-overlay.when-navbar {
+  background-color: rgba(0, 0, 0, .8) !important;
+}
+
+#quarto-overlay.when-navbar .overlay-content {
+  height: 80vh !important;
 }
 
 /* #quarto-overlay .overlay-controls-item {} */
@@ -120,7 +130,7 @@
 .terminal .terminal-row {
   width: 100%;
   display: block;
-  color: var(--bs-red);
+  color: red;
 }
 
 .terminal .quarto-target,
@@ -214,6 +224,20 @@
   width: 15vw;
 }
 
+#quarto-render-notification code,
+#quarto-render-notification {
+  transition: 15s background;
+}
+
+#quarto-render-notification code.success.new,
+#quarto-render-notification.success.new {
+  background: var(--bs-blue) !important;
+}
+
+#quarto-render-notification code.failure.new,
+#quarto-render-notification.failure.new {
+  background: var(--bs-red) !important;
+}
 
 /* code { */
 /*   background: var(--bs-gray-900); */

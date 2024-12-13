@@ -243,7 +243,7 @@ class LogQuarto(BaseLog):
         #  NOTE: Projections must occur separately.
         if filters is not None:
             filter = filters.projection_filter()
-            pipe.insert(0, {"$project": {"items": filter}})
+            pipe.insert(2, {"$project": {"items": filter}})
 
         if do_print:
             print(filters)

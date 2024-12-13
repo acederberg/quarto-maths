@@ -54,7 +54,7 @@ class LogRoutesMixins:
         s: type[T_BaseLog],
         websocket: fastapi.WebSocket,
         database: depends.Db,
-        all: bool = True,
+        last: int = 0,
         **kwargs,
     ):
 
@@ -68,7 +68,7 @@ class LogRoutesMixins:
 
         await asyncio.gather(
             listen(),
-            cls.ws_send(s, websocket, database, all=all, **kwargs),
+            cls.ws_send(s, websocket, database, last=last, **kwargs),
         )
         # NOTE: Does not call ``close`` since closing is only on the part of
         #       client or on uvicorn reloads.
@@ -79,19 +79,20 @@ class LogRoutesMixins:
         s: type[T_BaseLog],
         websocket: fastapi.WebSocket,
         database: depends.Db,
-        all,
+        *,
+        last: int = 32,
         **kwargs,
     ) -> None:
 
         log = await cls.get(s, database, **kwargs)
         # NOTE: Push out the initial logs.
-        if all:
+        if last:
+            log.items = log.items[-1 - last :]  # type: ignore
             await websocket.send_json(log.model_dump(mode="json"))
 
         count = log.count
         while websocket.client_state == WebSocketState.CONNECTED:
             await asyncio.sleep(1)
-            print("waiting.", websocket.client_state)
 
             data = await cls.get(
                 s, database, slice_start=count, slice_count=128, **kwargs
@@ -152,7 +153,7 @@ class LogRoutes(LogRoutesMixins, base.Router):
         """Watch logs. Emits ``JSONL`` log data."""
 
         await websocket.accept()
-        await cls.ws(schemas.Log, websocket, database, all=True)
+        await cls.ws(schemas.Log, websocket, database, last=64)
 
 
 class QuartoRoutes(LogRoutesMixins, base.Router):
@@ -188,8 +189,6 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
     async def get_log_status(cls, database: depends.Db) -> schemas.LogStatus:
         """Collection status report."""
 
-        print(depends.AppState.exiting)
-
         return await cls.status(schemas.LogQuarto, database)
 
     @classmethod
@@ -203,7 +202,7 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
         cls,
         websocket: fastapi.WebSocket,
         database: depends.Db,
-        all: bool = True,
+        last: int = 32,
     ):
         """Watch logs. Emits ``JSONL`` log data.
 
@@ -229,7 +228,7 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
             websocket,
             database,
             filters=filters,
-            all=all,
+            last=last,
         )
 
 

@@ -117,7 +117,7 @@ class App:
         except asyncio.CancelledError:
             return
         except Exception as err:
-            raise ValueError("Task Failure.") from err
+            raise ValueError("Lifespan Task Failure.") from err
 
     @contextlib.asynccontextmanager
     async def lifespan_dev(self, _: fastapi.FastAPI):
