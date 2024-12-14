@@ -175,7 +175,8 @@ def create_logging_config() -> dict[str, Any]:
             "acederbergio.api.quarto": config_api,
             "acederbergio.api.routes": config_api,
             "acederbergio.api.schemas": config_api,
-            # ROOT
+            # ROOT. Do not propogate to this. Logging propagation is stupid and
+            # can cause
             "root": config_api,
         },
     }

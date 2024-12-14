@@ -239,12 +239,25 @@
   background: var(--bs-red) !important;
 }
 
-/* code { */
-/*   background: var(--bs-gray-900); */
-/* } */
+#quarto-render-notification i {
+  color: var(--bs-white);
+  transition: 0.3s color;
+}
 
-/* .quarto-controls { */
-/* } */
+#quarto-render-notification i:hover {
+  color: var(--bs-gray-700);
+  transform: scale(1.1);
+}
+
+#quarto-render-notification .spinner-border {
+  height: 1em;
+  width: 1em;
+  border-width: 2px;
+}
+
+#quarto-render-notification .spinner-border:hover {
+  color: var(--bs-white);
+}
 
 .nav-tabs .nav-link.active {
   background-color: var(--bs-black) !important;

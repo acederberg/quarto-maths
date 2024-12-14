@@ -395,14 +395,21 @@ class FilterFloaty(util.BaseFilter):
     filter_name = "floaty"
     filter_config_cls = ConfigFloaty
 
-    doc: pf.Doc
-    config: ConfigFloaty
+    _config: ConfigFloaty | None
 
-    def __init__(self, doc: pf.Doc):
-        super().__init__(doc)
-        self.config = ConfigFloaty.model_validate(
-            {"floaty": doc.get_metadata("floaty")}  # type: ignore
+    def __init__(self, doc: pf.Doc | None = None):
+        super().__init__(doc=doc)
+        self._config = None
+
+    @property
+    def config(self) -> ConfigFloaty:
+        if self._config is not None:
+            return self._config
+
+        self._config = ConfigFloaty.model_validate(
+            {"floaty": self.doc.get_metadata("floaty")}  # type: ignore
         )
+        return self._config
 
     def __call__(self, element: pf.Element):
         if self.doc.format != "html":

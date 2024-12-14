@@ -7,13 +7,6 @@ from acederbergio.filters import util
 
 logger = env.create_logger(__name__)
 
-# root_logger = logging.getLogger("root")
-# root_logger.warning("Warning from root logger.")
-# root_logger.critical("Critical from root logger.")
-#
-# logger.warning("Warning from dev filter logger.")
-# logger.critical("Critical from dev filter logger.")
-
 
 class DevFilter(util.BaseFilter):
     """Since intercepting ``main`` an modifying its content is not really
@@ -97,6 +90,9 @@ class DevFilter(util.BaseFilter):
                     quartoOverlayControls: globalThis.quartoDevOverlay,
                     quartoOverlayContent: document.querySelector('#quarto-overlay-content'),
                   })
+                  document.body.appendChild(QuartoRenderBanner({}, {
+                    'bannerTextInnerHTML': '<text>No renders yet.</text>'
+                  }.elem))
                 </script>
                 """
                 % filters,

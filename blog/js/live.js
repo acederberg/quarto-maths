@@ -268,7 +268,7 @@ function Quarto({ filters, last, quartoLogsParent, quartoLogs, quartoOverlayCont
         console.log("quartoItem.log", quartoItem.log)
 
         if (!quartoItem.log) {
-          const banner = QuartoRenderBanner(item)
+          const banner = QuartoRenderBanner(item, {})
 
           document.body.appendChild(banner.elem)
           banner.show()
@@ -300,7 +300,7 @@ function Quarto({ filters, last, quartoLogsParent, quartoLogs, quartoOverlayCont
 
 
 
-function QuartoRenderBanner(item) {
+function QuartoRenderBanner(item, { bannerTextInnerHTML }) {
   // NOTE: Remove the banner if it already exists.
   const identifier = "quarto-render-notification"
   banner_og = document.getElementById(identifier)
@@ -313,25 +313,65 @@ function QuartoRenderBanner(item) {
   banner.classList.add("position-fixed", "bottom-0", "w-100", "text-white", "text-center", "new", colorClass)
 
   // Add info icon
+  const left = document.createElement("div")
+  left.classList.add("start-0", "position-absolute")
+  left.style.marginTop = '2px'
+
   const info = document.createElement("i");
-  info.style.marginTop = '1px'
-  info.classList.add("bi", !item.status_code ? "bi-info-circle" : "bi-bug", "start-0", "position-absolute", "px-2")
-  banner.appendChild(info)
+  info.classList.add("bi", !item.status_code ? "bi-info-circle" : "bi-bug", "px-2")
+  left.appendChild(info)
+
+  // Add reload icon
+  const reload = document.createElement("i")
+  reload.classList.add("bi", "bi-arrow-repeat", "px-2")
+  left.appendChild(reload)
+
+
+  reload.addEventListener("click", async () => {
+    reload.remove()
+
+    // const spinner = document.createElement("div")
+    // spinner.classList.add("spinner-border")
+    // left.appendChild(spinner)
+    const spinnerContainer = document.createElement("i")
+    spinnerContainer.classList.add("px-2")
+
+    const spinner = document.createElement("div")
+    spinner.classList.add("spinner-border")
+    spinnerContainer.appendChild(spinner)
+    left.appendChild(spinnerContainer)
+
+    res = await fetch("/api/dev/quarto", {
+      body: JSON.stringify({ items: [window.location.pathname] }),
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', },
+      method: "POST",
+    })
+
+    spinnerContainer.remove()
+    left.appendChild(reload)
+
+    data = await res.json()
+    console.log(JSON.stringify(data, null, 2))
+  })
+
+  banner.appendChild(left)
 
 
   const bannerText = document.createElement("text")
-  bannerText.innerHTML = `
+  if (!bannerTextInnerHTML) {
+    bannerText.innerHTML = `
       <text>Last rendered at </text>
       <code>${item.time}</code>
       <text>from changes in </text>
       <code>${item.origin}</code>
       <text>.</text>
   `
+  } else { bannerText.innerHTML = bannerTextInnerHTML }
   banner.appendChild(bannerText)
 
   // NOTE: Add close button
   const closeButton = document.createElement("i");
-  closeButton.style.marginTop = '1px'
+  closeButton.style.marginTop = '2px'
   closeButton.classList.add("bi", "bi-x-lg", "end-0", "position-absolute", "px-2")
 
   // closeButton.classList.add("position-absolute", "top-50", "end-0", "translate-middle-y", "me-3")

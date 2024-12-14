@@ -3,7 +3,6 @@
 import asyncio
 import os
 import pathlib
-import shutil
 import subprocess
 import time
 from typing import Annotated, ClassVar, Iterable
@@ -465,7 +464,7 @@ class Handler:
         self.state = HandlerState()  # type: ignore
         self.mongo_id = mongo_id
 
-    async def __call__(self, v: str) -> None:
+    async def __call__(self, v: str) -> schemas.LogQuartoItem | None:
         """Entrypoint."""
 
         if os.path.isdir(path := pathlib.Path(v)):
@@ -479,7 +478,7 @@ class Handler:
         #       ``partials`` folder.
         is_partial = path.parent.name == "partials" and path.name.startswith("_")
         if path.suffix == ".qmd" and not is_partial:
-            await self.do_qmd(path)
+            return await self.do_qmd(path)
         elif (
             self.filter.filters.has_prefix(path)
             or self.filter.assets.has_prefix(path)
@@ -495,7 +494,7 @@ class Handler:
         *,
         # tt: str | None = None,
         origin: pathlib.Path | None = None,
-    ):
+    ) -> schemas.LogQuartoItem | None:
         """Render ``qmd`` and add this to the document.
 
         If it fails, put the error content in the page."""
@@ -543,13 +542,17 @@ class Handler:
             [data.model_dump(mode="json")],
         )
 
-    async def do_qmd(self, path: pathlib.Path) -> None:
+        return data
+
+    async def do_qmd(self, path: pathlib.Path) -> schemas.LogQuartoItem | None:
         """Render a ``qmd`` document in non-defered fasion."""
 
-        await self.render_qmd(path)
+        data = await self.render_qmd(path)
         self.state.path_last_qmd = path
 
-    async def do_defered(self, path: pathlib.Path) -> None:
+        return data
+
+    async def do_defered(self, path: pathlib.Path) -> schemas.LogQuartoItem | None:
         """Filters, assets, and partials will have defered changes.
 
         In other words, the last modified qmd should be rerendered.
@@ -564,9 +567,10 @@ class Handler:
             self.state.path_last_qmd,
             path,
         )
-        return await self.render_qmd(self.state.path_last_qmd, origin=path)
+        data = await self.render_qmd(self.state.path_last_qmd, origin=path)
+        return data
 
-    async def do_static(self, path: pathlib.Path) -> None:
+    async def do_static(self, path: pathlib.Path) -> schemas.LogQuartoItem:
         """Static assets should be coppied to their respective location in
         ``build``.
 
@@ -597,6 +601,8 @@ class Handler:
             self.mongo_id,
             [data.model_dump(mode="json")],
         )
+
+        return data
 
 
 class Watch:

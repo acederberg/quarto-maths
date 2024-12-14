@@ -130,14 +130,19 @@ format:
       - file: ./includes/iconify.html
       - file: ./includes/external_links.html
       - file: ./includes/overlay.html
+      - file: ./includes/live.html
 
 author:
   - name: Adrian Cederberg
     url: acederberg.io
     email: adrn.cederberg123@gmail.com
+
 filters:
   - include-code-files
   - iconify
+  - quarto
+  - ./filters/dev.py
+
 execute:
   freeze: true
   cache: true

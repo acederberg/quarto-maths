@@ -194,7 +194,7 @@ class BaseLog(util.HasTime, db.HasMongoId):
         )
 
         async for item in collection.aggregate(steps):
-            return item
+            return cls.model_validate(item)
 
         return None
 
@@ -274,6 +274,46 @@ class LogQuartoFilters(pydantic.BaseModel):
 
         cond = {"$and": conds}
         return {"$filter": {"input": "$items", "as": "item", "cond": cond}}
+
+
+class QuartoRender(pydantic.BaseModel):
+    items: Annotated[
+        list[str],
+        pydantic.Field(
+            default_factory=list,
+            description="Provide relative paths from the project root or absolute paths to browser resources.",
+        ),
+    ]
+
+    @classmethod
+    def parse_path(cls, v: str):
+        # NOTE: Handle browser paths. This should just prepend the ``blog``
+        #       directory to the path, and if the path is a directory then add
+        #       ``index.html``.
+        if v.startswith("/") and not v.endswith(".qmd"):
+            v = v.replace(".html", ".qmd")
+            out = pathlib.Path("./blog" + v).resolve()
+        else:
+            out = pathlib.Path(v).resolve()
+
+        return out if not out.is_dir() else (out / "index.qmd")
+
+    @pydantic.field_validator("items")
+    def check_items(cls, v):
+
+        items = list(cls.parse_path(item) for item in v)
+        if dne := tuple(filter(lambda item: not os.path.isfile(item), items)):
+            raise ValueError(f"The following paths are not files: `{dne}`.")
+
+        if bad := tuple(item for item in items if not item.is_relative_to(env.ROOT)):
+            raise ValueError(f"The following paths are not valid: `{bad}`.")
+
+        return list(str(item) for item in items)
+
+
+class QuartoRenderResult(pydantic.BaseModel):
+    ignored: Annotated[list[str], pydantic.Field()]
+    items: Annotated[list[LogQuartoItem], pydantic.Field()]
 
 
 class LogStatus(pydantic.BaseModel):

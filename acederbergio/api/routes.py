@@ -7,7 +7,7 @@ import pydantic
 from fastapi.websockets import WebSocketState
 
 from acederbergio import env
-from acederbergio.api import base, depends, schemas
+from acederbergio.api import base, depends, quarto, schemas
 
 logger = env.create_logger(__name__)
 
@@ -21,14 +21,6 @@ class LogRoutesMixins:
     will provide wrappers with annotations that ``fastapi`` will find okay.
     """
 
-    router_routes: ClassVar[dict[str, str | dict[str, Any]]] = {
-        "get_log": dict(url=""),
-        "get_log_status": dict(url="/status"),
-        "delete_log": dict(url=""),
-        "get_routes": dict(url="/routes"),
-        "websocket_log": dict(url=""),
-    }
-
     @classmethod
     async def get(cls, s: type[T_BaseLog], database: depends.Db, **kwargs) -> T_BaseLog:
 
@@ -36,7 +28,7 @@ class LogRoutesMixins:
         if data is None:
             raise fastapi.HTTPException(204, detail={"msg": "No log data found."})
 
-        return s.model_validate(data)
+        return data
 
     @classmethod
     async def delete(cls, s: type[T_BaseLog], database: depends.Db):
@@ -113,6 +105,13 @@ class LogRoutes(LogRoutesMixins, base.Router):
     """
 
     router = fastapi.APIRouter()
+    router_routes: ClassVar[dict[str, str | dict[str, Any]]] = {
+        "get_log": dict(url=""),
+        "get_log_status": dict(url="/status"),
+        "delete_log": dict(url=""),
+        "get_routes": dict(url="/routes"),
+        "websocket_log": dict(url=""),
+    }
 
     @classmethod
     async def get_log(
@@ -164,12 +163,21 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
     """
 
     router = fastapi.APIRouter()
+    router_routes: ClassVar[dict[str, str | dict[str, Any]]] = {
+        "get_log": dict(url=""),
+        "get_log_status": dict(url="/status"),
+        "delete_log": dict(url=""),
+        "get_routes": dict(url="/routes"),
+        "post_render": dict(url=""),
+        "websocket_log": dict(url=""),
+    }
 
     @classmethod
     async def get_log(
         cls,
         database: depends.Db,
-        filters: schemas.LogQuartoFilters,
+        *,
+        filters: schemas.LogQuartoFilters | None = None,
         slice_start: int | None = None,
         slice_count: int | None = None,
     ) -> schemas.LogQuarto:
@@ -183,6 +191,29 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
             slice_start=slice_start,
             slice_count=slice_count,
             filters=filters,
+        )
+
+    @classmethod
+    async def post_render(
+        cls,
+        quarto_handler: depends.QuartoHandler,
+        render_data: schemas.QuartoRender,
+    ) -> schemas.QuartoRenderResult:
+
+        items = []
+        ignored = []
+        for item in render_data.items:
+            data = await quarto_handler(item)
+            print(data)
+            if data is None:
+                ignored.append(item)
+                continue
+
+            items.append(data)
+
+        return schemas.QuartoRenderResult(
+            items=items,
+            ignored=ignored,
         )
 
     @classmethod

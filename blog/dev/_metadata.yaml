@@ -1,8 +1,6 @@
 format:
   html:
     page-layout: full
-    include-in-header:
-      - ../includes/live.html
     theme:
       light:
         - cyborg

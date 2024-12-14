@@ -1,5 +1,6 @@
 import abc
 import contextlib
+import os
 import pathlib
 import sys
 from typing import ClassVar
@@ -46,6 +47,9 @@ class BaseFilter(abc.ABC):
             raise AttributeError(
                 f"Missing attribute `filter_name` of `{cls.__name__}`."
             )
+
+        if not os.path.exists(env.DEV):
+            os.mkdir(env.DEV)
 
         cls.filter_log = env.DEV / f"{cls.filter_name}.txt"
         return super().__init_subclass__()

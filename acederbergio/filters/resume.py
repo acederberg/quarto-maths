@@ -527,21 +527,27 @@ class FilterResume(util.BaseFilter):
     filter_config_cls = ConfigResume
     filter_name = "resume"
 
-    config: ConfigResume
-    doc: pf.Doc
     identifier_to_hydrate: dict[str, Callable[[pf.Element], pf.Element]]
+    _config: ConfigResume | None
 
-    def __init__(self, doc: pf.Doc):
-        self.doc = doc
+    def __init__(self, doc: pf.Doc | None = None):
+        super().__init__(doc)
+        self._config = None
 
-        resume = doc.get_metadata("resume")  # type: ignore
-        resume_overwrites = doc.get_metadata("resume.overwrites")  # type: ignore
+    @property
+    def config(self) -> ConfigResume:
+        if self._config is not None:
+            return self._config
+
+        resume = self.doc.get_metadata("resume")  # type: ignore
+        resume_overwrites = self.doc.get_metadata("resume.overwrites")  # type: ignore
 
         util.record(resume_overwrites)
 
-        self.config = ConfigResume.model_validate(
+        self._config = ConfigResume.model_validate(
             deep_update(resume, resume_overwrites) if resume_overwrites else resume
         )  # type: ignore
+        return self._config
 
     def __call__(self, element: pf.Element):
         if not isinstance(element, pf.Div):
