@@ -272,6 +272,7 @@ function Quarto({ filters, last, quartoLogsParent, quartoLogs, quartoOverlayCont
     const data = JSON.parse(event.data)
     data.items.map(
       item => {
+        console.log(item.target)
         const quartoItem = QuartoItem(item, { quartoLogs, quartoOverlayControls, quartoOverlayContent })
         if (!state.isInitial) {
           if (quartoItem.overlay && item.status_code) quartoItem.overlay.show()
@@ -301,7 +302,10 @@ function Quarto({ filters, last, quartoLogsParent, quartoLogs, quartoOverlayCont
   if (last) { url = url + `?last=${last}` }
 
   const ws = new WebSocket(url)
-  ws.addEventListener("open", () => { ws.send(JSON.stringify(filters || null)) })
+  ws.addEventListener("open", () => {
+    ws.send(JSON.stringify(filters || null))
+    console.log("Websocket connection opened for quarto renders.")
+  })
   ws.addEventListener("message", handleMessage)
 
   return { ws, state, handleMessage, overlay: quartoOverlayControls }
@@ -500,8 +504,6 @@ function hydrateRender(overlay) {
 
 
     buttonInOverlaySpinner.classList.remove("hidden")
-    console.log(buttonInOverlaySpinner)
-
     buttonInOverlay.classList.add("disabled")
     msgError.classList.add("hidden")
     msgDesc.classList.remove("hidden")
@@ -562,7 +564,6 @@ function hydrateGetLast(overlay) {
   function updateButtonColor() {
     buttonInOverlay.classList.remove(`btn-outline-${overlay.state.colorize.state.colorPrev}`)
     buttonInOverlay.classList.add(`btn-outline-${overlay.state.colorize.state.color}`)
-    console.log("updated")
   }
 
   const elem = document.querySelector("#quarto-controls-get-last")
@@ -576,7 +577,6 @@ function hydrateGetLast(overlay) {
   buttonInOverlay.addEventListener("click", async () => {
     const input = document.getElementById("api-params-get-last-kind")
     const msgError = document.getElementById("api-params-get-last-err")
-    console.log(input)
 
     if (input.value === 'none') {
       msgError.classList.remove("hidden")

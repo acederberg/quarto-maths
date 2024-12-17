@@ -4,7 +4,7 @@ format:
     theme:
       light:
         - cyborg
-        - themes/terminal.scss
+        - themes/live.scss
         - themes/floaty.scss
         - themes/index.scss
         - themes/overlay.scss

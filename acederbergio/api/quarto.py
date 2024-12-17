@@ -479,13 +479,14 @@ class Handler:
             logger.info("Not rendering `%s` because dry run.", path)
             return
 
+        # NOTE: Cannot specify nested data with ``quarto render``.
         logger.info("Starting render of `%s`.", path)
         command = [
             "quarto",
             "render",
             str(path),
             "--metadata",
-            f"live.file_path={path.relative_to(env.ROOT)}",
+            f"live_file_path={path.relative_to(env.ROOT)}",
             *self.context.config.render.flags,
         ]
         process = await asyncio.create_subprocess_shell(

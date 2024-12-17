@@ -108,7 +108,7 @@ website:
 theme:
   light:
     - cosmo
-    - themes/terminal.scss
+    - themes/live.scss
     - themes/floaty.scss
     - themes/index.scss
     - themes/overlay.scss
@@ -141,7 +141,7 @@ filters:
   - include-code-files
   - iconify
   - quarto
-  - ./filters/dev.py
+  - ./filters/live.py
 
 execute:
   freeze: true

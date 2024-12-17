@@ -8,7 +8,7 @@ from acederbergio.filters import util
 logger = env.create_logger(__name__)
 
 
-class DevFilter(util.BaseFilter):
+class LiveFilter(util.BaseFilter):
     """Since intercepting ``main`` an modifying its content is not really
     possible (its parent does not contain the body, and it will be tricky
     to hunt that down), this filter looks for a div with `id=quarto-overlay`
@@ -42,7 +42,7 @@ class DevFilter(util.BaseFilter):
       websockets will not be available.
     """
 
-    filter_name = "dev"
+    filter_name = "live"
 
     def __call__(self, element: pf.Element) -> pf.Element:
         return element
@@ -53,15 +53,15 @@ class DevFilter(util.BaseFilter):
         logger.info(
             "This is a test to ensure that filter logs do not show up in stdout."
         )
-        data = doc.get_metadata("live")
-        logger.warning("data = %s", data)
+        # data = doc.get_metadata("live")
+        # logger.warning("data = %s", data)
 
-        include_raw = doc.get_metadata("live.include")  # type: ignore
+        include_raw = doc.get_metadata("live_include")  # type: ignore
         include = include_raw if include_raw is not None else True
         if not env.ENV_IS_DEV or self.doc.format != "html" or not include:
             return
 
-        file_path = self.doc.get_metadata("live.file_path")  # type:ignore
+        file_path = self.doc.get_metadata("live_file_path")  # type:ignore
         if not file_path:
             logger.warning("Could not find file path.")
             return
@@ -108,4 +108,4 @@ class DevFilter(util.BaseFilter):
         doc.content.insert(0, overlay_and_script)
 
 
-filter = util.create_run_filter(DevFilter)
+filter = util.create_run_filter(LiveFilter)
