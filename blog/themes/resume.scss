@@ -56,6 +56,7 @@
   --color-hover-2: var(--bs-white);
 }
 
+/*
 @property --angle {
   syntax: "<angle>";
   initial-value: 0deg;
@@ -67,6 +68,7 @@
     --angle: 360deg;
   }
 }
+*/
 
 #resume #resume-projects ul li,
 #resume #resume-skills li {
@@ -80,24 +82,33 @@
   border: none;
 }
 
+/*
 $hover_animation: rotate 2s linear infinite !important;
 $hover_gradient : conic-gradient(from var(--angle),
   var(--color-hover-1), 30deg,
   var(--color-hover-2), 35deg,
   var(--color-hover-1));
+  */
 
+
+/*
 #resume #resume-projects ul li:hover,
 #resume #resume-skills ul li:hover {
   animation: $hover_animation;
   border-image: $hover_gradient 1 !important;
   transform: scale(1.1);
 }
+*/
 
 #resume #resume-skills .overlay ul li:hover {
   animation: none;
   border-image: none;
   transform: none;
   border-color: var(--color-hover-1);
+}
+
+#resume #resume-skills table {
+  width: 100%;
 }
 
 #resume #resume-skills tr:hover {

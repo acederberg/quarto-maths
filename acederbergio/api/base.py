@@ -72,7 +72,7 @@ class RouterMeta(type):
                 return
 
             # Update status code if not provided.
-            if _meth == HTTPMethod.POST and "status" not in info:
+            if _meth == HTTPMethod.POST and "status_code" not in info:
                 info.update(status_code=201)
 
             meth = _meth.value.lower()  # type
@@ -86,6 +86,7 @@ class RouterMeta(type):
         # Get the decoerator and call it.
         logger.debug("Adding function `%s` at url `%s`.", fn.__name__, url)
         decorator = getattr(router, meth.lower())
+        print(info)
         decorator(url, **info)(fn)
 
     def __new__(cls, name, bases, namespace):

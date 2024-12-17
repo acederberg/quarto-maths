@@ -6,3 +6,8 @@ filters:
 
 - [Todo List](./todo.qmd)
 - [Development Live View](./live.qmd)
+
+```{=html}
+<embed src="/resume/resume.pdf" width="500" height="500">
+</embed>
+```

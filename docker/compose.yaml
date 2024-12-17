@@ -22,6 +22,7 @@ services:
         condition: service_started
     environment:
       KAGGLE_CONFIG_DIR: /home/docker/app/config/kaggle
+      ACEDERBERG_IO_LOG_LEVEL: ${ACEDERBERG_IO_LOG_LEVEL-DEBUG}
     image: acederberg/blog-dev:0.2.2
     # NOTE: Because dipping into swap memory can crash a standard laptop these
     #       limitations are imposed.

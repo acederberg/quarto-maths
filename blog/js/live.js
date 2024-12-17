@@ -1,4 +1,3 @@
-
 const UvicornLogPattern = /(?<ip>[\d.]+):(?<port>\d+)\s+-\s+"(?<method>[A-Z]+)\s+(?<path>[^\s]+)\s+(?<protocol>HTTP\/\d+\.\d+)"\s+(?<status>\d+)/;
 
 function hydrateServerLogItem(item, index, array) {
@@ -112,28 +111,30 @@ function hydrateQuartoOverlayItem(item) {
   container.classList.add('terminal')
   container.dataset.key = item.timestamp
 
+  const colorClass = !item.status_code ? "text-success" : "text-danger"
+
   const timestamp = document.createElement("span")
   timestamp.textContent = "Timestamp: " + item.timestamp
-  timestamp.classList.add("terminal-row", "quarto-exit-code")
+  timestamp.classList.add("terminal-row", "quarto-exit-code", colorClass)
 
   const command = document.createElement("span")
   command.textContent = "Command: " + item.command
-  command.classList.add("terminal-row", "quarto-command")
+  command.classList.add("terminal-row", "quarto-command", colorClass)
 
   const origin = document.createElement("span")
   origin.textContent = "Origin: " + item.origin
-  origin.classList.add("terminal-row", "quarto-origin")
+  origin.classList.add("terminal-row", "quarto-origin", colorClass)
 
   const target = document.createElement("span")
   target.textContent = "Target: " + item.target
-  target.classList.add("terminal-row", "quarto-target")
+  target.classList.add("terminal-row", "quarto-target", colorClass)
 
   const status = document.createElement("span")
   status.textContent = "Status: " + item.status_code
-  status.classList.add("terminal-row", "quarto-exit-code")
+  status.classList.add("terminal-row", "quarto-exit-code", colorClass)
 
   const spacer = document.createElement("span")
-  spacer.classList.add("terminal-row")
+  spacer.classList.add("terminal-row", colorClass)
 
   container.appendChild(timestamp)
   container.appendChild(command)
@@ -144,9 +145,11 @@ function hydrateQuartoOverlayItem(item) {
   item.stdout.map(item => {
     const elem = document.createElement("span")
     elem.textContent = item
-    elem.classList.add("terminal-row")
+    elem.classList.add("terminal-row", colorClass)
     container.appendChild(elem)
   })
+
+  container.dataset.colorizeColor = item.status_code ? "danger" : "success"
 
   return container
 }
@@ -181,6 +184,8 @@ function hydrateQuartoLogItem(item) {
   elem.appendChild(target)
   elem.appendChild(origin)
 
+  // NOTE: Eventually statusCode should tell the overlay how to be colored.
+  //       For now, overlay does not colorize until it is opened.
   elem.dataset.key = item.timestamp
 
   return elem
@@ -198,13 +203,22 @@ function QuartoOverlayItem(item, { quartoOverlayControls, quartoOverlayContent }
   quartoOverlayControls.addContent(elem)
   quartoOverlayContent.appendChild(elem)
 
+  function colorize() {
+    quartoOverlayControls.colorize({
+      color: item.status_code ? "danger" : "success",
+      colorText: "white",
+      colorTextHover: "black"
+    })
+  }
+
   function show() {
     quartoOverlayControls.showOverlay()
     quartoOverlayControls.showOverlayContentItem(item.timestamp)
+    colorize()
     setTimeout(() => quartoOverlayContent.scrollTop = quartoOverlayContent.scrollHeight, 100)
   }
 
-  return { show, elem }
+  return { colorize, show, elem }
 }
 
 
@@ -253,86 +267,53 @@ function Quarto({ filters, last, quartoLogsParent, quartoLogs, quartoOverlayCont
     If there is an overlay, show an overlay if there is an error.
     If there is a log, put the log item in and call `show` to make it obvious that it is new.
     If there is not a log, add a banner at the bottom of the page and call `show` to make it obvious that it is new.
-
   */
   function handleMessage(event) {
     const data = JSON.parse(event.data)
-    console.log(JSON.stringify(data, null, 2))
     data.items.map(
       item => {
         const quartoItem = QuartoItem(item, { quartoLogs, quartoOverlayControls, quartoOverlayContent })
-        if (quartoItem.overlay && item.status_code) quartoItem.overlay.show()
-        if (state.count && quartoItem.log) quartoItem.log.show()
-
-        console.log("quartoItem.overlay", quartoItem.overlay)
-        console.log("quartoItem.log", quartoItem.log)
+        if (!state.isInitial) {
+          if (quartoItem.overlay && item.status_code) quartoItem.overlay.show()
+          if (quartoItem.log) quartoItem.log.show()
+        }
 
         if (!quartoItem.log) {
           const banner = QuartoRenderBanner(item, {})
 
           document.body.appendChild(banner.elem)
-          banner.show()
+          if (!state.isInitial) {
+            banner.show()
+          }
           quartoItem.overlay && banner.info.addEventListener("click", quartoItem.overlay.show)
         }
       }
     )
 
-    state.count++
+    if (state.isInitial) state.isInitial = false
     if (quartoLogsParent) quartoLogsParent.scrollTop = quartoLogsParent.scrollHeight
   }
 
-  const state = { count: 0 }
+  const state = { isInitial: true }
 
   // NOTE: Send in filters for listener so it will start listening.
   let url = '/api/dev/quarto'
   if (last) { url = url + `?last=${last}` }
 
   const ws = new WebSocket(url)
-  ws.addEventListener("open", () => {
-    console.log("Sending filters to quarto watch websocket.")
-    ws.send(JSON.stringify(filters || null))
-  })
-  ws.addEventListener("close", (event) => { console.log(event.code, event.reason) })
+  ws.addEventListener("open", () => { ws.send(JSON.stringify(filters || null)) })
   ws.addEventListener("message", handleMessage)
 
-  return { ws, state, handleMessage }
+  return { ws, state, handleMessage, overlay: quartoOverlayControls }
 }
 
 
 
-function QuartoRenderBanner(item, { bannerTextInnerHTML }) {
-  // NOTE: Remove the banner if it already exists.
-  const identifier = "quarto-render-notification"
-  banner_og = document.getElementById(identifier)
-  if (banner_og) banner_og.remove()
-
-  // NOTE: Create the banner
-  const colorClass = item.status_code ? "bg-warning" : "bg-success"
-  const banner = document.createElement("div")
-  banner.id = identifier
-  banner.classList.add("position-fixed", "bottom-0", "w-100", "text-white", "text-center", "new", colorClass)
-
-  // Add info icon
-  const left = document.createElement("div")
-  left.classList.add("start-0", "position-absolute")
-  left.style.marginTop = '2px'
-
-  const info = document.createElement("i");
-  info.classList.add("bi", !item.status_code ? "bi-info-circle" : "bi-bug", "px-2")
-  left.appendChild(info)
-
-  // Add reload icon
-  const reload = document.createElement("i")
-  reload.classList.add("bi", "bi-arrow-repeat", "px-2")
-  left.appendChild(reload)
-
-
-  reload.addEventListener("click", async () => {
+function QuartoRenderBanner(item, { bannerTextInnerHTML } = {}) {
+  /* Re-render this page. */
+  async function render() {
     reload.remove()
 
-    // const spinner = document.createElement("div")
-    // spinner.classList.add("spinner-border")
-    // left.appendChild(spinner)
     const spinnerContainer = document.createElement("i")
     spinnerContainer.classList.add("px-2")
 
@@ -351,12 +332,58 @@ function QuartoRenderBanner(item, { bannerTextInnerHTML }) {
     left.appendChild(reload)
 
     data = await res.json()
-    console.log(JSON.stringify(data, null, 2))
-  })
+  }
+
+  /* Ensure that the new banner is obvious to the user. */
+  function show() {
+    const code = Array.from(bannerText.getElementsByTagName("code"))
+    code.map(elem => elem.classList.add("new"))
+    banner.classList.add("new")
+
+    setTimeout(() => {
+      code.map((elem) => elem.classList.remove("new"))
+      banner.classList.remove("new")
+    }, 1500)
+  }
+
+  function initialize() {
+    // NOTE: Remove the banner if it already exists.
+    banner_og = document.getElementById(identifier)
+    if (banner_og) banner_og.remove()
+
+    // NOTE: Make code elements and banner the right color.
+    const classResult = !item.status_code ? "success" : "failure"
+    const code = Array.from(bannerText.getElementsByTagName("code"))
+
+    code.map(elem => elem.classList.add(colorClass, classResult))
+    banner.classList.add(colorClass, classResult)
+  }
+
+  const identifier = "quarto-render-notification"
+
+  // NOTE: Create the banner
+  const colorClass = item.status_code ? "bg-warning" : "bg-success"
+  const banner = document.createElement("div")
+  banner.id = identifier
+  banner.classList.add("position-fixed", "bottom-0", "w-100", "text-white", "text-center", colorClass)
+
+  // NOTE: Add info and reload icons on the left hand side.
+  const left = document.createElement("div")
+  left.classList.add("start-0", "position-absolute")
+  left.style.marginTop = '2px'
+
+  const info = document.createElement("i");
+  info.classList.add("bi", !item.status_code ? "bi-info-circle" : "bi-bug", "px-2")
+  left.appendChild(info)
+
+  const reload = document.createElement("i")
+  reload.classList.add("bi", "bi-arrow-repeat", "px-2")
+  left.appendChild(reload)
+  reload.addEventListener("click", render)
 
   banner.appendChild(left)
 
-
+  // NOTE: Add banner text.
   const bannerText = document.createElement("text")
   if (!bannerTextInnerHTML) {
     bannerText.innerHTML = `
@@ -373,26 +400,12 @@ function QuartoRenderBanner(item, { bannerTextInnerHTML }) {
   const closeButton = document.createElement("i");
   closeButton.style.marginTop = '2px'
   closeButton.classList.add("bi", "bi-x-lg", "end-0", "position-absolute", "px-2")
-
-  // closeButton.classList.add("position-absolute", "top-50", "end-0", "translate-middle-y", "me-3")
   closeButton.addEventListener("click", () => banner.remove())
   banner.appendChild(closeButton);
 
-  function show() {
-    const classResult = !item.status_code ? "success" : "failure"
-    const code = Array.from(bannerText.getElementsByTagName("code"))
+  initialize()
 
-    code.map(elem => elem.classList.add(colorClass, "new", classResult))
-    banner.classList.add("new", classResult)
-
-    setTimeout(() => {
-      code.map((elem) => elem.classList.remove("new"))
-      banner.classList.remove("new")
-    }, 1500)
-  }
-
-
-  return { elem: banner, info, close, show }
+  return { elem: banner, info, close, show, render, initialize }
 }
 
 
@@ -401,24 +414,43 @@ function QuartoRenderBanner(item, { bannerTextInnerHTML }) {
 
 
 async function hydrateServerResponse(response) {
-  const container = document.querySelector("#quarto-controls-response")
+  const colorClass = response.ok ? "text-green" : "text-red"
 
   const url = document.createElement("span")
   url.textContent = `URL: ${response.url}`
-  url.classList.add("terminal-row")
+  url.classList.add("terminal-row", colorClass)
 
   const status = document.createElement("span")
   status.textContent = `Status Code: ${response.status} ${response.statusText}`
-  status.classList.add("terminal-row")
+  status.classList.add("terminal-row", colorClass)
 
-  const content = document.createElement("span")
-  content.textContent = `Response: ${await response.text()}`
-  content.classList.add("terminal-row")
-
+  const container = document.querySelector("#quarto-controls-response")
   container.innerHTML = ''
   container.appendChild(url)
   container.appendChild(status)
-  container.appendChild(content)
+
+  const responseText = await response.text()
+  try {
+    const json = JSON.parse(responseText);
+    responseBody = JSON.stringify(json, null, 2); // Pretty print with 2 spaces
+
+    responseBody.split("\n").map(
+      line => {
+        const elem = document.createElement("span")
+        elem.classList.add("terminal-row", colorClass)
+        elem.textContent = line
+        container.appendChild(elem)
+      }
+    )
+
+  } catch (e) {
+    const content = document.createElement("span")
+    content.classList.add(colorClass)
+    content.textContent = `Response: ${responseText}`
+    container.appendChild(content)
+  }
+
+
 
   container.classList.remove("hidden")
 }
@@ -432,31 +464,167 @@ function addIcon(btn, iconName) {
 }
 
 
-function hydrateRender() {
-  const btnOne = document.querySelector("#quarto-controls-render-one")
-  const btnMany = document.querySelector("#quarto-controls-render-many")
-  addIcon(btnOne, "hammer")
-  addIcon(btnMany, "hammer")
+function hydrateRender(overlay) {
+  function updateButtonColor() {
+    buttonInOverlay.classList.remove(`btn-outline-${overlay.state.colorize.state.colorPrev}`)
+    buttonInOverlay.classList.add(`btn-outline-${overlay.state.colorize.state.color}`)
+  }
+
+  const elem = document.querySelector("#quarto-controls-render-one")
+  elem.addEventListener("click", () => {
+    overlay.showOverlay()
+    overlay.showOverlayContentItem(elem.dataset.key)
+  })
+  addIcon(elem, "hammer")
+
+  const buttonInOverlay = document.getElementById("api-params-render-button")
+  const buttonInOverlaySpinner = buttonInOverlay.querySelector("span")
+
+  updateButtonColor()
+
+  buttonInOverlay.addEventListener("click", async () => {
+    const input = document.getElementById("api-params-render-item")
+    const msgError = document.getElementById("api-params-render-err")
+    const msgDesc = document.getElementById("api-params-render-desc")
+
+    if (!input.value) {
+      msgError.classList.remove("hidden")
+      msgDesc.classList.add("hidden")
+      input.classList.add("border", "border-warning", "border-3")
+
+      overlay.colorize({ color: "warning" })
+      updateButtonColor()
+
+      return
+    }
+
+
+    buttonInOverlaySpinner.classList.remove("hidden")
+    console.log(buttonInOverlaySpinner)
+
+    buttonInOverlay.classList.add("disabled")
+    msgError.classList.add("hidden")
+    msgDesc.classList.remove("hidden")
+    const res = await fetch("/api/dev/quarto", {
+      method: "POST",
+      body: JSON.stringify({ items: [input.value] }),
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', },
+    })
+
+    hydrateServerResponse(res)
+    overlay.hideOverlay()
+    overlay.state.colorize.revert()
+
+    updateButtonColor()
+    buttonInOverlaySpinner.classList.add("hidden")
+    buttonInOverlay.classList.remove("disabled")
+  })
+
+  return { elem, buttonInOverlay }
 }
 
 
 function hydrateClearLogs() {
-  const btn = document.querySelector("#quarto-controls-clear-logs")
-  addIcon(btn, "trash")
-
-  btn.addEventListener("click", async function() {
+  async function action() {
     const response = await fetch("/api/dev/log", { method: "DELETE" })
     await hydrateServerResponse(response)
-  })
+  }
+
+  const elem = document.querySelector("#quarto-controls-clear-logs")
+  elem.addEventListener("click", action)
+  addIcon(elem, "trash")
+
+  return { elem, action }
 }
 
 
 function hydrateClearRenders() {
-  const btn = document.querySelector("#quarto-controls-clear-renders")
-  addIcon(btn, "trash")
-
-  btn.addEventListener("click", async function() {
+  async function action() {
     const response = await fetch("/api/dev/quarto", { method: "DELETE" })
     await hydrateServerResponse(response)
+  }
+
+  const elem = document.querySelector("#quarto-controls-clear-renders")
+  elem.addEventListener("click", action)
+  addIcon(elem, "trash")
+
+  return { elem, action }
+}
+
+
+function hydrateGetLast(overlay) {
+  async function action() {
+    overlay.showOverlay()
+    overlay.showOverlayContentItem("get-last")
+
+  }
+
+  function updateButtonColor() {
+    buttonInOverlay.classList.remove(`btn-outline-${overlay.state.colorize.state.colorPrev}`)
+    buttonInOverlay.classList.add(`btn-outline-${overlay.state.colorize.state.color}`)
+    console.log("updated")
+  }
+
+  const elem = document.querySelector("#quarto-controls-get-last")
+  elem.addEventListener("click", action)
+  addIcon(elem, "bookshelf")
+
+  const buttonInOverlay = document.getElementById("api-params-get-last-button")
+  const buttonInOverlaySpinner = buttonInOverlay.querySelector("span")
+  updateButtonColor()
+
+  buttonInOverlay.addEventListener("click", async () => {
+    const input = document.getElementById("api-params-get-last-kind")
+    const msgError = document.getElementById("api-params-get-last-err")
+    console.log(input)
+
+    if (input.value === 'none') {
+      msgError.classList.remove("hidden")
+      input.classList.add("border", "border-warning", "border-3")
+
+      overlay.colorize({ color: "warning" })
+      updateButtonColor()
+
+      return
+    }
+
+    buttonInOverlaySpinner.classList.remove("hidden")
+    buttonInOverlay.classList.add("disabled")
+    msgError.classList.add("hidden")
+
+    const res = await fetch(
+      "/api/dev/quarto/last",
+      {
+        method: "POST",
+        body: JSON.stringify({ kind: [input.value] }),
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        }
+      }
+    )
+
+    hydrateServerResponse(res)
+    overlay.hideOverlay()
+    overlay.state.colorize.revert()
+
+    buttonInOverlay.classList.remove("disabled")
+    buttonInOverlaySpinner.classList.add("hidden")
   })
+
+
+  return { elem }
+}
+
+
+function QuartoControls() {
+  const overlay = Overlay(document.getElementById("api-params"))
+  overlay.colorize({ color: "primary", colorText: "white", colorTextHover: "black" })
+
+  const render = hydrateRender(overlay)
+  const clearLogs = hydrateClearLogs()
+  const clearQuarto = hydrateClearRenders()
+  const getLast = hydrateGetLast(overlay)
+
+  return { overlay, render, clearLogs, clearQuarto, getLast }
 }

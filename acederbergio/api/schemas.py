@@ -1,6 +1,7 @@
 import asyncio
 import datetime
 import http
+import json
 import os
 import pathlib
 import re
@@ -132,6 +133,7 @@ class BaseLog(util.HasTime, db.HasMongoId):
         *,
         slice_start: int | None = None,
         slice_count: int | None = None,
+        include_count: bool = True,
     ):
         # counts = {
         #     f"count{item.title()}": {
@@ -158,7 +160,8 @@ class BaseLog(util.HasTime, db.HasMongoId):
             )
             steps.append({"$project": projection})
 
-        steps.append({"$addFields": {"count": {"$size": "$items"}}})
+        if include_count:
+            steps.append({"$addFields": {"count": {"$size": "$items"}}})
         return steps
 
     @classmethod
@@ -236,9 +239,14 @@ class LogQuarto(BaseLog):
         filters: "LogQuartoFilters | None" = None,
         slice_start: int | None = None,
         slice_count: int | None = None,
+        include_count: bool = True,
         do_print: bool = False,
     ):
-        pipe = super().aggr_latest(slice_start=slice_start, slice_count=slice_count)
+        pipe = super().aggr_latest(
+            slice_start=slice_start,
+            slice_count=slice_count,
+            include_count=include_count,
+        )
 
         #  NOTE: Projections must occur separately.
         if filters is not None:
@@ -251,6 +259,43 @@ class LogQuarto(BaseLog):
 
         return pipe
 
+    @classmethod
+    def aggr_last_rendered(cls, filters: "LogQuartoFilters | None" = None):
+
+        latest = cls.aggr_latest(filters=None, include_count=False)
+
+        if filters is not None:
+            project = {"$project": {"items": filters.projection_filter()}}
+            latest.insert(0, project)
+
+        latest.insert(
+            1,
+            {
+                "$project": {
+                    "last": {"$last": "$items"},
+                    "timestamp": "$timestamp",
+                }
+            },
+        )
+        latest.insert(2, {"$match": {"last": {"$exists": True}}})
+
+        print(latest)
+        return latest
+
+    @classmethod
+    async def last_rendered(
+        cls,
+        db: motor.motor_asyncio.AsyncIOMotorDatabase,
+        filters: "LogQuartoFilters | None" = None,
+    ) -> LogQuartoItem | None:
+
+        aggr = cls.aggr_last_rendered(filters)
+        res = db[cls._collection].aggregate(aggr)
+        async for item in res:
+            return LogQuartoItem.model_validate(item["last"])
+
+        return None
+
 
 class LogQuartoFilters(pydantic.BaseModel):
     """Filters for document items returned.
@@ -262,6 +307,7 @@ class LogQuartoFilters(pydantic.BaseModel):
     targets: Annotated[list[str] | None, pydantic.Field(default=None)]
     origins: Annotated[list[str] | None, pydantic.Field(default=None)]
     errors: Annotated[bool | None, pydantic.Field(default=None)]
+    kind: Annotated[list[LogQuartoItemKind] | None, pydantic.Field(default=None)]
 
     def projection_filter(self):
         conds: list[dict[str, Any]] = []
@@ -271,6 +317,8 @@ class LogQuartoFilters(pydantic.BaseModel):
             conds.append({"$in": ["$$item.target", self.targets]})
         if self.origins is not None:
             conds.append({"$in": ["$$item.origin", self.origins]})
+        if self.kind is not None:
+            conds.append({"$in": ["$$item.kind", self.kind]})
 
         cond = {"$and": conds}
         return {"$filter": {"input": "$items", "as": "item", "cond": cond}}

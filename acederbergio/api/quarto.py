@@ -282,27 +282,6 @@ class Context:
         return out
 
 
-class HandlerState(ysp.BaseYamlSettings):
-    """State to be carried accross reloads."""
-
-    model_config = ysp.YamlSettingsConfigDict(
-        yaml_files={
-            PATH_BLOG_HANDLER_STATE: ysp.YamlFileConfigDict(required=True),
-        }
-    )
-
-    path_last_qmd: Annotated[
-        pathlib.Path | None,
-        pydantic.Field(
-            None,
-            description=(
-                "Last qmd file written to. This is used when watching filter "
-                "files to determine which qmd files to re-render."
-            ),
-        ),
-    ]
-
-
 # --------------------------------------------------------------------------- #
 # Filter and Handlers
 
@@ -446,7 +425,6 @@ class Filter:
 class Handler:
     """Handles events from ``watchfiles.awatch``."""
 
-    state: Annotated[HandlerState, Doc("State accross reloads.")]
     filter: Annotated[Filter, Doc("")]
     context: Annotated[Context, Doc("")]
 
@@ -461,7 +439,6 @@ class Handler:
     ):
         self.filter = filter
         self.context = context
-        self.state = HandlerState()  # type: ignore
         self.mongo_id = mongo_id
 
     async def __call__(self, v: str) -> schemas.LogQuartoItem | None:
@@ -492,7 +469,6 @@ class Handler:
         self,
         path: pathlib.Path,
         *,
-        # tt: str | None = None,
         origin: pathlib.Path | None = None,
     ) -> schemas.LogQuartoItem | None:
         """Render ``qmd`` and add this to the document.
@@ -509,7 +485,7 @@ class Handler:
             "render",
             str(path),
             "--metadata",
-            f"file_path={path.relative_to(env.ROOT)}",
+            f"live.file_path={path.relative_to(env.ROOT)}",
             *self.context.config.render.flags,
         ]
         process = await asyncio.create_subprocess_shell(
@@ -525,6 +501,7 @@ class Handler:
             logger.info("Rendered `%s`.", path)
 
         logger.debug("Pushing quarto logs document.")
+        print(path, origin)
         data = await schemas.LogQuartoItem.fromProcess(
             path,
             origin or path,
@@ -547,8 +524,7 @@ class Handler:
     async def do_qmd(self, path: pathlib.Path) -> schemas.LogQuartoItem | None:
         """Render a ``qmd`` document in non-defered fasion."""
 
-        data = await self.render_qmd(path)
-        self.state.path_last_qmd = path
+        data = await self.render_qmd(path, origin=path)
 
         return data
 
@@ -558,16 +534,16 @@ class Handler:
         In other words, the last modified qmd should be rerendered.
         """
 
-        if self.state.path_last_qmd is None:
+        filters = schemas.LogQuartoFilters(kind=["direct"])  # type: ignore
+        last = await schemas.LogQuarto.last_rendered(self.context.db, filters=filters)
+        if last is None:
             logger.info("No render to dispatch from changes in `%s`.", path)
             return
 
         logger.info(
-            "Dispatching render of `%s` from changes in `%s`.",
-            self.state.path_last_qmd,
-            path,
+            "Dispatching render of `%s` from changes in `%s`.", last.target, path
         )
-        data = await self.render_qmd(self.state.path_last_qmd, origin=path)
+        data = await self.render_qmd(pathlib.Path(last.target).resolve(), origin=path)
         return data
 
     async def do_static(self, path: pathlib.Path) -> schemas.LogQuartoItem:
@@ -620,6 +596,8 @@ class Watch:
         """Watch for changes to quarto files and thier helpers."""
 
         res = await schemas.LogQuarto.spawn(self.context.db)
+        print("lifespan", res.inserted_id)
+
         self.handler = Handler(self.context, self.filter, mongo_id=res.inserted_id)
 
         # NOTE: Shutting this down requires writing to a qmd after reload.

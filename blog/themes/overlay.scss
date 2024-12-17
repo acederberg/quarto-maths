@@ -15,18 +15,23 @@
   opacity: 1
 }
 
+.overlay-blur {
+  backdrop-filter: blur(3px);
+}
+
 
 /* Optional: Centered content styles */
 .overlay-content {
   display: none;
-  background: var(--bs-background);
+  background: var(--bs-body-bg);
   text-align: center;
   border-radius: 5px;
   margin: 1%;
-  overflow-y: scroll;
-  overflow-x: hide;
-  scrollbar-color:
-    var(--bs-gray-900) var(--bs-body-bg);
+  /* overflow-y: scroll; */
+  overflow-y: hidden;
+  overflow-x: hidden;
+  /* scrollbar-color: */
+  /*   var(--bs-gray-300) var(--bs-body-bg); */
 
   z-index: 9000 !important;
   width: 80vh;
@@ -35,30 +40,34 @@
 
 
 /* For slidey */
-/*
 .overlay-content-item {
-position: absolute;
-left: 0px;
-height: 80vh;
-width: 80vh;
-transform: translateX(80vh);
+  /* position: absolute; */
+  /* left: 0px; */
+  /* height: 80vh; */
+  /* width: 80vh; */
+  /* transform: translateX(80vh); */
+  height: 100%;
+  overflow-y: scroll;
+  background: var(--bs-body-bg);
+  scrollbar-color:
+    var(--bs-gray-300) var(--bs-body-bg);
+
 }
 
-*/
 .overlay-controls {
   display: flex;
-  background: var(--bs-background);
+  background: var(--bs-body-bg);
 }
 
 .overlay-controls-item {
   font-size: 1rem;
-  color: #fff;
+  color: var(--bs-black);
+  background: var(--bs-body-bg);
   cursor: pointer;
   transition: color 0.2s ease;
   z-index: 9001;
 
   border-radius: 3px;
-
 }
 
 .overlay-controls-exit {

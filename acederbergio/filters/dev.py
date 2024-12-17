@@ -53,10 +53,15 @@ class DevFilter(util.BaseFilter):
         logger.info(
             "This is a test to ensure that filter logs do not show up in stdout."
         )
-        if not env.ENV_IS_DEV or self.doc.format != "html":
+        data = doc.get_metadata("live")
+        logger.warning("data = %s", data)
+
+        include_raw = doc.get_metadata("live.include")  # type: ignore
+        include = include_raw if include_raw is not None else True
+        if not env.ENV_IS_DEV or self.doc.format != "html" or not include:
             return
 
-        file_path = self.doc.get_metadata("file_path")  # type:ignore
+        file_path = self.doc.get_metadata("live.file_path")  # type:ignore
         if not file_path:
             logger.warning("Could not find file path.")
             return
@@ -77,7 +82,7 @@ class DevFilter(util.BaseFilter):
                     ),
                     classes=["overlay-content"],
                 ),
-                classes=["overlay", "with-navbar"],
+                classes=["overlay", "when-navbar"],
                 identifier="quarto-overlay",
             ),
             pf.RawBlock(
@@ -90,9 +95,10 @@ class DevFilter(util.BaseFilter):
                     quartoOverlayControls: globalThis.quartoDevOverlay,
                     quartoOverlayContent: document.querySelector('#quarto-overlay-content'),
                   })
-                  document.body.appendChild(QuartoRenderBanner({}, {
+                  const banner = QuartoRenderBanner({}, {
                     'bannerTextInnerHTML': '<text>No renders yet.</text>'
-                  }.elem))
+                  })
+                  document.body.appendChild(banner.elem)
                 </script>
                 """
                 % filters,

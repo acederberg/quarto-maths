@@ -129,6 +129,7 @@ class App:
 
         stop_event = asyncio.Event()  # is set after shutdown.
         watch = quarto.Watch()
+
         tasks = {
             "logs": asyncio.create_task(self.watch_logs()),
             "quarto": asyncio.create_task(watch(stop_event)),
@@ -142,10 +143,6 @@ class App:
         logger.info("Terminating lifespan tasks.")
         stop_event.set()
         assert watch.handler is not None
-
-        logger.info("Dumping quarto watcher state.")
-        with open(quarto.PATH_BLOG_HANDLER_STATE, "w") as file:
-            yaml.dump(watch.handler.state.model_dump(mode="json"), file)
 
         for task in tasks.values():
             try:

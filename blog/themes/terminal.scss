@@ -4,7 +4,7 @@
   height: 80vh;
   overflow-y: scroll;
   scrollbar-color:
-    var(--bs-gray-900) var(--bs-body-bg);
+    var(--bs-gray-900) var(--bs-black);
 }
 
 .terminal {
@@ -14,8 +14,7 @@
   border: none;
   font-family: monospace;
   font-weight: bolder;
-  background: var(--bs-body-bg);
-  color: red;
+  background: var(--bs-black);
 }
 
 
@@ -23,22 +22,32 @@
 #quarto-overlay {
   background-color: rgba(0, 0, 0, .3) !important;
   backdrop-filter: blur(5px) !important;
+  z-index: 1050; // Should be higher than the default.
 }
 
 #quarto-overlay .overlay-content {
-  border: 5px solid red;
   width: 90vw !important;
   height: 90vh !important;
   overflow: hidden;
+  background: var(--bs-black) !important;
 }
 
-#quarto-overlay .overlay-controls {
-  background: red;
+#quarto-overlay .overlay-controls i {
   position: sticky;
   top: 0;
   z-index: 900;
 
 }
+
+#quarto-overlay .overlay-controls-exit {
+  margin-left: auto;
+}
+
+/* #quarto-overlay .overlay-controls-exit:hover, */
+/* #quarto-overlay .overlay-controls-right:hover, */
+/* #quarto-overlay .overlay-controls-left:hover { */
+/*   background: var(--bs-gray-900); */
+/* } */
 
 #quarto-overlay.when-navbar {
   background-color: rgba(0, 0, 0, .8) !important;
@@ -49,28 +58,19 @@
 }
 
 /* #quarto-overlay .overlay-controls-item {} */
-#quarto-overlay .overlay-controls-exit {
-  margin-left: auto;
-}
-
-#quarto-overlay .overlay-controls-exit:hover,
-#quarto-overlay .overlay-controls-right:hover,
-#quarto-overlay .overlay-controls-left:hover {
-  color: red;
-  background: var(--bs-black);
-}
 
 #quarto-overlay-content {
   overflow-y: scroll;
   height: 84vh;
   /* Somehow this (setting height in any way) makes overflow work. */
   backdrop-filter: blur(7px);
+  scrollbar-color:
+    var(--bs-gray-900) var(--bs-black);
 }
 
 #quarto-overlay-content .terminal {
   height: auto;
   display: block;
-  background: rgba(0, 0, 0, 0);
 }
 
 .quarto {
@@ -130,7 +130,6 @@
 .terminal .terminal-row {
   width: 100%;
   display: block;
-  color: red;
 }
 
 .terminal .quarto-target,

@@ -92,7 +92,13 @@ class LogRoutesMixins:
             if not data.count:
                 continue
 
-            await websocket.send_json(data.model_dump(mode="json"))
+            try:
+                await websocket.send_json(data.model_dump(mode="json"))
+            except RuntimeError as err:
+                if err.args[0].startswith("Unexpected ASGI message"):
+                    return
+
+                raise err
             count += data.count
 
 
@@ -166,11 +172,26 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
     router_routes: ClassVar[dict[str, str | dict[str, Any]]] = {
         "get_log": dict(url=""),
         "get_log_status": dict(url="/status"),
+        "post_last_rendered": dict(url="/last", status_code=fastapi.status.HTTP_200_OK),
         "delete_log": dict(url=""),
         "get_routes": dict(url="/routes"),
         "post_render": dict(url=""),
         "websocket_log": dict(url=""),
     }
+
+    @classmethod
+    async def post_last_rendered(
+        cls,
+        database: depends.Db,
+        filters: schemas.LogQuartoFilters | None = None,
+    ) -> schemas.LogQuartoItem | None:
+        """Get the most recent qmd document rendered."""
+
+        res = await schemas.LogQuarto.last_rendered(database, filters)
+        if res is None:
+            raise fastapi.HTTPException(204)
+
+        return res
 
     @classmethod
     async def get_log(

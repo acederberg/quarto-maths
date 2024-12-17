@@ -390,7 +390,7 @@ class ConfigResume(pydantic.BaseModel):
                 listed = (
                     pf.Plain(
                         link,
-                        pf.RawInline(" \\hfill \\\\\n", format="latex"),
+                        pf.RawInline(r" \hfill \\" + "\n", format="latex"),
                     )
                     for link in links
                 )
@@ -398,7 +398,9 @@ class ConfigResume(pydantic.BaseModel):
                 listed = tuple(
                     pf.Plain(
                         link,
-                        pf.RawInline(" \\hfill\\textbar{}\\hfill\\n", format="latex"),
+                        pf.RawInline(
+                            r" \hfill\textbar{}\hfill\\" + "\n", format="latex"
+                        ),
                     )
                     for link in links
                 )
@@ -458,7 +460,7 @@ class ConfigResume(pydantic.BaseModel):
                 pf.Image(
                     url=self.headshot.url,
                     title=self.headshot.title,
-                    classes=["p-5"],
+                    classes=["p-5", "img-fluid"],
                 )
             )
 

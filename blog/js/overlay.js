@@ -1,20 +1,20 @@
 const params = new URLSearchParams(window.location.search)
-const params_overlay = params.get("overlay")
-const params_overlay_content_item = params.get("overlay-content-item")
+const params_overlay = params.get("overlay") // Identifier for the overlay
+const params_overlay_content_item = params.get("overlay-content-item") // key for the overlay content item
 
 // If an overlay is found, add controls.
-function Overlay(overlay) {
+function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
   if (!overlay.id) throw Error("Overlay missing required `id`.")
 
   const overlayContent = overlay.querySelector(".overlay-content")
   if (!overlayContent) throw Error("Could not find overlay content.")
 
   // Create ordered keys and map to keys.
+  const state = { length: 0, currentIndex: null, currentKey: null, overlayIsOpen: null }
   const keysToIndices = {}
   const indicesToKeys = {}
   const overlayContentChildren = {}
 
-  let length = 0
   Array
     .from(overlayContent.getElementsByClassName("overlay-content-item"))
     .map(addContent)
@@ -22,19 +22,17 @@ function Overlay(overlay) {
   /* ----------------------------------------------------------------------- */
   /* Functions that modify state directly */
 
+
   function addContent(elem) {
     const key = elem.dataset.key
     if (!key) throw Error(`No key for \`${elem}\`.`)
 
-    indicesToKeys[length] = key
-    keysToIndices[key] = length
+    indicesToKeys[state.length] = key
+    keysToIndices[key] = state.length
     overlayContentChildren[key] = elem
 
-
-    length = length + 1
+    state.length = state.length + 1
   }
-
-  const state = { currentIndex: null, currentKey: null, overlayIsOpen: null }
 
   // Hide the overlay, its content, and all of the content items.
   function hideOverlay(isNotAnimated) {
@@ -59,6 +57,11 @@ function Overlay(overlay) {
 
     // Update state.
     state.overlayIsOpen = true
+  }
+
+  /* When the page has been refreshed, use params to show the overlay again. */
+  function restoreOverlay() {
+
   }
 
   // Hide all overlay content.
@@ -86,46 +89,183 @@ function Overlay(overlay) {
     state.currentKey = key
     state.currentIndex = keysToIndices[key]
 
+    return content
+
   }
 
   /* ----------------------------------------------------------------------- */
   /* Add listeners in a navbar. */
 
-  const controls = document.createElement("nav");
-  const exit = document.createElement('i'); const left = document.createElement('i'); const right = document.createElement('i')
-  // const next_overlay = document.createElement("i")
-  // const prev_overlay = document.createElement("i")
+  // NOTE: In some cases (e.g. the dev page) this is called twice.
+  const controlsId = `${overlay.id}-controls`
+  let controls = document.getElementById(controlsId)
 
-  controls.appendChild(left); controls.appendChild(right);
-  // controls.appendChild(prev_overlay); controls.appendChild(next_overlay);
-  controls.appendChild(exit)
+  if (!controls) {
+    controls = document.createElement("nav");
+    controls.id = controlsId
 
-  controls.classList.add('overlay-controls', 'p-1')
-  // prev_overlay.classList.add("bi-chevron-bar-left", 'overlay-controls-item', 'px-1', 'overlay-controls-left')
-  left.classList.add('bi-chevron-left', 'overlay-controls-item', 'px-1', 'overlay-controls-left')
-  right.classList.add('bi-chevron-right', 'overlay-controls-item', 'px-1', 'overlay-controls-right')
-  // next_overlay.classList.add("bi-chevron-bar-right", 'overlay-controls-item', 'px-1', 'overlay-controls-left')
-  exit.classList.add('bi-x-lg', 'overlay-controls-item', 'overlay-controls-exit', 'px-1')
+    const exit = document.createElement('i'); const left = document.createElement('i'); const right = document.createElement('i')
+    controls.appendChild(left); controls.appendChild(right);
+    controls.appendChild(exit);
 
-  overlayContent.insertBefore(controls, overlayContent.children[0])
+    controls.classList.add('overlay-controls', 'p-1')
+    left.classList.add('bi-chevron-left', 'overlay-controls-item', 'px-1', 'overlay-controls-left')
+    right.classList.add('bi-chevron-right', 'overlay-controls-item', 'px-1', 'overlay-controls-right')
+    exit.classList.add('bi-x-lg', 'overlay-controls-item', 'overlay-controls-exit', 'px-1')
 
-  function nextOverlayContentItem(incr) {
-    let nextIndex = (state.currentIndex + incr) % length
-    if (nextIndex < 0) nextIndex = length + nextIndex
-    const nextKey = indicesToKeys[nextIndex]
+    overlayContent.insertBefore(controls, overlayContent.children[0])
 
-    showOverlayContentItem(nextKey)
+    function nextOverlayContentItem(incr) {
+      let nextIndex = (state.currentIndex + incr) % state.length
+      if (nextIndex < 0) nextIndex = state.length + nextIndex
+      const nextKey = indicesToKeys[nextIndex]
+
+      const contentItem = showOverlayContentItem(nextKey)
+      const colorizeParams = {
+        color: contentItem.dataset.colorizeColor,
+        colorText: contentItem.dataset.colorizeColorText,
+        colorTextHover: contentItem.dataset.colorizeColorTextHover,
+      }
+
+      colorize(colorizeParams)
+    }
+
+    exit.addEventListener("click", () => hideOverlay(0))
+    left.addEventListener("click", () => nextOverlayContentItem(-1))
+    right.addEventListener("click", () => nextOverlayContentItem(1))
+    overlay.addEventListener("click", (event) => {
+      if (event.target.id !== overlay.id) return
+      hideOverlay()
+    })
   }
 
-  exit.addEventListener("click", () => hideOverlay(0))
-  left.addEventListener("click", () => nextOverlayContentItem(-1))
-  right.addEventListener("click", () => nextOverlayContentItem(1))
-  overlay.addEventListener("click", (event) => {
-    if (event.target.id !== overlay.id) return
-    hideOverlay()
-  })
+  /*
+  if ( includeFullscreenControls ){
+    const fullscreenControlsId = `${overlay.id}-controls-fullscreen`
+    let fullscreenControls = document.getElementById(fullscreenControlsId)
 
-  const overlayClosure = { hideOverlay, hideOverlayContentItems, showOverlay, showOverlayContentItem, addContent }
+    if (!fullscreenControls){
+      fullscreenControls = document.createElement("nav")
+      // const fullscreen = document.createElement("i"); const minimize = document.createElement("i")
+      // fullscreen.classList.add("bi-arrows-fullscreen", "overlay-controls-item", "px-5")
+      // minimize.classList.add("bi-fullscreen-exit", "overlay-controls-item", "px-5")
+      // controls.appendChild(fullscreen); controls.appendChild(minimize);
+    }
+  }
+  */
+
+  function Colorize({ color, colorText, colorTextHover }) {
+
+    const state = {
+      // Colors
+      color: null, colorPrev: null,
+      colorText: null, colorTextPrev: null,
+      colorTextHover: null, colorTextHoverPrev: null,
+
+      // Classes
+      classBackground: null, classBackgroundPrev: null,
+      classBorder: null, classBorderPrev: null,
+      classText: null, classTextPrev: null,
+      classTextHover: null, classTextHoverPrev: null
+    }
+
+    /* Update background and border classes for a new color. */
+    function setColor(color) {
+      state.colorPrev = state.color
+      state.classBackgroundPrev = state.classBackground
+      state.classBorderPrev = state.classBorder
+
+      state.color = color
+      state.classBackground = `bg-${color}`
+      state.classBorder = `border-${color}`
+    }
+
+    /* Update text classes for a new color */
+    function setColorText(color) {
+      state.colorTextPrev = state.colorText
+      state.classTextPrev = state.classText
+
+      state.colorText = color
+      state.classText = `text-${color}`
+    }
+
+    function setColorTextHover(color) {
+      state.colorTextHoverPrev = state.colorTextHover
+      state.classTextHover = state.classTextHoverPrev
+
+      state.colorTextHover = color
+      state.classTextHover = `text-${color}`
+    }
+
+    /* Remove previous classes */
+    function down() {
+      navIcons.map(item => item.classList.remove(state.classBackgroundPrev, state.classTextPrev))
+      controls.classList.remove(state.classBackgroundPrev)
+      overlayContent.classList.remove(state.classBorderPrev)
+    }
+
+    /* Add current classes */
+    function up() {
+      navIcons.map(item => item.classList.add(state.classBackground, state.classText))
+      controls.classList.add(state.classBackground)
+      overlayContent.classList.add(state.classBorder, "border", "border-5")
+    }
+
+    /* Only call this once. */
+    function initialize() {
+      navIcons.map(item => {
+        item.addEventListener("mouseover", mouseOver)
+        item.addEventListener("mouseout", mouseOut)
+      })
+    }
+
+    /* Like revert, but with parameters. */
+    function restart({ color, colorText, colorTextHover }) {
+      if (color) setColor(color)
+      if (colorText) setColorText(colorText)
+      if (colorTextHover) setColorTextHover(colorTextHover)
+
+      down()
+      up()
+    }
+
+    /* Should toggle between current state and last state. */
+    function revert() {
+      if (state.colorPrev) setColor(state.colorPrev)
+      if (state.colorTextPrev) setColorText(state.colorTextPrev, state.colorText)
+      if (state.colorTextHoverPrev) setColorTextHover(state.colorTextHoverPrev, state.colorTextHover)
+
+      down()
+      up()
+    }
+
+    function mouseOver(event) {
+      event.target.classList.remove(state.classText)
+      event.target.classList.add(state.classTextHover)
+    }
+    function mouseOut(event) {
+      event.target.classList.remove(state.classTextHover)
+      event.target.classList.add(state.classText)
+    }
+
+    const navIcons = Array.from(controls.getElementsByTagName("i"))
+    initialize()
+    restart({ color, colorText, colorTextHover })
+
+    return {
+      mouseOut, mouseOver, setColorText, setColor, restart,
+      initialize, down, up, setColorTextHover, revert, state
+    }
+  }
+
+  function colorize({ color, colorText, colorTextHover }) {
+    if (!state.colorize) state.colorize = Colorize({ color, colorText, colorTextHover })
+    else state.colorize.restart({ color, colorText, colorTextHover })
+  }
+
+
+  colorize(paramsColorize)
+  const overlayClosure = { elem: overlay, nav: controls, colorize, hideOverlay, hideOverlayContentItems, showOverlay, showOverlayContentItem, addContent, state }
   hideOverlay(true)
   overlayParamsHook(overlay, overlayClosure)
 
@@ -152,6 +292,7 @@ function Floaty(name, { liMargin, kind }) {
 
   const overlay = parent.querySelector(".overlay")
   const overlayControls = !overlay ? null : Overlay(overlay)
+  if (overlay) overlayControls.colorize({ color: "light" })
 
   function setUpListItem(iconInLi) {
     const size = parseInt(iconInLi.style['font-size'])
