@@ -21,10 +21,9 @@ import fastapi.staticfiles
 import typer
 import uvicorn
 import uvicorn.config
-import yaml
 
 from acederbergio import db, env
-from acederbergio.api import depends, quarto, routes, schemas
+from acederbergio.api import quarto, routes, schemas
 
 logger = env.create_logger(__name__)
 

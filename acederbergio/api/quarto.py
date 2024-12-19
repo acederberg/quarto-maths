@@ -425,6 +425,7 @@ class Filter:
 class Handler:
     """Handles events from ``watchfiles.awatch``."""
 
+    _from: schemas.LogQuartoItemFrom
     filter: Annotated[Filter, Doc("")]
     context: Annotated[Context, Doc("")]
 
@@ -436,10 +437,12 @@ class Handler:
         filter: Filter,
         *,
         mongo_id: bson.ObjectId,
+        _from: schemas.LogQuartoItemFrom,
     ):
         self.filter = filter
         self.context = context
         self.mongo_id = mongo_id
+        self._from = _from
 
     async def __call__(self, v: str) -> schemas.LogQuartoItem | None:
         """Entrypoint."""
@@ -509,6 +512,7 @@ class Handler:
             process,
             command=command,
             kind="direct" if path == origin else "defered",
+            _from=self._from,
         )
 
         if self.context.render_verbose:
@@ -571,6 +575,7 @@ class Handler:
             process,
             command=command,
             kind="static",
+            _from=self._from,
         )
 
         await schemas.LogQuarto.push(
@@ -599,7 +604,9 @@ class Watch:
         res = await schemas.LogQuarto.spawn(self.context.db)
         print("lifespan", res.inserted_id)
 
-        self.handler = Handler(self.context, self.filter, mongo_id=res.inserted_id)
+        self.handler = Handler(
+            self.context, self.filter, mongo_id=res.inserted_id, _from="lifespan"
+        )
 
         # NOTE: Shutting this down requires writing to a qmd after reload.
         #       `stop_event` has made this less of a problem.

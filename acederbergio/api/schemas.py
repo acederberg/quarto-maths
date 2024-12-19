@@ -1,7 +1,6 @@
 import asyncio
 import datetime
 import http
-import json
 import os
 import pathlib
 import re
@@ -37,10 +36,19 @@ class LogItem(pydantic.BaseModel):
 LogQuartoItemKind = Annotated[
     Literal["defered", "direct", "static"], pydantic.Field("direct")
 ]
+LogQuartoItemFrom = Annotated[
+    Literal["client", "lifespan"],
+    pydantic.Field(
+        alias="from",
+        validation_alias=pydantic.AliasChoices("from", "item_from"),
+        serialization_alias="from",
+    ),
+]
 
 
 class LogQuartoItem(util.HasTime):
 
+    item_from: LogQuartoItemFrom
     kind: LogQuartoItemKind
     origin: str
     target: str
@@ -63,6 +71,7 @@ class LogQuartoItem(util.HasTime):
         *,
         command: list[str],
         kind: LogQuartoItemKind,
+        _from: LogQuartoItemFrom,
     ) -> Self:
         stdout, stderr = await process.communicate()
         return cls.model_validate(
@@ -74,6 +83,7 @@ class LogQuartoItem(util.HasTime):
                 "stdout": cls.removeANSIEscape(stderr.decode()).split("\n"),
                 "status_code": process.returncode,
                 "kind": kind,
+                "from": _from,
             }
         )
 
@@ -175,8 +185,8 @@ class BaseLog(util.HasTime, db.HasMongoId):
         steps = cls.aggr_latest()
         steps.append({"$project": {"_id": "$_id"}})
 
-        _ids = await collection.aggregate(steps).to_list(None)
-        res = await collection.delete_many({"_ids": {"$in": _ids}})
+        _id_no_rm = await collection.aggregate(steps).to_list(None)
+        res = await collection.delete_many({"_id": {"$not": {"$eq": _id_no_rm}}})
 
         return res
 
@@ -278,8 +288,6 @@ class LogQuarto(BaseLog):
             },
         )
         latest.insert(2, {"$match": {"last": {"$exists": True}}})
-
-        print(latest)
         return latest
 
     @classmethod
@@ -297,6 +305,42 @@ class LogQuarto(BaseLog):
         return None
 
 
+def parse_path(v: str) -> pathlib.Path:
+    # NOTE: Handle browser paths. This should just prepend the ``blog``
+    #       directory to the path, and if the path is a directory then add
+    #       ``index.html``.
+    if v.startswith("/") and not v.endswith(".qmd"):
+        v = v.replace(".html", ".qmd")
+        out = pathlib.Path("./blog" + v).resolve()
+    else:
+        out = pathlib.Path(v).resolve()
+
+    return out if not out.is_dir() else (out / "index.qmd")
+
+
+def create_check_items(relative: bool = False):
+    """For what should be a list of paths, resolve the list of paths and verify
+    that they actually exist.
+
+    All resolved paths should be contained within the root directory.
+    """
+
+    def check_items(v):
+        items = list(parse_path(item) for item in v)
+        if dne := tuple(filter(lambda item: not os.path.isfile(item), items)):
+            raise ValueError(f"The following paths are not files: `{dne}`.")
+
+        if bad := tuple(item for item in items if not item.is_relative_to(env.ROOT)):
+            raise ValueError(f"The following paths are not valid: `{bad}`.")
+
+        if relative:
+            items = list(item.relative_to(env.ROOT) for item in items)
+
+        return list(str(item) for item in items)
+
+    return pydantic.BeforeValidator(check_items)
+
+
 class LogQuartoFilters(pydantic.BaseModel):
     """Filters for document items returned.
 
@@ -304,9 +348,20 @@ class LogQuartoFilters(pydantic.BaseModel):
     server logs and render logs.
     """
 
-    targets: Annotated[list[str] | None, pydantic.Field(default=None)]
-    origins: Annotated[list[str] | None, pydantic.Field(default=None)]
-    errors: Annotated[bool | None, pydantic.Field(default=None)]
+    targets: Annotated[
+        list[str] | None,
+        pydantic.Field(default=None),
+        create_check_items(relative=True),
+    ]
+    origins: Annotated[
+        list[str] | None,
+        pydantic.Field(default=None),
+        create_check_items(relative=True),
+    ]
+    errors: Annotated[
+        bool | None,
+        pydantic.Field(default=None),
+    ]
     kind: Annotated[list[LogQuartoItemKind] | None, pydantic.Field(default=None)]
 
     def projection_filter(self):
@@ -331,32 +386,8 @@ class QuartoRender(pydantic.BaseModel):
             default_factory=list,
             description="Provide relative paths from the project root or absolute paths to browser resources.",
         ),
+        create_check_items(relative=False),
     ]
-
-    @classmethod
-    def parse_path(cls, v: str):
-        # NOTE: Handle browser paths. This should just prepend the ``blog``
-        #       directory to the path, and if the path is a directory then add
-        #       ``index.html``.
-        if v.startswith("/") and not v.endswith(".qmd"):
-            v = v.replace(".html", ".qmd")
-            out = pathlib.Path("./blog" + v).resolve()
-        else:
-            out = pathlib.Path(v).resolve()
-
-        return out if not out.is_dir() else (out / "index.qmd")
-
-    @pydantic.field_validator("items")
-    def check_items(cls, v):
-
-        items = list(cls.parse_path(item) for item in v)
-        if dne := tuple(filter(lambda item: not os.path.isfile(item), items)):
-            raise ValueError(f"The following paths are not files: `{dne}`.")
-
-        if bad := tuple(item for item in items if not item.is_relative_to(env.ROOT)):
-            raise ValueError(f"The following paths are not valid: `{bad}`.")
-
-        return list(str(item) for item in items)
 
 
 class QuartoRenderResult(pydantic.BaseModel):

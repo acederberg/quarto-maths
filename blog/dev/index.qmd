@@ -1,13 +1,19 @@
 ---
 title: "Development Tools"
-filters:
-  - ../filters/dev.py
+navbar: false
 ---
 
-- [Todo List](./todo.qmd)
-- [Development Live View](./live.qmd)
+- [<i class="bi bi-list-check"></i> Todo List](./todo.qmd)
+- [<i class="bi bi-server"></i> Development Live View](./live.qmd)
+- [<i class="bi bi-file-earmark-pdf"></i> PDF Resume Development View](./resume.qmd)
 
-```{=html}
-<embed src="/resume/resume.pdf" width="500" height="500">
-</embed>
-```
+<!--
+<div class="card bg-black border border-primary border-5">
+  <div class="card-body bg-black">
+    <h5 class="card-title text-large">
+      <i class="bi bi-list-check"></i>
+    </h5>
+    <p class="card-text">Todo List</p>
+  </div>
+</div>
+-->

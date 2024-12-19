@@ -54,7 +54,11 @@
 }
 
 #quarto-overlay.when-navbar .overlay-content {
-  height: 80vh !important;
+  height: 74vh !important;
+}
+
+#quarto-overlay.when-navbar .overlay-content-item {
+  height: 70vh !important;
 }
 
 /* #quarto-overlay .overlay-controls-item {} */
@@ -71,9 +75,10 @@
 #quarto-overlay-content .terminal {
   height: auto;
   display: block;
+  margin-bottom: 512px; // Add some whitespace to avoid not showing all content.
 }
 
-.quarto {
+#quarto-live-logs.quarto {
   table-layout: fixed;
   border: none;
   background: none;
@@ -83,45 +88,60 @@
 }
 
 
-.quarto-row {
+#quarto-live-logs .quarto-row {
   transition: background-color 30s, color 30s;
 }
 
 
-.quarto-success {
-  color: var(--bs-green) !important;
+
+#quarto-live-logs .quarto-success {
+  border-left: 3px solid var(--bs-black);
+  border-right: 3px solid var(--bs-black);
+  color: var(--bs-light) !important;
 }
 
-.quarto-failure {
-  background-color: rgba(255, 0, 0, 0.1);
-  border: 1px solid red;
-  color: red;
+#quarto-live-logs .quarto-failure {
+  /* background-color: rgba(255, 0, 0, 0.1); */
+  background-color: rgba(255, 0, 0, 0.05) !important;
+  color: var(--bs-red);
 }
 
-.quarto-static {
-  background-color: rgba(0, 0, 255, 0.2) !important;
-  border: 1px solid var(--bs-blue);
-  color: var(--bs-blue);
+#quarto-live-logs .quarto-static {
+  color: var(--bs-primary) !important;
 }
 
 
-.quarto-success-new {
-  background-color: var(--bs-primary) !important;
+#quarto-live-logs .quarto-success-new {
+  background-color: var(--bs-teal) !important;
   color: var(--bs-white) !important;
 }
 
-.quarto-failure-new {
+#quarto-live-logs .quarto-failure-new {
   background-color: red !important;
   color: var(--bs-white);
 }
 
-.quarto-log-kind {
+#quarto-live-logs .quarto-log-from {
+  width: 13vw;
+}
+
+#quarto-live-logs .quarto-log-kind {
   width: 7vw;
 }
 
-.quarto-log-time {
-  width: 15vw;
+#quarto-live-logs .quarto-log-info,
+#quarto-live-logs .quarto-log-render {
+  width: 3vw;
 }
+
+#quarto-live-logs .quarto-log-time {
+  width: 20vw;
+}
+
+#quarto-live-logs i:hover {
+  color: var(--bs-white);
+}
+
 
 /* .quarto-log-target {} */
 /**/
@@ -202,6 +222,7 @@
 }
 
 
+
 .terminal * {
   border: none;
 }
@@ -230,7 +251,7 @@
 
 #quarto-render-notification code.success.new,
 #quarto-render-notification.success.new {
-  background: var(--bs-blue) !important;
+  background: var(--bs-teal) !important;
 }
 
 #quarto-render-notification code.failure.new,
@@ -248,6 +269,7 @@
   transform: scale(1.1);
 }
 
+#quarto-live-logs .spinner-border,
 #quarto-render-notification .spinner-border {
   height: 1em;
   width: 1em;

@@ -15,6 +15,12 @@ class ConfigFloatyItemIconify(pydantic.BaseModel):
     label: Annotated[str | None, pydantic.Field(default=None)]
 
 
+# NOTE: Looks far better
+class ConfigFloatyItemBoostrap(pydantic.BaseModel):
+    name: str
+    label: Annotated[str | None, pydantic.Field(default=None)]
+
+
 class ConfigFloatyItemImage(pydantic.BaseModel):
     iconify: ConfigFloatyItemIconify
 

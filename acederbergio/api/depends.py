@@ -22,11 +22,11 @@ async def quarto_handler(db: "Db") -> quarto.Handler:
     if not current:
         raise fastapi.HTTPException(500, detail={"msg": "No document."})
 
-    print("depends", current.mongo_id)
     return quarto.Handler(
         context := quarto.Context(),
         quarto.Filter(context),
         mongo_id=bson.ObjectId(current.mongo_id),
+        _from="client",
     )
 
 

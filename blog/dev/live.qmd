@@ -5,11 +5,6 @@ live:
   include: false
 ---
 
-<!--
-I would like to have a list of render times and documents pop up in here.
-Failures should show up as an overlay.
--->
-
 ```{=html}
 <style>
   .quarto-title > h1.title {
@@ -100,20 +95,7 @@ Failures should show up as an overlay.
 
 ::: { #tab-content-2 .tab-pane .fade .show .active }
 
-```{=html}
-<table class="table table-borderless quarto p-2" id="live-logs-quarto">
-  <thead style="display: none;">
-    <tr class="quarto-row">
-      <th class="quarto-log-kind">Kind</th>
-      <th class="quarto-log-time">Time</th>
-      <th class="quarto-log-target">Level</th>
-      <th class="quarto-log-origin">Message</th>
-    </tr>
-  </thead>
-  <tbody>
-  </tbody>
-</table>
-```
+{{< include "./_live_quarto_table.qmd" >}}
 
 :::
 
@@ -204,7 +186,7 @@ Failures should show up as an overlay.
       </td>
       <td>
           Get the last item handled (with some parameters).
-      <td>
+      </td>
     </tr>
     <tr>
       <td>
@@ -254,7 +236,7 @@ Failures should show up as an overlay.
     last: 32,
     filters: {},
     quartoOverlayControls: Overlay(document.getElementById("quarto-overlay")),
-    quartoLogs: document.querySelector("#live-logs-quarto tbody"),
+    quartoLogs: document.querySelector("#quarto-live-logs tbody"),
     quartoLogsParent: document.querySelector("#tab-content-2"),
     quartoOverlayContent: document.querySelector('#quarto-overlay-content'),
   })
@@ -263,7 +245,6 @@ Failures should show up as an overlay.
   quartoContent.classList.remove("page-columns")
 
   globalThis.quartoControls = QuartoControls()
-
 
 </script>
 ```

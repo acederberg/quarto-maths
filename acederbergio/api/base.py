@@ -86,7 +86,6 @@ class RouterMeta(type):
         # Get the decoerator and call it.
         logger.debug("Adding function `%s` at url `%s`.", fn.__name__, url)
         decorator = getattr(router, meth.lower())
-        print(info)
         decorator(url, **info)(fn)
 
     def __new__(cls, name, bases, namespace):

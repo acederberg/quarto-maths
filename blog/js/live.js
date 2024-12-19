@@ -1,5 +1,8 @@
 const UvicornLogPattern = /(?<ip>[\d.]+):(?<port>\d+)\s+-\s+"(?<method>[A-Z]+)\s+(?<path>[^\s]+)\s+(?<protocol>HTTP\/\d+\.\d+)"\s+(?<status>\d+)/;
 
+const LIVE_QUARTO_VERBOSE = true
+const LIVE_SERVER_VERBOSE = false
+
 function hydrateServerLogItem(item, index, array) {
 
   itemPrevious = index > 0 ? array[index - 1] : null
@@ -53,13 +56,10 @@ function hydrateServerLogItem(item, index, array) {
     itemMsg.appendChild(uvicornProtocol)
   }
 
-
-
   itemTime.classList.add("terminal-row-time")
   itemLevel.classList.add("terminal-row-level")
   itemMsg.classList.add("terminal-row-msg")
-  itemName.classList.add("terminal-row-name")
-
+  itemName.classList.add("terminal-row-name", "text-dark")
   itemLevel.classList.add(item.levelname.toLowerCase())
 
   elem.classList.add("terminal-row")
@@ -84,10 +84,6 @@ function ServerLog({
   const ws = new WebSocket("/api/dev/log")
 
   ws.addEventListener(
-    "open",
-    () => console.log("Websocket connection opened for logs."),
-  )
-  ws.addEventListener(
     "message",
     (event) => {
       const data = JSON.parse(event.data)
@@ -98,6 +94,10 @@ function ServerLog({
       })
     },
   )
+  if (LIVE_SERVER_VERBOSE) {
+    ws.addEventListener("close", (event) => console.log(event))
+    ws.addEventListener("open", () => console.log("Websocket connection opened for logs."))
+  }
 
   return { ws }
 }
@@ -111,7 +111,7 @@ function hydrateQuartoOverlayItem(item) {
   container.classList.add('terminal')
   container.dataset.key = item.timestamp
 
-  const colorClass = !item.status_code ? "text-success" : "text-danger"
+  const colorClass = !item.status_code ? "text-light" : "text-danger"
 
   const timestamp = document.createElement("span")
   timestamp.textContent = "Timestamp: " + item.timestamp
@@ -149,7 +149,7 @@ function hydrateQuartoOverlayItem(item) {
     container.appendChild(elem)
   })
 
-  container.dataset.colorizeColor = item.status_code ? "danger" : "success"
+  container.dataset.colorizeColor = item.status_code ? "danger" : "primary"
 
   return container
 }
@@ -162,13 +162,55 @@ function hydrateQuartoLogItem(item) {
   elem.classList.add("quarto-row")
   if (item.kind === "static") elem.classList.add("quarto-static")
 
+  // RENDER CELL
+  async function renderAction() {
+    const renderIconSpinner = document.createElement("span")
+    renderIconSpinner.classList.add("spinner-border")
+    render.append(renderIconSpinner)
+    renderIcon.classList.add("hidden")
+    // NOTE: Since the row will show up with an error or not, do nothing with the 
+    //       request response.
+    await requestRender({ items: [item.target] })
+
+    renderIconSpinner.remove()
+    renderIcon.classList.remove("hidden")
+  }
+
+  const render = document.createElement("td")
+  render.classList.add("quarto-log-render")
+
+  const renderIcon = document.createElement("i")
+  renderIcon.classList.add("bi", "bi-arrow-repeat")
+  render.append(renderIcon)
+  render.addEventListener("click", renderAction)
+
+
+  // INFO CELL. This should be made to display the overlay later.
+  const info = document.createElement("td")
+  info.classList.add("quarto-log-info")
+
+  const infoIcon = document.createElement("i")
+  infoIcon.classList.add("bi", "bi-info-circle")
+
+  info.append(infoIcon)
+
+  // DATA CELLS
   const kind = document.createElement("td")
+  const from = document.createElement("td")
   const time = document.createElement("td")
   const target = document.createElement("td")
   const origin = document.createElement("td")
 
   kind.textContent = item.kind
   kind.classList.add("quarto-log-kind")
+  if (item.kind == "direct") kind.classList.add("text-warning")
+  else if (item.kind == "defered") kind.classList.add("text-primary")
+  // else kind.classList.add("text-white");
+
+  from.textContent = item.item_from
+  from.classList.add("quarto-log-from")
+  if (item.item_from == "client") from.classList.add("text-warning")
+  // else from.classList.add("text-white")
 
   time.textContent = item.time
   time.classList.add("quarto-log-time")
@@ -179,7 +221,11 @@ function hydrateQuartoLogItem(item) {
   origin.textContent = item.origin
   origin.classList.add("quarto-log-origin")
 
+
+  elem.appendChild(info)
+  elem.appendChild(render)
   elem.appendChild(kind)
+  elem.appendChild(from)
   elem.appendChild(time)
   elem.appendChild(target)
   elem.appendChild(origin)
@@ -188,7 +234,7 @@ function hydrateQuartoLogItem(item) {
   //       For now, overlay does not colorize until it is opened.
   elem.dataset.key = item.timestamp
 
-  return elem
+  return { elem, renderAction, info, render }
 }
 
 /*
@@ -199,13 +245,14 @@ function hydrateQuartoLogItem(item) {
 function QuartoOverlayItem(item, { quartoOverlayControls, quartoOverlayContent }) {
   if (!quartoOverlayControls || !quartoOverlayContent) return
 
+
   const elem = hydrateQuartoOverlayItem(item)
   quartoOverlayControls.addContent(elem)
   quartoOverlayContent.appendChild(elem)
 
   function colorize() {
     quartoOverlayControls.colorize({
-      color: item.status_code ? "danger" : "success",
+      color: item.status_code ? "danger" : "primary",
       colorText: "white",
       colorTextHover: "black"
     })
@@ -229,16 +276,16 @@ function QuartoOverlayItem(item, { quartoOverlayControls, quartoOverlayContent }
 function QuartoLogItem(item, { quartoLogs }) {
   if (!quartoLogs) return
 
-  const elem = hydrateQuartoLogItem(item)
-  quartoLogs.appendChild(elem)
+  const logItem = hydrateQuartoLogItem(item)
+  quartoLogs.appendChild(logItem.elem)
 
   function show() {
     const classNew = item.status_code ? "quarto-failure-new" : "quarto-success-new"
-    elem.classList.add(classNew)
-    setTimeout(() => elem.classList.remove(classNew), 1000)
+    logItem.elem.classList.add(classNew)
+    setTimeout(() => logItem.elem.classList.remove(classNew), 1000)
   }
 
-  return { elem, show }
+  return { ...logItem, show }
 }
 
 
@@ -251,7 +298,10 @@ function QuartoItem(item, { quartoLogs, quartoOverlayControls, quartoOverlayCont
   const overlay = QuartoOverlayItem(item, { quartoOverlayControls, quartoOverlayContent })
   const log = QuartoLogItem(item, { quartoLogs })
 
-  if (log && quartoOverlayControls) log.elem.addEventListener("click", overlay.show)
+  LIVE_QUARTO_VERBOSE && console.debug("Adding quarto overlay item.", overlay)
+  LIVE_QUARTO_VERBOSE && console.debug("Adding quarto log item.", log)
+
+  if (log && quartoOverlayControls) log.info.addEventListener("click", overlay.show)
 
   return { overlay, log }
 }
@@ -261,7 +311,7 @@ function QuartoItem(item, { quartoLogs, quartoOverlayControls, quartoOverlayCont
   When a message arrives, ensure that a row is added to the display.
   When the message is an error, show the overlay with the page scrolled down to the bottom of the content.
 */
-function Quarto({ filters, last, quartoLogsParent, quartoLogs, quartoOverlayControls, quartoOverlayContent }) {
+function Quarto({ filters, last, quartoLogsParent, quartoLogs, quartoOverlayControls, quartoOverlayContent, quartoBannerInclude }) {
 
   /*
     If there is an overlay, show an overlay if there is an error.
@@ -270,16 +320,18 @@ function Quarto({ filters, last, quartoLogsParent, quartoLogs, quartoOverlayCont
   */
   function handleMessage(event) {
     const data = JSON.parse(event.data)
+    LIVE_QUARTO_VERBOSE && data.target && console.log(`Recieved event for \`${data.target}\`.`)
+    console.log(data)
+
     data.items.map(
       item => {
-        console.log(item.target)
         const quartoItem = QuartoItem(item, { quartoLogs, quartoOverlayControls, quartoOverlayContent })
         if (!state.isInitial) {
           if (quartoItem.overlay && item.status_code) quartoItem.overlay.show()
           if (quartoItem.log) quartoItem.log.show()
         }
 
-        if (!quartoItem.log) {
+        if (!quartoItem.log || quartoBannerInclude) {
           const banner = QuartoRenderBanner(item, {})
 
           document.body.appendChild(banner.elem)
@@ -304,19 +356,32 @@ function Quarto({ filters, last, quartoLogsParent, quartoLogs, quartoOverlayCont
   const ws = new WebSocket(url)
   ws.addEventListener("open", () => {
     ws.send(JSON.stringify(filters || null))
-    console.log("Websocket connection opened for quarto renders.")
+    if (LIVE_QUARTO_VERBOSE) {
+      console.log("Websocket connection opened for quarto renders.")
+      console.log(`Websocket sent filters \`${JSON.stringify(filters || null, null, 2)}\`.`)
+    }
   })
   ws.addEventListener("message", handleMessage)
+  LIVE_QUARTO_VERBOSE && ws.addEventListener("close", (event) => console.log(event))
 
-  return { ws, state, handleMessage, overlay: quartoOverlayControls }
+  return { ws, state, handleMessage, overlay: quartoOverlayControls, logs: quartoLogs, logsParent: quartoLogsParent }
 }
 
+
+async function requestRender({ items }) {
+  res = await fetch("/api/dev/quarto", {
+    body: JSON.stringify({ items: items || [window.location.pathname] }),
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', },
+    method: "POST",
+  })
+  return res
+}
 
 
 function QuartoRenderBanner(item, { bannerTextInnerHTML } = {}) {
   /* Re-render this page. */
-  async function render() {
-    reload.remove()
+  async function renderAction() {
+    render.remove()
 
     const spinnerContainer = document.createElement("i")
     spinnerContainer.classList.add("px-2")
@@ -326,14 +391,9 @@ function QuartoRenderBanner(item, { bannerTextInnerHTML } = {}) {
     spinnerContainer.appendChild(spinner)
     left.appendChild(spinnerContainer)
 
-    res = await fetch("/api/dev/quarto", {
-      body: JSON.stringify({ items: [window.location.pathname] }),
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', },
-      method: "POST",
-    })
-
+    const res = await requestRender({})
     spinnerContainer.remove()
-    left.appendChild(reload)
+    left.appendChild(render)
 
     data = await res.json()
   }
@@ -366,12 +426,12 @@ function QuartoRenderBanner(item, { bannerTextInnerHTML } = {}) {
   const identifier = "quarto-render-notification"
 
   // NOTE: Create the banner
-  const colorClass = item.status_code ? "bg-warning" : "bg-success"
+  const colorClass = item.status_code ? "bg-warning" : "bg-primary"
   const banner = document.createElement("div")
   banner.id = identifier
   banner.classList.add("position-fixed", "bottom-0", "w-100", "text-white", "text-center", colorClass)
 
-  // NOTE: Add info and reload icons on the left hand side.
+  // NOTE: Add info and render icons on the left hand side.
   const left = document.createElement("div")
   left.classList.add("start-0", "position-absolute")
   left.style.marginTop = '2px'
@@ -380,18 +440,19 @@ function QuartoRenderBanner(item, { bannerTextInnerHTML } = {}) {
   info.classList.add("bi", !item.status_code ? "bi-info-circle" : "bi-bug", "px-2")
   left.appendChild(info)
 
-  const reload = document.createElement("i")
-  reload.classList.add("bi", "bi-arrow-repeat", "px-2")
-  left.appendChild(reload)
-  reload.addEventListener("click", render)
-
+  const render = document.createElement("i")
+  render.classList.add("bi", "bi-arrow-repeat", "px-2")
+  left.appendChild(render)
+  render.addEventListener("click", renderAction)
   banner.appendChild(left)
 
   // NOTE: Add banner text.
   const bannerText = document.createElement("text")
   if (!bannerTextInnerHTML) {
     bannerText.innerHTML = `
-      <text>Last rendered at </text>
+      <text>Last rendered </text>
+      <code>${item.target}</code>
+      <text>at </text>
       <code>${item.time}</code>
       <text>from changes in </text>
       <code>${item.origin}</code>

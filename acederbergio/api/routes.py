@@ -1,4 +1,5 @@
 import asyncio
+import secrets
 from typing import Any, ClassVar, TypeVar
 
 import fastapi
@@ -6,8 +7,8 @@ import fastapi.routing
 import pydantic
 from fastapi.websockets import WebSocketState
 
-from acederbergio import env
-from acederbergio.api import base, depends, quarto, schemas
+from acederbergio import env, util
+from acederbergio.api import base, depends, schemas
 
 logger = env.create_logger(__name__)
 
@@ -22,12 +23,17 @@ class LogRoutesMixins:
     """
 
     @classmethod
-    async def get(cls, s: type[T_BaseLog], database: depends.Db, **kwargs) -> T_BaseLog:
+    async def get(
+        cls, s: type[T_BaseLog], database: depends.Db, *, ws: bool = False, **kwargs
+    ) -> T_BaseLog | None:
 
         data = await s.latest(database, **kwargs)
         if data is None:
-            raise fastapi.HTTPException(204, detail={"msg": "No log data found."})
+            if not ws:
+                raise fastapi.HTTPException(204, detail={"msg": "No log data found."})
+            return None
 
+        # print(env.get("UVICORN_IDENTIFIER", secrets.token_urlsafe()))
         return data
 
     @classmethod
@@ -76,20 +82,23 @@ class LogRoutesMixins:
         **kwargs,
     ) -> None:
 
-        log = await cls.get(s, database, **kwargs)
+        log = await cls.get(s, database, ws=True, **kwargs)
         # NOTE: Push out the initial logs.
         if last:
-            log.items = log.items[-1 - last :]  # type: ignore
-            await websocket.send_json(log.model_dump(mode="json"))
+            if log is not None:
+                log.items = log.items[-1 - last :]  # type: ignore
+            await websocket.send_json(
+                log if log is None else log.model_dump(mode="json")
+            )
 
-        count = log.count
+        count = 0 if log is None else log.count
         while websocket.client_state == WebSocketState.CONNECTED:
-            await asyncio.sleep(1)
+            await asyncio.sleep(3)
 
             data = await cls.get(
                 s, database, slice_start=count, slice_count=128, **kwargs
             )
-            if not data.count:
+            if data is None or not data.count:
                 continue
 
             try:
@@ -130,7 +139,7 @@ class LogRoutes(LogRoutesMixins, base.Router):
 
         This will update everytime that uvicorn reloads.
         """
-        return await cls.get(
+        return await cls.get(  # type: ignore
             schemas.Log,
             database,
             slice_start=slice_start,
@@ -144,10 +153,11 @@ class LogRoutes(LogRoutesMixins, base.Router):
         return await cls.status(schemas.Log, database)
 
     @classmethod
-    async def delete_log(cls, database: depends.Db) -> None:
+    async def delete_log(cls, database: depends.Db) -> int:
         """Clear all besides the current log."""
 
-        await cls.delete(schemas.Log, database)
+        res = await cls.delete(schemas.Log, database)
+        return res.deleted_count
 
     @classmethod
     async def websocket_log(
@@ -170,6 +180,7 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
 
     router = fastapi.APIRouter()
     router_routes: ClassVar[dict[str, str | dict[str, Any]]] = {
+        # "post_filter": dict(url="/filter"),
         "get_log": dict(url=""),
         "get_log_status": dict(url="/status"),
         "post_last_rendered": dict(url="/last", status_code=fastapi.status.HTTP_200_OK),
@@ -206,13 +217,23 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
 
         This will update everytime that uvicorn reloads.
         """
-        return await cls.get(
+
+        return await cls.get(  # type: ignore
             schemas.LogQuarto,
             database,
+            do_print=True,
             slice_start=slice_start,
             slice_count=slice_count,
             filters=filters,
         )
+
+    # @classmethod
+    # async def post_filter(
+    #     cls, filters: schemas.LogQuartoFilters
+    # ) -> schemas.LogQuartoFilters:
+    #     """Returns hydrated filter."""
+    #
+    #     return filters
 
     @classmethod
     async def post_render(
@@ -225,7 +246,6 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
         ignored = []
         for item in render_data.items:
             data = await quarto_handler(item)
-            print(data)
             if data is None:
                 ignored.append(item)
                 continue
@@ -244,10 +264,11 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
         return await cls.status(schemas.LogQuarto, database)
 
     @classmethod
-    async def delete_log(cls, database: depends.Db) -> None:
+    async def delete_log(cls, database: depends.Db) -> int:
         """Clear all besides the current log."""
 
-        await cls.status(schemas.LogQuarto, database)
+        res = await cls.delete(schemas.LogQuarto, database)
+        return res.deleted_count
 
     @classmethod
     async def websocket_log(
