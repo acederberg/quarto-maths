@@ -23,6 +23,7 @@ function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
   /* Functions that modify state directly */
 
 
+  /* Assumes that `elem`  has been appended independently. */
   function addContent(elem) {
     const key = elem.dataset.key
     if (!key) throw Error(`No key for \`${elem}\`.`)
@@ -89,6 +90,9 @@ function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
     state.currentKey = key
     state.currentIndex = keysToIndices[key]
 
+    // Acknoledge color.
+    if (state.colorize) colorizeContentItem(content)
+
     return content
 
   }
@@ -121,13 +125,6 @@ function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
       const nextKey = indicesToKeys[nextIndex]
 
       const contentItem = showOverlayContentItem(nextKey)
-      const colorizeParams = {
-        color: contentItem.dataset.colorizeColor,
-        colorText: contentItem.dataset.colorizeColorText,
-        colorTextHover: contentItem.dataset.colorizeColorTextHover,
-      }
-
-      colorize(colorizeParams)
     }
 
     exit.addEventListener("click", () => hideOverlay(0))
@@ -166,7 +163,10 @@ function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
       classBackground: null, classBackgroundPrev: null,
       classBorder: null, classBorderPrev: null,
       classText: null, classTextPrev: null,
-      classTextHover: null, classTextHoverPrev: null
+      classTextHover: null, classTextHoverPrev: null,
+
+      // Registry, should be a list of elements and maps to classList
+      // registered: []
     }
 
     /* Update background and border classes for a new color. */
@@ -209,6 +209,8 @@ function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
       navIcons.map(item => item.classList.add(state.classBackground, state.classText))
       controls.classList.add(state.classBackground)
       overlayContent.classList.add(state.classBorder, "border", "border-5")
+
+      // state.registered.map(registeredItem => updateElem(registeredItem))
     }
 
     /* Only call this once. */
@@ -239,6 +241,34 @@ function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
       up()
     }
 
+    /*
+      ``elem`` should be the element to update.
+      ``mkClass`` should take ``state` and create an array of classes.
+
+      Problem is that this will update every registered item.
+
+      function registerElem(elem, mkClass) {
+        state.registered.append({ elem, mkClass })
+      }
+    */
+
+    /*
+      This should be executed against registed elements in state.
+    */
+    function updateElem(elem, mkClasses) {
+      return () => {
+        console.log("HERE")
+        const classes = mkClasses(state.color)
+        const classesPrev = mkClasses(state.colorPrev)
+
+        console.log(classes)
+        console.log(classesPrev)
+        console.log(elem)
+        elem.classList.remove(...classesPrev)
+        elem.classList.add(...classes)
+      }
+    }
+
     function mouseOver(event) {
       event.target.classList.remove(state.classText)
       event.target.classList.add(state.classTextHover)
@@ -253,8 +283,8 @@ function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
     restart({ color, colorText, colorTextHover })
 
     return {
-      mouseOut, mouseOver, setColorText, setColor, restart,
-      initialize, down, up, setColorTextHover, revert, state
+      mouseOut, mouseOver, setColorText, setColor, restart, initialize, down,
+      up, setColorTextHover, revert, state, updateElem,
     }
   }
 
@@ -264,8 +294,19 @@ function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
   }
 
 
+  function colorizeContentItem(contentItem) {
+    console.log("Colorize overlay from contentitem dataet.")
+    const colorizeParams = {
+      color: contentItem.dataset.colorizeColor,
+      colorText: contentItem.dataset.colorizeColorText,
+      colorTextHover: contentItem.dataset.colorizeColorTextHover,
+    }
+
+    colorize(colorizeParams)
+  }
+
   colorize(paramsColorize)
-  const overlayClosure = { elem: overlay, nav: controls, colorize, hideOverlay, hideOverlayContentItems, showOverlay, showOverlayContentItem, addContent, state }
+  const overlayClosure = { elem: overlay, content: overlayContent, nav: controls, colorize, hideOverlay, hideOverlayContentItems, showOverlay, showOverlayContentItem, addContent, state, }
   hideOverlay(true)
   overlayParamsHook(overlay, overlayClosure)
 

@@ -102,118 +102,33 @@ live:
 ::: { #tab-content-3 .tab-pane }
 
 ```{=html}
+<!-- NOTE: Forms will be populated by JS -->
 <div id="api-params" class="overlay overlay-blur">
   <div class="overlay-content">
-    <div class="overlay-content-item" data-key="render">
-
-      <h4 class="my-5">Render By URL</h4>
-      <div id="api-params-render" class="m-3">
-        <div class="input-group input-group bg-black my-4">
-          <input
-            type="text"
-            class="form-control bg-dark"
-            id="api-params-render-item"
-          ></input>
-        </div>
-        <div class="form-text" id="api-params-render-desc">
-          <i class="bi bi-file-earmark"></i>
-          Enter the absolute url to the file to re-render.
-        </div>
-        <div class="form-text text-warning hidden" id="api-params-render-err">
-          <i class="bi bi-info-circle"></i>
-          The provided value must be a valid path.
-        </div>
-      </div>
-
-      <button id="api-params-render-button" type="button" class="btn my-5">
-        <span class="spinner-border spinner-border-sm hidden" role="status"></span>
-        <text>Rerender</text>
-      </button>
-
-    </div>
-
-    <div class="overlay-content-item" data-key="get-last">
-
-      <h4 class="my-5">Get Latest</h4>
-      <div id="api-params-get-last" class="m-3">
-        <div class="input-group input-group bg-black my-4">
-          <select class="form-select" id="api-params-get-last-kind">
-            <option value="none" selected>Select Render Kind</option>
-            <option value="direct">Direct</option>
-            <option value="defered">Defered</option>
-            <option value="static">Static</option>
-          </select>
-        </div>
-        <div class="form-text text-warning hidden" id="api-params-get-last-err">
-          <i class="bi bi-info-circle"></i>
-          At least one kind must be selected.
-        </div>
-      </div>
-
-      <button id="api-params-get-last-button" type="button" class="btn my-5">
-        <span class="spinner-border spinner-border-sm hidden" role="status"></span>
-        <text>Submit</text>
-      </button>
-
-    </div>
   </div>
 </div>
-<table id="quarto-controls" class="table quarto-controls table-borderless p-2">
-  <colgroup>
-    <col width="30%">
-    <col width="70%">
-  </colgroup>
-  <thead style="display: none;">
-    <tr>
-      <td>Button</td>
-      <td>About</td>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>
-        <button id="quarto-controls-render-one" type="button" data-key="render" class="btn btn-outline-success">
-          <text> Render One</text>
-        </button>
-      </td>
-      <td><text>Render a particular document.</text></td>
-    </tr>
-    <tr>
-      <td>
-        <button id="quarto-controls-get-last" type="button" data-key="get-last" class="btn btn-outline-success">
-          <text> Get Last Rendered</text>
-        </button>
-      </td>
-      <td>
-          Get the last item handled (with some parameters).
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <button id="quarto-controls-clear-logs" type="button" class="btn btn-outline-danger">
-          <text> Clear Logs</text>
-        </button>
-      </td>
-      <td>
-        Clear all historic log data. Does not clear data for the current session.
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <button id="quarto-controls-clear-renders" type="button" class="btn btn-outline-danger">
-          <text> Clear Renders</text>
-        </button>
-      </td>
-      <td>
-        Clear all historic quarto render data. Does not clear data for the current session.
-      </td>
-    </tr>
-  </tbody>
-</table>
+
+<div id="quarto-controls" class="quarto-controls p-5 d-flex flex-nowrap justify-content-evenly">
+  <button id="quarto-controls-render" type="button" data-key="render" class="btn btn-outline-warning">
+    <text> Render One</text>
+  </button>
+  <button id="quarto-controls-get-last" type="button" data-key="get-last" class="btn btn-outline-success">
+    <text> Get Last Rendered</text>
+  </button>
+  <button id="quarto-controls-get-all" type="button" data-key="get-all" class="btn btn-outline-success">
+    <text> Get Whole Log</text>
+  </button>
+  <button id="quarto-controls-clear-logs" type="button" class="btn btn-outline-danger">
+    <text> Clear Logs</text>
+  </button>
+  <button id="quarto-controls-clear-renders" type="button" class="btn btn-outline-danger">
+    <text> Clear Renders</text>
+  </button>
+</div>
 ```
 
 ```{=html}
-<code class="hidden terminal" id="quarto-controls-response">
+<code class="hidden terminal mx-5" id="quarto-controls-response">
 </code>
 ```
 

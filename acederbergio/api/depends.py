@@ -18,7 +18,7 @@ def db_db(config: "DbConfig") -> motor.motor_asyncio.AsyncIOMotorDatabase:
 
 async def quarto_handler(db: "Db") -> quarto.Handler:
 
-    current = await schemas.LogQuarto.latest(db)
+    current = await schemas.QuartoHistory.latest(db)
     if not current:
         raise fastapi.HTTPException(500, detail={"msg": "No document."})
 

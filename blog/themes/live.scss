@@ -232,16 +232,10 @@
   padding-bottom: 0px;
 }
 
-#quarto-controls table {
-  border: none;
-}
-
-#quarto-controls td {
-  width: 20vw;
-}
-
 #quarto-controls button {
   width: 15vw;
+  margin-left: 1px;
+  margin-right: 1px;
 }
 
 #quarto-render-notification code,

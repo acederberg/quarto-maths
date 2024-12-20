@@ -2,6 +2,9 @@ services:
   db:
     image: mongo
     restart: always
+    ports:
+      - target: 27017
+        published: 27017
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: '${ACEDERBERG_IO_MONGO_ROOT_PASSWORD-changeme}'

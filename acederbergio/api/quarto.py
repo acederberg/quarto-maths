@@ -425,7 +425,7 @@ class Filter:
 class Handler:
     """Handles events from ``watchfiles.awatch``."""
 
-    _from: schemas.LogQuartoItemFrom
+    _from: schemas.QuartoRenderFrom
     filter: Annotated[Filter, Doc("")]
     context: Annotated[Context, Doc("")]
 
@@ -437,14 +437,14 @@ class Handler:
         filter: Filter,
         *,
         mongo_id: bson.ObjectId,
-        _from: schemas.LogQuartoItemFrom,
+        _from: schemas.QuartoRenderFrom,
     ):
         self.filter = filter
         self.context = context
         self.mongo_id = mongo_id
         self._from = _from
 
-    async def __call__(self, v: str) -> schemas.LogQuartoItem | None:
+    async def __call__(self, v: str) -> schemas.QuartoRender | None:
         """Entrypoint."""
 
         if os.path.isdir(path := pathlib.Path(v)):
@@ -473,7 +473,7 @@ class Handler:
         path: pathlib.Path,
         *,
         origin: pathlib.Path | None = None,
-    ) -> schemas.LogQuartoItem | None:
+    ) -> schemas.QuartoRender | None:
         """Render ``qmd`` and add this to the document.
 
         If it fails, put the error content in the page."""
@@ -505,8 +505,7 @@ class Handler:
             logger.info("Rendered `%s`.", path)
 
         logger.debug("Pushing quarto logs document.")
-        print(path, origin)
-        data = await schemas.LogQuartoItem.fromProcess(
+        data = await schemas.QuartoRender.fromProcess(
             path,
             origin or path,
             process,
@@ -518,7 +517,7 @@ class Handler:
         if self.context.render_verbose:
             util.print_yaml(data)
 
-        await schemas.LogQuarto.push(
+        await schemas.QuartoHistory.push(
             self.context.db,
             self.mongo_id,
             [data.model_dump(mode="json")],
@@ -526,24 +525,37 @@ class Handler:
 
         return data
 
-    async def do_qmd(self, path: pathlib.Path) -> schemas.LogQuartoItem | None:
+    async def do_qmd(self, path: pathlib.Path) -> schemas.QuartoRender | None:
         """Render a ``qmd`` document in non-defered fasion."""
 
         data = await self.render_qmd(path, origin=path)
 
         return data
 
-    async def do_defered(self, path: pathlib.Path) -> schemas.LogQuartoItem | None:
+    async def do_defered(self, path: pathlib.Path) -> schemas.QuartoRender | None:
         """Filters, assets, and partials will have defered changes.
 
         In other words, the last modified qmd should be rerendered.
         """
 
-        filters = schemas.LogQuartoFilters(kind=["direct"])  # type: ignore
-        last = await schemas.LogQuarto.last_rendered(self.context.db, filters=filters)
-        if last is None:
+        filters = schemas.QuartoHistoryFilters(kind=["direct"])  # type: ignore
+        history = await schemas.QuartoHistory.last_rendered(
+            self.context.db, filters=filters
+        )
+
+        print("====================================================")
+        print("Filters (do_defered).")
+        util.print_yaml(filters, name="From `do_defered`.", as_json=True)
+        if history is None:
             logger.info("No render to dispatch from changes in `%s`.", path)
             return
+
+        last= history.items[0]
+
+        print("====================================================")
+        print("Last rendered (do_defered).")
+        util.print_yaml(last, name="Last Rendered.", as_json=True)
+
 
         logger.info(
             "Dispatching render of `%s` from changes in `%s`.", last.target, path
@@ -551,7 +563,7 @@ class Handler:
         data = await self.render_qmd(pathlib.Path(last.target).resolve(), origin=path)
         return data
 
-    async def do_static(self, path: pathlib.Path) -> schemas.LogQuartoItem:
+    async def do_static(self, path: pathlib.Path) -> schemas.QuartoRender:
         """Static assets should be coppied to their respective location in
         ``build``.
 
@@ -569,7 +581,7 @@ class Handler:
             stderr=subprocess.PIPE,
         )
         await process.wait()
-        data = await schemas.LogQuartoItem.fromProcess(
+        data = await schemas.QuartoRender.fromProcess(
             path,
             path_dest,
             process,
@@ -578,7 +590,7 @@ class Handler:
             _from=self._from,
         )
 
-        await schemas.LogQuarto.push(
+        await schemas.QuartoHistory.push(
             self.context.db,
             self.mongo_id,
             [data.model_dump(mode="json")],
@@ -601,9 +613,7 @@ class Watch:
     async def __call__(self, stop_event: asyncio.Event):
         """Watch for changes to quarto files and thier helpers."""
 
-        res = await schemas.LogQuarto.spawn(self.context.db)
-        print("lifespan", res.inserted_id)
-
+        res = await schemas.QuartoHistory.spawn(self.context.db)
         self.handler = Handler(
             self.context, self.filter, mongo_id=res.inserted_id, _from="lifespan"
         )

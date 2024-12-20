@@ -2,6 +2,7 @@ import logging
 import logging.config
 import logging.handlers
 import pathlib
+import secrets
 from os import environ
 from typing import Annotated, Any, Literal
 
@@ -19,6 +20,7 @@ FieldEnv = Annotated[
     Literal["development", "ci", "production"],
     pydantic.Field(default="development"),
 ]
+RUN_UUID = secrets.token_urlsafe()
 
 
 def name(varname: str) -> str:

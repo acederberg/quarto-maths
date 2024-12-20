@@ -87,6 +87,8 @@ function ServerLog({
     "message",
     (event) => {
       const data = JSON.parse(event.data)
+      if (!data) return
+
       data.items.map((item, index, array) => {
         const elem = hydrateServerLogItem(item, index, array)
         serverLogContainer.appendChild(elem)
@@ -317,9 +319,13 @@ function Quarto({ filters, last, quartoLogsParent, quartoLogs, quartoOverlayCont
     If there is an overlay, show an overlay if there is an error.
     If there is a log, put the log item in and call `show` to make it obvious that it is new.
     If there is not a log, add a banner at the bottom of the page and call `show` to make it obvious that it is new.
+
+    When there is data (when ``GET /api/dev/quarto`` would return ``HTTP 204``, do nothing.
   */
   function handleMessage(event) {
     const data = JSON.parse(event.data)
+    if (!data) return
+
     LIVE_QUARTO_VERBOSE && data.target && console.log(`Recieved event for \`${data.target}\`.`)
     console.log(data)
 
@@ -369,7 +375,9 @@ function Quarto({ filters, last, quartoLogsParent, quartoLogs, quartoOverlayCont
 
 
 async function requestRender({ items }) {
-  res = await fetch("/api/dev/quarto", {
+  LIVE_QUARTO_VERBOSE && console.log("Requesting quarto render.")
+
+  res = await fetch("/api/dev/quarto/render", {
     body: JSON.stringify({ items: items || [window.location.pathname] }),
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', },
     method: "POST",
@@ -377,6 +385,34 @@ async function requestRender({ items }) {
   return res
 }
 
+async function requestRenderHistory(filter) {
+  LIVE_QUARTO_VERBOSE && console.log("Requesting quarto render history.")
+
+  const res = await fetch("/api/dev/quarto", {
+    body: JSON.stringify(filter),
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', },
+    method: "POST",
+  })
+  return res
+}
+
+async function requestLast(filter) {
+  LIVE_QUARTO_VERBOSE && console.log("Requesting last item rendered.")
+
+  const res = await fetch(
+    "/api/dev/quarto/last",
+    {
+      method: "POST",
+      body: JSON.stringify(filter),
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+      }
+    }
+  )
+
+  return res
+}
 
 function QuartoRenderBanner(item, { bannerTextInnerHTML } = {}) {
   /* Re-render this page. */
@@ -515,8 +551,6 @@ async function hydrateServerResponse(response) {
     container.appendChild(content)
   }
 
-
-
   container.classList.remove("hidden")
 }
 
@@ -528,62 +562,223 @@ function addIcon(btn, iconName) {
   btn.insertBefore(icon, text)
 }
 
+function hydrateInputKind(baseId) {
+  const inputGroup = document.createElement("div")
+  inputGroup.classList.add("input-group", "bg-black", "my-4", "flex-wrap")
 
-function hydrateRender(overlay) {
-  function updateButtonColor() {
-    buttonInOverlay.classList.remove(`btn-outline-${overlay.state.colorize.state.colorPrev}`)
-    buttonInOverlay.classList.add(`btn-outline-${overlay.state.colorize.state.color}`)
+  // Create the input.
+  const input = document.createElement("select")
+  input.classList.add("form-select", "w-100")
+  input.id = `api-params-${baseId}-kind`
+  input.innerHTML = `
+    <option value="none" selected>Select Render Kind</option>
+    <option value="direct">Direct</option>
+    <option value="defered">Defered</option>
+    <option value="static">Static</option>
+  `
+  inputGroup.append(input)
+
+  // NOTE: Create the error message.
+  const inputErrorMsg = document.createElement("div")
+  inputErrorMsg.classList.add("form-text", "text-warning", "hidden")
+  inputErrorMsg.id = `api-params-${baseId}-err`
+  inputErrorMsg.innerHTML = `
+    <i class="bi bi-info-circle"></i>
+    <text>At least one kind must be selected.</text>
+  `
+  inputGroup.append(inputErrorMsg)
+
+  function onInvalid() {
+    inputErrorMsg.classList.remove("hidden")
+    input.classList.add("border", "border-warning", "border-3")
   }
 
-  const elem = document.querySelector("#quarto-controls-render-one")
-  elem.addEventListener("click", () => {
-    overlay.showOverlay()
-    overlay.showOverlayContentItem(elem.dataset.key)
-  })
-  addIcon(elem, "hammer")
+  function onValid() {
+    inputErrorMsg.classList.add("hidden")
+    input.classList.remove("border", "border-warning", "border-3")
+  }
 
-  const buttonInOverlay = document.getElementById("api-params-render-button")
-  const buttonInOverlaySpinner = buttonInOverlay.querySelector("span")
+  return { elem: inputGroup, input, errorMsg: inputErrorMsg, onInvalid, onValid }
+}
 
+
+function hydrateInputItems(baseId) {
+  const inputGroup = document.createElement("div")
+  inputGroup.classList.add("input-group", "my-4", "flex-wrap")
+
+  const input = document.createElement("input")
+  input.type = "text"
+  input.classList.add("form-control", "w-100")
+  input.id = `api-params-${baseId}-item`
+  inputGroup.append(input)
+
+  const inputText = document.createElement("div")
+  inputText.classList.add("form-text")
+  inputText.id = `api-params-${baseId}-desc`
+  inputText.innerHTML = `
+      <i class="bi bi-file-earmark"></i>
+      <text>Enter the absolute url to the file to re-render.</text>
+    `
+  inputGroup.append(inputText)
+
+  const inputErrorMsg = document.createElement("div")
+  inputErrorMsg.classList.add("form-text", "text-warning", "hidden")
+  inputErrorMsg.id = "api-params-render-err"
+  inputErrorMsg.innerHTML = `
+      <i class="bi bi-info-circle"></i>
+      <text>The provided value must be a valid path.</text>
+    `
+  inputGroup.append(inputErrorMsg)
+
+  function onInvalid() {
+    inputErrorMsg.classList.remove("hidden")
+    inputText.classList.add("hidden")
+    input.classList.add("border", "border-warning", "border-3")
+  }
+
+  function onValid() {
+    inputErrorMsg.classList.add("hidden")
+    inputText.classList.remove("hidden")
+    input.classList.remove("border", "border-warning", "border-3")
+  }
+
+
+  return { elem: inputGroup, input, text: inputText, errorMsg: inputErrorMsg, onValid, onInvalid }
+}
+
+function hydrateForm(baseId, { overlay, title, submitText, inputs }) {
+  // NOTE: Create the overlay content item.
+  const elem = document.createElement("div")
+  elem.classList.add("overlay-content-item")
+  elem.dataset.key = baseId
+
+  // NOTE: Create the header.
+  elem.innerHTML = `<h4 class="my-5">${title}</h4>`
+
+  // NOTE: Create the form container.
+  const form = document.createElement("div")
+  form.id = `api-params-${baseId}`
+  form.classList.add("m-3")
+  elem.appendChild(form)
+  if (inputs) inputs.map(item => form.appendChild(item.elem))
+
+  // NOTE: Create the button.
+  const button = document.createElement("button")
+  button.id = `api-params-${baseId}-button`
+  button.type = "button"
+  button.classList.add("btn", "my-5")
+
+  const spinner = document.createElement("span")
+  spinner.classList.add("spinner-border", "spinner-border-sm", "hidden")
+  spinner.role = "status"
+
+  const text = document.createElement("text")
+  text.innerText = " " + (submitText || "Submit")
+
+  button.appendChild(spinner)
+  button.appendChild(text)
+  elem.appendChild(button)
+
+  const updateButtonColor = overlay.state.colorize.updateElem(button, (color) => [`btn-outline-${color}`])
   updateButtonColor()
 
-  buttonInOverlay.addEventListener("click", async () => {
-    const input = document.getElementById("api-params-render-item")
-    const msgError = document.getElementById("api-params-render-err")
-    const msgDesc = document.getElementById("api-params-render-desc")
-
-    if (!input.value) {
-      msgError.classList.remove("hidden")
-      msgDesc.classList.add("hidden")
-      input.classList.add("border", "border-warning", "border-3")
-
-      overlay.colorize({ color: "warning" })
-      updateButtonColor()
-
-      return
-    }
-
-
-    buttonInOverlaySpinner.classList.remove("hidden")
-    buttonInOverlay.classList.add("disabled")
-    msgError.classList.add("hidden")
-    msgDesc.classList.remove("hidden")
-    const res = await fetch("/api/dev/quarto", {
-      method: "POST",
-      body: JSON.stringify({ items: [input.value] }),
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', },
-    })
-
-    hydrateServerResponse(res)
+  /* Button is no longer disabled, hide spinner, hide overlay, revert error color */
+  function onRequestOver() {
     overlay.hideOverlay()
-    overlay.state.colorize.revert()
 
+    button.classList.remove("disabled")
+    spinner.classList.add("hidden")
     updateButtonColor()
-    buttonInOverlaySpinner.classList.add("hidden")
-    buttonInOverlay.classList.remove("disabled")
+  }
+
+  /* Disable button and make spinner visible */
+  function onRequestSent() {
+    elem.dataset.colorizeColor = "primary"
+    overlay.state.colorize.restart({ color: "primary" })
+    spinner.classList.remove("hidden")
+    button.classList.add("disabled")
+    updateButtonColor()
+  }
+
+
+  /* Does not update form elements. */
+  function onInvalid() {
+    elem.dataset.colorizeColor = "warning"
+    overlay.colorize({ color: "warning" })
+    updateButtonColor()
+  }
+
+  overlay.content.appendChild(elem)
+  overlay.addContent(elem)
+  elem.dataset.colorizeColor = "primary"
+
+  return { elem, form, button, updateButtonColor, onRequestOver, onRequestSent, onInvalid }
+}
+
+function hydrateGetAll(overlay) {
+  async function action() {
+    overlay.showOverlay()
+    overlay.showOverlayContentItem("get-all")
+  }
+
+  const elem = document.querySelector("#quarto-controls-get-all")
+  elem.addEventListener("click", action)
+  addIcon(elem, "bookshelf")
+  const baseId = "get-all"
+
+  // NOTE: Spawn the form.
+  const inputKind = hydrateInputKind(baseId)
+  const formContentItem = hydrateForm(baseId, {
+    title: "Get All",
+    overlay: overlay,
+    inputs: [inputKind]
   })
 
-  return { elem, buttonInOverlay }
+
+  // NOTE: Add form listeners.
+  formContentItem.button.addEventListener("click", async () => {
+    formContentItem.onRequestSent()
+    hydrateServerResponse(
+      await requestRenderHistory({ kind: inputKind.input.value === 'none' ? null : [inputKind.input.value] })
+    )
+    formContentItem.onRequestOver()
+  })
+
+  formContentItem.updateButtonColor()
+}
+
+
+function hydrateRender(overlay) {
+  async function action() {
+    overlay.showOverlay()
+    overlay.showOverlayContentItem(elem.dataset.key)
+  }
+
+  const elem = document.querySelector("#quarto-controls-render")
+  elem.addEventListener("click", action)
+  addIcon(elem, "hammer")
+
+  const baseId = "render"
+  const inputItems = hydrateInputItems(baseId)
+
+  const formContentItem = hydrateForm(baseId, { title: "Render By URL", overlay, inputs: [inputItems] })
+
+  formContentItem.button.addEventListener("click", async () => {
+    if (!inputItems.input.value) {
+      inputItems.onInvalid()
+      formContentItem.onInvalid()
+      return
+    }
+    else {
+      inputItems.onValid()
+    }
+
+    formContentItem.onRequestSent()
+    hydrateServerResponse(await requestRender({ items: [inputItems.input.value] }))
+    formContentItem.onRequestOver()
+  })
+
+  return { elem, formContentItem, inputItems }
 }
 
 
@@ -607,6 +802,7 @@ function hydrateClearRenders() {
     await hydrateServerResponse(response)
   }
 
+
   const elem = document.querySelector("#quarto-controls-clear-renders")
   elem.addEventListener("click", action)
   addIcon(elem, "trash")
@@ -615,62 +811,34 @@ function hydrateClearRenders() {
 }
 
 
+
+
 function hydrateGetLast(overlay) {
   async function action() {
     overlay.showOverlay()
     overlay.showOverlayContentItem("get-last")
-
-  }
-
-  function updateButtonColor() {
-    buttonInOverlay.classList.remove(`btn-outline-${overlay.state.colorize.state.colorPrev}`)
-    buttonInOverlay.classList.add(`btn-outline-${overlay.state.colorize.state.color}`)
   }
 
   const elem = document.querySelector("#quarto-controls-get-last")
   elem.addEventListener("click", action)
   addIcon(elem, "bookshelf")
 
-  const buttonInOverlay = document.getElementById("api-params-get-last-button")
-  const buttonInOverlaySpinner = buttonInOverlay.querySelector("span")
-  updateButtonColor()
+  const baseId = "get-last"
+  const inputKind = hydrateInputKind(baseId)
+  const formContentItem = hydrateForm(baseId, { overlay, inputs: [inputKind], title: "Render by URL" })
 
-  buttonInOverlay.addEventListener("click", async () => {
-    const input = document.getElementById("api-params-get-last-kind")
-    const msgError = document.getElementById("api-params-get-last-err")
+  formContentItem.button.addEventListener("click", async () => {
 
-    if (input.value === 'none') {
-      msgError.classList.remove("hidden")
-      input.classList.add("border", "border-warning", "border-3")
-
-      overlay.colorize({ color: "warning" })
-      updateButtonColor()
-
+    if (inputKind.input.value === 'none') {
+      formContentItem.onInvalid()
+      inputKind.onInvalid()
       return
     }
+    else inputKind.onValid()
 
-    buttonInOverlaySpinner.classList.remove("hidden")
-    buttonInOverlay.classList.add("disabled")
-    msgError.classList.add("hidden")
-
-    const res = await fetch(
-      "/api/dev/quarto/last",
-      {
-        method: "POST",
-        body: JSON.stringify({ kind: [input.value] }),
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json"
-        }
-      }
-    )
-
-    hydrateServerResponse(res)
-    overlay.hideOverlay()
-    overlay.state.colorize.revert()
-
-    buttonInOverlay.classList.remove("disabled")
-    buttonInOverlaySpinner.classList.add("hidden")
+    formContentItem.onRequestSent()
+    hydrateServerResponse(await requestLast({ kind: [inputKind.input.value] }))
+    formContentItem.onRequestOver()
   })
 
 
@@ -686,6 +854,7 @@ function QuartoControls() {
   const clearLogs = hydrateClearLogs()
   const clearQuarto = hydrateClearRenders()
   const getLast = hydrateGetLast(overlay)
+  const getAll = hydrateGetAll(overlay)
 
-  return { overlay, render, clearLogs, clearQuarto, getLast }
+  return { overlay, render, clearLogs, clearQuarto, getLast, getAll }
 }

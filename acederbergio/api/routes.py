@@ -1,5 +1,4 @@
 import asyncio
-import secrets
 from typing import Any, ClassVar, TypeVar
 
 import fastapi
@@ -7,7 +6,7 @@ import fastapi.routing
 import pydantic
 from fastapi.websockets import WebSocketState
 
-from acederbergio import env, util
+from acederbergio import env
 from acederbergio.api import base, depends, schemas
 
 logger = env.create_logger(__name__)
@@ -82,8 +81,8 @@ class LogRoutesMixins:
         **kwargs,
     ) -> None:
 
-        log = await cls.get(s, database, ws=True, **kwargs)
         # NOTE: Push out the initial logs.
+        log = await cls.get(s, database, ws=True, **kwargs)
         if last:
             if log is not None:
                 log.items = log.items[-1 - last :]  # type: ignore
@@ -96,7 +95,12 @@ class LogRoutesMixins:
             await asyncio.sleep(3)
 
             data = await cls.get(
-                s, database, slice_start=count, slice_count=128, **kwargs
+                s,
+                database,
+                slice_start=count,
+                slice_count=128,
+                ws=True,
+                **kwargs,
             )
             if data is None or not data.count:
                 continue
@@ -181,12 +185,12 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
     router = fastapi.APIRouter()
     router_routes: ClassVar[dict[str, str | dict[str, Any]]] = {
         # "post_filter": dict(url="/filter"),
-        "get_log": dict(url=""),
+        "post_log": dict(url=""),
         "get_log_status": dict(url="/status"),
         "post_last_rendered": dict(url="/last", status_code=fastapi.status.HTTP_200_OK),
         "delete_log": dict(url=""),
         "get_routes": dict(url="/routes"),
-        "post_render": dict(url=""),
+        "post_render": dict(url="/render"),
         "websocket_log": dict(url=""),
     }
 
@@ -194,32 +198,32 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
     async def post_last_rendered(
         cls,
         database: depends.Db,
-        filters: schemas.LogQuartoFilters | None = None,
-    ) -> schemas.LogQuartoItem | None:
+        filters: schemas.QuartoHistoryFilters | None = None,
+    ) -> schemas.QuartoHistoryMinimal | None:
         """Get the most recent qmd document rendered."""
 
-        res = await schemas.LogQuarto.last_rendered(database, filters)
+        res = await schemas.QuartoHistoryMinimal.last_rendered(database, filters)
         if res is None:
             raise fastapi.HTTPException(204)
 
         return res
 
     @classmethod
-    async def get_log(
+    async def post_log(
         cls,
         database: depends.Db,
         *,
-        filters: schemas.LogQuartoFilters | None = None,
+        filters: schemas.QuartoHistoryFilters | None = None,
         slice_start: int | None = None,
         slice_count: int | None = None,
-    ) -> schemas.LogQuarto:
+    ) -> schemas.QuartoHistoryMinimal | None:
         """Get the log for the current instance.
 
         This will update everytime that uvicorn reloads.
         """
 
         return await cls.get(  # type: ignore
-            schemas.LogQuarto,
+            schemas.QuartoHistoryMinimal,
             database,
             do_print=True,
             slice_start=slice_start,
@@ -229,8 +233,8 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
 
     # @classmethod
     # async def post_filter(
-    #     cls, filters: schemas.LogQuartoFilters
-    # ) -> schemas.LogQuartoFilters:
+    #     cls, filters: schemas.QuartoHistoryFilters
+    # ) -> schemas.QuartoHistoryFilters:
     #     """Returns hydrated filter."""
     #
     #     return filters
@@ -239,8 +243,8 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
     async def post_render(
         cls,
         quarto_handler: depends.QuartoHandler,
-        render_data: schemas.QuartoRender,
-    ) -> schemas.QuartoRenderResult:
+        render_data: schemas.QuartoRenderRequest,
+    ) -> schemas.QuartoRenderResponse:
 
         items = []
         ignored = []
@@ -252,7 +256,7 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
 
             items.append(data)
 
-        return schemas.QuartoRenderResult(
+        return schemas.QuartoRenderResponse(
             items=items,
             ignored=ignored,
         )
@@ -261,13 +265,13 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
     async def get_log_status(cls, database: depends.Db) -> schemas.LogStatus:
         """Collection status report."""
 
-        return await cls.status(schemas.LogQuarto, database)
+        return await cls.status(schemas.QuartoHistory, database)
 
     @classmethod
     async def delete_log(cls, database: depends.Db) -> int:
         """Clear all besides the current log."""
 
-        res = await cls.delete(schemas.LogQuarto, database)
+        res = await cls.delete(schemas.QuartoHistory, database)
         return res.deleted_count
 
     @classmethod
@@ -289,7 +293,7 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
         data = await websocket.receive_json()
         if data is not None:
             try:
-                filters = schemas.LogQuartoFilters.model_validate(data)
+                filters = schemas.QuartoHistoryFilters.model_validate(data)
             except pydantic.ValidationError as err:
                 # NOTE: https://github.com/Luka967/websocket-close-codes
                 raise fastapi.WebSocketDisconnect(1003, err.json())
@@ -297,7 +301,7 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
             filters = None
 
         await cls.ws(
-            schemas.LogQuarto,
+            schemas.QuartoHistoryFull,
             websocket,
             database,
             filters=filters,

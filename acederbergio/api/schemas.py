@@ -4,7 +4,7 @@ import http
 import os
 import pathlib
 import re
-from typing import Annotated, Any, ClassVar, Literal, Self
+from typing import Annotated, Any, ClassVar, Generic, Literal, Self, TypeVar
 
 import bson
 import fastapi
@@ -33,10 +33,11 @@ class LogItem(pydantic.BaseModel):
         return datetime.datetime.fromtimestamp(self.created)
 
 
-LogQuartoItemKind = Annotated[
+UvicornUUID = Annotated[str, pydantic.Field(env.RUN_UUID)]
+QuartoRenderKind = Annotated[
     Literal["defered", "direct", "static"], pydantic.Field("direct")
 ]
-LogQuartoItemFrom = Annotated[
+QuartoRenderFrom = Annotated[
     Literal["client", "lifespan"],
     pydantic.Field(
         alias="from",
@@ -46,15 +47,13 @@ LogQuartoItemFrom = Annotated[
 ]
 
 
-class LogQuartoItem(util.HasTime):
+class QuartoRenderMinimal(util.HasTime):
+    """This should not be used internally, only to serve partial results."""
 
-    item_from: LogQuartoItemFrom
-    kind: LogQuartoItemKind
+    item_from: QuartoRenderFrom
+    kind: QuartoRenderKind
     origin: str
     target: str
-    command: list[str]
-    stderr: list[str]
-    stdout: list[str]
     status_code: int
 
     @classmethod
@@ -70,8 +69,8 @@ class LogQuartoItem(util.HasTime):
         process: asyncio.subprocess.Process,
         *,
         command: list[str],
-        kind: LogQuartoItemKind,
-        _from: LogQuartoItemFrom,
+        kind: QuartoRenderKind,
+        _from: QuartoRenderFrom,
     ) -> Self:
         stdout, stderr = await process.communicate()
         return cls.model_validate(
@@ -88,9 +87,16 @@ class LogQuartoItem(util.HasTime):
         )
 
 
+class QuartoRender(QuartoRenderMinimal):
+    command: list[str]
+    stderr: list[str]
+    stdout: list[str]
+
+
 class BaseLog(util.HasTime, db.HasMongoId):
     _collection: ClassVar[str]
 
+    uuid_uvicorn: UvicornUUID
     count: Annotated[int, pydantic.Field(default=0)]
 
     @classmethod
@@ -168,7 +174,7 @@ class BaseLog(util.HasTime, db.HasMongoId):
                 slice_start=slice_start,
                 slice_count=slice_count,
             )
-            steps.append({"$project": projection})
+            steps.append({"$addFields": projection})
 
         if include_count:
             steps.append({"$addFields": {"count": {"$size": "$items"}}})
@@ -234,11 +240,14 @@ class Log(BaseLog):
     ]
 
 
-class LogQuarto(BaseLog):
+T_QuartoRender = TypeVar("T_QuartoRender", bound=QuartoRenderMinimal)
+
+
+class QuartoHistory(BaseLog, Generic[T_QuartoRender]):
     _collection = "quarto"
 
     items: Annotated[
-        list[LogQuartoItem],
+        list[T_QuartoRender],
         pydantic.Field(default_factory=list),
     ]
 
@@ -246,7 +255,7 @@ class LogQuarto(BaseLog):
     def aggr_latest(
         cls,
         *,
-        filters: "LogQuartoFilters | None" = None,
+        filters: "QuartoHistoryFilters | None" = None,
         slice_start: int | None = None,
         slice_count: int | None = None,
         include_count: bool = True,
@@ -260,8 +269,8 @@ class LogQuarto(BaseLog):
 
         #  NOTE: Projections must occur separately.
         if filters is not None:
-            filter = filters.projection_filter()
-            pipe.insert(2, {"$project": {"items": filter}})
+            filter = filters.create_filter()
+            pipe.insert(2, {"$addFields": {"items": filter}})
 
         if do_print:
             print(filters)
@@ -270,39 +279,57 @@ class LogQuarto(BaseLog):
         return pipe
 
     @classmethod
-    def aggr_last_rendered(cls, filters: "LogQuartoFilters | None" = None):
+    def aggr_last_rendered(cls, filters: "QuartoHistoryFilters | None" = None):
 
         latest = cls.aggr_latest(filters=None, include_count=False)
 
         if filters is not None:
-            project = {"$project": {"items": filters.projection_filter()}}
-            latest.insert(0, project)
+            latest.insert(0, {"$addFields": {"items": filters.create_filter()}})
 
         latest.insert(
             1,
             {
-                "$project": {
-                    "last": {"$last": "$items"},
+                "$addFields": {
+                    "items": {"$last": "$items"},
                     "timestamp": "$timestamp",
+                    "_id": "$_id",
+                    "uuid_uvicorn": "$uuid_uvicorn",
+                    "count": 1,
                 }
             },
         )
-        latest.insert(2, {"$match": {"last": {"$exists": True}}})
+
+        latest.insert(2, {"$match": {"items": {"$exists": True}}})
+
+        print("====================================================")
+        print("Aggregation (aggr_last_rendered).")
+        util.print_yaml(latest, name="From `aggr_last_rendered`.", as_json=True)
+
         return latest
 
     @classmethod
     async def last_rendered(
         cls,
         db: motor.motor_asyncio.AsyncIOMotorDatabase,
-        filters: "LogQuartoFilters | None" = None,
-    ) -> LogQuartoItem | None:
+        filters: "QuartoHistoryFilters | None" = None,
+    ) -> Self | None:
 
         aggr = cls.aggr_last_rendered(filters)
         res = db[cls._collection].aggregate(aggr)
         async for item in res:
-            return LogQuartoItem.model_validate(item["last"])
+            print("============================================================")
+            print("item")
+            util.print_yaml(item, as_json=True)
+            print()
+            item["items"] = [item["items"]]
+
+            return cls.model_validate(item)
 
         return None
+
+
+QuartoHistoryFull = QuartoHistory[QuartoRender]
+QuartoHistoryMinimal = QuartoHistory[QuartoRenderMinimal]
 
 
 def parse_path(v: str) -> pathlib.Path:
@@ -341,7 +368,7 @@ def create_check_items(relative: bool = False):
     return pydantic.BeforeValidator(check_items)
 
 
-class LogQuartoFilters(pydantic.BaseModel):
+class QuartoHistoryFilters(pydantic.BaseModel):
     """Filters for document items returned.
 
     URL parameters will be arguments that are common to ``get`` for both
@@ -362,9 +389,9 @@ class LogQuartoFilters(pydantic.BaseModel):
         bool | None,
         pydantic.Field(default=None),
     ]
-    kind: Annotated[list[LogQuartoItemKind] | None, pydantic.Field(default=None)]
+    kind: Annotated[list[QuartoRenderKind] | None, pydantic.Field(default=None)]
 
-    def projection_filter(self):
+    def create_filter(self):
         conds: list[dict[str, Any]] = []
         if self.errors is not None:
             conds.append({"$ne" if self.errors else "$eq": ["$$item.status_code", 0]})
@@ -379,7 +406,9 @@ class LogQuartoFilters(pydantic.BaseModel):
         return {"$filter": {"input": "$items", "as": "item", "cond": cond}}
 
 
-class QuartoRender(pydantic.BaseModel):
+class QuartoRenderRequest(pydantic.BaseModel):
+    """Use this to request a render."""
+
     items: Annotated[
         list[str],
         pydantic.Field(
@@ -390,9 +419,12 @@ class QuartoRender(pydantic.BaseModel):
     ]
 
 
-class QuartoRenderResult(pydantic.BaseModel):
+class QuartoRenderResponse(pydantic.BaseModel):
+    """Response from rendering."""
+
+    uuid_uvicorn: UvicornUUID
     ignored: Annotated[list[str], pydantic.Field()]
-    items: Annotated[list[LogQuartoItem], pydantic.Field()]
+    items: Annotated[list[QuartoRenderMinimal], pydantic.Field()]
 
 
 class LogStatus(pydantic.BaseModel):
