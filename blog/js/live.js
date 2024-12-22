@@ -1,7 +1,7 @@
 const UvicornLogPattern = /(?<ip>[\d.]+):(?<port>\d+)\s+-\s+"(?<method>[A-Z]+)\s+(?<path>[^\s]+)\s+(?<protocol>HTTP\/\d+\.\d+)"\s+(?<status>\d+)/;
 
 const LIVE_QUARTO_VERBOSE = true
-const LIVE_SERVER_VERBOSE = false
+const LIVE_SERVER_VERBOSE = true
 
 function hydrateServerLogItem(item, index, array) {
 
@@ -71,6 +71,28 @@ function hydrateServerLogItem(item, index, array) {
   return elem
 }
 
+
+
+function createWebsocketTimer(ws) {
+  const state = {
+    start: async () => {
+      console.log("Waiting...")
+      const id = setInterval(() => { ws.send("null") }, 3000)
+      state.id = id
+    },
+    id: null,
+    stop: () => {
+      clearInterval(state.id)
+    }
+  }
+
+  ws.addEventListener("open", state.start)
+  ws.addEventListener("close", state.stop)
+  return state
+
+}
+
+
 function ServerLog({
   serverLogContainer,
   serverLogParent,
@@ -96,6 +118,9 @@ function ServerLog({
       })
     },
   )
+
+  createWebsocketTimer(ws)
+
   if (LIVE_SERVER_VERBOSE) {
     ws.addEventListener("close", (event) => console.log(event))
     ws.addEventListener("open", () => console.log("Websocket connection opened for logs."))
@@ -360,6 +385,8 @@ function Quarto({ filters, last, quartoLogsParent, quartoLogs, quartoOverlayCont
   if (last) { url = url + `?last=${last}` }
 
   const ws = new WebSocket(url)
+  createWebsocketTimer(ws)
+
   ws.addEventListener("open", () => {
     ws.send(JSON.stringify(filters || null))
     if (LIVE_QUARTO_VERBOSE) {
@@ -367,6 +394,7 @@ function Quarto({ filters, last, quartoLogsParent, quartoLogs, quartoOverlayCont
       console.log(`Websocket sent filters \`${JSON.stringify(filters || null, null, 2)}\`.`)
     }
   })
+
   ws.addEventListener("message", handleMessage)
   LIVE_QUARTO_VERBOSE && ws.addEventListener("close", (event) => console.log(event))
 
@@ -555,13 +583,6 @@ async function hydrateServerResponse(response) {
 }
 
 
-function addIcon(btn, iconName) {
-  const icon = document.createElement("i")
-  const text = btn.querySelector("text")
-  icon.classList.add("bi", `bi-${iconName}`)
-  btn.insertBefore(icon, text)
-}
-
 function hydrateInputKind(baseId) {
   const inputGroup = document.createElement("div")
   inputGroup.classList.add("input-group", "bg-black", "my-4", "flex-wrap")
@@ -723,7 +744,6 @@ function hydrateGetAll(overlay) {
 
   const elem = document.querySelector("#quarto-controls-get-all")
   elem.addEventListener("click", action)
-  addIcon(elem, "bookshelf")
   const baseId = "get-all"
 
   // NOTE: Spawn the form.
@@ -756,7 +776,6 @@ function hydrateRender(overlay) {
 
   const elem = document.querySelector("#quarto-controls-render")
   elem.addEventListener("click", action)
-  addIcon(elem, "hammer")
 
   const baseId = "render"
   const inputItems = hydrateInputItems(baseId)
@@ -788,9 +807,8 @@ function hydrateClearLogs() {
     await hydrateServerResponse(response)
   }
 
-  const elem = document.querySelector("#quarto-controls-clear-logs")
+  const elem = document.querySelector("#server-controls-clear-logs")
   elem.addEventListener("click", action)
-  addIcon(elem, "trash")
 
   return { elem, action }
 }
@@ -805,7 +823,6 @@ function hydrateClearRenders() {
 
   const elem = document.querySelector("#quarto-controls-clear-renders")
   elem.addEventListener("click", action)
-  addIcon(elem, "trash")
 
   return { elem, action }
 }
@@ -821,7 +838,6 @@ function hydrateGetLast(overlay) {
 
   const elem = document.querySelector("#quarto-controls-get-last")
   elem.addEventListener("click", action)
-  addIcon(elem, "bookshelf")
 
   const baseId = "get-last"
   const inputKind = hydrateInputKind(baseId)

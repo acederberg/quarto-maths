@@ -1,5 +1,6 @@
 import asyncio
-from typing import Any, ClassVar, TypeVar
+from time import time
+from typing import Any, Awaitable, Callable, ClassVar, TypeVar
 
 import fastapi
 import fastapi.routing
@@ -32,7 +33,6 @@ class LogRoutesMixins:
                 raise fastapi.HTTPException(204, detail={"msg": "No log data found."})
             return None
 
-        # print(env.get("UVICORN_IDENTIFIER", secrets.token_urlsafe()))
         return data
 
     @classmethod
@@ -45,38 +45,16 @@ class LogRoutesMixins:
         count = await s.status(database)
         return schemas.LogStatus(count=count)
 
+    # NOTE: Now the client just says at what rate they want to recieve render
+    #       data.
     @classmethod
     async def ws(
         cls,
         s: type[T_BaseLog],
         websocket: fastapi.WebSocket,
         database: depends.Db,
-        last: int = 0,
-        **kwargs,
-    ):
-
-        # NOTE: Must listen to hear disconnects. Without this, the websocket
-        #       will never exit (which is what was causing reload to hang.
-        #       Initially I assuemd this was from lifespan events but found that
-        #       the server was still listening from print statements.
-        async def listen():
-            while websocket.client_state == WebSocketState.CONNECTED:
-                await websocket.receive()
-
-        await asyncio.gather(
-            listen(),
-            cls.ws_send(s, websocket, database, last=last, **kwargs),
-        )
-        # NOTE: Does not call ``close`` since closing is only on the part of
-        #       client or on uvicorn reloads.
-
-    @classmethod
-    async def ws_send(
-        cls,
-        s: type[T_BaseLog],
-        websocket: fastapi.WebSocket,
-        database: depends.Db,
         *,
+        handle_recieve: Callable[[fastapi.WebSocket, dict], Awaitable[None]],
         last: int = 32,
         **kwargs,
     ) -> None:
@@ -90,9 +68,13 @@ class LogRoutesMixins:
                 log if log is None else log.model_dump(mode="json")
             )
 
+        # NOTE: Must listen to hear disconnects. Without this, the websocket
+        #       will never exit (which is what was causing reload to hang.
+        #       Initially I assuemd this was from lifespan events but found that
+        #       the server was still listening from print statements.
         count = 0 if log is None else log.count
+        called_last = 0
         while websocket.client_state == WebSocketState.CONNECTED:
-            await asyncio.sleep(3)
 
             data = await cls.get(
                 s,
@@ -102,17 +84,29 @@ class LogRoutesMixins:
                 ws=True,
                 **kwargs,
             )
-            if data is None or not data.count:
-                continue
+            if data is not None and data.count:
+                try:
+                    await websocket.send_json(data.model_dump(mode="json"))
+                except RuntimeError as err:
+                    if err.args[0].startswith("Unexpected ASGI message"):
+                        return
 
-            try:
-                await websocket.send_json(data.model_dump(mode="json"))
-            except RuntimeError as err:
-                if err.args[0].startswith("Unexpected ASGI message"):
+                    raise err
+                except fastapi.WebSocketDisconnect as err:
                     return
 
-                raise err
-            count += data.count
+                count += data.count
+
+            # NOTE: Will wait atleast three seconds each time. Done here at the
+            #       end so that data is sent out immediately.
+            called = time()
+            if called_last and (diff := called - called_last) < 3:
+                await asyncio.sleep(diff)
+
+            await handle_recieve(websocket, kwargs)
+
+        # NOTE: Does not call ``close`` since closing is only on the part of
+        #       client or on uvicorn reloads.
 
 
 # TODO: Make router generic.
@@ -171,8 +165,15 @@ class LogRoutes(LogRoutesMixins, base.Router):
     ):
         """Watch logs. Emits ``JSONL`` log data."""
 
+        async def handle_recieve(websocket: fastapi.WebSocket, _: dict):
+
+            await websocket.receive_json()
+            return
+
         await websocket.accept()
-        await cls.ws(schemas.Log, websocket, database, last=64)
+        await cls.ws(
+            schemas.Log, websocket, database, last=64, handle_recieve=handle_recieve
+        )
 
 
 class QuartoRoutes(LogRoutesMixins, base.Router):
@@ -225,7 +226,6 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
         return await cls.get(  # type: ignore
             schemas.QuartoHistoryMinimal,
             database,
-            do_print=True,
             slice_start=slice_start,
             slice_count=slice_count,
             filters=filters,
@@ -256,7 +256,7 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
 
             items.append(data)
 
-        return schemas.QuartoRenderResponse(
+        return schemas.QuartoRenderResponse(  # type: ignore
             items=items,
             ignored=ignored,
         )
@@ -286,26 +286,32 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
         Will not emit logs until filtering parameters are sent in.
         """
 
-        await websocket.accept()
-
         # NOTE: Because a JSON body can not be sent in with the initial request
         #       the socket will wait for some filters to be written to it.
-        data = await websocket.receive_json()
-        if data is not None:
-            try:
-                filters = schemas.QuartoHistoryFilters.model_validate(data)
-            except pydantic.ValidationError as err:
-                # NOTE: https://github.com/Luka967/websocket-close-codes
-                raise fastapi.WebSocketDisconnect(1003, err.json())
-        else:
-            filters = None
+        # NOTE: https://github.com/Luka967/websocket-close-codes
+        async def handle_recieve(websocket: fastapi.WebSocket, kwargs: dict) -> None:
+            data = await websocket.receive_json()
+            if data is not None:
+                try:
+                    filters = schemas.QuartoHistoryFilters.model_validate(data)
+                except pydantic.ValidationError as err:
+                    raise fastapi.WebSocketDisconnect(1003, err.json())
 
+                print("kwargs", kwargs)
+                kwargs["filters"] = filters
+            else:
+                filters = None
+
+        await websocket.accept()
+
+        kwargs = dict(last=last)
+        await handle_recieve(websocket, kwargs)
         await cls.ws(
             schemas.QuartoHistoryFull,
             websocket,
             database,
-            filters=filters,
-            last=last,
+            handle_recieve=handle_recieve,
+            **kwargs,
         )
 
 

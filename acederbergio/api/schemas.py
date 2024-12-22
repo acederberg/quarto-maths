@@ -273,8 +273,8 @@ class QuartoHistory(BaseLog, Generic[T_QuartoRender]):
             pipe.insert(2, {"$addFields": {"items": filter}})
 
         if do_print:
-            print(filters)
-            print(pipe)
+            print("filters", filters)
+            print("pipe", pipe)
 
         return pipe
 

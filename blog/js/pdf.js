@@ -12,7 +12,6 @@ function QuartoPDFViewer(quarto, { iframeLeft, iframeRight }) {
   ws.addEventListener("message", (event) => {
     const data = JSON.parse(event.data)
     data.items.map(item => {
-      PDF_VIEW_VERBOSE && console.log(item)
       if (item.target == "blog/resume/resume.qmd") reload()
     })
   })
@@ -26,8 +25,27 @@ function PDFViewer(quartoDev) {
     iframeRight: document.getElementById("live-pdf"),
   })
   globalThis.pdfDevPage = pdfDevPage
+}
 
-  const pdf = document.getElementById("pdf")
-  // pdf.style.filter = "brightness(0.5)"
+
+function QuartoHTMLViewer(quarto, { iframe }) {
+  const ws = quarto.ws
+  const iframeParent = iframe.closest("div")
+
+  function reload() {
+    iframe.source = iframe.source
+    iframeParent.classList.add("new")
+    setTimeout(() => iframeParent.classList.remove("new"), 1000)
+  }
+
+  ws.addEventListener("message", (event) => {
+    const data = JSON.parse(event.data)
+    data.items.map(item => {
+      if (item.target == "blog/dev/live.qmd") reload()
+    })
+  })
+
+  return { quarto, reload }
+
 }
 

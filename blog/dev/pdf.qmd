@@ -22,7 +22,7 @@ live_quarto_logs_last: 32
 <nav id="dev-nav">
   <div class="nav nav-tabs" id="nav-tab" role="tablist">
     <button
-      class="nav-link"
+      class="nav-link active"
       id="tab-pdf"
       data-bs-toggle="tab"
       data-bs-target="#tab-pdf-content"
@@ -35,14 +35,13 @@ live_quarto_logs_last: 32
       <text>PDF</text>
     </button>
     <button
-      class="nav-link active"
+      class="nav-link"
       id="tab-quarto-logs"
       data-bs-toggle="tab"
       data-bs-target="#tab-quarto-logs-content"
       type="button"
       role="tab"
       aria-controls="tab-quarto-logs-content"
-      aria-selected="true"
     >
       <i class="bi bi-bookshelf"></i>
       <text>Quarto</text>
@@ -53,7 +52,7 @@ live_quarto_logs_last: 32
 
 <!---------------------------- START TAB CONTENT -----------------------------> ::: { #tab-content .tab-content }
 
-<!---------------------------- START TAB PANE --------------------------------> ::: { #tab-pdf-content .tab-pane .fade }
+<!---------------------------- START TAB PANE --------------------------------> ::: { #tab-pdf-content .tab-pane .fade  .show .active }
 
 ::: { .columns }
 
@@ -81,7 +80,7 @@ live_quarto_logs_last: 32
 
 <!---------------------------- END TAB PANE ----------------------------------> :::
 
-<!---------------------------- START TAB PANE --------------------------------> ::: { #tab-quarto-logs-content .tab-pane .show .active .fade }
+<!---------------------------- START TAB PANE --------------------------------> ::: { #tab-quarto-logs-content .tab-pane .fade }
 
 This should show up no matter what.
 

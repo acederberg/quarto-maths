@@ -232,10 +232,9 @@
   padding-bottom: 0px;
 }
 
+#server-controls button,
 #quarto-controls button {
-  width: 15vw;
-  margin-left: 1px;
-  margin-right: 1px;
+  margin-right: 3px;
 }
 
 #quarto-render-notification code,
@@ -277,4 +276,13 @@
 .nav-tabs .nav-link.active {
   background-color: var(--bs-black) !important;
   border-bottom: none;
+}
+
+.quarto-embed {
+  filter: contrast(0.9);
+  transition: 10s filter;
+}
+
+.quarto-embed.new {
+  filter: contrast(0.5) blur(1px);
 }

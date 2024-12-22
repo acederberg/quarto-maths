@@ -1,0 +1,88 @@
+---
+title: "Deveoplemny Tools"
+navbar: false
+format:
+  html:
+    include-in-header:
+      - ../includes/util.html
+      - ../includes/dev.html
+      - ../includes/pdf.html
+live_depends_on:
+  - blog/dev/live.qmd
+live_quarto_logs_last: 32
+live_quarto_banner_include: true
+live_id_quarto_logs: quarto-live-logs
+live_id_quarto_logs_parent: tab-quarto-logs-content
+---
+
+```{=html}
+<nav id="dev-nav">
+  <div class="nav nav-tabs" id="nav-tab" role="tablist">
+    <button
+      class="nav-link active"
+      id="tab-pdf"
+      data-bs-toggle="tab"
+      data-bs-target="#tab-pdf-content"
+      type="button"
+      role="tab"
+      aria-controls="tab-pdf-content"
+      aria-selected="true"
+    >
+      <i class="bi bi-filetype-md"></i>
+      <text>Quarto</text>
+    </button>
+    <button
+      class="nav-link"
+      id="tab-quarto-logs"
+      data-bs-toggle="tab"
+      data-bs-target="#tab-quarto-logs-content"
+      type="button"
+      role="tab"
+      aria-controls="tab-quarto-logs-content"
+    >
+      <i class="bi bi-journal-code"></i>
+      <text>Quarto</text>
+    </button>
+  </div>
+</nav>
+```
+
+<!---------------------------- START TAB CONTENT -----------------------------> ::: { #tab-content .tab-content }
+
+<!---------------------------- START TAB PANE --------------------------------> ::: { #tab-pdf-content .tab-pane .fade  .show .active }
+
+```{=html}
+<div class="embed-resphnsive quarto-embed border border-primary border-5" width="100%" height="100%" style="filter: contrast(0.95);">
+  <iframe
+    id="live-html"
+    type="application/html"
+    width="100%"
+    height="1000px"
+    src="/dev/live.html"
+  ></iframe>
+</div>
+```
+
+<!---------------------------- END TAB PANE ----------------------------------> :::
+
+<!---------------------------- START TAB PANE --------------------------------> ::: { #tab-quarto-logs-content .tab-pane .fade }
+
+{{< include "./_live_quarto_table.qmd" >}}
+
+<!---------------------------- END TAB PANE ----------------------------------> :::
+
+<!---------------------------- END TAB CONTENT -------------------------------> :::
+
+```{=html}
+<script id="quarto-loader-ext">
+  window.removeEventListener("load", hydrateQuarto)
+  window.addEventListener("load", () => {
+    const { quartoDev } = hydrateQuarto()
+    FullPage()
+    QuartoHTMLViewer(quartoDev, {
+      iframe: document.getElementById("live-html")
+    })
+  })
+</script>
+
+```
