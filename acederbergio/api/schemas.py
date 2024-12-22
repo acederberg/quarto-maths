@@ -14,6 +14,71 @@ import pydantic
 from acederbergio import db, env, util
 
 
+def parse_path(v: str) -> pathlib.Path:
+    # NOTE: Handle browser paths. This should just prepend the ``blog``
+    #       directory to the path, and if the path is a directory then add
+    #       ``index.html``.
+    if v.startswith("/") and not v.endswith(".qmd"):
+        v = v.replace(".html", ".qmd")
+        out = pathlib.Path("./blog" + v).resolve()
+    else:
+        out = pathlib.Path(v).resolve()
+
+    return out if not out.is_dir() else (out / "index.qmd")
+
+
+def create_check_items(relative: bool = False):
+    """For what should be a list of paths, resolve the list of paths and verify
+    that they actually exist.
+
+    All resolved paths should be contained within the root directory.
+    """
+
+    def check_items(v):
+        items = list(parse_path(item) for item in v)
+        if dne := tuple(filter(lambda item: not os.path.isfile(item), items)):
+            raise ValueError(f"The following paths are not files: `{dne}`.")
+
+        if bad := tuple(item for item in items if not item.is_relative_to(env.ROOT)):
+            raise ValueError(f"The following paths are not valid: `{bad}`.")
+
+        if relative:
+            items = list(item.relative_to(env.ROOT) for item in items)
+
+        return list(str(item) for item in items)
+
+    return pydantic.BeforeValidator(check_items)
+
+
+def path_to_url(path: str):
+    """Take a path and return the url at which it should be available within
+    the fastapi static mount (output of quarto render).
+    """
+
+    if path.startswith("/"):
+        raise ValueError("Not going to handle an absolute path.")
+
+    parts = path.replace("./", "").split("/")
+    if not parts or parts[0] != "blog":
+        return None
+
+    return ("/" + "/".join(parts[1:])).replace("qmd", "html")
+
+
+UvicornUUID = Annotated[str, pydantic.Field(env.RUN_UUID)]
+QuartoRenderKind = Annotated[
+    Literal["defered", "direct", "static"], pydantic.Field("direct")
+]
+QuartoRenderFrom = Annotated[
+    Literal["client", "lifespan"],
+    pydantic.Field(
+        alias="from",
+        validation_alias=pydantic.AliasChoices("from", "item_from"),
+        serialization_alias="from",
+    ),
+]
+
+
 class LogItem(pydantic.BaseModel):
     created: util.FieldTimestamp
     filename: str
@@ -33,20 +98,6 @@ class LogItem(pydantic.BaseModel):
         return datetime.datetime.fromtimestamp(self.created)
 
 
-UvicornUUID = Annotated[str, pydantic.Field(env.RUN_UUID)]
-QuartoRenderKind = Annotated[
-    Literal["defered", "direct", "static"], pydantic.Field("direct")
-]
-QuartoRenderFrom = Annotated[
-    Literal["client", "lifespan"],
-    pydantic.Field(
-        alias="from",
-        validation_alias=pydantic.AliasChoices("from", "item_from"),
-        serialization_alias="from",
-    ),
-]
-
-
 class QuartoRenderMinimal(util.HasTime):
     """This should not be used internally, only to serve partial results."""
 
@@ -55,6 +106,11 @@ class QuartoRenderMinimal(util.HasTime):
     origin: str
     target: str
     status_code: int
+
+    @pydantic.computed_field
+    @property
+    def target_url_path(self) -> str | None:
+        return path_to_url(self.target)
 
     @classmethod
     def removeANSIEscape(cls, v: str):
@@ -330,42 +386,6 @@ class QuartoHistory(BaseLog, Generic[T_QuartoRender]):
 
 QuartoHistoryFull = QuartoHistory[QuartoRender]
 QuartoHistoryMinimal = QuartoHistory[QuartoRenderMinimal]
-
-
-def parse_path(v: str) -> pathlib.Path:
-    # NOTE: Handle browser paths. This should just prepend the ``blog``
-    #       directory to the path, and if the path is a directory then add
-    #       ``index.html``.
-    if v.startswith("/") and not v.endswith(".qmd"):
-        v = v.replace(".html", ".qmd")
-        out = pathlib.Path("./blog" + v).resolve()
-    else:
-        out = pathlib.Path(v).resolve()
-
-    return out if not out.is_dir() else (out / "index.qmd")
-
-
-def create_check_items(relative: bool = False):
-    """For what should be a list of paths, resolve the list of paths and verify
-    that they actually exist.
-
-    All resolved paths should be contained within the root directory.
-    """
-
-    def check_items(v):
-        items = list(parse_path(item) for item in v)
-        if dne := tuple(filter(lambda item: not os.path.isfile(item), items)):
-            raise ValueError(f"The following paths are not files: `{dne}`.")
-
-        if bad := tuple(item for item in items if not item.is_relative_to(env.ROOT)):
-            raise ValueError(f"The following paths are not valid: `{bad}`.")
-
-        if relative:
-            items = list(item.relative_to(env.ROOT) for item in items)
-
-        return list(str(item) for item in items)
-
-    return pydantic.BeforeValidator(check_items)
 
 
 class QuartoHistoryFilters(pydantic.BaseModel):

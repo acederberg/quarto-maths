@@ -2,6 +2,16 @@ const UvicornLogPattern = /(?<ip>[\d.]+):(?<port>\d+)\s+-\s+"(?<method>[A-Z]+)\s
 
 const LIVE_QUARTO_VERBOSE = true
 const LIVE_SERVER_VERBOSE = true
+const EXT_TO_ICON = {
+  "py": ["bi-filetype-py", "text-warning"],
+  "qmd": ["bi-filetype-md"],
+  "html": ["bi-filetype-html", "text-danger"],
+  "js": ["bi-filetype-js", "text-warning"],
+  "scss": ["bi-filetype-css"],
+  "scss": ["bi-filetype-scss"],
+  "yaml": ["bi-filetype-yml", "text-warning"],
+  "pdf": ["bi-filetype-pdf", "text-danger"],
+}
 
 function hydrateServerLogItem(item, index, array) {
 
@@ -182,6 +192,30 @@ function hydrateQuartoOverlayItem(item) {
 }
 
 
+function handlePathlike(pathlike, { asLink } = {}) {
+
+  const text = document.createElement("text")
+  text.innerText = pathlike
+
+  const ext = pathlike.split(".").pop()
+  const icon = document.createElement("i")
+  icon.classList.add("bi", ... (EXT_TO_ICON[ext] || ["bi-file"]), "px-3")
+
+  let output
+  if (!asLink) {
+    output = document.createElement("p")
+  }
+  else {
+    output = document.createElement("a")
+    output.href = pathlike
+  }
+
+  output.appendChild(icon)
+  output.appendChild(text)
+
+  return output
+}
+
 /* Create quarto table table row for a log item. */
 function hydrateQuartoLogItem(item) {
   const elem = document.createElement("tr")
@@ -225,6 +259,7 @@ function hydrateQuartoLogItem(item) {
   const kind = document.createElement("td")
   const from = document.createElement("td")
   const time = document.createElement("td")
+  const targetUrlPath = document.createElement("td")
   const target = document.createElement("td")
   const origin = document.createElement("td")
 
@@ -242,10 +277,13 @@ function hydrateQuartoLogItem(item) {
   time.textContent = item.time
   time.classList.add("quarto-log-time")
 
-  target.textContent = item.target
+  targetUrlPath.appendChild(handlePathlike(item.target_url_path, { asLink: true }))
+  targetUrlPath.classList.add("quarto-log-target-url-path")
+
+  target.appendChild(handlePathlike(item.target))
   target.classList.add("quarto-log-target")
 
-  origin.textContent = item.origin
+  origin.appendChild(handlePathlike(item.origin))
   origin.classList.add("quarto-log-origin")
 
 
@@ -254,6 +292,7 @@ function hydrateQuartoLogItem(item) {
   elem.appendChild(kind)
   elem.appendChild(from)
   elem.appendChild(time)
+  elem.appendChild(targetUrlPath)
   elem.appendChild(target)
   elem.appendChild(origin)
 
@@ -338,7 +377,7 @@ function QuartoItem(item, { quartoLogs, quartoOverlayControls, quartoOverlayCont
   When a message arrives, ensure that a row is added to the display.
   When the message is an error, show the overlay with the page scrolled down to the bottom of the content.
 */
-function Quarto({ filters, last, quartoLogsParent, quartoLogs, quartoOverlayControls, quartoOverlayContent, quartoBannerInclude }) {
+function Quarto({ filters, last, quartoLogsParent, quartoLogs, quartoOverlayControls, quartoOverlayContent, quartoBannerInclude, reload }) {
 
   /*
     If there is an overlay, show an overlay if there is an error.
@@ -362,11 +401,17 @@ function Quarto({ filters, last, quartoLogsParent, quartoLogs, quartoOverlayCont
           if (quartoItem.log) quartoItem.log.show()
         }
 
+        if (reload && !state.isInitial && item.target_url_path == window.location.pathname) {
+          ws.close(1000)
+          window.location.reload()
+          return
+        }
+
         if (!quartoItem.log || quartoBannerInclude) {
           const banner = QuartoRenderBanner(item, {})
 
           document.body.appendChild(banner.elem)
-          if (!state.isInitial) {
+          if (!state.isInitial || reload) {
             banner.show()
           }
           quartoItem.overlay && banner.info.addEventListener("click", quartoItem.overlay.show)

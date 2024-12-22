@@ -5,6 +5,7 @@ format:
     include-in-header:
       - ./landing-style.html
 navbar: false
+live_reload: true
 ---
 
 ::: { #landing-listing .fs-2 .py-5 }

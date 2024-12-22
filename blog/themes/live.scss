@@ -122,7 +122,7 @@
 }
 
 #quarto-live-logs .quarto-log-from {
-  width: 13vw;
+  width: 7vw;
 }
 
 #quarto-live-logs .quarto-log-kind {
@@ -135,10 +135,11 @@
 }
 
 #quarto-live-logs .quarto-log-time {
-  width: 20vw;
+  width: 15vw;
 }
 
-#quarto-live-logs i:hover {
+#quarto-live-logs i.bi-info-circle:hover,
+#quarto-live-logs i.bi-arrow-repeat:hover {
   color: var(--bs-white);
 }
 

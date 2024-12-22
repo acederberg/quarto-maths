@@ -166,9 +166,10 @@ class LogRoutes(LogRoutesMixins, base.Router):
         """Watch logs. Emits ``JSONL`` log data."""
 
         async def handle_recieve(websocket: fastapi.WebSocket, _: dict):
-
-            await websocket.receive_json()
-            return
+            try:
+                await websocket.receive_json()
+            except fastapi.WebSocketDisconnect:
+                return
 
         await websocket.accept()
         await cls.ws(
@@ -290,7 +291,11 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
         #       the socket will wait for some filters to be written to it.
         # NOTE: https://github.com/Luka967/websocket-close-codes
         async def handle_recieve(websocket: fastapi.WebSocket, kwargs: dict) -> None:
-            data = await websocket.receive_json()
+            try:
+                data = await websocket.receive_json()
+            except fastapi.WebSocketDisconnect:
+                return
+
             if data is not None:
                 try:
                     filters = schemas.QuartoHistoryFilters.model_validate(data)

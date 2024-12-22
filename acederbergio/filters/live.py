@@ -78,6 +78,7 @@ class LiveFilter(util.BaseFilter):
         quarto_logs_parent = self.doc.get_metadata("live_id_quarto_logs_parent") or "null"  # type: ignore
         quarto_banner_include = self.doc.get_metadata("live_quarto_banner_include")  # type: ignore
         last = self.doc.get_metadata("live_quarto_logs_last")
+        reload = self.doc.get_metadata("live_reload")
 
         logger.warning("Expecting quarto logs to have id `%s`.", quarto_logs)
         logger.warning(
@@ -106,6 +107,7 @@ class LiveFilter(util.BaseFilter):
                   function hydrateQuarto() {{
                     globalThis.quartoDevOverlay = Overlay(document.getElementById("quarto-overlay"))
                     globalThis.quartoDev = Quarto({{
+                      reload: {"true" if reload else "false"},
                       last: {last or 1},
                       filters: {filters},
                       quartoOverlayControls: globalThis.quartoDevOverlay,

@@ -1,6 +1,7 @@
 ---
 title: "Live View"
 navbar: false
+live_reload: true
 live:
   include: false
 format:
