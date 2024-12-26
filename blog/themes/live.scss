@@ -1,4 +1,8 @@
 /*-- scss:rules --*/
+.nav-tabs .nav-link.active {
+  background-color: var(--bs-black) !important;
+  border-bottom: none;
+}
 
 #tab-content .tab-pane {
   height: 80vh;
@@ -7,7 +11,139 @@
     var(--bs-gray-900) var(--bs-black);
 }
 
+
+/* Ammendments to make overlay look nice. */
+#quarto-overlay {
+  background-color: rgba(0, 0, 0, .3) !important;
+  backdrop-filter: blur(5px) !important;
+  z-index: 1050; // Should be higher than the default.
+
+  .overlay-content {
+    width: 90vw !important;
+    height: 90vh !important;
+    overflow: hidden;
+    background: var(--bs-black) !important;
+
+    i {
+      position: sticky;
+      top: 0;
+      z-index: 900;
+
+    }
+
+  }
+
+  .overlay-controls-exit {
+    margin-left: auto;
+  }
+
+  .when-navbar {
+    background-color: rgba(0, 0, 0, .8) !important;
+
+    .overlay-content {
+      height: 74vh !important;
+    }
+
+    .overlay-content-item {
+      height: 70vh !important;
+    }
+  }
+
+  #quarto-overlay-content {
+    overflow-y: scroll;
+    height: 84vh;
+
+    /* Somehow this (setting height in any way) makes overflow work. */
+    backdrop-filter: blur(7px);
+    scrollbar-color:
+      var(--bs-gray-900) var(--bs-black);
+
+    .terminal {
+      height: auto;
+      display: block;
+      margin-bottom: 512px; // Add some whitespace to avoid not showing all content.
+    }
+  }
+
+  /*  .overlay-controls-exit:hover, */
+  /*  .overlay-controls-right:hover, */
+  /*  .overlay-controls-left:hover { */
+  /*   background: var(--bs-gray-900); */
+  /* } */
+
+}
+
+
+
+
+
+#quarto-live-logs {
+  &.quarto {
+    table-layout: fixed;
+    border: none;
+    background: none;
+    font-family: monospace;
+    font-size: medium;
+    color: var(--bs-white);
+  }
+
+  .quarto-row {
+    transition: background-color 30s, color 30s;
+  }
+
+  .quarto-success {
+    border-left: 3px solid var(--bs-black);
+    border-right: 3px solid var(--bs-black);
+    color: var(--bs-light) !important;
+  }
+
+  .quarto-failure {
+    /* background-color: rgba(255, 0, 0, 0.1); */
+    background-color: rgba(255, 0, 0, 0.05) !important;
+    color: var(--bs-red);
+  }
+
+  .quarto-static {
+    color: var(--bs-primary) !important;
+  }
+
+
+  .quarto-success-new {
+    background-color: var(--bs-teal) !important;
+    color: var(--bs-white) !important;
+  }
+
+  .quarto-failure-new {
+    background-color: red !important;
+    color: var(--bs-white);
+  }
+
+  .quarto-log-from {
+    width: 7vw;
+  }
+
+  .quarto-log-kind {
+    width: 7vw;
+  }
+
+  .quarto-log-info,
+  .quarto-log-render {
+    width: 3vw;
+  }
+
+  .quarto-log-time {
+    width: 15vw;
+  }
+
+  i.bi-info-circle:hover,
+  i.bi-arrow-repeat:hover {
+    color: var(--bs-white);
+  }
+}
+
+
 .terminal {
+
   text-align: left !important;
   table-layout: fixed;
   font-size: medium;
@@ -15,252 +151,128 @@
   font-family: monospace;
   font-weight: bolder;
   background: var(--bs-black);
-}
+
+  * {
+    border: none;
+  }
+
+  td {
+    padding-top: 0px;
+    padding-bottom: 0px;
+  }
+
+  .terminal-row {
+    width: 100%;
+    display: block;
+  }
+
+  .quarto-target,
+  .quarto-origin,
+  .quarto-exit-code,
+  .quarto-command {
+    color: var(--bs-white);
+  }
 
 
-/* Ammendments to make overlay look nice. */
-#quarto-overlay {
-  background-color: rgba(0, 0, 0, .3) !important;
-  backdrop-filter: blur(5px) !important;
-  z-index: 1050; // Should be higher than the default.
-}
+  .terminal-row {
+    .terminal-row-time {
+      /* width: 16vw; */
+      color: var(--bs-teal);
+      width: 10vw;
+    }
 
-#quarto-overlay .overlay-content {
-  width: 90vw !important;
-  height: 90vh !important;
-  overflow: hidden;
-  background: var(--bs-black) !important;
-}
+    .terminal-row-level {
+      color: var(--bs-success);
+      width: 5vw;
+    }
 
-#quarto-overlay .overlay-controls i {
-  position: sticky;
-  top: 0;
-  z-index: 900;
+    .info {
+      color: var(--bs-info);
+    }
 
-}
+    .warning {
+      color: var(--bs-warning);
+    }
 
-#quarto-overlay .overlay-controls-exit {
-  margin-left: auto;
-}
+    .critical {
+      color: var(--bs-danger);
+    }
 
-/* #quarto-overlay .overlay-controls-exit:hover, */
-/* #quarto-overlay .overlay-controls-right:hover, */
-/* #quarto-overlay .overlay-controls-left:hover { */
-/*   background: var(--bs-gray-900); */
-/* } */
+    .terminal-row-msg,
+    .terminal-row-name {
+      color: var(--bs-white);
+    }
 
-#quarto-overlay.when-navbar {
-  background-color: rgba(0, 0, 0, .8) !important;
-}
+    .terminal-row-name {
+      text-align: right;
+      width: 15vw;
+    }
 
-#quarto-overlay.when-navbar .overlay-content {
-  height: 74vh !important;
-}
+    .terminal-row-msg {
+      width: 65vw;
+    }
 
-#quarto-overlay.when-navbar .overlay-content-item {
-  height: 70vh !important;
-}
+    .uvicorn-ip {
+      color: var(--bs-green);
+    }
 
-/* #quarto-overlay .overlay-controls-item {} */
+    .uvicorn-port {
+      color: var(--bs-blue);
+    }
 
-#quarto-overlay-content {
-  overflow-y: scroll;
-  height: 84vh;
-  /* Somehow this (setting height in any way) makes overflow work. */
-  backdrop-filter: blur(7px);
-  scrollbar-color:
-    var(--bs-gray-900) var(--bs-black);
-}
+    .uvicorn-method {
+      color: var(--bs-yellow);
+    }
 
-#quarto-overlay-content .terminal {
-  height: auto;
-  display: block;
-  margin-bottom: 512px; // Add some whitespace to avoid not showing all content.
-}
+    .uvicorn-path {
+      color: var(--bs-white);
+    }
 
-#quarto-live-logs.quarto {
-  table-layout: fixed;
-  border: none;
-  background: none;
-  font-family: monospace;
-  font-size: medium;
-  color: var(--bs-white);
-}
+    .uvicorn-status {
+      color: var(--bs-blue);
+    }
 
-
-#quarto-live-logs .quarto-row {
-  transition: background-color 30s, color 30s;
-}
-
-
-
-#quarto-live-logs .quarto-success {
-  border-left: 3px solid var(--bs-black);
-  border-right: 3px solid var(--bs-black);
-  color: var(--bs-light) !important;
-}
-
-#quarto-live-logs .quarto-failure {
-  /* background-color: rgba(255, 0, 0, 0.1); */
-  background-color: rgba(255, 0, 0, 0.05) !important;
-  color: var(--bs-red);
-}
-
-#quarto-live-logs .quarto-static {
-  color: var(--bs-primary) !important;
-}
-
-
-#quarto-live-logs .quarto-success-new {
-  background-color: var(--bs-teal) !important;
-  color: var(--bs-white) !important;
-}
-
-#quarto-live-logs .quarto-failure-new {
-  background-color: red !important;
-  color: var(--bs-white);
-}
-
-#quarto-live-logs .quarto-log-from {
-  width: 7vw;
-}
-
-#quarto-live-logs .quarto-log-kind {
-  width: 7vw;
-}
-
-#quarto-live-logs .quarto-log-info,
-#quarto-live-logs .quarto-log-render {
-  width: 3vw;
-}
-
-#quarto-live-logs .quarto-log-time {
-  width: 15vw;
-}
-
-#quarto-live-logs i.bi-info-circle:hover,
-#quarto-live-logs i.bi-arrow-repeat:hover {
-  color: var(--bs-white);
-}
-
-
-/* .quarto-log-target {} */
-/**/
-/* .quarto-log-origin {} */
-
-.terminal .terminal-row {
-  width: 100%;
-  display: block;
-}
-
-.terminal .quarto-target,
-.terminal .quarto-origin,
-.terminal .quarto-exit-code,
-.terminal .quarto-command {
-  color: var(--bs-white);
-}
-
-
-.terminal .terminal-row .terminal-row-time {
-  /* width: 16vw; */
-  color: var(--bs-teal);
-  width: 10vw;
-}
-
-.terminal .terminal-row .terminal-row-level {
-  color: var(--bs-success);
-  width: 5vw;
-}
-
-.terminal .terminal-row .info {
-  color: var(--bs-info);
-}
-
-.terminal .terminal-row .warning {
-  color: var(--bs-warning);
-}
-
-.terminal .terminal-row .critical {
-  color: var(--bs-danger);
-}
-
-.terminal .terminal-row .terminal-row-msg,
-.terminal .terminal-row .terminal-row-name {
-  color: var(--bs-white);
-}
-
-.terminal .terminal-row .terminal-row-name {
-  text-align: right;
-  width: 15vw;
-}
-
-.terminal .terminal-row .terminal-row-msg {
-  width: 65vw;
-}
-
-.uvicorn-ip {
-  color: var(--bs-green);
-}
-
-.uvicorn-port {
-  color: var(--bs-blue);
-}
-
-.uvicorn-method {
-  color: var(--bs-yellow);
-}
-
-.uvicorn-path {
-  color: var(--bs-white);
-}
-
-.uvicorn-status {
-  color: var(--bs-blue);
-}
-
-.uvicorn-protocol {
-  color: var(--bs-red);
+    .uvicorn-protocol {
+      color: var(--bs-red);
+    }
+  }
 }
 
 
 
-.terminal * {
-  border: none;
-}
 
-.terminal td {
-  padding-top: 0px;
-  padding-bottom: 0px;
-}
-
-#server-controls button,
-#quarto-controls button {
-  margin-right: 3px;
-}
-
-#quarto-render-notification code,
 #quarto-render-notification {
   transition: 15s background;
-}
 
-#quarto-render-notification code.success.new,
-#quarto-render-notification.success.new {
-  background: var(--bs-teal) !important;
-}
+  code.success.new,
+  &.success.new {
+    background: var(--bs-teal) !important;
+  }
 
-#quarto-render-notification code.failure.new,
-#quarto-render-notification.failure.new {
-  background: var(--bs-red) !important;
-}
+  code.failure.new,
+  &.failure.new {
+    background: var(--bs-red) !important;
+  }
 
-#quarto-render-notification i {
-  color: var(--bs-white);
-  transition: 0.3s color;
-}
+  code {
+    transition: 15s background;
+  }
 
-#quarto-render-notification i:hover {
-  color: var(--bs-gray-700);
-  transform: scale(1.1);
+
+  i {
+    color: var(--bs-white);
+    transition: 0.3s color;
+
+    &:hover {
+      color: var(--bs-gray-700);
+      transform: scale(1.1);
+    }
+  }
+
+  .spinner-border:hover {
+    color: var(--bs-white);
+  }
+
 }
 
 #quarto-live-logs .spinner-border,
@@ -270,20 +282,17 @@
   border-width: 2px;
 }
 
-#quarto-render-notification .spinner-border:hover {
-  color: var(--bs-white);
+#server-controls button,
+#quarto-controls button {
+  margin-right: 3px;
 }
 
-.nav-tabs .nav-link.active {
-  background-color: var(--bs-black) !important;
-  border-bottom: none;
-}
 
 .quarto-embed {
   filter: contrast(0.9);
   transition: 10s filter;
-}
 
-.quarto-embed.new {
-  filter: contrast(0.5) blur(1px);
+  &.new {
+    filter: contrast(0.5) blur(1px);
+  }
 }

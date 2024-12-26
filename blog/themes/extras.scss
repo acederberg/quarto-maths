@@ -1,0 +1,54 @@
+/*-- scss:functions --*/
+
+@function createBorderColor($name, $color) {
+
+  @return ((property: border-color,
+      class: border,
+      values: ($name: $color)))
+}
+
+/*
+@function createBackgroundColor($name, $color) {
+  @return ((property: background-color,
+      class: bg,
+      values: ($name: $color)))
+}
+
+
+@function createTextColor($name, $color) {
+  @return ((property: text-color,
+      class: text,
+      values: ($name: $color)))
+}
+*/
+
+
+@function createExtras($colors) {
+
+  $overwrites : ();
+
+  @each $name, $color in $colors {
+    $overwrites: map-merge($overwrites, ("border-#{$name}": createBorderColor($name, $color)));
+  }
+
+  @return $overwrites;
+}
+
+/*-- scss:defaults --*/
+$yellow: #FFD43B;
+
+
+
+$extraColors : ("blue": $blue,
+  "indigo": $indigo,
+  "purple": $purple,
+  "pink": $pink,
+  "red": $red,
+  "orange": $orange,
+  "yellow": $yellow,
+  "green": $green,
+  "teal": $teal,
+  "cyan": $cyan );
+
+$utilities : ();
+$utilities : map-merge($utilities, createExtras($extraColors));

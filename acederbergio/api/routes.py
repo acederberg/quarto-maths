@@ -63,7 +63,9 @@ class LogRoutesMixins:
         log = await cls.get(s, database, ws=True, **kwargs)
         if last:
             if log is not None:
-                log.items = log.items[-1 - last :]  # type: ignore
+                log.items = log.items[-last:]  # type: ignore
+
+            print(last, log.items)
             await websocket.send_json(
                 log if log is None else log.model_dump(mode="json")
             )

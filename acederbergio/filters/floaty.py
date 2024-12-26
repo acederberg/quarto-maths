@@ -245,12 +245,13 @@ class ConfigFloatySection(pydantic.BaseModel, Generic[T_ConfigFloatySection]):
             util.record(element)
             raise ValueError("Missing identifier for div.")
 
-        closure_name = "overlay_" + element.identifier.lower().replace("-", "_")
+        closure_name_segments = map(str.title, element.identifier.lower().split("-"))
+        closure_name = "overlay" + "".join(closure_name_segments)
 
         sim = self.container.size_item_margin
         li_margin = f"'{sim}px'" if sim is not None else "null"
         kwargs = f"{{ li_margin: {li_margin}, kind: '{ self.container.kind }' }}"
-        js = f"let {closure_name} = Floaty('{ element.identifier }', { kwargs })"
+        js = f"let {closure_name} = Floaty(document.getElementById('{ element.identifier }'), { kwargs })"
 
         element.content = (
             *element.content,

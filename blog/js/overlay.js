@@ -1,6 +1,138 @@
-const params = new URLSearchParams(window.location.search)
-const params_overlay = params.get("overlay") // Identifier for the overlay
-const params_overlay_content_item = params.get("overlay-content-item") // key for the overlay content item
+const OVERLAY_VERBOSE = false
+const FLOATY_VERBOSE = false
+
+function Colorize(overlay, { color, colorText, colorTextHover }) {
+
+  const state = {
+    // Colors
+    color: null, colorPrev: null,
+    colorText: null, colorTextPrev: null,
+    colorTextHover: null, colorTextHoverPrev: null,
+
+    // Classes
+    classBackground: null, classBackgroundPrev: null,
+    classBorder: null, classBorderPrev: null,
+    classText: null, classTextPrev: null,
+    classTextHover: null, classTextHoverPrev: null,
+
+    // Registry, should be a list of elements and maps to classList
+    // registered: []
+  }
+
+  /* Update background and border classes for a new color. */
+  function setColor(color) {
+    state.colorPrev = state.color
+    state.classBackgroundPrev = state.classBackground
+    state.classBorderPrev = state.classBorder
+
+    state.color = color
+    state.classBackground = `bg-${color}`
+    state.classBorder = `border-${color}`
+  }
+
+  /* Update text classes for a new color */
+  function setColorText(color) {
+    state.colorTextPrev = state.colorText
+    state.classTextPrev = state.classText
+
+    state.colorText = color
+    state.classText = `text-${color}`
+  }
+
+  function setColorTextHover(color) {
+    state.colorTextHoverPrev = state.colorTextHover
+    state.classTextHover = state.classTextHoverPrev
+
+    state.colorTextHover = color
+    state.classTextHover = `text-${color}`
+  }
+
+  /* Remove previous classes */
+  function down() {
+    navIcons.map(item => item.classList.remove(state.classBackgroundPrev, state.classTextPrev))
+    overlay.nav.classList.remove(state.classBackgroundPrev)
+    overlay.content.classList.remove(state.classBorderPrev)
+  }
+
+  /* Add current classes */
+  function up() {
+    navIcons.map(item => item.classList.add(state.classBackground, state.classText))
+    overlay.nav.classList.add(state.classBackground)
+    overlay.content.classList.add(state.classBorder, "border", "border-5")
+
+    // state.registered.map(registeredItem => updateElem(registeredItem))
+  }
+
+  /* Only call this once. */
+  function initialize() {
+    navIcons.map(item => {
+      item.addEventListener("mouseover", mouseOver)
+      item.addEventListener("mouseout", mouseOut)
+    })
+  }
+
+  /* Like revert, but with parameters. */
+  function restart({ color, colorText, colorTextHover }) {
+    if (color) setColor(color)
+    if (colorText) setColorText(colorText)
+    if (colorTextHover) setColorTextHover(colorTextHover)
+
+    down()
+    up()
+  }
+
+  /* Should toggle between current state and last state. */
+  function revert() {
+    if (state.colorPrev) setColor(state.colorPrev)
+    if (state.colorTextPrev) setColorText(state.colorTextPrev, state.colorText)
+    if (state.colorTextHoverPrev) setColorTextHover(state.colorTextHoverPrev, state.colorTextHover)
+
+    down()
+    up()
+  }
+
+  /*
+    ``elem`` should be the element to update.
+    ``mkClass`` should take ``state` and create an array of classes.
+
+    Problem is that this will update every registered item.
+
+    function registerElem(elem, mkClass) {
+      state.registered.append({ elem, mkClass })
+    }
+  */
+
+  /*
+    This should be executed against registed elements in state.
+  */
+  function updateElem(elem, mkClasses) {
+    return () => {
+      const classes = mkClasses(state.color)
+      const classesPrev = mkClasses(state.colorPrev)
+
+      elem.classList.remove(...classesPrev)
+      elem.classList.add(...classes)
+    }
+  }
+
+  function mouseOver(event) {
+    event.target.classList.remove(state.classText)
+    event.target.classList.add(state.classTextHover)
+  }
+  function mouseOut(event) {
+    event.target.classList.remove(state.classTextHover)
+    event.target.classList.add(state.classText)
+  }
+
+  const navIcons = Array.from(overlay.nav.getElementsByTagName("i"))
+  initialize()
+  restart({ color, colorText, colorTextHover })
+
+  return {
+    mouseOut, mouseOver, setColorText, setColor, restart, initialize, down,
+    up, setColorTextHover, revert, state, updateElem,
+  }
+}
 
 // If an overlay is found, add controls.
 function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
@@ -22,7 +154,6 @@ function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
   /* ----------------------------------------------------------------------- */
   /* Functions that modify state directly */
 
-
   /* Assumes that `elem`  has been appended independently. */
   function addContent(elem) {
     const key = elem.dataset.key
@@ -36,21 +167,28 @@ function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
   }
 
   // Hide the overlay, its content, and all of the content items.
-  function hideOverlay(isNotAnimated) {
+  function hideOverlay({ isNotAnimated, keepLocalStorage } = {}) {
+    OVERLAY_VERBOSE && console.log(`Hiding overlay \`${overlay.id}\`.`)
     overlay.style.opacity = 0
     setTimeout(() => {
       overlay.style.display = "none";
       overlayContent.style.display = "none"
     }, isNotAnimated ? 0 : 300)
 
-    hideOverlayContentItems()
+    hideOverlayContentItems({ keepLocalStorage: keepLocalStorage })
 
     // Update state.
     state.overlayIsOpen = false
+
+    if (!keepLocalStorage) {
+      OVERLAY_VERBOSE && console.log("`hideOverlay` Removing")
+      window.localStorage.removeItem("overlayId")
+    }
   }
 
   // Show the overlay without setting content.
   function showOverlay() {
+    OVERLAY_VERBOSE && console.log(`Showing overlay \`${overlay.id}\`.`)
     overlay.style.opacity = 0
     overlay.style.display = "flex";
     overlayContent.style.display = "block";
@@ -58,43 +196,72 @@ function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
 
     // Update state.
     state.overlayIsOpen = true
+    window.localStorage.setItem("overlayId", overlay.id)
   }
 
-  /* When the page has been refreshed, use params to show the overlay again. */
+  /* When the page has been refreshed, use session storage to show the overlay again. */
   function restoreOverlay() {
+    const overlayIdLocalStorage = window.localStorage.getItem("overlayId")
+    if (overlayIdLocalStorage == overlay.id) showOverlay()
+    else return
 
+    const overlayContentItem = showOverlayContentItem(window.localStorage.getItem("overlayKey"), { isNotAnimated: true, keepLocalStorage: true })
+    if (!overlayContentItem) hideOverlay()
   }
 
   // Hide all overlay content.
-  function hideOverlayContentItems() {
+  function hideOverlayContentItems({ keepLocalStorage } = {}) {
+    OVERLAY_VERBOSE && console.log(`Hiding overlay \`${overlay.id}\` content items.`)
     Object
       .values(overlayContentChildren)
       .map(child => { child.style.display = 'none' })
+
+
+    if (!keepLocalStorage) {
+      OVERLAY_VERBOSE && console.log(`Removing \`overlayKey\` \`hideOverlayContentItems\`.`)
+      window.localStorage.removeItem("overlayKey")
+    }
   }
 
 
   // Hide or display an ``overlay-content-item`` by key.
-  function showOverlayContentItem(key) {
+  function showOverlayContentItem(key, { keepLocalStorage } = {}) {
     key = key || indicesToKeys[0]
     if (!key) throw Error("Could not determine key.")
 
+    OVERLAY_VERBOSE && console.log(`Showing overlay \`${overlay.id}\` content item \`${key}\`.`)
+
     // Hide all.
-    hideOverlayContentItems()
+    hideOverlayContentItems({ keepLocalStorage: keepLocalStorage })
 
     // Show content.
     const content = overlayContentChildren[key]
-    if (!content) throw Error(`Could not find content for \`${key}\`.`)
+    if (!content) {
+      console.error(`Could not find content for \`key=${key}\` and \`id=${overlay.id}\`.`)
+      return
+    }
     content.style.display = 'block'
 
     // Update state.
     state.currentKey = key
     state.currentIndex = keysToIndices[key]
 
+    OVERLAY_VERBOSE && console.log(`Setting \`overlayKey\` to \`${key}\` in \`showOverlayContentItec\`.`)
+    window.localStorage.setItem("overlayKey", key)
+
     // Acknoledge color.
     if (state.colorize) colorizeContentItem(content)
 
     return content
 
+  }
+
+  function nextOverlayContentItem(incr) {
+    let nextIndex = (state.currentIndex + incr) % state.length
+    if (nextIndex < 0) nextIndex = state.length + nextIndex
+    const nextKey = indicesToKeys[nextIndex]
+
+    showOverlayContentItem(nextKey)
   }
 
   /* ----------------------------------------------------------------------- */
@@ -118,14 +285,6 @@ function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
     exit.classList.add('bi-x-lg', 'overlay-controls-item', 'overlay-controls-exit', 'px-1')
 
     overlayContent.insertBefore(controls, overlayContent.children[0])
-
-    function nextOverlayContentItem(incr) {
-      let nextIndex = (state.currentIndex + incr) % state.length
-      if (nextIndex < 0) nextIndex = state.length + nextIndex
-      const nextKey = indicesToKeys[nextIndex]
-
-      const contentItem = showOverlayContentItem(nextKey)
-    }
 
     exit.addEventListener("click", () => hideOverlay(0))
     left.addEventListener("click", () => nextOverlayContentItem(-1))
@@ -151,151 +310,15 @@ function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
   }
   */
 
-  function Colorize({ color, colorText, colorTextHover }) {
-
-    const state = {
-      // Colors
-      color: null, colorPrev: null,
-      colorText: null, colorTextPrev: null,
-      colorTextHover: null, colorTextHoverPrev: null,
-
-      // Classes
-      classBackground: null, classBackgroundPrev: null,
-      classBorder: null, classBorderPrev: null,
-      classText: null, classTextPrev: null,
-      classTextHover: null, classTextHoverPrev: null,
-
-      // Registry, should be a list of elements and maps to classList
-      // registered: []
-    }
-
-    /* Update background and border classes for a new color. */
-    function setColor(color) {
-      state.colorPrev = state.color
-      state.classBackgroundPrev = state.classBackground
-      state.classBorderPrev = state.classBorder
-
-      state.color = color
-      state.classBackground = `bg-${color}`
-      state.classBorder = `border-${color}`
-    }
-
-    /* Update text classes for a new color */
-    function setColorText(color) {
-      state.colorTextPrev = state.colorText
-      state.classTextPrev = state.classText
-
-      state.colorText = color
-      state.classText = `text-${color}`
-    }
-
-    function setColorTextHover(color) {
-      state.colorTextHoverPrev = state.colorTextHover
-      state.classTextHover = state.classTextHoverPrev
-
-      state.colorTextHover = color
-      state.classTextHover = `text-${color}`
-    }
-
-    /* Remove previous classes */
-    function down() {
-      navIcons.map(item => item.classList.remove(state.classBackgroundPrev, state.classTextPrev))
-      controls.classList.remove(state.classBackgroundPrev)
-      overlayContent.classList.remove(state.classBorderPrev)
-    }
-
-    /* Add current classes */
-    function up() {
-      navIcons.map(item => item.classList.add(state.classBackground, state.classText))
-      controls.classList.add(state.classBackground)
-      overlayContent.classList.add(state.classBorder, "border", "border-5")
-
-      // state.registered.map(registeredItem => updateElem(registeredItem))
-    }
-
-    /* Only call this once. */
-    function initialize() {
-      navIcons.map(item => {
-        item.addEventListener("mouseover", mouseOver)
-        item.addEventListener("mouseout", mouseOut)
-      })
-    }
-
-    /* Like revert, but with parameters. */
-    function restart({ color, colorText, colorTextHover }) {
-      if (color) setColor(color)
-      if (colorText) setColorText(colorText)
-      if (colorTextHover) setColorTextHover(colorTextHover)
-
-      down()
-      up()
-    }
-
-    /* Should toggle between current state and last state. */
-    function revert() {
-      if (state.colorPrev) setColor(state.colorPrev)
-      if (state.colorTextPrev) setColorText(state.colorTextPrev, state.colorText)
-      if (state.colorTextHoverPrev) setColorTextHover(state.colorTextHoverPrev, state.colorTextHover)
-
-      down()
-      up()
-    }
-
-    /*
-      ``elem`` should be the element to update.
-      ``mkClass`` should take ``state` and create an array of classes.
-
-      Problem is that this will update every registered item.
-
-      function registerElem(elem, mkClass) {
-        state.registered.append({ elem, mkClass })
-      }
-    */
-
-    /*
-      This should be executed against registed elements in state.
-    */
-    function updateElem(elem, mkClasses) {
-      return () => {
-        console.log("HERE")
-        const classes = mkClasses(state.color)
-        const classesPrev = mkClasses(state.colorPrev)
-
-        console.log(classes)
-        console.log(classesPrev)
-        console.log(elem)
-        elem.classList.remove(...classesPrev)
-        elem.classList.add(...classes)
-      }
-    }
-
-    function mouseOver(event) {
-      event.target.classList.remove(state.classText)
-      event.target.classList.add(state.classTextHover)
-    }
-    function mouseOut(event) {
-      event.target.classList.remove(state.classTextHover)
-      event.target.classList.add(state.classText)
-    }
-
-    const navIcons = Array.from(controls.getElementsByTagName("i"))
-    initialize()
-    restart({ color, colorText, colorTextHover })
-
-    return {
-      mouseOut, mouseOver, setColorText, setColor, restart, initialize, down,
-      up, setColorTextHover, revert, state, updateElem,
-    }
-  }
 
   function colorize({ color, colorText, colorTextHover }) {
-    if (!state.colorize) state.colorize = Colorize({ color, colorText, colorTextHover })
+    if (!state.colorize) state.colorize = Colorize(overlayClosure, { color, colorText, colorTextHover })
     else state.colorize.restart({ color, colorText, colorTextHover })
   }
 
 
   function colorizeContentItem(contentItem) {
-    console.log("Colorize overlay from contentitem dataet.")
+    OVERLAY_VERBOSE && console.log("Colorize overlay from contentitem dataet.")
     const colorizeParams = {
       color: contentItem.dataset.colorizeColor,
       colorText: contentItem.dataset.colorizeColorText,
@@ -305,114 +328,10 @@ function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
     colorize(colorizeParams)
   }
 
+
+  const overlayClosure = { elem: overlay, content: overlayContent, nav: controls, colorize, hideOverlay, hideOverlayContentItems, showOverlay, showOverlayContentItem, addContent, state, restoreOverlay, nextOverlayContentItem }
   colorize(paramsColorize)
-  const overlayClosure = { elem: overlay, content: overlayContent, nav: controls, colorize, hideOverlay, hideOverlayContentItems, showOverlay, showOverlayContentItem, addContent, state, }
-  hideOverlay(true)
-  overlayParamsHook(overlay, overlayClosure)
+  restoreOverlay()
 
   return overlayClosure
 }
-
-
-function overlayParamsHook(overlay, overlayClosure) {
-  const id = overlay.id
-  if (id != params_overlay) return
-
-  overlayClosure.showOverlay()
-  overlayClosure.showOverlayContentItem(params_overlay_content_item)
-}
-
-
-// Set up floaty with ``id=name``.
-function Floaty(name, { liMargin, kind }) {
-  const parent = document.getElementById(name)
-  if (!parent) throw Error(`Could not find element with name \`${name}\`.`)
-
-  const floatyContainer = parent.querySelector(".floaty-container")
-  if (!floatyContainer) throw Error(`Could not find element with name \`${floatyContainer}\`.`)
-
-  const overlay = parent.querySelector(".overlay")
-  const overlayControls = !overlay ? null : Overlay(overlay)
-  if (overlay) overlayControls.colorize({ color: "light" })
-
-  function setUpListItem(iconInLi) {
-    const size = parseInt(iconInLi.style['font-size'])
-
-    // NOTE: This makes it so that size should always be specified in pixels.
-    const li = iconInLi.closest("li")
-    if (li) {
-      li.style["min-height"] = `${size}px`
-      li.style["min-width"] = `${size}px`
-      li.style.margin = liMargin || `${(size / 4)}px`
-    }
-
-    // NOTE: Icon and its list item should be clickable.
-    if (overlay) li.addEventListener("click", onClick(iconInLi))
-
-    // NOTE: Look for a header. If a header is found, wrap the content in a link or div.
-    const head = li.querySelector("h3")
-    if (!head) return
-
-    head.classList.remove("anchored")
-    let wrapper
-    if (head.dataset.url) {
-      wrapper = document.createElement("a")
-      wrapper.href = head.dataset.url
-      wrapper.setAttribute('target', '_blank');
-      wrapper.setAttribute('rel', 'noopener noreferrer');
-    } else {
-      wrapper = document.createElement("div")
-    }
-
-    wrapper.classList.add("floaty-item-wrapper")
-    Array.from(li.children).map((child) => wrapper.append(child))
-    li.append(wrapper)
-  }
-
-  function onClick(iconOrRow) {
-    const key = iconOrRow.dataset.key
-
-    return function() {
-      overlayControls.showOverlay()
-      overlayControls.showOverlayContentItem(key)
-    }
-  }
-
-  function setOnClick(icons) {
-    // NOTE: It is important that nested does not go beyond its floaty.
-    //       Table gets found when nested inside.
-    if (kind === "table") {
-      const table = parent.querySelector(".floaty-container table")
-      if (!table) {
-        console.error("No `table` found.")
-        return
-      }
-      icons.map(icon => {
-        if (overlay) {
-          tr = icon.closest("tr")
-          if (!tr) {
-            console.error("Expected table row for icon.", icon)
-            return
-          }
-          tr.addEventListener("click", onClick(icon))
-        }
-      })
-    }
-    else {
-      const ul = parent.querySelector(".floaty-container ul")
-      if (!ul) console.error("No `ul` found.")
-      icons.map(icon => setUpListItem(icon))
-    }
-  }
-
-
-  // NOTE: For now, clicking anywhere on the overlay should hide it.
-  const icons = Array.from(floatyContainer.getElementsByTagName("iconify-icon"))
-  setOnClick(icons)
-
-
-  return { icons, overlayControls }
-}
-
-
-

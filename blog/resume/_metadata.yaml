@@ -279,6 +279,7 @@ resume:
   # Skills
   skills:
     main:
+      progress_bar_classes: ["progress-bar-striped", "progress-bar-animated", "bg-blue", "text-white"]
       type: list
       container:
         classes: ["floaty-container-wide", "py-3"]
@@ -321,7 +322,7 @@ resume:
               set: misc
               name: devops
     impl:
-      progress_bar_classes: ["progress-bar-striped", "progress-bar-animated", "bg-indigo", "text-light"]
+      progress_bar_classes: ["progress-bar-striped", "progress-bar-animated", "bg-indigo", "text-white"]
       container:
         classes: ["floaty-container-wide"]
         titles: true
@@ -383,7 +384,7 @@ resume:
               set: devicon
               name: javascript
     api-and-db:
-      progress_bar_classes: ["bg-cyan", "text-light", "progress-bar-animated", "progress-bar-striped"]
+      progress_bar_classes: ["bg-yellow", "text-black", "progress-bar-animated", "progress-bar-striped"]
       container:
         classes: ["floaty-container-wide"]
         titles: true
@@ -439,7 +440,7 @@ resume:
               name: fastapi
 
     uiux:
-      progress_bar_classes: ["text-light", "progress-bar-animated", "progress-bar-striped"]
+      progress_bar_classes: ["bg-blue", "text-white", "progress-bar-animated", "progress-bar-striped"]
       container:
         classes: ["floaty-container-wide"]
         titles: true
@@ -495,7 +496,7 @@ resume:
               name: css-3
 
     devops:
-      progress_bar_classes: ["bg-success", "progress-bar-animated", "progress-bar-striped"]
+      progress_bar_classes: ["bg-teal", "progress-bar-animated", "progress-bar-striped"]
       container:
         classes: ["floaty-container-wide"]
         titles: true

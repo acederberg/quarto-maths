@@ -3,6 +3,7 @@ format:
     page-layout: full
     theme:
       light:
+        - themes/extras.scss
         - cyborg
         - themes/live.scss
         - themes/floaty.scss

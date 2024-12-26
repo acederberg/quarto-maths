@@ -1,60 +1,102 @@
 /*-- scss:rules --*/
 
-#resume #resume-headshot img {
-  border-radius: 50% !important;
-}
 
-#resume h2,
-#resume h3,
-#resume h4 {
-  border: none;
-  font-size: large;
-  text-align: center;
-}
 
-#resume #resume-experience section h3,
-#resume #resume-experience section h4,
-#resume #resume-education section h3,
-#resume #resume-education section h4 {
-  text-align: left;
-}
 
-#resume p {
-  font-size: medium;
-}
+#resume {
+  #resume-headshot img {
+    border-radius: 50% !important;
+  }
 
-#resume #resume-links p {
-  text-align: center;
-}
+  h2,
+  h3,
+  h4 {
+    border: none;
+    font-size: large;
+    text-align: center;
+  }
 
-/* #resume  #resume-links h2 { */
-/*   display: none; */
-/* } */
+  p {
+    font-size: medium;
+  }
 
-#resume ul li p {
-  padding: 0px;
-  margin: 0px;
-}
+  ul li p {
+    padding: 0px;
+    margin: 0px;
+  }
 
-#resume .progress {
-  background: var(--bs-gray-400);
-  height: 32px;
-}
+  .progress {
+    background: var(--bs-gray-400);
+    height: 32px;
 
-#resume .progress .progress-bar {
-  color: var(--bs-black);
-  font-size: large !important;
-  text-align: left !important;
+    .progress-bar {
+      color: var(--bs-black);
+      font-size: large !important;
+      text-align: left !important;
+    }
+  }
+
+  #resume-experience section h3,
+  #resume-experience section h4,
+  #resume-education section h3,
+  #resume-education section h4 {
+    text-align: left;
+  }
+
+  #resume-links p {
+    text-align: center;
+  }
+
+  #resume-projects ul li,
+  #resume-skills li {
+    height: 160px;
+    width: 160px;
+    border: 1px solid var(--bs-body-bg);
+    padding: 5px;
+  }
+
+
+  #resume-skills {
+    .overlay ul li {
+      border: none;
+
+      :hover {
+        animation: none;
+        border-image: none;
+        transform: none;
+        border-color: var(--color-hover-1);
+      }
+    }
+
+    table {
+      width: 100%;
+
+      tr:hover {
+        transform: none;
+      }
+    }
+
+    .skills-content {
+      text-align: left;
+    }
+
+  }
 }
 
 // ------------------------------------------------------------------------- //
 // Skills
+/* #resume  #resume-links h2 { */
+/*   display: none; */
+/* } */
 
+
+/*
 :root {
   --angle: 0deg;
   --color-hover-1: var(--bs-blue);
   --color-hover-2: var(--bs-white);
 }
+*/
 
 /*
 @property --angle {
@@ -69,18 +111,6 @@
   }
 }
 */
-
-#resume #resume-projects ul li,
-#resume #resume-skills li {
-  height: 160px;
-  width: 160px;
-  border: 1px solid var(--bs-body-bg);
-  padding: 5px;
-}
-
-#resume #resume-skills .overlay ul li {
-  border: none;
-}
 
 /*
 $hover_animation: rotate 2s linear infinite !important;
@@ -99,22 +129,3 @@ $hover_gradient : conic-gradient(from var(--angle),
   transform: scale(1.1);
 }
 */
-
-#resume #resume-skills .overlay ul li:hover {
-  animation: none;
-  border-image: none;
-  transform: none;
-  border-color: var(--color-hover-1);
-}
-
-#resume #resume-skills table {
-  width: 100%;
-}
-
-#resume #resume-skills tr:hover {
-  transform: none;
-}
-
-#resume #resume-skills .skills-content {
-  text-align: left;
-}

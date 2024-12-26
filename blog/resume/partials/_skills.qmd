@@ -13,7 +13,7 @@
 <!-- Start Floaty -----------> ::: { #resume-skills-floaty }
 <!-- Start Overlay ----------> ::: { #resume-skills-overlay .overlay }
 <!-- Start Overlay Content --> ::: { .overlay-content }
-<!-- Start impl -------------> ::: { .overlay-content-item data-key="impl" }
+<!-- Start impl -------------> ::: { .overlay-content-item data-key="impl" data-colorize-color="indigo" data-colorize-color-text="white" }
 
 ::: { #impl .pt-5 }
 :::
@@ -30,7 +30,7 @@ _Most of these will be covered in detail in subsequent sections._
 
 <!-- Stop impl ------------> :::
 
-<!-- Start API and DB ------> ::: { .overlay-content-item data-key="api-and-db" }
+<!-- Start API and DB ------> ::: { .overlay-content-item data-key="api-and-db" data-colorize-color="yellow" }
 
 ::: { #api-and-db .py-5 }
 
@@ -50,7 +50,7 @@ and `curl` and protocols like `http` and `websockets`.
 
 <!-- STOP API and DB ------> :::
 
-<!-- Start UIUX -----------> ::: { .overlay-content-item data-key="uiux" }
+<!-- Start UIUX -----------> ::: { .overlay-content-item data-key="uiux" data-colorize-color="blue" }
 
 ::: { #uiux .py-5 }
 
@@ -68,7 +68,7 @@ my resume if it were in `YAML` format?
 
 <!-- Stop UIUX -------------> :::
 
-<!-- Start DevOps -----------> ::: { .overlay-content-item data-key="devops" }
+<!-- Start DevOps -----------> ::: { .overlay-content-item data-key="devops" data-colorize-color="teal" }
 
 ::: { #devops .py-5 }
 :::

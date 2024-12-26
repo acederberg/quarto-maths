@@ -79,7 +79,7 @@ format:
 
 :::: { #tab-content .tab-content }
 
-::: { #tab-content-1 .tab-pane .fade }
+::: { #tab-content-1 .tab-pane .fade}
 
 ```{=html}
 <table class="table table-borderless terminal p-2" id="live-logs-server">

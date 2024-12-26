@@ -1,7 +1,8 @@
 const UvicornLogPattern = /(?<ip>[\d.]+):(?<port>\d+)\s+-\s+"(?<method>[A-Z]+)\s+(?<path>[^\s]+)\s+(?<protocol>HTTP\/\d+\.\d+)"\s+(?<status>\d+)/;
 
-const LIVE_QUARTO_VERBOSE = true
-const LIVE_SERVER_VERBOSE = true
+const LIVE_VERBOSE = false
+const LIVE_QUARTO_VERBOSE = false
+const LIVE_SERVER_VERBOSE = false
 const EXT_TO_ICON = {
   "py": ["bi-filetype-py", "text-warning"],
   "qmd": ["bi-filetype-md"],
@@ -86,8 +87,11 @@ function hydrateServerLogItem(item, index, array) {
 function createWebsocketTimer(ws) {
   const state = {
     start: async () => {
-      console.log("Waiting...")
-      const id = setInterval(() => { ws.send("null") }, 3000)
+      LIVE_VERBOSE && console.log("Waiting...")
+      const id = setInterval(() => {
+        console.log("Waiting...")
+        ws.send("null")
+      }, 3000)
       state.id = id
     },
     id: null,
@@ -391,17 +395,20 @@ function Quarto({ filters, last, quartoLogsParent, quartoLogs, quartoOverlayCont
     if (!data) return
 
     LIVE_QUARTO_VERBOSE && data.target && console.log(`Recieved event for \`${data.target}\`.`)
-    console.log(data)
+    LIVE_QUARTO_VERBOSE && console.log(data)
 
+    console.log(data.items)
     data.items.map(
-      item => {
+      (item, index) => {
         const quartoItem = QuartoItem(item, { quartoLogs, quartoOverlayControls, quartoOverlayContent })
         if (!state.isInitial) {
           if (quartoItem.overlay && item.status_code) quartoItem.overlay.show()
           if (quartoItem.log) quartoItem.log.show()
         }
 
-        if (reload && !state.isInitial && item.target_url_path == window.location.pathname) {
+        if (reload && item.status_code && index + 1 === data.items.length) quartoItem.overlay.show()
+
+        if (reload && !state.isInitial && (item.target_url_path == window.location.pathname || item.target_url_path == window.location.pathname + "index.html")) {
           ws.close(1000)
           window.location.reload()
           return

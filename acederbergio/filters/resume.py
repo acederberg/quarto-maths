@@ -234,6 +234,7 @@ class ConfigSkillsItem(floaty.ConfigFloatyItem):
         *,
         _parent: "ConfigSkills",
     ):
+
         el = super().hydrate_overlay_content_item(element, _parent=_parent)
         el.content.insert(2, self.hydrate_progress_bar(_parent))
         el.content.insert(

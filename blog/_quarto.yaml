@@ -107,6 +107,7 @@ website:
         href: /dsa/leetcode
 theme:
   light:
+    - themes/extras.scss
     - cosmo
     - themes/live.scss
     - themes/floaty.scss
@@ -130,6 +131,7 @@ format:
       - file: ./includes/iconify.html
       - file: ./includes/external_links.html
       - file: ./includes/overlay.html
+      - file: ./includes/floaty.html
       - file: ./includes/live.html
 
 author:

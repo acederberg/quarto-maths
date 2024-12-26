@@ -61,6 +61,9 @@ class LiveFilter(util.BaseFilter):
         if not env.ENV_IS_DEV or self.doc.format != "html" or not include:
             return
 
+        if self.doc.get_metadata("live_disable"):  # type: ignore
+            return
+
         file_path = self.doc.get_metadata("live_file_path")  # type:ignore
         if not file_path:
             logger.warning("Could not find file path.")

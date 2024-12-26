@@ -12,6 +12,7 @@ filters:
   - ../filters/under_construction.py
   - ../filters/resume.py
   - ../filters/floaty.py
+live_reload: true
 ---
 
 <!-- Start Resume --> :::::: { #resume }

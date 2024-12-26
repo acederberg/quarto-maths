@@ -1,4 +1,6 @@
+/*-- scss:functions --*/
 /*-- scss:rules --*/
+
 .overlay {
   position: fixed;
   top: 0;
@@ -12,75 +14,71 @@
   justify-content: center;
   align-items: center;
   transition: opacity 0.3s;
-  opacity: 1
-}
+  opacity: 1;
 
-.overlay-blur {
-  backdrop-filter: blur(3px);
-}
+  &.overlay-blur {
+    backdrop-filter: blur(3px);
+  }
 
-
-/* Optional: Centered content styles */
-.overlay-content {
-  display: none;
-  background: var(--bs-body-bg);
-  text-align: center;
-  border-radius: 5px;
-  margin: 1%;
-  /* overflow-y: scroll; */
-  overflow-y: hidden;
-  overflow-x: hidden;
-  /* scrollbar-color: */
-  /*   var(--bs-gray-300) var(--bs-body-bg); */
-
-  z-index: 9000 !important;
-  width: 80vh;
-  height: 80vh;
-}
+  &.overlay-blur-1 {
+    backdrop-filter: blur(7px);
+  }
 
 
-/* For slidey */
-.overlay-content-item {
-  /* position: absolute; */
-  /* left: 0px; */
-  /* height: 80vh; */
-  /* width: 80vh; */
-  /* transform: translateX(80vh); */
-  height: 100%;
-  overflow-y: scroll;
-  background: var(--bs-body-bg);
-  scrollbar-color:
-    var(--bs-gray-300) var(--bs-body-bg);
+  /* Optional: Centered content styles */
+  .overlay-content {
+    display: none;
+    background: var(--bs-body-bg);
+    text-align: center;
+    border-radius: 5px;
+    margin: 1%;
+    overflow-y: hidden;
+    overflow-x: hidden;
 
-}
+    z-index: 9000 !important;
+    width: 80vh;
+    height: 80vh;
 
-.overlay-controls {
-  display: flex;
-  background: var(--bs-body-bg);
-}
+    .overlay-content-item {
+      height: 100%;
+      overflow-y: scroll;
+      background: var(--bs-body-bg);
+      scrollbar-color:
+        var(--bs-gray-300) var(--bs-body-bg);
 
-.overlay-controls-item {
-  font-size: 1rem;
-  color: var(--bs-black);
-  background: var(--bs-body-bg);
-  cursor: pointer;
-  transition: color 0.2s ease;
-  z-index: 9001;
+    }
+  }
 
-  border-radius: 3px;
-}
 
-.overlay-controls-exit {
-  margin-left: auto;
-}
+  .overlay-controls {
+    display: flex;
 
-.overlay-controls-exit:hover {
-  color: var(--bs-red);
-  background: var(--bs-background);
-}
+    .overlay-controls-item {
+      font-size: 1rem;
+      color: var(--bs-black);
+      cursor: pointer;
+      transition: color 0.2s ease;
+      z-index: 9001;
 
-.overlay-controls-right:hover,
-.overlay-controls-left:hover {
-  color: var(--bs-blue);
-  background: var(--bs-gray-200);
+      border-radius: 3px;
+
+      &.overlay-controls-exit {
+        margin-left: auto;
+
+        :hover {
+          color: var(--bs-red);
+          background: var(--bs-background);
+        }
+      }
+
+      &.overlay-controls-left,
+      &.overlay-controls-right {
+        :hover {
+          color: var(--bs-blue);
+          background: var(--bs-gray-200);
+        }
+      }
+    }
+  }
+
 }
