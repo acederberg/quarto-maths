@@ -134,14 +134,18 @@ function Colorize(overlay, { color, colorText, colorTextHover }) {
   }
 }
 
-// If an overlay is found, add controls.
 function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
+  // NOTE: Veryify structure of overlay. It should require an id and seequence
+  //       of children ``.overlay-content`` and ``.overlay-content-items``.
   if (!overlay.id) throw Error("Overlay missing required `id`.")
 
   const overlayContent = overlay.querySelector(".overlay-content")
-  if (!overlayContent) throw Error("Could not find overlay content.")
+  const overlayContentItems = overlayContent.querySelector(".overlay-content-items")
 
-  // Create ordered keys and map to keys.
+  if (!overlayContent) throw Error(`Could not find overlay content for \`${overlay.id}\`.`)
+  if (!overlayContentItems) throw Error(`Could not find overlay content items for \`${overlay.id}\`.`)
+
+  // NOTE: Create ordered keys and map to keys.
   const state = { length: 0, currentIndex: null, currentKey: null, overlayIsOpen: null }
   const keysToIndices = {}
   const indicesToKeys = {}
@@ -154,6 +158,19 @@ function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
   /* ----------------------------------------------------------------------- */
   /* Functions that modify state directly */
 
+
+  /* Because changing heights is ugly as hell */
+  function fixIconSizes(contentItem) {
+    Array.from(contentItem.getElementsByTagName("iconify-icon")).map(
+      item => {
+        if (!item.style.fontSize) return
+
+        item.style.height = item.style.fontSize
+        item.style.width = item.style.fontSize
+      }
+    )
+  }
+
   /* Assumes that `elem`  has been appended independently. */
   function addContent(elem) {
     const key = elem.dataset.key
@@ -162,6 +179,7 @@ function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
     indicesToKeys[state.length] = key
     keysToIndices[key] = state.length
     overlayContentChildren[key] = elem
+    fixIconSizes(elem)
 
     state.length = state.length + 1
   }
@@ -171,14 +189,16 @@ function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
     OVERLAY_VERBOSE && console.log(`Hiding overlay \`${overlay.id}\`.`)
     overlay.style.opacity = 0
     setTimeout(() => {
-      overlay.style.display = "none";
-      overlayContent.style.display = "none"
+      overlay.classList.add("hidden")
+      overlayContent.classList.add("hidden")
     }, isNotAnimated ? 0 : 300)
 
     hideOverlayContentItems({ keepLocalStorage: keepLocalStorage })
 
     // Update state.
     state.overlayIsOpen = false
+    state.currentKey = null
+    state.currentIndex = null
 
     if (!keepLocalStorage) {
       OVERLAY_VERBOSE && console.log("`hideOverlay` Removing")
@@ -190,8 +210,11 @@ function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
   function showOverlay() {
     OVERLAY_VERBOSE && console.log(`Showing overlay \`${overlay.id}\`.`)
     overlay.style.opacity = 0
+
     overlay.style.display = "flex";
-    overlayContent.style.display = "block";
+
+    overlay.classList.remove("hidden")
+    overlayContent.classList.remove("hidden")
     setTimeout(() => { overlay.style.opacity = 1 }, 10)
 
     // Update state.
@@ -201,12 +224,18 @@ function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
 
   /* When the page has been refreshed, use session storage to show the overlay again. */
   function restoreOverlay() {
-    const overlayIdLocalStorage = window.localStorage.getItem("overlayId")
-    if (overlayIdLocalStorage == overlay.id) showOverlay()
-    else return
+    if (window.localStorage.getItem("overlayKey") && (window.localStorage.getItem("overlayId") != overlay.id)) { return }
 
-    const overlayContentItem = showOverlayContentItem(window.localStorage.getItem("overlayKey"), { isNotAnimated: true, keepLocalStorage: true })
-    if (!overlayContentItem) hideOverlay()
+    const key = window.localStorage.getItem("overlayKey")
+    let overlayContentItem = null
+    try { overlayContentItem = showOverlayContentItem(key, { isNotAnimated: true, keepLocalStorage: true }) }
+    catch {
+      console.error(`Failed to find content item \`${key}\` of \`${overlay.id}\` while restoring overlay.`)
+      return
+    }
+    finally {
+      if (overlayContentItem) showOverlay()
+    }
   }
 
   // Hide all overlay content.
@@ -214,7 +243,7 @@ function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
     OVERLAY_VERBOSE && console.log(`Hiding overlay \`${overlay.id}\` content items.`)
     Object
       .values(overlayContentChildren)
-      .map(child => { child.style.display = 'none' })
+      .map(child => { child.classList.add("hidden") })
 
 
     if (!keepLocalStorage) {
@@ -240,7 +269,52 @@ function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
       console.error(`Could not find content for \`key=${key}\` and \`id=${overlay.id}\`.`)
       return
     }
-    content.style.display = 'block'
+
+    // NOTE: Do slidey transition if the overlay is already open (and there is more than one item, and the overlay is already open).
+    const oldKey = state.currentKey
+    const oldContent = overlayContentChildren[oldKey]
+
+    console.log(JSON.stringify(state, null, 2))
+    if (oldContent && (oldKey != key)) {
+
+      // NOTE: Put old in middle and new on left of it.
+      oldContent.classList.add("slide-b")
+      oldContent.classList.remove("hidden")
+
+      content.classList.add("slide-a")
+      content.classList.remove("hidden")
+      overlayContentItems.insertBefore(content, oldContent)
+
+
+
+      // NOTE: Wait for content to be shown, then remove the classes.
+      // NOTE: Put middle to right and left to middle
+      setTimeout(() => {
+        oldContent.classList.add("slide-c")
+        oldContent.classList.remove("slide-b")
+
+        content.classList.add("slide-b")
+        content.classList.remove("slide-a")
+      }, 100)
+
+      // NOTE: When transition is over, remove all classes.
+      setTimeout(() => {
+        oldContent.classList.remove("slide-c")
+        oldContent.classList.add("hidden")
+        content.classList.remove("slide-b")
+        if (state.colorize) colorizeContentItem(content)
+      }, 100)
+
+    } else {
+      content.classList.remove("hidden")
+      if (state.colorize) colorizeContentItem(content)
+    }
+
+
+
+
+    ////////////////////////////
+
 
     // Update state.
     state.currentKey = key
@@ -248,9 +322,6 @@ function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
 
     OVERLAY_VERBOSE && console.log(`Setting \`overlayKey\` to \`${key}\` in \`showOverlayContentItec\`.`)
     window.localStorage.setItem("overlayKey", key)
-
-    // Acknoledge color.
-    if (state.colorize) colorizeContentItem(content)
 
     return content
 
@@ -328,9 +399,10 @@ function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
     colorize(colorizeParams)
   }
 
+  const overlayClosure = { elem: overlay, content: overlayContent, contentItems: overlayContentItems, nav: controls, colorize, hideOverlay, hideOverlayContentItems, showOverlay, showOverlayContentItem, addContent, state, restoreOverlay, nextOverlayContentItem }
 
-  const overlayClosure = { elem: overlay, content: overlayContent, nav: controls, colorize, hideOverlay, hideOverlayContentItems, showOverlay, showOverlayContentItem, addContent, state, restoreOverlay, nextOverlayContentItem }
   colorize(paramsColorize)
+  Array.from(overlayContentItems.getElementsByClassName(".overlay-content-item")).map(fixIconSizes)
   restoreOverlay()
 
   return overlayClosure

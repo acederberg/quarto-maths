@@ -108,6 +108,7 @@ I have been looking for a few options for AI collaboration:
 - https://www.wonsulting.ai/resumai
 - https://enhancv.com/ai-resume-builder/
 - https://www.rezi.ai/
+- https://applyfox.ai/?ref=css.glass
 
 I do not know exactly what the plan is, however I would like to be able to
 provide only the content and not the formatting.

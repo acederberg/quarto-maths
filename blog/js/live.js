@@ -4,14 +4,13 @@ const LIVE_VERBOSE = false
 const LIVE_QUARTO_VERBOSE = false
 const LIVE_SERVER_VERBOSE = false
 const EXT_TO_ICON = {
-  "py": ["bi-filetype-py", "text-warning"],
-  "qmd": ["bi-filetype-md"],
-  "html": ["bi-filetype-html", "text-danger"],
-  "js": ["bi-filetype-js", "text-warning"],
-  "scss": ["bi-filetype-css"],
-  "scss": ["bi-filetype-scss"],
-  "yaml": ["bi-filetype-yml", "text-warning"],
-  "pdf": ["bi-filetype-pdf", "text-danger"],
+  "py": ["bi-filetype-py", "text-yellow"],
+  "qmd": ["bi-filetype-md", "text-teal"],
+  "html": ["bi-filetype-html", "text-orange"],
+  "js": ["bi-filetype-js", "text-green"],
+  "scss": ["bi-filetype-scss", "text-pink"],
+  "yaml": ["bi-filetype-yml", "text-yellow"],
+  "pdf": ["bi-filetype-pdf", "text-red"],
 }
 
 function hydrateServerLogItem(item, index, array) {
@@ -89,9 +88,9 @@ function createWebsocketTimer(ws) {
     start: async () => {
       LIVE_VERBOSE && console.log("Waiting...")
       const id = setInterval(() => {
-        console.log("Waiting...")
+        LIVE_VERBOSE && console.log("Waiting...")
         ws.send("null")
-      }, 3000)
+      }, 1000)
       state.id = id
     },
     id: null,
@@ -147,10 +146,15 @@ function ServerLog({
 // Quarto 
 
 function hydrateQuartoOverlayItem(item) {
-  container = document.createElement('code')
-  container.style.display = 'none'
-  container.classList.add('terminal')
-  container.dataset.key = item.timestamp
+
+  const contentItem = document.createElement("div")
+  contentItem.classList.add("overlay-content-item", "hidden")
+  contentItem.dataset.key = item.timestamp
+  contentItem.dataset.colorizeColor = item.status_code ? "danger" : "primary"
+
+  const terminal = document.createElement('code')
+  terminal.classList.add('terminal', 'p-3')
+  contentItem.appendChild(terminal)
 
   const colorClass = !item.status_code ? "text-light" : "text-danger"
 
@@ -177,42 +181,38 @@ function hydrateQuartoOverlayItem(item) {
   const spacer = document.createElement("span")
   spacer.classList.add("terminal-row", colorClass)
 
-  container.appendChild(timestamp)
-  container.appendChild(command)
-  container.appendChild(origin)
-  container.appendChild(target)
-  container.appendChild(status)
-  container.appendChild(spacer)
+  terminal.appendChild(timestamp)
+  terminal.appendChild(command)
+  terminal.appendChild(origin)
+  terminal.appendChild(target)
+  terminal.appendChild(status)
+  terminal.appendChild(spacer)
   item.stdout.map(item => {
     const elem = document.createElement("span")
     elem.textContent = item
     elem.classList.add("terminal-row", colorClass)
-    container.appendChild(elem)
+    terminal.appendChild(elem)
   })
 
-  container.dataset.colorizeColor = item.status_code ? "danger" : "primary"
-
-  return container
+  return contentItem
 }
 
 
-function handlePathlike(pathlike, { asLink } = {}) {
+function handlePathlike(pathlike, { wrapperTag, textClasses, textTag, iconClasses } = {}) {
 
-  const text = document.createElement("text")
+  const text = document.createElement(textTag || "text")
+  textClasses && text.classList.add(...textClasses)
   text.innerText = pathlike
 
   const ext = pathlike.split(".").pop()
   const icon = document.createElement("i")
-  icon.classList.add("bi", ... (EXT_TO_ICON[ext] || ["bi-file"]), "px-3")
+  icon.classList.add("bi", ... (EXT_TO_ICON[ext] || ["bi-file"]), ...(iconClasses || ["px-3"]))
 
-  let output
-  if (!asLink) {
-    output = document.createElement("p")
-  }
-  else {
-    output = document.createElement("a")
+  const output = document.createElement(wrapperTag || 'p')
+  if (wrapperTag === 'a') {
     output.href = pathlike
   }
+
 
   output.appendChild(icon)
   output.appendChild(text)
@@ -281,7 +281,7 @@ function hydrateQuartoLogItem(item) {
   time.textContent = item.time
   time.classList.add("quarto-log-time")
 
-  targetUrlPath.appendChild(handlePathlike(item.target_url_path, { asLink: true }))
+  targetUrlPath.appendChild(handlePathlike(item.target_url_path, { wrapperTag: 'a' }))
   targetUrlPath.classList.add("quarto-log-target-url-path")
 
   target.appendChild(handlePathlike(item.target))
@@ -312,13 +312,12 @@ function hydrateQuartoLogItem(item) {
   If overlay exists, add new page to overlay content.
   Define a callback for any subsequent actions callbacks (e.g. clicking on any log items.
 */
-function QuartoOverlayItem(item, { quartoOverlayControls, quartoOverlayContent }) {
-  if (!quartoOverlayControls || !quartoOverlayContent) return
-
+function QuartoOverlayItem(item, { quartoOverlayControls }) {
+  if (!quartoOverlayControls) return
 
   const elem = hydrateQuartoOverlayItem(item)
   quartoOverlayControls.addContent(elem)
-  quartoOverlayContent.appendChild(elem)
+  quartoOverlayControls.contentItems.appendChild(elem)
 
   function colorize() {
     quartoOverlayControls.colorize({
@@ -332,7 +331,7 @@ function QuartoOverlayItem(item, { quartoOverlayControls, quartoOverlayContent }
     quartoOverlayControls.showOverlay()
     quartoOverlayControls.showOverlayContentItem(item.timestamp)
     colorize()
-    setTimeout(() => quartoOverlayContent.scrollTop = quartoOverlayContent.scrollHeight, 100)
+    setTimeout(() => quartoOverlayControls.contentItems.scrollTop = quartoOverlayControls.contentItem, 100)
   }
 
   return { colorize, show, elem }
@@ -350,9 +349,19 @@ function QuartoLogItem(item, { quartoLogs }) {
   quartoLogs.appendChild(logItem.elem)
 
   function show() {
-    const classNew = item.status_code ? "quarto-failure-new" : "quarto-success-new"
-    logItem.elem.classList.add(classNew)
-    setTimeout(() => logItem.elem.classList.remove(classNew), 1000)
+    const classNew = item.status_code ? "border-red" : "border-teal"
+    logItem.elem.classList.add(classNew, "border", "boder-3")
+
+    // Add a border to indicate that the item is new.
+    setTimeout(() => {
+      logItem.elem.classList.remove(classNew)
+      logItem.elem.classList.add("border-black")
+    }, 1000)
+
+    setTimeout(() => {
+      logItem.elem.classList.remove("border-black", "border", "border-3")
+    }, 30000)
+
   }
 
   return { ...logItem, show }
@@ -363,9 +372,9 @@ function QuartoLogItem(item, { quartoLogs }) {
   Add overlay content (if possible).
   Add log item (if possible).
 */
-function QuartoItem(item, { quartoLogs, quartoOverlayControls, quartoOverlayContent }) {
+function QuartoItem(item, { quartoLogs, quartoOverlayControls }) {
 
-  const overlay = QuartoOverlayItem(item, { quartoOverlayControls, quartoOverlayContent })
+  const overlay = QuartoOverlayItem(item, { quartoOverlayControls })
   const log = QuartoLogItem(item, { quartoLogs })
 
   LIVE_QUARTO_VERBOSE && console.debug("Adding quarto overlay item.", overlay)
@@ -381,7 +390,7 @@ function QuartoItem(item, { quartoLogs, quartoOverlayControls, quartoOverlayCont
   When a message arrives, ensure that a row is added to the display.
   When the message is an error, show the overlay with the page scrolled down to the bottom of the content.
 */
-function Quarto({ filters, last, quartoLogsParent, quartoLogs, quartoOverlayControls, quartoOverlayContent, quartoBannerInclude, reload }) {
+function Quarto({ filters, last, quartoLogsParent, quartoLogs, quartoOverlayControls, quartoBannerInclude, reload }) {
 
   /*
     If there is an overlay, show an overlay if there is an error.
@@ -400,7 +409,7 @@ function Quarto({ filters, last, quartoLogsParent, quartoLogs, quartoOverlayCont
     console.log(data.items)
     data.items.map(
       (item, index) => {
-        const quartoItem = QuartoItem(item, { quartoLogs, quartoOverlayControls, quartoOverlayContent })
+        const quartoItem = QuartoItem(item, { quartoLogs, quartoOverlayControls })
         if (!state.isInitial) {
           if (quartoItem.overlay && item.status_code) quartoItem.overlay.show()
           if (quartoItem.log) quartoItem.log.show()
@@ -411,6 +420,7 @@ function Quarto({ filters, last, quartoLogsParent, quartoLogs, quartoOverlayCont
         if (reload && !state.isInitial && (item.target_url_path == window.location.pathname || item.target_url_path == window.location.pathname + "index.html")) {
           ws.close(1000)
           window.location.reload()
+          console.log(content, oldContent)
           return
         }
 
@@ -516,73 +526,82 @@ function QuartoRenderBanner(item, { bannerTextInnerHTML } = {}) {
 
   /* Ensure that the new banner is obvious to the user. */
   function show() {
-    const code = Array.from(bannerText.getElementsByTagName("code"))
-    code.map(elem => elem.classList.add("new"))
     banner.classList.add("new")
 
     setTimeout(() => {
-      code.map((elem) => elem.classList.remove("new"))
       banner.classList.remove("new")
     }, 1500)
   }
 
   function initialize() {
     // NOTE: Remove the banner if it already exists.
-    banner_og = document.getElementById(identifier)
-    if (banner_og) banner_og.remove()
+    const bannerOg = document.getElementById(identifier)
+    if (bannerOg) bannerOg.remove()
 
     // NOTE: Make code elements and banner the right color.
     const classResult = !item.status_code ? "success" : "failure"
-    const code = Array.from(bannerText.getElementsByTagName("code"))
-
-    code.map(elem => elem.classList.add(colorClass, classResult))
-    banner.classList.add(colorClass, classResult)
+    banner.classList.add(successClass, classResult)
   }
 
   const identifier = "quarto-render-notification"
 
   // NOTE: Create the banner
-  const colorClass = item.status_code ? "bg-warning" : "bg-primary"
+  const successClass = !item.status_code ? "success" : "failure"
   const banner = document.createElement("div")
   banner.id = identifier
-  banner.classList.add("position-fixed", "bottom-0", "w-100", "text-white", "text-center", colorClass)
+  banner.classList.add("position-fixed", "bottom-0", "w-100", "text-white", "text-center", "bg-black")
 
   // NOTE: Add info and render icons on the left hand side.
   const left = document.createElement("div")
   left.classList.add("start-0", "position-absolute")
   left.style.marginTop = '2px'
 
+  // NOTE: Add close button
+  const closeButton = document.createElement("i");
+  closeButton.style.marginTop = '2px'
+  closeButton.classList.add("bi", "bi-x-lg", "px-2", "banner-control")
+  closeButton.addEventListener("click", () => banner.remove())
+  left.appendChild(closeButton);
+
   const info = document.createElement("i");
-  info.classList.add("bi", !item.status_code ? "bi-info-circle" : "bi-bug", "px-2")
+  info.classList.add("bi", !item.status_code ? "bi-info-circle" : "bi-bug", "px-2", "banner-control")
   left.appendChild(info)
 
   const render = document.createElement("i")
-  render.classList.add("bi", "bi-arrow-repeat", "px-2")
+  render.classList.add("bi", "bi-arrow-repeat", "px-2", "banner-control")
   left.appendChild(render)
   render.addEventListener("click", renderAction)
   banner.appendChild(left)
 
   // NOTE: Add banner text.
-  const bannerText = document.createElement("text")
+  const bannerText = document.createElement("div")
+  // bannerText.classList.add("bg-black")
+
   if (!bannerTextInnerHTML) {
     bannerText.innerHTML = `
       <text>Last rendered </text>
-      <code>${item.target}</code>
+      <span></span>
       <text>at </text>
       <code>${item.time}</code>
       <text>from changes in </text>
-      <code>${item.origin}</code>
+      <span></span>
       <text>.</text>
-  `
+    `
+
+    const [target_mt, origin_mt] = bannerText.getElementsByTagName("span")
+
+    const target = handlePathlike(item.target, { textTag: 'code', wrapperTag: 'span', iconClasses: ["px-1"] })
+    target.classList.add("bg-black")
+    target_mt.replaceWith(target)
+
+    const origin = handlePathlike(item.origin, { textTag: 'code', wrapperTag: 'span', iconClasses: ["px-1"] })
+    origin.classList.add("bg-black")
+    origin_mt.replaceWith(origin)
+
+
+
   } else { bannerText.innerHTML = bannerTextInnerHTML }
   banner.appendChild(bannerText)
-
-  // NOTE: Add close button
-  const closeButton = document.createElement("i");
-  closeButton.style.marginTop = '2px'
-  closeButton.classList.add("bi", "bi-x-lg", "end-0", "position-absolute", "px-2")
-  closeButton.addEventListener("click", () => banner.remove())
-  banner.appendChild(closeButton);
 
   initialize()
 
@@ -781,7 +800,7 @@ function hydrateForm(baseId, { overlay, title, submitText, inputs }) {
     updateButtonColor()
   }
 
-  overlay.content.appendChild(elem)
+  overlay.contentItems.appendChild(elem)
   overlay.addContent(elem)
   elem.dataset.colorizeColor = "primary"
 

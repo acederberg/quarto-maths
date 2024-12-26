@@ -244,6 +244,9 @@ class ConfigSkillsItem(floaty.ConfigFloatyItem):
             ),
         )
 
+        wrapper = pf.Div(*el.content, classes=["skills-page", "p-5"])
+        el.content = (wrapper,)
+
         return el
 
     def hydrate_iconify_tr(
@@ -346,7 +349,7 @@ class ConfigResume(pydantic.BaseModel):
         return element
 
     def hydrate_contact(self, doc: pf.Doc, element: pf.Element) -> pf.Element:
-        """Sidebar skills."""
+        """Contact"""
         if self.contact is None:
             return element
 
@@ -366,7 +369,7 @@ class ConfigResume(pydantic.BaseModel):
         return element
 
     def hydrate_links(self, doc: pf.Doc, element: pf.Element) -> pf.Element:
-        """Sidebar links."""
+        """Links."""
         if self.links is None:
             return element
 

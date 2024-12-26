@@ -16,19 +16,13 @@ format:
     opacity: 0 !important;
   }
 </style>
+<div id="live-overlay" class="overlay">
+  <div class="overlay-content">
+    <div class="overlay-content-items">
+    </div>
+  </div>
+</div>
 ```
-
-::: { #quarto-overlay .overlay }
-
-::: { .overlay-content }
-
-::: { #quarto-overlay-content .p-3 }
-
-:::
-
-:::
-
-:::
 
 <!--- Tab controls. -->
 
@@ -110,6 +104,8 @@ format:
 <!-- NOTE: Forms will be populated by JS -->
 <div id="api-params" class="overlay overlay-blur">
   <div class="overlay-content">
+    <div class="overlay-content-items">
+    </div>
   </div>
 </div>
   <div
@@ -217,10 +213,9 @@ format:
   globalThis.quarto = Quarto({
     last: 32,
     filters: {},
-    quartoOverlayControls: Overlay(document.getElementById("quarto-overlay")),
+    quartoOverlayControls: Overlay(document.getElementById("live-overlay")),
     quartoLogs: document.querySelector("#quarto-live-logs tbody"),
     quartoLogsParent: document.querySelector("#tab-content-2"),
-    quartoOverlayContent: document.querySelector('#quarto-overlay-content'),
   })
 
   const quartoContent = document.getElementById("quarto-content")

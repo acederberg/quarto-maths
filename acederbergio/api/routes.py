@@ -65,7 +65,6 @@ class LogRoutesMixins:
             if log is not None:
                 log.items = log.items[-last:]  # type: ignore
 
-            print(last, log.items)
             await websocket.send_json(
                 log if log is None else log.model_dump(mode="json")
             )
@@ -102,7 +101,7 @@ class LogRoutesMixins:
             # NOTE: Will wait atleast three seconds each time. Done here at the
             #       end so that data is sent out immediately.
             called = time()
-            if called_last and (diff := called - called_last) < 3:
+            if called_last and (diff := called - called_last) < 1:
                 await asyncio.sleep(diff)
 
             await handle_recieve(websocket, kwargs)
@@ -304,7 +303,6 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
                 except pydantic.ValidationError as err:
                     raise fastapi.WebSocketDisconnect(1003, err.json())
 
-                print("kwargs", kwargs)
                 kwargs["filters"] = filters
             else:
                 filters = None

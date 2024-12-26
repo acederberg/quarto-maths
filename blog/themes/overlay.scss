@@ -21,13 +21,16 @@
   }
 
   &.overlay-blur-1 {
-    backdrop-filter: blur(7px);
+    backdrop-filter: blur(3px);
+    background-color: rgba(0, 0, 0, 0.9);
   }
 
 
-  /* Optional: Centered content styles */
+  /* Content items and navagation bar. */
   .overlay-content {
-    display: none;
+    position: relative;
+
+    display: block;
     background: var(--bs-body-bg);
     text-align: center;
     border-radius: 5px;
@@ -39,45 +42,70 @@
     width: 80vh;
     height: 80vh;
 
-    .overlay-content-item {
-      height: 100%;
-      overflow-y: scroll;
-      background: var(--bs-body-bg);
-      scrollbar-color:
-        var(--bs-gray-300) var(--bs-body-bg);
+    .overlay-controls {
+      display: flex;
 
+      .overlay-controls-item {
+        font-size: 1rem;
+        color: var(--bs-black);
+        cursor: pointer;
+        transition: color 0.2s ease;
+        z-index: 9001;
+
+        border-radius: 3px;
+
+        &.overlay-controls-exit {
+          margin-left: auto;
+
+          :hover {
+            color: var(--bs-red);
+            background: var(--bs-background);
+          }
+        }
+
+        &.overlay-controls-left,
+        &.overlay-controls-right {
+          :hover {
+            color: var(--bs-blue);
+            background: var(--bs-gray-200);
+          }
+        }
+
+
+      }
     }
-  }
 
+    .overlay-content-items {
+      display: block;
 
-  .overlay-controls {
-    display: flex;
+      .overlay-content-item {
+        display: inline-block;
+        background: var(--bs-body-bg);
 
-    .overlay-controls-item {
-      font-size: 1rem;
-      color: var(--bs-black);
-      cursor: pointer;
-      transition: color 0.2s ease;
-      z-index: 9001;
+        // DO NOT MODIFY THIS! This is required for the ``slidey`` animation.
+        transition: transform 0.1s ease, background 0.2s;
+        position: absolute;
+        left: -100%;
+        width: 100%;
+        transform: translateX(100%);
 
-      border-radius: 3px;
-
-      &.overlay-controls-exit {
-        margin-left: auto;
-
-        :hover {
-          color: var(--bs-red);
-          background: var(--bs-background);
+        &.slide-a {
+          transform: translateX(0%);
+          background: var(--bs-gray-300);
         }
+
+        &.slide-b {
+          transform: translateX(100%);
+          background: inherit;
+        }
+
+        &.slide-c {
+          transform: translateX(200%);
+          background: inherit;
+        }
+
       }
 
-      &.overlay-controls-left,
-      &.overlay-controls-right {
-        :hover {
-          color: var(--bs-blue);
-          background: var(--bs-gray-200);
-        }
-      }
     }
   }
 

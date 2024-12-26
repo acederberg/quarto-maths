@@ -1,4 +1,4 @@
-<!-- Start Skills -----------> ::: { #resume-skills }
+<!-- Start Skills ------------------------------------------------------------> ::: { #resume-skills }
 
 ::: { .content-visible when-format="latex" }
 
@@ -10,10 +10,11 @@
 
 ::: { .content-hidden when-format="latex" }
 
-<!-- Start Floaty -----------> ::: { #resume-skills-floaty }
-<!-- Start Overlay ----------> ::: { #resume-skills-overlay .overlay }
-<!-- Start Overlay Content --> ::: { .overlay-content }
-<!-- Start impl -------------> ::: { .overlay-content-item data-key="impl" data-colorize-color="indigo" data-colorize-color-text="white" }
+<!-- Start Floaty ------------------------------------------------------------> ::: { #resume-skills-floaty }
+<!-- Start Overlay -----------------------------------------------------------> ::: { #resume-skills-overlay .overlay .overlay-blur-1 }
+<!-- Start Overlay Content ---------------------------------------------------> ::: { .overlay-content }
+<!-- TEST --------------------------------------------------------------------> ::: { .overlay-content-items }
+<!-- Start impl --------------------------------------------------------------> ::: { .overlay-content-item data-key="impl" data-colorize-color="indigo" data-colorize-color-text="white" }
 
 ::: { #impl .pt-5 }
 :::
@@ -28,9 +29,9 @@ _Most of these will be covered in detail in subsequent sections._
 
 :::
 
-<!-- Stop impl ------------> :::
+<!-- Stop impl ---------------------------------------------------------------> :::
 
-<!-- Start API and DB ------> ::: { .overlay-content-item data-key="api-and-db" data-colorize-color="yellow" }
+<!-- Start API and DB --------------------------------------------------------> ::: { .overlay-content-item data-key="api-and-db" data-colorize-color="yellow" }
 
 ::: { #api-and-db .py-5 }
 
@@ -48,9 +49,8 @@ and `curl` and protocols like `http` and `websockets`.
 
 :::
 
-<!-- STOP API and DB ------> :::
-
-<!-- Start UIUX -----------> ::: { .overlay-content-item data-key="uiux" data-colorize-color="blue" }
+<!-- STOP API and DB ---------------------------------------------------------> :::
+<!-- Start UIUX --------------------------------------------------------------> ::: { .overlay-content-item data-key="uiux" data-colorize-color="blue" }
 
 ::: { #uiux .py-5 }
 
@@ -66,9 +66,9 @@ my resume if it were in `YAML` format?
 
 :::
 
-<!-- Stop UIUX -------------> :::
+<!-- Stop UIUX ---------------------------------------------------------------> :::
 
-<!-- Start DevOps -----------> ::: { .overlay-content-item data-key="devops" data-colorize-color="teal" }
+<!-- Start DevOps ------------------------------------------------------------> ::: { .overlay-content-item data-key="devops" data-colorize-color="teal" }
 
 ::: { #devops .py-5 }
 :::
@@ -81,11 +81,12 @@ mandatory for building reliable and secure products.
 
 :::
 
-<!-- Stop DevOps --------------------> :::
-<!-- Stop Overlay Content -----------> :::
-<!-- Stop Overlay -------------------> :::
-<!-- Stop Floaty --------------------> :::
+<!-- Stop DevOps -------------------------------------------------------------> :::
+<!-- TEST --------------------------------------------------------------------> :::
+<!-- Stop Overlay Content ----------------------------------------------------> :::
+<!-- Stop Overlay ------------------------------------------------------------> :::
+<!-- Stop Floaty -------------------------------------------------------------> :::
 
 :::
 
-<!-- Stop Skills --------------------> :::
+<!-- Stop Skills -------------------------------------------------------------> :::

@@ -162,7 +162,6 @@ class ConfigFloatyItem(pydantic.BaseModel):
     ):
         """Should match ``.overlay-content``."""
         element.classes.append("overlay-content-item")
-        element.classes.append("p-5")
         element.content = (
             pf.Div(
                 self.hydrate_iconify(

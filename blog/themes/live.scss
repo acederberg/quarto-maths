@@ -13,63 +13,66 @@
 
 
 /* Ammendments to make overlay look nice. */
+#live-overlay,
 #quarto-overlay {
   background-color: rgba(0, 0, 0, .3) !important;
   backdrop-filter: blur(5px) !important;
   z-index: 1050; // Should be higher than the default.
 
   .overlay-content {
+    /* Somehow this (setting height in any way) makes overflow work. */
     width: 90vw !important;
     height: 90vh !important;
     overflow: hidden;
     background: var(--bs-black) !important;
 
-    i {
-      position: sticky;
-      top: 0;
-      z-index: 900;
+    backdrop-filter: blur(7px);
 
+    /* i { */
+    /*   position: sticky; */
+    /*   top: 0; */
+    /*   z-index: 900; */
+    /**/
+    /* } */
+
+    .overlay-content-items {
+      .overlay-content-item {
+        scrollbar-color:
+          var(--bs-gray-900) var(--bs-black);
+
+        height: 90vh !important;
+        background: var(--bs-black);
+        overflow-y: scroll;
+
+        .terminal {
+          height: auto;
+          display: block;
+          margin-bottom: 128px; // Add some whitespace to avoid not showing all content.
+        }
+      }
+    }
+
+    .overlay-controls {
+      .overlay-controls-exit {
+        margin-left: auto;
+      }
     }
 
   }
 
-  .overlay-controls-exit {
-    margin-left: auto;
-  }
-
-  .when-navbar {
+  &.when-navbar {
     background-color: rgba(0, 0, 0, .8) !important;
 
     .overlay-content {
       height: 74vh !important;
-    }
 
-    .overlay-content-item {
-      height: 70vh !important;
-    }
-  }
-
-  #quarto-overlay-content {
-    overflow-y: scroll;
-    height: 84vh;
-
-    /* Somehow this (setting height in any way) makes overflow work. */
-    backdrop-filter: blur(7px);
-    scrollbar-color:
-      var(--bs-gray-900) var(--bs-black);
-
-    .terminal {
-      height: auto;
-      display: block;
-      margin-bottom: 512px; // Add some whitespace to avoid not showing all content.
+      .overlay-content-items {
+        .overlay-content-item {
+          height: 70vh !important;
+        }
+      }
     }
   }
-
-  /*  .overlay-controls-exit:hover, */
-  /*  .overlay-controls-right:hover, */
-  /*  .overlay-controls-left:hover { */
-  /*   background: var(--bs-gray-900); */
-  /* } */
 
 }
 
@@ -88,17 +91,15 @@
   }
 
   .quarto-row {
-    transition: background-color 30s, color 30s;
+    transition: border-color 30s, color 30s;
   }
 
   .quarto-success {
     border-left: 3px solid var(--bs-black);
     border-right: 3px solid var(--bs-black);
-    color: var(--bs-light) !important;
   }
 
   .quarto-failure {
-    /* background-color: rgba(255, 0, 0, 0.1); */
     background-color: rgba(255, 0, 0, 0.05) !important;
     color: var(--bs-red);
   }
@@ -108,15 +109,15 @@
   }
 
 
-  .quarto-success-new {
-    background-color: var(--bs-teal) !important;
-    color: var(--bs-white) !important;
-  }
-
-  .quarto-failure-new {
-    background-color: red !important;
-    color: var(--bs-white);
-  }
+  /* .quarto-success-new { */
+  /*   border-color: var(--bs-teal) !important; */
+  /*   color: var(--bs-white) !important; */
+  /* } */
+  /**/
+  /* .quarto-failure-new { */
+  /*   border-color: red !important; */
+  /*   color: var(--bs-white); */
+  /* } */
 
   .quarto-log-from {
     width: 7vw;
@@ -242,32 +243,64 @@
 
 
 #quarto-render-notification {
-  transition: 15s background;
-
-  code.success.new,
-  &.success.new {
-    background: var(--bs-teal) !important;
-  }
-
-  code.failure.new,
-  &.failure.new {
-    background: var(--bs-red) !important;
-  }
-
-  code {
-    transition: 15s background;
-  }
-
+  transition: 15s border-color;
 
   i {
-    color: var(--bs-white);
-    transition: 0.3s color;
+    transition: 15s color, 0.1s filter;
 
-    &:hover {
-      color: var(--bs-gray-700);
+    &.banner-control {
+      cursor: pointer;
+    }
+
+    :hover {
       transform: scale(1.1);
     }
   }
+
+  border-top: 5px solid $black;
+  border-bottom: 5px solid $black;
+  padding-top: 5px;
+  padding-bottom: 5px;
+
+  &.success {
+    border-color: $teal;
+
+    i {
+      color: $teal
+    }
+
+    &.new {
+      border-color: $blue;
+
+      i {
+        color: $blue;
+      }
+    }
+  }
+
+  &.failure {
+    border-color: $orange;
+
+    i {
+      color: $orange
+    }
+
+    &.new {
+      border-color: $red;
+
+      i {
+        color: $red;
+      }
+
+    }
+
+  }
+
+  code {
+    background: $black;
+    color: $white;
+  }
+
 
   .spinner-border:hover {
     color: var(--bs-white);

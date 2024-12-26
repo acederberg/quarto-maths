@@ -92,10 +92,7 @@ class LiveFilter(util.BaseFilter):
         overlay_and_script = pf.Div(
             pf.Div(
                 pf.Div(
-                    pf.Div(
-                        identifier="quarto-overlay-content",
-                        classes=["p-3"],
-                    ),
+                    pf.Div(classes=["overlay-content-items"]),
                     classes=["overlay-content"],
                 ),
                 classes=["overlay", "when-navbar"],
@@ -114,7 +111,6 @@ class LiveFilter(util.BaseFilter):
                       last: {last or 1},
                       filters: {filters},
                       quartoOverlayControls: globalThis.quartoDevOverlay,
-                      quartoOverlayContent: document.querySelector('#quarto-overlay-content'),
                       quartoLogs: { ('document.querySelector("#' + quarto_logs + ' tbody")') if quarto_logs is not None else 'null' },
                       quartoLogsParent: { ('document.querySelector("#' + quarto_logs_parent + '")') if quarto_logs_parent is not None else 'null' },
                       quartoBannerInclude: {'true' if quarto_banner_include else 'false' },
