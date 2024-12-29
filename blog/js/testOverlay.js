@@ -55,7 +55,7 @@ function OverlayColorizeTest({ overlay, controls }) {
     color => {
       const contentItem = OverlayColorizeTestContent({ color })
       overlay.addContent(contentItem)
-      overlay.content.appendChild(contentItem)
+      overlay.contentItems.appendChild(contentItem)
 
       const button = OverlayColorizeTestButton({ color })
       controls.appendChild(button)

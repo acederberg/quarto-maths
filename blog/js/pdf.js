@@ -5,8 +5,17 @@ function QuartoPDFViewer(quarto, { iframeLeft, iframeRight }) {
   const ws = quarto.ws
 
   function reload() {
-    iframeLeft.src = iframeLeft.src
-    iframeRight.src = iframeRight.src
+    const now = Date.now()
+
+    const leftURL = new URL(iframeLeft.src)
+    leftURL.searchParams.set("timestamp", now)
+    iframeLeft.src = String(leftURL)
+
+    const rightURL = new URL(iframeRight.src)
+    rightURL.searchParams.set("timestamp", now)
+    iframeRight.src = String(rightURL)
+
+    console.log(leftURL, rightURL)
   }
 
   ws.addEventListener("message", (event) => {

@@ -570,6 +570,7 @@ resume:
       size_icon: 64
     content:
       - title: Linkedin
+        value: linkedin
         href: https://www.linkedin.com/in/adrian-cederberg-b453571b9
         description: My profile on linkedin.
         font_awesome: faLinkedin
@@ -580,6 +581,7 @@ resume:
             label: Linkedin
 
       - title: Github
+        value: github
         href: https://github.com/acederberg
         description: My github account.
         font_awesome: faGithub
@@ -590,6 +592,7 @@ resume:
             label: Github
 
       - title: Website
+        value: website
         href: https://acederberg.io
         description: My Website
         font_awesome: faCubes

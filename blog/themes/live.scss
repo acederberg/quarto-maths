@@ -28,13 +28,6 @@
 
     backdrop-filter: blur(7px);
 
-    /* i { */
-    /*   position: sticky; */
-    /*   top: 0; */
-    /*   z-index: 900; */
-    /**/
-    /* } */
-
     .overlay-content-items {
       .overlay-content-item {
         scrollbar-color:
@@ -92,17 +85,29 @@
 
   .quarto-row {
     transition: border-color 30s, color 30s;
+
+    &.highlight {
+      background: var(--bs-black);
+      border-color: var(--bs-yellow) !important;
+    }
+
+    &.highlight * {
+      color: var(--bs-yellow) !important;
+    }
   }
 
   .quarto-success {
     border-left: 3px solid var(--bs-black);
     border-right: 3px solid var(--bs-black);
+
   }
 
   .quarto-failure {
     background-color: rgba(255, 0, 0, 0.05) !important;
     color: var(--bs-red);
   }
+
+
 
   .quarto-static {
     color: var(--bs-primary) !important;
@@ -265,14 +270,14 @@
   &.success {
     border-color: $teal;
 
-    i {
+    i.banner-control {
       color: $teal
     }
 
     &.new {
       border-color: $blue;
 
-      i {
+      i.banner-control {
         color: $blue;
       }
     }
@@ -281,14 +286,14 @@
   &.failure {
     border-color: $orange;
 
-    i {
+    i.banner-control {
       color: $orange
     }
 
     &.new {
       border-color: $red;
 
-      i {
+      i.banner-control {
         color: $red;
       }
 

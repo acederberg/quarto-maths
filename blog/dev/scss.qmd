@@ -20,6 +20,8 @@ for `data-colorizeColor`.
 ```{=html}
 <div id="overlay-test" class="overlay overlay-blur">
   <div class="overlay-content">
+    <div class="overlay-content-items">
+    </div>
   </div>
 </div>
 <div id="overlay-test-buttons"></div>

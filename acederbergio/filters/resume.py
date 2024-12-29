@@ -1,5 +1,6 @@
+import itertools
 from datetime import date, timedelta
-from typing import Annotated, Any, Callable, Literal
+from typing import Annotated, Any, Callable, Iterable, Literal
 
 import panflute as pf
 import pydantic
@@ -8,6 +9,10 @@ from typing_extensions import Unpack
 
 from acederbergio.filters import floaty, util
 
+FieldSep = Annotated[Literal["newline", "hfill"], pydantic.Field("newline")]
+
+TEX_SPACER = pf.RawInline(r" \hfill \\", format="latex")
+TEX_SPACER_INLINE = pf.RawInline(r" \hfill ", format="latex")
 ELEMENTS = {
     "resume-profile",
     "resume-contact",
@@ -69,6 +74,22 @@ def do_floaty(
         )
         handle_floaty(floaty, doc)
         element.content.append(floaty)
+
+
+def do_floaty_tex(items: Iterable[pf.Inline], sep: FieldSep):
+
+    # NOTE: Putting these in separate paragraphs does not work.
+    #       In the first case, put each on a new line. In the second,
+    #       try to share a line an equally.
+    match sep:
+        case "newline":
+            listed = ((item, TEX_SPACER) for item in items)
+        case "fill":
+            listed = ((item, TEX_SPACER_INLINE) for item in items)
+        case _:
+            raise ValueError
+
+    return pf.Para(*itertools.chain(*listed))
 
 
 class BaseExperienceItem(pydantic.BaseModel):
@@ -175,10 +196,37 @@ class ConfigEducationItem(BaseExperienceItem):
 
 class ConfigLinkItem(floaty.ConfigFloatyItem):
     font_awesome: str
-
-
-class ConfigContactItem(ConfigLinkItem):
     value: str
+
+    def do_floaty_tex(self):
+        """Replacement for HTML Floaty."""
+
+    def hydrate_tex(self) -> pf.Inline:
+
+        out = pf.RawInline(
+            r"\%s { %s } \label{%s}" % (self.font_awesome, self.title, self.value),
+            format="latex",
+        )
+
+        if self.href is None:
+            return out
+
+        return pf.Link(
+            out,
+            url=self.href,
+            title=self.title,
+        )
+
+
+class ConfigContactItem(floaty.ConfigFloatyItem):
+    font_awesome: str
+    value: str
+
+    def hydrate_tex(self) -> pf.RawInline:
+        return pf.RawInline(
+            r"\%s { %s } \label{%s}" % (self.font_awesome, self.value, self.key),
+            format="latex",
+        )
 
     def hydrate_iconify_tr(self, **kwargs: Unpack[floaty.IconifyKwargs]):
         row = super().hydrate_iconify_tr(**kwargs)
@@ -294,7 +342,7 @@ class ConfigHeadshot(pydantic.BaseModel):
 
 
 class ResumeFloatySection(floaty.ConfigFloatySection[floaty.T_ConfigFloatySection]):
-    sep: Annotated[Literal["newline", "pipes"], pydantic.Field("newline")]
+    sep: FieldSep
 
 
 class ConfigResume(pydantic.BaseModel):
@@ -356,15 +404,9 @@ class ConfigResume(pydantic.BaseModel):
         if doc.format == "html":
             do_floaty(self.contact, doc, element)
         else:
-            listed = (
-                pf.RawInline(
-                    "\\%s { %s } \\label{%s} \\hfill \\\\\n"
-                    % (item.font_awesome, item.value, item.key),
-                    format="latex",
-                )
-                for item in self.contact.content.values()
-            )
-            element.content = (*element.content, pf.Para(*listed))
+            contacts = (item.hydrate_tex() for item in self.contact.content.values())
+            para = do_floaty_tex(contacts, self.contact.sep)
+            element.content.append(para)
 
         return element
 
@@ -376,40 +418,9 @@ class ConfigResume(pydantic.BaseModel):
         if doc.format == "html":
             do_floaty(self.links, doc, element)
         else:
-            links = (
-                pf.Link(
-                    pf.RawInline(
-                        "\\%s { %s }" % (item.font_awesome, item.title),
-                        format="latex",
-                    ),
-                    url=item.href,
-                    title=item.title,
-                )
-                for item in self.links.content.values()
-                if item.href is not None
-            )
-
-            util.record("links", self.links.sep)
-            if self.links.sep == "newlines":
-                listed = (
-                    pf.Plain(
-                        link,
-                        pf.RawInline(r" \hfill \\" + "\n", format="latex"),
-                    )
-                    for link in links
-                )
-            else:
-                listed = tuple(
-                    pf.Plain(
-                        link,
-                        pf.RawInline(
-                            r" \hfill\textbar{}\hfill\\" + "\n", format="latex"
-                        ),
-                    )
-                    for link in links
-                )
-                util.record(listed)
-            element.content = (*element.content, *listed)
+            links = (item.hydrate_tex() for item in self.links.content.values())
+            para = do_floaty_tex(links, self.links.sep)
+            element.content.append(para)
 
         return element
 

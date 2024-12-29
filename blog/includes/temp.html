@@ -1,0 +1,118 @@
+<div>
+  <div class="d-flex align-items-center p-5">
+    <button id="floaty-pure-button" class="btn btn-primary" role="button">
+      Next Floaty Size
+    </button>
+    <div style="margin-left: auto;"  >
+      <text>Current Size</text>
+      <text id="floaty-pure-size"></text>
+    </div>
+  </div>
+
+
+  <div  style="height: 512px;">
+  <div id="floaty-pure" class="floaty">
+    <div class="floaty-container">
+      <div class="floaty-row">
+        <div class="floaty-item">
+          <div class="card">
+            <div class="card-img-top">
+              <iconify-icon
+                data-key="impl"
+                aria-label="Programming Skills"
+                icon="misc:binary"
+                title="Programming Skills"
+              ></iconify-icon>
+            </div>
+            <div class="card-body">
+              <text class="">Programming Skills</text>
+            </div>
+          </div>
+        </div>
+
+        <div class="floaty-item">
+          <div class="card">
+            <div class="card-img-top">
+              <iconify-icon
+                data-key="api-and-db"
+                aria-label="APIs and Databases"
+                icon="misc:api"
+                title="APIs and Databases"
+              ></iconify-icon>
+            </div>
+            <div class="card-body">
+              <text class="">APIs and Databases</text>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="floaty-row">
+        <div class="floaty-item">
+          <div class="card">
+            <div class="card-img-top">
+              <iconify-icon
+                data-key="uiux"
+                aria-label="Dashboards and UIs"
+                icon="misc:dashboard"
+                title="Dashboards and UIs"
+              ></iconify-icon>
+            </div>
+            <div class="card-body">
+              <text class="">Dashboards and UIs</text>
+            </div>
+          </div>
+        </div>
+
+        <div class="floaty-item">
+          <div class="card">
+            <div class="card-img-top">
+              <iconify-icon
+                data-key="devops"
+                aria-label="DevOps Engineering"
+                icon="misc:devops"
+                title="DevOps Engineering"
+              ></iconify-icon>
+            </div>
+            <div class="card-body">
+              <text class="">DevOps Engineering</text>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <script>
+    function FloatyDemoPure(){
+      const floaty = document.getElementById("floaty-pure")
+      const floatySize = document.getElementById("floaty-pure-size")
+      const floatyButton = document.getElementById("floaty-pure-button")
+
+      state = {size: null, sizeClass: null}
+
+      function action() {
+        // NOTE: Remove current size class
+        state.sizeClass && floaty.classList.remove(state.sizeClass)
+
+        // NOTE: Determine new size class and add.
+
+        state.size = ((state.size + 1) % 5)
+        console.log(state.size)
+        state.sizeClass = `floaty-size-${state.size + 1}`
+        floaty.classList.add(state.sizeClass)
+
+        floatySize.innerText = state.size
+      }
+
+      action()
+
+      floatyButton.addEventListener("click", action)
+
+      return {floaty, floatyButton, action}
+    }
+
+    const floatyDemo = FloatyDemoPure()
+  </script>
+</div>

@@ -1,6 +1,8 @@
 /*-- scss:functions --*/
 /*-- scss:rules --*/
 
+$overlayItemTranformTime : 500ms;
+
 .overlay {
   position: fixed;
   top: 0;
@@ -83,25 +85,34 @@
         background: var(--bs-body-bg);
 
         // DO NOT MODIFY THIS! This is required for the ``slidey`` animation.
-        transition: transform 0.1s ease, background 0.2s;
+        transition: transform $overlayItemTranformTime ease;
         position: absolute;
         left: -100%;
         width: 100%;
         transform: translateX(100%);
 
+        @mixin slide($xx, $iconOpacity) {
+          transform: translateX($xx);
+          scrollbar-color: var(--bs-body-bg) var(--bs-body-bg);
+
+          * {
+            transition-delay: calc($overlayItemTranformTime / 2);
+            transition: opacity calc($overlayItemTranformTime / 2) ease;
+            opacity: $iconOpacity;
+          }
+
+        }
+
         &.slide-a {
-          transform: translateX(0%);
-          background: var(--bs-gray-300);
+          @include slide(0%, 0);
         }
 
         &.slide-b {
-          transform: translateX(100%);
-          background: inherit;
+          @include slide(100%, 1);
         }
 
         &.slide-c {
-          transform: translateX(200%);
-          background: inherit;
+          @include slide(200%, 0);
         }
 
       }

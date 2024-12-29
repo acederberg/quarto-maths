@@ -45,7 +45,7 @@ function hydrateServerLogItem(item, index, array) {
     const uvicornProtocol = document.createElement("span")
 
     uvicornIp.textContent = ip
-    uvicornPort.textContent = " " + port
+    uvicornPort.textContent = ":" + port
     uvicornMethod.textContent = " " + method
     uvicornPath.textContent = " " + path
     uvicornStatus.textContent = " " + status
@@ -77,6 +77,15 @@ function hydrateServerLogItem(item, index, array) {
   elem.appendChild(itemLevel)
   elem.appendChild(itemMsg)
   elem.appendChild(itemName)
+
+  const state = { highlight: false }
+  const highlightClasses = ["border", "border-1", "border-yellow"]
+
+  elem.addEventListener("click", () => {
+    console.log(elem)
+    state.highlight ? elem.classList.remove(...highlightClasses) : elem.classList.add(...highlightClasses)
+    state.highlight = !state.highlight
+  })
 
   return elem
 }
@@ -303,6 +312,15 @@ function hydrateQuartoLogItem(item) {
   // NOTE: Eventually statusCode should tell the overlay how to be colored.
   //       For now, overlay does not colorize until it is opened.
   elem.dataset.key = item.timestamp
+
+  const state = { highlight: false }
+  const highlightClasses = ["highlight"]
+
+  elem.addEventListener("click", () => {
+    console.log(elem)
+    state.highlight ? elem.classList.remove(...highlightClasses) : elem.classList.add(...highlightClasses)
+    state.highlight = !state.highlight
+  })
 
   return { elem, renderAction, info, render }
 }
