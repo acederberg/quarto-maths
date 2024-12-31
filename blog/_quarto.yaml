@@ -144,6 +144,8 @@ filters:
   - iconify
   - quarto
   - ./filters/live.py
+  - ./filters/overlay.py
+  - ./filters/floaty.py
 
 execute:
   freeze: true

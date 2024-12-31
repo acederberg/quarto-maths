@@ -3,7 +3,7 @@ import contextlib
 import os
 import pathlib
 import sys
-from typing import ClassVar
+from typing import Annotated, ClassVar, TypeAlias
 
 import panflute as pf
 import pydantic
@@ -83,3 +83,6 @@ def create_run_filter(Filter: type[BaseFilter]):
         return out
 
     return wrapped
+
+
+FieldClasses: TypeAlias = Annotated[list[str] | None, pydantic.Field(None)]

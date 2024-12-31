@@ -1,5 +1,31 @@
-/*-- scss:rules --*/
+/*-- scss:functions --*/
+@function make-shadow($scale, $color: rgba(0, 0, 0, 0.5)) {
+  $size: $scale * 1px;
+  $spread: $scale * 2px;
+  $shadow: drop-shadow($size $size $spread $color);
 
+  @return $shadow;
+}
+
+@function make-transform($scale) {
+  @return scale(100% + $scale) translateY(-$scale);
+}
+
+/*-- scss:variables --*/
+$floaty-shadow-1: make-shadow(5);
+$floaty-shadow-2: make-shadow(8);
+$floaty-shadow-3: make-shadow(13);
+$floaty-shadow-4: make-shadow(21);
+
+$floaty-transform-1: make-transform(5%);
+$floaty-transform-2: make-transform(8%);
+$floaty-transform-3: make-transform(13%);
+$floaty-transform-4: make-transform(21%);
+
+$floaty-border-hover: 3px solid var(--bs-primary) !important;
+$floaty-border: 3px solid rgba(0, 0, 0, 0) !important;
+
+/*-- scss:rules --*/
 @mixin make-floaty {
   .floaty-container {
     @include make-container();
@@ -12,10 +38,12 @@
 
         .card {
           border: none;
+          cursor: pointer;
 
           .card-img-top {
             display: flex;
 
+            i,
             iconify-icon {
               margin: auto;
             }
@@ -25,131 +53,245 @@
             text-align: center;
           }
         }
-
       }
     }
   }
 }
 
-@mixin make-floaty-size ($scale, $font-size) {
+@mixin make-floaty-size($scale, $font-size) {
   .card {
     $font-size-svg: calc($scale * $font-size);
 
+    border-bottom: $floaty-border;
+
     .card-img-top {
-      min-height: $font-size-svg;
       font-size: $font-size-svg;
+
+      i,
+      iconify-icon {
+        min-height: $font-size-svg;
+      }
     }
 
     .card-body {
-      font-size: $font-size
-    }
-
-  }
-}
-
-@mixin make-floaty-shadow($scale, $opacity) {
-
-  $size : $scale * 1px;
-  $spread : $scale * 2px;
-  $shadow : drop-shadow($size $size $spread rgba(0, 0, 0, $opacity));
-
-  .card {
-    .card-img-top iconify-icon {
-      filter: $shadow;
+      font-size: $font-size;
     }
   }
 }
 
-@mixin make-floaty-grow($scale) {
+/* ------------------------------------------------------------------------- */
+
+@mixin make-bg($bg) {
+  background: $bg;
+  padding: 10px;
+  border-radius: $border-radius-lg;
+}
+
+
+/*
+
+
+*/
+@mixin make-icon-filter($filter-init, $filter-final, $transform) {
+
   .card {
-    iconify-icon {
-      transition: filter 1s, transform 1s;
-    }
+    background: rgba(0, 0, 0, 0);
+    transition: border 0.1s;
 
-    &:hover {
+    .card-img-top {
 
+      i,
       iconify-icon {
-        transform: scale(100% + $scale) translateY(-$scale);
+        transition:
+          filter 0.1s,
+          transform 0.1s;
+        filter: $filter-init;
+      }
+
+    }
+  }
+
+  &.floaty-hover {
+
+    .card {
+
+      &.hover,
+      &:hover {
+        border-bottom: $floaty-border-hover;
+        border-radius: 0px;
+
+        .card-img-top {
+
+          i,
+          iconify-icon {
+            transform: $transform;
+            filter: $filter-final;
+          }
+        }
+
       }
     }
   }
+}
+
+@mixin make-floaty-icon-bg($bg) {
+  .card {
+
+    i,
+    iconify-icon {
+      @include make-bg($bg);
+    }
+  }
+
+  &.floaty-shadow-1 {
+    .card:hover {
+      background: $bg;
+    }
+
+    @include make-icon-filter($floaty-shadow-1, none, $floaty-transform-1);
+  }
+
+  &.floaty-shadow-2 {
+    .card:hover {
+      background: $bg;
+    }
+
+    @include make-icon-filter($floaty-shadow-2, none, $floaty-transform-2);
+  }
+
+  &.floaty-shadow-3 {
+    .card:hover {
+      background: $bg;
+    }
+
+    @include make-icon-filter($floaty-shadow-3, none, $floaty-transform-3);
+  }
+
+  &.floaty-shadow-4 {
+    @include make-icon-filter($floaty-shadow-4, none, $floaty-transform-4);
+  }
 
 }
 
-@mixin make-floaty-bg($bg) {
+
+/* ------------------------------------------------------------------------- */
+
+@mixin make-card-filter($filter, $filter-final, $transform) {
+
   .card {
-    iconify-icon {
-      background: $bg;
-      padding: 10px;
-      border-radius: $border-radius-lg;
+    filter: $filter;
+    transition: filter 0.1s, transform 0.1s, background 1s;
+    margin: auto;
+  }
+
+  &.floaty-hover {
+
+    .card.hover,
+    .card:hover {
+      background: var(--bs-gray-200);
+
+      border-bottom: $floaty-border-hover;
+      border-radius: 0px;
+
+      filter: $filter-final;
+      transform: $transform;
+      z-index: 1;
     }
+
   }
 }
 
 
-.floaty-bg-dark {
-  @include make-floaty-bg($black);
+@mixin make-floaty-card-bg($bg) {
+  .card {
+    @include make-bg($bg);
+  }
+
+  &.floaty-shadow-1 {
+    @include make-card-filter($floaty-shadow-1, none, $floaty-transform-1);
+  }
+
+  &.floaty-shadow-2 {
+    @include make-card-filter($floaty-shadow-2, none, $floaty-transform-2);
+  }
+
+  &.floaty-shadow-3 {
+    @include make-card-filter($floaty-shadow-3, none, $floaty-transform-3);
+  }
+
+  &.floaty-shadow-4 {
+    @include make-card-filter($floaty-shadow-4, none, $floaty-transform-4);
+  }
+
 }
 
-.floaty-bg-light {
-  @include make-floaty-bg($white);
-}
 
-.floaty-bg-body {
-  @include make-floaty-bg($body-color);
-}
+/* ------------------------------------------------------------------------- */
+
+/* Bare Minimum */
 
 .floaty {
   @include make-floaty();
+
+  &.floaty-size-1 {
+    @include make-floaty-size(4, $h1-font-size);
+  }
+
+  &.floaty-size-2 {
+    @include make-floaty-size(4, $h2-font-size);
+  }
+
+  &.floaty-size-3 {
+    @include make-floaty-size(4, $h3-font-size);
+  }
+
+  &.floaty-size-4 {
+    @include make-floaty-size(4, $h4-font-size);
+  }
+
+  &.floaty-size-5 {
+    @include make-floaty-size(4, $h5-font-size);
+  }
+
+  &.floaty-size-6 {
+    @include make-floaty-size(4, $h6-font-size);
+  }
+
+
+  /* Backgrounds for Icons */
+
+  &.floaty-bg-dark {
+    @include make-floaty-icon-bg($black);
+  }
+
+  &.floaty-bg-light {
+    @include make-floaty-icon-bg($white);
+  }
+
+  &.floaty-bg {
+    @include make-floaty-icon-bg($body-color);
+
+  }
+
+  /* Backgrounds for Cards */
+  &.floaty-card-bg-dark {
+    @include make-floaty-card-bg($black);
+  }
+
+  &.floaty-card-bg-light {
+    @include make-floaty-card-bg($white);
+  }
+
+  &.floaty-card-bg {
+    @include make-floaty-card-bg($body-color);
+  }
+
 }
 
-.floaty-shadow-1 {
-  @include make-floaty-shadow(4, 0.5);
-}
 
-.floaty-shadow-2 {
-  @include make-floaty-shadow(8, 0.5);
-}
 
-.floaty-grow-1 {
-  @include make-floaty-grow(5%);
-}
 
-.floaty-grow-2 {
-  @include make-floaty-grow(8%);
-}
 
-.floaty-grow-3 {
-  @include make-floaty-grow(13%);
-}
-
-.floaty-grow-4 {
-  @include make-floaty-grow(21%);
-}
-
-.floaty-size-1 {
-  @include make-floaty-size(4, $h1-font-size);
-}
-
-.floaty-size-2 {
-  @include make-floaty-size(4, $h2-font-size);
-}
-
-.floaty-size-3 {
-  @include make-floaty-size(4, $h3-font-size);
-}
-
-.floaty-size-4 {
-  @include make-floaty-size(4, $h4-font-size);
-}
-
-.floaty-size-5 {
-  @include make-floaty-size(4, $h5-font-size);
-}
-
-.floaty-size-6 {
-  @include make-floaty-size(4, $h6-font-size);
-}
 
 
 
