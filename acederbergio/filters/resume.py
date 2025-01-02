@@ -9,10 +9,6 @@ from typing_extensions import Unpack
 
 from acederbergio.filters import floaty, util
 
-FieldSep = Annotated[Literal["newline", "hfill"], pydantic.Field("newline")]
-
-TEX_SPACER = pf.RawInline(r" \hfill \\", format="latex")
-TEX_SPACER_INLINE = pf.RawInline(r" \hfill ", format="latex")
 ELEMENTS = {
     "resume-profile",
     "resume-contact",
@@ -28,6 +24,7 @@ ELEMENTS = {
 def get_hydrate(
     instance, element: pf.Element, elements: set[str] = ELEMENTS
 ) -> Callable[[pf.Doc, pf.Element], pf.Element] | None:
+    """For an element with an identifier, find the corresponding hydrator."""
     if element.identifier not in elements:
         return None
 
@@ -37,59 +34,43 @@ def get_hydrate(
     return hydrator
 
 
-def do_floaty(
-    config: floaty.ConfigFloatySection, doc: pf.Doc, element: pf.Element
-) -> None:
-    """Given a section, look for its floaty (or make it) and hydrate.
-
-    Only floaties with overlay content should need to include their own
-    floaty explicitly.
-    """
-    if doc.format != "html":
-        return
-
-    if not element.identifier:
-        raise ValueError("Missing identifier for div.")
-
-    floaty_identifier = element.identifier + "-floaty"
-    state = {"count": 0}
-
-    def handle_floaty(el: pf.Element, _: pf.Doc) -> pf.Element:
-        if not isinstance(el, pf.Div):
-            return el
-
-        if el.identifier != floaty_identifier:
-            return el
-
-        el = config.hydrate_html(el)
-        state["count"] += 1
-        return el
-
-    element.walk(handle_floaty)
-
-    if not state["count"]:
-        floaty = pf.Div(
-            identifier=floaty_identifier,
-            classes=["floaty"],
-        )
-        handle_floaty(floaty, doc)
-        element.content.append(floaty)
-
-
-def do_floaty_tex(items: Iterable[pf.Inline], sep: FieldSep):
-
-    # NOTE: Putting these in separate paragraphs does not work.
-    #       In the first case, put each on a new line. In the second,
-    #       try to share a line an equally.
-    match sep:
-        case "newline":
-            listed = ((item, TEX_SPACER) for item in items)
-        case "fill":
-            listed = ((item, TEX_SPACER_INLINE) for item in items)
-        case _:
-            raise ValueError
-
-    return pf.Para(*itertools.chain(*listed))
+# def do_floaty(
+#     config: floaty.ConfigFloatySection, doc: pf.Doc, element: pf.Element
+# ) -> None:
+#     """Given a section, look for its floaty (or make it) and hydrate.
+#
+#     Only floaties with overlay content should need to include their own
+#     floaty explicitly.
+#     """
+#     if doc.format != "html":
+#         return
+#
+#     if not element.identifier:
+#         raise ValueError("Missing identifier for div.")
+#
+#     floaty_identifier = element.identifier + "-floaty"
+#     state = {"count": 0}
+#
+#     def handle_floaty(el: pf.Element, _: pf.Doc) -> pf.Element:
+#         if not isinstance(el, pf.Div):
+#             return el
+#
+#         if el.identifier != floaty_identifier:
+#             return el
+#
+#         el = config.hydrate_html(el)
+#         state["count"] += 1
+#         return el
+#
+#     element.walk(handle_floaty)
+#
+#     if not state["count"]:
+#         floaty = pf.Div(
+#             identifier=floaty_identifier,
+#             classes=["floaty"],
+#         )
+#         handle_floaty(floaty, doc)
+#         element.content.append(floaty)
 
 
 class BaseExperienceItem(pydantic.BaseModel):
@@ -151,36 +132,36 @@ class BaseExperienceItem(pydantic.BaseModel):
 
 class ConfigExperienceItem(BaseExperienceItem):
     title: str
-    tools: Annotated[
-        None | floaty.ConfigFloatySection[floaty.ConfigFloatyItem],
-        pydantic.Field(
-            default=None,
-            description="Some tools to enumerate.",
-        ),
-    ]
+    # tools: Annotated[
+    #     None | floaty.ConfigFloatySection[floaty.ConfigFloatyItem],
+    #     pydantic.Field(
+    #         default=None,
+    #         description="Some tools to enumerate.",
+    #     ),
+    # ]
 
     def hydrate(self, doc: pf.Doc, element: pf.Element) -> pf.Element:
         element = super().hydrate(doc, element)
-        if self.tools is not None and format == "html":
-            identifier = f"floaty_tools_{self.title}_{self.organization}"
-            identifier = identifier.replace("-", "_").replace(" ", "_")
-            element.content = (
-                pf.Div(
-                    *element.content,
-                    pf.Div(
-                        pf.Header(pf.Str("Tools"), level=4),
-                        self.tools.hydrate_html(
-                            pf.Div(
-                                identifier=identifier,
-                                classes=["floaty"],
-                            )
-                        ),
-                    ),
-                ),
-            )
+        # if self.tools is not None and format == "html":
+        #     identifier = f"floaty_tools_{self.title}_{self.organization}"
+        #     identifier = identifier.replace("-", "_").replace(" ", "_")
+        #     element.content = (
+        #         pf.Div(
+        #             *element.content,
+        #             pf.Div(
+        #                 pf.Header(pf.Str("Tools"), level=4),
+        #                 self.tools.hydrate_html(
+        #                     pf.Div(
+        #                         identifier=identifier,
+        #                         classes=["floaty"],
+        #                     )
+        #                 ),
+        #             ),
+        #         ),
+        #     )
 
-        if self.tools is not None:
-            do_floaty(self.tools, doc, element)
+        # if self.tools is not None:
+        #     do_floaty(self.tools, doc, element)
 
         return element
 
@@ -198,10 +179,7 @@ class ConfigLinkItem(floaty.ConfigFloatyItem):
     font_awesome: str
     value: str
 
-    def do_floaty_tex(self):
-        """Replacement for HTML Floaty."""
-
-    def hydrate_tex(self) -> pf.Inline:
+    def hydrate_tex(self, *, _parent: floaty.ConfigFloaty) -> pf.Inline:
 
         out = pf.RawInline(
             r"\%s { %s } \label{%s}" % (self.font_awesome, self.title, self.value),
@@ -219,21 +197,13 @@ class ConfigLinkItem(floaty.ConfigFloatyItem):
 
 
 class ConfigContactItem(floaty.ConfigFloatyItem):
-    font_awesome: str
-    value: str
 
-    def hydrate_tex(self) -> pf.RawInline:
+    def hydrate_tex(self, *, _parent: floaty.ConfigFloaty) -> pf.Inline:
         return pf.RawInline(
-            r"\%s { %s } \label{%s}" % (self.font_awesome, self.value, self.key),
+            r"\%s { %s } \label{%s}"
+            % (self.image.tex.font_awesome, self.description, self.key),
             format="latex",
         )
-
-    def hydrate_iconify_tr(self, **kwargs: Unpack[floaty.IconifyKwargs]):
-        row = super().hydrate_iconify_tr(**kwargs)
-        extra = pf.TableCell(pf.Para(pf.Str(self.value)))
-        row.content = (*row.content, extra)
-
-        return row
 
 
 TODAY = date.today()
@@ -341,8 +311,7 @@ class ConfigHeadshot(pydantic.BaseModel):
     description: Annotated[str, pydantic.Field()]
 
 
-class ResumeFloatySection(floaty.ConfigFloatySection[floaty.T_ConfigFloatySection]):
-    sep: FieldSep
+# class ResumeFloatySection(floaty.ConfigFloatySection[floaty.T_ConfigFloatySection]):
 
 
 class ConfigResume(pydantic.BaseModel):
@@ -396,33 +365,33 @@ class ConfigResume(pydantic.BaseModel):
 
         return element
 
-    def hydrate_contact(self, doc: pf.Doc, element: pf.Element) -> pf.Element:
-        """Contact"""
-        if self.contact is None:
-            return element
-
-        if doc.format == "html":
-            do_floaty(self.contact, doc, element)
-        else:
-            contacts = (item.hydrate_tex() for item in self.contact.content.values())
-            para = do_floaty_tex(contacts, self.contact.sep)
-            element.content.append(para)
-
-        return element
-
-    def hydrate_links(self, doc: pf.Doc, element: pf.Element) -> pf.Element:
-        """Links."""
-        if self.links is None:
-            return element
-
-        if doc.format == "html":
-            do_floaty(self.links, doc, element)
-        else:
-            links = (item.hydrate_tex() for item in self.links.content.values())
-            para = do_floaty_tex(links, self.links.sep)
-            element.content.append(para)
-
-        return element
+    # def hydrate_contact(self, doc: pf.Doc, element: pf.Element) -> pf.Element:
+    #     """Contact"""
+    #     if self.contact is None:
+    #         return element
+    #
+    #     if doc.format == "html":
+    #         do_floaty(self.contact, doc, element)
+    #     else:
+    #         contacts = (item.hydrate_tex() for item in self.contact.content.values())
+    #         para = do_floaty_tex(contacts, self.contact.sep)
+    #         element.content.append(para)
+    #
+    #     return element
+    #
+    # def hydrate_links(self, doc: pf.Doc, element: pf.Element) -> pf.Element:
+    #     """Links."""
+    #     if self.links is None:
+    #         return element
+    #
+    #     if doc.format == "html":
+    #         do_floaty(self.links, doc, element)
+    #     else:
+    #         links = (item.hydrate_tex() for item in self.links.content.values())
+    #         para = do_floaty_tex(links, self.links.sep)
+    #         element.content.append(para)
+    #
+    #     return element
 
     def hydrate_skills(self, doc: pf.Doc, element: pf.Element) -> pf.Element:
         """Sidebar skills."""

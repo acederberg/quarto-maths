@@ -16,16 +16,29 @@ $floaty-shadow-1: make-shadow(5);
 $floaty-shadow-2: make-shadow(8);
 $floaty-shadow-3: make-shadow(13);
 $floaty-shadow-4: make-shadow(21);
+$floaty-shadows : (1:$floaty-shadow-1,
+  2: $floaty-shadow-2,
+  3: $floaty-shadow-3,
+  4: $floaty-shadow-4,
+);
 
 $floaty-transform-1: make-transform(5%);
 $floaty-transform-2: make-transform(8%);
 $floaty-transform-3: make-transform(13%);
 $floaty-transform-4: make-transform(21%);
+$floaty-transforms: (
+  1: $floaty-transform-1,
+  2: $floaty-transform-2,
+  3: $floaty-transform-3,
+  4: $floaty-transform-4,
+);
 
 $floaty-border-hover: 3px solid var(--bs-primary) !important;
 $floaty-border: 3px solid rgba(0, 0, 0, 0) !important;
 
 /*-- scss:rules --*/
+
+// start snippet make-floaty
 @mixin make-floaty {
   .floaty-container {
     @include make-container();
@@ -35,10 +48,37 @@ $floaty-border: 3px solid rgba(0, 0, 0, 0) !important;
 
       .floaty-item {
         @include make-col();
+        @include make-container();
+
+        .floaty-item-container {
+          @include make-row();
+
+          .floaty-item-img {
+            @include make-col();
+
+            display: flex;
+            flex-grow: 5;
+
+            i,
+            iconify-icon {
+              margin: auto;
+            }
+          }
+
+          .floaty-item-title {
+            @include make-col();
+            flex-grow: 13;
+          }
+
+          .floaty-item-text {
+            @include make-col();
+            flex-grow: 34;
+          }
+        }
+
 
         .card {
           border: none;
-          cursor: pointer;
 
           .card-img-top {
             display: flex;
@@ -56,7 +96,24 @@ $floaty-border: 3px solid rgba(0, 0, 0, 0) !important;
       }
     }
   }
+
+  &.floaty-hover {
+    .card {
+      cursor: pointer;
+    }
+  }
+
+  @for $k from 1 through 4 {
+    &.floaty-shadow-#{$k} {
+      iconify-icon {
+        filter: map-get($floaty-shadows, $k);
+      }
+    }
+  }
+
 }
+
+// end snippet make-floaty
 
 @mixin make-floaty-size($scale, $font-size) {
   .card {
@@ -74,7 +131,16 @@ $floaty-border: 3px solid rgba(0, 0, 0, 0) !important;
     }
 
     .card-body {
-      font-size: $font-size;
+
+      /* Because putting header elements in comes with too much bagage. */
+      .card-title {
+        font-weight: $font-weight-bold;
+        font-size: $font-size;
+      }
+
+      .card-text {
+        font-weight: $font-weight-lighter;
+      }
     }
   }
 }
@@ -90,21 +156,24 @@ $floaty-border: 3px solid rgba(0, 0, 0, 0) !important;
 
 /*
 
+  NOTE: It is often necessary to add some padding on top to avoid icon exceeding background.
 
 */
 @mixin make-icon-filter($filter-init, $filter-final, $transform) {
 
   .card {
     background: rgba(0, 0, 0, 0);
-    transition: border 0.1s;
+    transition: border 0.1s; //, background 1s;
 
     .card-img-top {
 
       i,
       iconify-icon {
         transition:
-          filter 0.1s,
+          /* filter 0.1s, */
           transform 0.1s;
+        /* background 1s; */
+
         filter: $filter-init;
       }
 
@@ -117,6 +186,10 @@ $floaty-border: 3px solid rgba(0, 0, 0, 0) !important;
 
       &.hover,
       &:hover {
+
+        filter: $filter-final;
+        /* filter: $filter-init; */
+        /* background: var(--bs-gray-200); */
         border-bottom: $floaty-border-hover;
         border-radius: 0px;
 
@@ -124,8 +197,9 @@ $floaty-border: 3px solid rgba(0, 0, 0, 0) !important;
 
           i,
           iconify-icon {
+            background: rgba(0, 0, 0, 0);
             transform: $transform;
-            filter: $filter-final;
+            filter: none;
           }
         }
 
@@ -143,34 +217,19 @@ $floaty-border: 3px solid rgba(0, 0, 0, 0) !important;
     }
   }
 
-  &.floaty-shadow-1 {
-    .card:hover {
-      background: $bg;
+  @for $k from 1 through 4 {
+    &.floaty-shadow-#{$k} {
+
+      /*
+      .hover,
+      .card:hover {
+        background: $bg;
+      }
+      */
+
+      @include make-icon-filter(map-get($floaty-shadows, $k), none, map-get($floaty-transforms, $k));
     }
-
-    @include make-icon-filter($floaty-shadow-1, none, $floaty-transform-1);
   }
-
-  &.floaty-shadow-2 {
-    .card:hover {
-      background: $bg;
-    }
-
-    @include make-icon-filter($floaty-shadow-2, none, $floaty-transform-2);
-  }
-
-  &.floaty-shadow-3 {
-    .card:hover {
-      background: $bg;
-    }
-
-    @include make-icon-filter($floaty-shadow-3, none, $floaty-transform-3);
-  }
-
-  &.floaty-shadow-4 {
-    @include make-icon-filter($floaty-shadow-4, none, $floaty-transform-4);
-  }
-
 }
 
 
@@ -182,7 +241,18 @@ $floaty-border: 3px solid rgba(0, 0, 0, 0) !important;
     filter: $filter;
     transition: filter 0.1s, transform 0.1s, background 1s;
     margin: auto;
+
+    // Remove the pre-existing shadow.
+    .card-img-top {
+
+      i,
+      iconify-icon {
+        filter: none;
+      }
+    }
+
   }
+
 
   &.floaty-hover {
 
@@ -207,20 +277,10 @@ $floaty-border: 3px solid rgba(0, 0, 0, 0) !important;
     @include make-bg($bg);
   }
 
-  &.floaty-shadow-1 {
-    @include make-card-filter($floaty-shadow-1, none, $floaty-transform-1);
-  }
-
-  &.floaty-shadow-2 {
-    @include make-card-filter($floaty-shadow-2, none, $floaty-transform-2);
-  }
-
-  &.floaty-shadow-3 {
-    @include make-card-filter($floaty-shadow-3, none, $floaty-transform-3);
-  }
-
-  &.floaty-shadow-4 {
-    @include make-card-filter($floaty-shadow-4, none, $floaty-transform-4);
+  @for $k from 1 through 4 {
+    &.floaty-shadow-#{$k} {
+      @include make-card-filter(map-get($floaty-shadows, $k), none, map-get($floaty-transforms, $k), );
+    }
   }
 
 }
@@ -233,29 +293,12 @@ $floaty-border: 3px solid rgba(0, 0, 0, 0) !important;
 .floaty {
   @include make-floaty();
 
-  &.floaty-size-1 {
-    @include make-floaty-size(4, $h1-font-size);
+  @for $k from 1 through 6 {
+    &.floaty-size-#{$k} {
+      @include make-floaty-size(4, map-get($font-sizes, $k));
+    }
   }
 
-  &.floaty-size-2 {
-    @include make-floaty-size(4, $h2-font-size);
-  }
-
-  &.floaty-size-3 {
-    @include make-floaty-size(4, $h3-font-size);
-  }
-
-  &.floaty-size-4 {
-    @include make-floaty-size(4, $h4-font-size);
-  }
-
-  &.floaty-size-5 {
-    @include make-floaty-size(4, $h5-font-size);
-  }
-
-  &.floaty-size-6 {
-    @include make-floaty-size(4, $h6-font-size);
-  }
 
 
   /* Backgrounds for Icons */
@@ -289,31 +332,26 @@ $floaty-border: 3px solid rgba(0, 0, 0, 0) !important;
 }
 
 
-
-
-
-
-
-
 /* ------------------------------------------------------------------------- */
 /* Under construction floaty. */
 
+@mixin make-under-construction-size($scale, $size) {
+  &.floaty {
+    @include make-floaty-size($scale, $size);
+  }
+}
+
 // Font size on icons must be overwritten directly.
-#under-construction {
-  border: 5px solid red;
-  border-radius: 10px;
-}
-
-#under-construction-detail {
-  background: rgba(255, 0, 0, 0.1);
-  width: 100%;
-}
-
-.under-construction-small,
-.under-construction-medium,
-.under-construction-large {
+.under-construction {
   width: 100%;
   border: 1px solid rgba(255, 0, 0, 0.2);
-  border-left: 5px solid red;
+  border-left: 5px solid var(--bs-red);
   border-radius: 5px;
+
+  @for $k from 1 through 6 {
+    &.under-construction-#{$k} {
+      @include make-under-construction-size(4, map-get($font-sizes, $k));
+    }
+  }
+
 }

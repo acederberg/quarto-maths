@@ -24,6 +24,22 @@ website:
   description: acederberg's blog.
   repo-url: https://github.com/acederberg/quarto-maths
   sidebar:
+    - id: components
+      title: Components
+      style: "docked"
+      contents:
+        - section: Overlay
+          contents:
+            - text: The Overlay Component
+              href: ./components/overlay/index.qmd
+        - section: Floaty
+          contents:
+            - text: The Floaty Component
+              href: ./components/floaty/index.qmd
+            - text: Floaty Component Variations
+              href: ./components/floaty/resume.qmd
+            - text: Under Construction
+              href: ./components/floaty/under-construction.qmd
     - id: projects
       title: Projects
       style: "docked"

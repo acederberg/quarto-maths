@@ -1,0 +1,15 @@
+---
+title: Storybook Resume
+---
+
+Here some of the componants and filter particular to the resume are discussed.
+This is because I would like to write some tests later that use this functionality.
+These componants are build on top of floaty and include some additional configuration.
+Further, floaties actualy have `PDF` equivalents - hoverever this must be
+implemented for each floaty item as the intended rendering differs quite a bit.
+
+## Contacts
+
+## Skills
+
+## Links

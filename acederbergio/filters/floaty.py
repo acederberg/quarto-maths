@@ -3,8 +3,9 @@
 For exact detail on how to use, see `./blog/dev/componants/floaty.qmd`.
 """
 
+import itertools
 import secrets
-from typing import Annotated, Generic, Literal, TypeAlias, TypeVar
+from typing import Annotated, Generic, Iterable, Literal, TypeVar
 
 import panflute as pf
 import pydantic
@@ -15,7 +16,11 @@ from acederbergio.filters import overlay, util
 
 logger = env.create_logger(__name__)
 
+TEX_SPACER = pf.RawInline(r" \hfill \\", format="latex")
+TEX_SPACER_INLINE = pf.RawInline(r" \hfill ", format="latex")
 
+FieldSize = Annotated[int, pydantic.Field(ge=1, le=6)]
+FieldSep = Annotated[Literal["newline", "hfill"], pydantic.Field("newline")]
 FieldInclude = Annotated[bool, pydantic.Field(default=True)]
 FieldKey = Annotated[
     str,
@@ -40,6 +45,43 @@ FieldLabel = Annotated[str | None, pydantic.Field(default=None)]
 FieldAttributes = Annotated[dict[str, str] | None, pydantic.Field(None)]
 
 
+def create_null_item(index: str | int, *, data: dict | str | None = None) -> dict:
+    overwrites = {
+        "image": {
+            "iconify": {
+                "set": "empty",
+                "name": "empty",
+            },
+        },
+        "key": f"empty-{index}",
+        "title": "empty",
+        "description": "This is a placeholder, it indicates that a pandoc filter is misconfigured.",
+        "classes": ["hidden"],
+    }
+
+    # NOTE: Passing strings should just create empty (invisible) cards,
+    #       in quarto files themselves it is possible to put ``None`` for
+    #       list items but ``_metadata.yaml`` will ommit repeated values
+    #       (which is probably a bug).
+    match data:
+        case dict():
+            overwrites = deep_update(overwrites, data)
+
+    return overwrites
+
+
+def replace_null_items(v):
+    """Replace junk content with ``empty``."""
+
+    v_as_dict = util.content_from_list_key(v)
+    out = {
+        k: item if isinstance(item, dict) else create_null_item(item, data=item)
+        for k, item in v_as_dict.items()
+    }
+    logger.warning(out)
+    return out
+
+
 class BaseConfigFloatyItemImageItem(pydantic.BaseModel):
     classes: util.FieldClasses
     attributes: FieldAttributes
@@ -54,11 +96,22 @@ class ConfigFloatyItemIconify(BaseConfigFloatyItemImageItem):
     name: str
 
 
+class ComfigFloatyItemTex(BaseConfigFloatyItemImageItem):
+    font_awesome: str
+
+
 class ConfigFloatyItemImage(pydantic.BaseModel):
+    tex: Annotated[
+        ComfigFloatyItemTex,
+        pydantic.Field(
+            default_factory=lambda: dict(font_awesome="phone"),
+            validate_default=True,
+        ),
+    ]
     iconify: Annotated[
         ConfigFloatyItemIconify,
         pydantic.Field(
-            default_factory=lambda: dict(set="simple-icons", name="quarto"),
+            default_factory=lambda: dict(set="mdi", name="bug"),
             validate_default=True,
         ),
     ]
@@ -84,17 +137,21 @@ class ConfigFloatyItem(pydantic.BaseModel):
     mode: FieldModeOptional
     image: ConfigFloatyItemImage
     href: FieldHref
+
+    # TODO: ``include_title`` should be ``include_body``.
     title: str
+    description: Annotated[str | None, pydantic.Field(default=None)]
     label: FieldLabel
 
     tooltip: Annotated[str | None, pydantic.Field(default=None)]
-    classes: Annotated[list[str] | None, pydantic.Field(default=None)]  # card classes.
+    classes: util.FieldClasses
+    classes_body: util.FieldClasses
 
     def get_attributes(
-        self, *, _parent: "ConfigFloaty", mode: FieldMode | None = None
+        self, *, container: "ConfigFloatyContainer", mode: FieldMode | None = None
     ) -> dict[str, str]:
 
-        mode = self.resolve_mode(_parent, mode)
+        mode = self.resolve_mode(container, mode)
         out = {
             "data-key": self.key,
             "aria-label": f"{self.label or self.title}",
@@ -102,23 +159,24 @@ class ConfigFloatyItem(pydantic.BaseModel):
         }
 
         # NOTE: Tooltip section should be configured to include tooltips.
-        if _parent.tooltip.include_item:
-            out.update(
-                {
-                    "data-bs-toggle": "tooltip",
-                    "data-bs-title": self.tooltip or self.title,
-                    "data-bs-placement": "bottom",
-                    "data-bs-custom-class": "floaty-tooltip",
-                }
-            )
+        out.update(
+            {
+                "data-bs-toggle": "tooltip",
+                "data-bs-title": self.tooltip or self.title,
+                "data-bs-placement": "bottom",
+                "data-bs-custom-class": "floaty-tooltip",
+            }
+        )
 
         if mode == "iconify":
             out["icon"] = f"{self.image.iconify.set_}:{self.image.iconify.name}"
 
         return out
 
-    def get_classes(self, *, _parent: "ConfigFloaty", mode: FieldMode | None = None):
-        mode = self.resolve_mode(_parent, mode)
+    def get_classes(
+        self, *, container: "ConfigFloatyContainer", mode: FieldMode | None = None
+    ):
+        mode = self.resolve_mode(container, mode)
         if mode == "iconify":
             return self.image.iconify.classes or list()
 
@@ -129,17 +187,19 @@ class ConfigFloatyItem(pydantic.BaseModel):
         return out
 
     def create_attrs(
-        self, *, _parent: "ConfigFloaty", mode: FieldMode | None = None
+        self, *, container: "ConfigFloatyContainer", mode: FieldMode | None = None
     ) -> str:
         return " ".join(
             f"{key}='{value}'"
-            for key, value in self.get_attributes(_parent=_parent, mode=mode).items()
+            for key, value in self.get_attributes(
+                container=container, mode=mode
+            ).items()
         )
 
     def create_classes(
-        self, *, _parent: "ConfigFloaty", mode: FieldMode | None = None
+        self, *, container: "ConfigFloatyContainer", mode: FieldMode | None = None
     ) -> str:
-        classes = self.get_classes(_parent=_parent, mode=mode)
+        classes = self.get_classes(container=container, mode=mode)
         if not classes:
             return ""
 
@@ -147,237 +207,311 @@ class ConfigFloatyItem(pydantic.BaseModel):
         return classes
 
     def resolve_mode(
-        self, _parent: "ConfigFloaty", mode: FieldMode | None
+        self, container: "ConfigFloatyContainer", mode: FieldMode | None
     ) -> FieldMode:
-        return mode or self.mode or _parent.mode
+        return mode or self.mode or container.mode
 
     def hydrate_image(
         self,
         *,
-        _parent: "ConfigFloaty",
+        container: "ConfigFloatyContainer",
         inline: bool = False,
         mode: FieldMode | None = None,
     ) -> pf.RawBlock | pf.RawInline:
         """Should make the iconify icon."""
 
-        mode = self.resolve_mode(_parent, mode)
+        mode = self.resolve_mode(container, mode)
 
-        attrs = self.create_attrs(_parent=_parent, mode=mode)
-        classes = self.create_classes(_parent=_parent, mode=mode)
+        attrs = self.create_attrs(container=container, mode=mode)
+        classes = self.create_classes(container=container, mode=mode)
         tag = "iconify-icon" if mode != "bootstrap" else "i"
         raw = f"<{tag} {attrs} {classes}></{tag}>"
         el = (pf.RawInline if inline else pf.RawBlock)(raw, format="html")
 
         return el
 
-    def hydrate_card(self, *, _parent: "ConfigFloaty"):
-        classes = ["card"]
-        if _parent.container.classes_items is not None:
-            classes = ["card", *_parent.container.classes_items]
-        if self.classes:
-            classes += self.classes
-
+    def hydrate_card_image(self, *, container: "ConfigFloatyContainer"):
         return pf.Div(
+            self.hydrate_image(container=container),
+            classes=["card-img-top"],
+        )
+
+    def iter_body(
+        self, *, container: "ConfigFloatyContainer", is_container: bool | None = None
+    ):
+        is_container = is_container or (container.columns < 0)
+        base_name = "floaty-item" if is_container else "card"
+
+        if container.include_titles:
+            yield pf.Div(
+                pf.Plain(pf.Str(self.title)),
+                classes=[base_name + "-title"],
+            )
+
+        if container.include_descriptions and self.description is not None:
+            yield pf.Div(
+                pf.Plain(pf.Str(self.description)),
+                classes=[base_name + "-text"],
+            )
+
+    def hydrate_card_body(self, *, container: "ConfigFloatyContainer"):
+        classes = self.resolve_classes(
+            ["card-body"], self.classes_body, container.classes_card_bodys
+        )
+        return pf.Div(
+            *self.iter_body(container=container, is_container=False),
+            classes=classes,
+        )
+
+    def resolve_classes(self, update: list[str], *args: list[str] | None):
+        for item in args:
+            if item is not None:
+                update += item
+
+        return update
+
+    def hydrate_card(self, *, container: "ConfigFloatyContainer"):
+        classes = self.resolve_classes(["card"], container.classes_cards, self.classes)
+        return pf.Div(
+            self.hydrate_card_image(container=container),
+            self.hydrate_card_body(container=container),
             classes=classes,
             attributes={"data-key": self.key},
         )
 
-    def hydrate_card_image(self, *, _parent: "ConfigFloaty"):
+    def hydrate_container(self, *, container: "ConfigFloatyContainer"):
         return pf.Div(
-            self.hydrate_image(_parent=_parent),
-            classes=["card-img-top"],
+            pf.Div(
+                self.hydrate_image(container=container),
+                classes=["floaty-item-img"],
+            ),
+            *self.iter_body(container=container, is_container=True),
+            classes=["floaty-item-container"],
         )
 
-    def hydrate_card_body(self, *, _parent: "ConfigFloaty"):
-        text = pf.Plain(pf.Str(self.title))
-        if _parent.container.columns < 0:
-            image = self.hydrate_image(_parent=_parent, inline=True)
-            text.content.insert(0, pf.Str(" "))
-            text.content.insert(0, image)
-
-        return pf.Div(pf.Div(text, classes=["card-text"]), classes=["card-body"])
-
-    def hydrate(
+    def hydrate_html(
         self,
         *,
-        _parent: "ConfigFloaty",
+        container: "ConfigFloatyContainer",
     ):
-        el = self.hydrate_card(_parent=_parent)
-        if _parent.container.columns < 0:
+        return (
+            self.hydrate_container(container=container)
+            if container.columns < 0
+            else self.hydrate_card(container=container)
+        )
 
-            body = self.hydrate_card_body(_parent=_parent)
-            body.classes.append("text-start")
-
-            el.content.append(body)
-            return el
-
-        el.content.append(self.hydrate_card_image(_parent=_parent))
-        if _parent.container.include_titles:
-            el.content.append(self.hydrate_card_body(_parent=_parent))
-
-        return el
+    def hydrate_tex(self, *, container: "ConfigFloatyContainer") -> pf.Inline:
+        """This will be very subclass specific, do not implement."""
+        raise ValueError(f"Not implement for `{self.__class__.__name__}`.")
 
     def hydrate_overlay_content_item(
         self,
         element: pf.Element,
         *,
-        _parent: "ConfigFloaty",
+        container: "ConfigFloatyContainer",
     ):
         """Should match ``.overlay-content``."""
         element.classes.append("overlay-content-item")
         element.content = (
-            pf.Div(self.hydrate_image(_parent=_parent, inline=False)),
+            pf.Div(self.hydrate_image(container=container, inline=False)),
             *element.content,
         )
 
         return element
 
 
-T_ConfigFloaty = TypeVar("T_ConfigFloaty", bound=ConfigFloatyItem)
+class ConfigFloatyTex(pydantic.BaseModel):
+    """Options for rendering latex."""
+
+    sep: FieldSep
 
 
 class ConfigFloatyContainer(pydantic.BaseModel):
-    include: FieldInclude
-    include_titles: Annotated[bool, pydantic.Field(default=False)]
+    """Global configuration for floaty items is defined here.
 
-    classes: util.FieldClasses
-    classes_items: util.FieldClasses
-    classes_rows: util.FieldClasses
+    This is passed to most methods of ``ConfigFloatyItem`` to determine how
+    each ``card`` or ``grid`` renders.
 
-    columns: Annotated[int, pydantic.Field(3)]
+    ``content`` is not specified here since it might have different types
+    in items that re-use floaty.
+    """
 
-
-class ConfigFloatyTip(pydantic.BaseModel):
-    include: FieldInclude
-    include_item: FieldInclude
-    classes: util.FieldClasses
-
-    text: Annotated[
-        str,
-        pydantic.Field(default="Click on any of the icons to see more."),
-    ]
-
-
-class ConfigFloaty(pydantic.BaseModel, Generic[T_ConfigFloaty]):
-
-    identifier: str
-    include: FieldInclude
-    mode: FieldMode
-
-    container: ConfigFloatyContainer
-    content: dict[str, T_ConfigFloaty]
-    overlay: Annotated[overlay.ConfigOverlay | None, pydantic.Field(None)]
-    tooltip: Annotated[
-        ConfigFloatyTip,
+    tex: Annotated[
+        ConfigFloatyTex,
         pydantic.Field(default_factory=dict, validate_default=True),
     ]
 
-    @classmethod
-    def createNullContent(
-        cls, index: str | int, *, data: dict | str | None = None
-    ) -> dict:
-        overwrites = {
-            "image": {
-                "iconify": {
-                    "set": "empty",
-                    "name": "empty",
-                },
-            },
-            "key": f"empty-{index}",
-            "title": "empty",
-            "classes": ["hidden"],
-        }
+    include_titles: Annotated[bool, pydantic.Field(default=False)]
+    include_descriptions: Annotated[bool, pydantic.Field(default=False)]
 
-        match data:
-            case dict():
-                overwrites = deep_update(overwrites, data)
-            case str() as css_class if css_class:
-                overwrites["classes"] = [data]
+    size: FieldSize
+    mode: FieldMode
+    columns: Annotated[
+        int,
+        pydantic.Field(
+            default=3,
+            description="""
+            Number of columns in each ``floaty-row``.
+            When this is negative, ``floaty-grid`` is used.
+            When this is ``0``, there will be only one row.
+        """,
+        ),
+    ]
 
-        return overwrites
+    classes: util.FieldClasses
+    classes_items: Annotated[
+        util.FieldClasses,
+        pydantic.Field(
+            description="""
+                ``SCSS`` classes to be applied to all items. 
+                This controls the classes on ``floaty-items``, not the cards.
+                To apply classes to all cards, use ``$.classes_cards`.
+                To apply classes to a specific item, use ``.classes`` of 
+                ``ConfigFloatyItem``.
+            """
+        ),
+    ]
+    classes_rows: Annotated[
+        util.FieldClasses,
+        pydantic.Field(
+            description="""
+                ``SCSS`` classes to be applied to all rows (``.floaty-row``).
+            """
+        ),
+    ]
 
-    @pydantic.field_validator("content", mode="before")
-    def content_from_list(cls, v):
+    classes_cards: Annotated[
+        util.FieldClasses,
+        pydantic.Field(
+            description="""
+            ``SCSS`` classes to be applied to all cards.
+            To apply this to each card container (the ``floaty-item`` containing
+            the card) use ``$.classes_items``.
+        """
+        ),
+    ]
+    classes_card_bodys: Annotated[
+        util.FieldClasses,
+        pydantic.Field(
+            description="SCSS classes to be applied to the body of each card."
+        ),
+    ]
 
-        if isinstance(v, list):
-            v_as_dict = {
-                x.get("key") or str(k): x
-                for k, w in enumerate(v)
-                if (
-                    x := (
-                        w
-                        if isinstance(w, dict) and not w.get("custom", False)
-                        else cls.createNullContent(k, data=w)
-                    )
-                )
-                is not None
-            }
-
-            if len(v_as_dict) != len(v):
-                raise ValueError("Key collisions found.")
-
-            return v_as_dict
-
-        return v
-
+    @pydantic.computed_field
     @property
-    def js_name(self) -> str:
-        name_segments = tuple(map(str.title, self.identifier.lower().split("-")))
-        return "floaty" + "".join(name_segments)
+    def classes_always(self) -> list[str]:
+        return ["floaty", f"floaty-size-{self.size}"]
 
-    def hydrate_html_js(self, element: pf.Element):
-        if self.overlay is None:
-            return element
-
-        if not element.identifier:
-            raise ValueError("Missing identifier for div.")
-
-        # NOTE: Assumes that
-        js_overlay_id = f"overlayControls: {self.overlay.js_name}"
-        js = f"const {self.js_name} = lazyFloaty('{element.identifier}', {{ { js_overlay_id } }})\n"
-        js += f"globalThis.{self.js_name} = {self.js_name}\n"
-        js += f'console.log("overlay", {self.overlay.js_name})'
-
-        element.content.append(
-            pf.RawBlock(f"<script id={self.identifier + '-script' }>{js}</script>")
-        )
+    def hydrate(self, element: pf.Element):
+        element.classes += self.classes_always
+        if self.classes is not None:
+            element.classes += self.classes
 
         return element
 
-    def hydrate_html(self, element: pf.Element):
+    def hydrate_html(
+        self,
+        owner: util.BaseHasIdentifier,
+        element: pf.Element,
+        *items: ConfigFloatyItem,
+    ):
         """Create floaties and wrap in the container div."""
         # NOTE: Links are only ever included when the overlay is not present.
 
-        element.classes.append("floaty")
-        if self.container.classes is not None:
-            element.classes += self.container.classes
+        element = self.hydrate(element)
 
         classes_items = ["floaty-item"]
-        if self.container.classes_items is not None:
-            classes_items += self.container.classes_items
+        if self.classes_items is not None:
+            classes_items += self.classes_items
 
-        items = list(self.content.values())
-        n = 1000 if self.container.columns == 0 else 1000
-        n = 1 if self.container.columns < 0 else n
+        n = 1000 if self.columns == 0 else self.columns
+        n = 1 if self.columns < 0 else n
 
         sorted = (
             (
-                pf.Div(item.hydrate(_parent=self), classes=classes_items)
+                pf.Div(
+                    item.hydrate_html(container=self),
+                    classes=classes_items,
+                )
                 for item in items[k : k + n]
             )
             for k in range(0, len(items), n)
         )
 
         classes_rows = ["floaty-row"]
-        if self.container.classes_rows is not None:
-            classes_rows += self.container.classes_rows
+        if self.classes_rows is not None:
+            classes_rows += self.classes_rows
 
         rows = (pf.Div(*items, classes=classes_rows) for items in sorted)
 
         element.content.append(pf.Div(*rows, classes=["floaty-container"]))
 
-        self.hydrate_html_js(element)
+        if "overlay" in owner.model_fields:
+            element = self.hydrate_html_js(
+                element,
+                overlay=owner.overlay,  # type: ignore
+                owner=owner,
+            )
         return element
+
+    def hydrate_html_js(
+        self,
+        element: pf.Element,
+        *,
+        overlay: overlay.ConfigOverlay | None,
+        owner: util.BaseHasIdentifier,
+    ):
+        if overlay is None:
+            return element
+
+        if not element.identifier:
+            raise ValueError("Missing identifier for div.")
+
+        js_overlay_id = f"overlayControls: {overlay.js_name}"
+        js = f"const {owner.js_name} = lazyFloaty('{ element.identifier }', {{ {js_overlay_id} }})\n"
+        js += f"globalThis.{owner.js_name} = {owner.js_name}\n"
+        js += f'console.log("overlay", {overlay.js_name})'
+
+        element.content.append(
+            pf.RawBlock(f"<script id={owner.identifier + '-script' }>{js}</script>")
+        )
+
+        return element
+
+    def hydrate_tex(self, items: Iterable[pf.Inline]):
+
+        # NOTE: Putting these in separate paragraphs does not work.
+        #       In the first case, put each on a new line. In the second,
+        #       try to share a line an equally.
+        match self.tex.sep:
+            case "newline":
+                listed = ((item, TEX_SPACER) for item in items)
+            case "fill":
+                listed = ((item, TEX_SPACER_INLINE) for item in items)
+            case _:
+                raise ValueError
+
+        return pf.Para(*itertools.chain(*listed))
+
+
+T_ConfigFloaty = TypeVar("T_ConfigFloaty", bound=ConfigFloatyItem)
+
+
+class ConfigFloaty(util.BaseHasIdentifier, Generic[T_ConfigFloaty]):
+    content: Annotated[
+        dict[str, T_ConfigFloaty],
+        pydantic.Field(description=""),
+        pydantic.BeforeValidator(replace_null_items),
+    ]
+
+    container: Annotated[
+        ConfigFloatyContainer,
+        pydantic.Field(description="", validate_default=True, default_factory=dict),
+    ]
+    overlay: Annotated[overlay.ConfigOverlay | None, pydantic.Field(None)]
+
+    def hydrate_html(self, element: pf.Element) -> pf.Element:
+        return self.container.hydrate_html(self, element, *self.content.values())
 
     def get_content(self, element: pf.Element) -> T_ConfigFloaty | None:
         """Given an element, try to find its corresponding ``content`` item."""
@@ -390,14 +524,11 @@ class ConfigFloaty(pydantic.BaseModel, Generic[T_ConfigFloaty]):
 
 
 class Config(pydantic.BaseModel):
-    floaty: dict[str, ConfigFloaty[ConfigFloatyItem]]
-
-    @pydantic.field_validator("floaty", mode="before")
-    def _validate_floaty(cls, v):
-        if isinstance(v, dict):
-            return {k: {**w, "identifier": k} for k, w in v.items()}
-
-        return v
+    floaty: Annotated[
+        dict[str, ConfigFloaty[ConfigFloatyItem]] | None,
+        pydantic.Field(None),
+        pydantic.BeforeValidator(util.content_from_list_identifier),
+    ]
 
     @pydantic.computed_field
     @property

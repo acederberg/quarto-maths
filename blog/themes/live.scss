@@ -249,6 +249,7 @@
 
 #quarto-render-notification {
   transition: 15s border-color;
+  z-index: 9000;
 
   i {
     transition: 15s color, 0.1s filter;

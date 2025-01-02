@@ -1,0 +1,296 @@
+format:
+  html:
+    page-layout: full
+    theme:
+      light:
+        - themes/extras.scss
+        - cosmo
+        - themes/live.scss
+        - themes/floaty.scss
+        - themes/index.scss
+        - themes/overlay.scss
+        - themes/resume.scss
+
+title: Floaty Storybook
+contents: true
+live_reload: true
+live_depends_on:
+  - blog/components/floaty/floaty-pure.html
+floaty:
+  # start snippet 0
+  - identifier: floaty-plain
+    container:
+      size: 1
+      classes:
+        - floaty-shadow-1
+    content:
+      - image:
+          iconify:
+            set: misc
+            name: quarto
+        key: quarto
+        title: Quarto
+      - image:
+          iconify:
+            set: devicon
+            name: latex
+        key: latex
+        title: Latex
+      - image:
+          iconify:
+            set: devicon
+            name: pulumi
+        key: pulumi
+        title: Pulumi
+
+  # end snippet 0
+  # start snippet 1
+  - identifier: floaty-bg-grow-shadow
+    container:
+      include_titles: true
+      size: 1
+      classes:
+        - floaty-hover
+        - floaty-shadow-2
+        - floaty-bg-light
+        - py-5
+      classes_items:
+        - py-3
+      classes_rows:
+        - "py-1"
+    content:
+      - image:
+          iconify:
+            set: misc
+            name: quarto
+        key: quarto
+        title: Quarto
+      - empty-1
+      - image:
+          iconify:
+            set: devicon
+            name: latex
+        key: latex
+        title: Latex
+      - empty-2
+      - image:
+          iconify:
+            set: devicon
+            name: pulumi
+        key: pulumi
+        title: Pulumi
+      - empty-3
+      - image:
+          iconify:
+            set: logos
+            name: github-icon
+        key: github
+        title: Github
+      - empty-4
+      - image:
+          iconify:
+            set: devicon
+            name: git
+        key: git
+        title: Git
+        # end snippet 1
+  # start snippet 2
+  - identifier: floaty-bg-card-grow-shadow
+    container:
+      include_titles: true
+      size: 3
+      classes:
+        - floaty
+        - floaty-hover
+        - floaty-shadow-3
+        - floaty-card-bg-light
+        - py-5
+      classes_items:
+        - px-1
+        - py-3
+
+    content:
+      - image:
+          iconify:
+            set: devicon
+            name: neovim
+        key: neovim
+        title: Neovim
+      - empty-1
+      - image:
+          iconify:
+            set: devicon
+            name: python-wordmark
+        key: python
+        title: Python
+      - empty-2
+      - image:
+          iconify:
+            set: devicon
+            name: nodejs-wordmark
+        key: nodejs
+        title: Nodejs
+      - empty-3
+      - image:
+          iconify:
+            set: misc
+            name: mermaid
+        key: mermaid
+        title: Mermaidjs
+        description: |
+          For making some terrific diagrams.
+      - empty-4
+      - image:
+          iconify:
+            set: logos
+            name: linode
+        key: linode
+        title: Linode
+        description: |
+          This is where the servers live.
+        # end snippet 2
+
+  # start snippet 3
+  - identifier: floaty-bootstrap
+    overlay:
+      identifier: floaty-bootstrap-overlay
+      colorize:
+        color: teal
+        color_text: black
+        color_text_hover: white
+    container:
+      mode: bootstrap
+      columns: 0
+      include_titles: false
+      size: 5
+      classes:
+        - floaty
+        - floaty-hover
+        - floaty-shadow-2
+        - floaty-bg-light
+        - py-2
+      classes_rows:
+        - "py-5"
+      classes_items:
+        - px-1
+      classes_cards:
+        - text-teal
+    content:
+      - image:
+          bootstrap:
+            name: filetype-py
+        title: Python
+        key: py
+      - image:
+          bootstrap:
+            name: filetype-js
+        title: Javascript
+        key: js
+      - image:
+          bootstrap:
+            name: filetype-html
+        title: HTML
+        key: html
+      - image:
+          bootstrap:
+            name: filetype-yml
+        title: YAML
+        key: yaml
+      - image:
+          bootstrap:
+            name: file-earmark-pdf
+        title: PDF
+        key: pdf
+      - image:
+          bootstrap:
+            name: alarm
+        title: Alaram
+        key: alarm
+        # end snippet 3
+  # start snippet 4
+  - identifier: floaty-rows
+    container:
+      size: 6
+      mode: bootstrap
+      classes:
+        - floaty-hover
+      columns: -1
+      include_titles: true
+      include_descriptions: true
+    content:
+      - title: Phone
+        description: (505) 589 - 6914
+        key: phone
+        image:
+          font_awesome: faPhone
+          bootstrap:
+            name: phone
+
+      - title: Email
+        description: adrn.cederberg123@gmail.com
+        key: email
+        font_awesome: faEnvelope
+        image:
+          bootstrap:
+            name: envelope
+
+      - title: Location
+        description: Albuquerque, NM
+        key: location
+        font_awesome: faLocationArrow
+        image:
+          bootstrap:
+            name: compass
+            # end snippet 4
+under_construction:
+  # start snippet 5
+  - identifier: uses-bootstrap
+    container:
+      size: 1
+      mode: bootstrap
+      classes:
+        - floaty-shadow-1
+    content:
+      key: uses-bs
+      title: This Floaty uses a Bootstrap Icon
+      image:
+        bootstrap:
+          # NOTE: Applies classes specificaly to the bootstrap icon.
+          classes:
+            - bg-yellow
+            - border
+            - border-black
+            - border-5
+            - rounded-4
+            - p-5
+      classes:
+        - p-3
+        # end snippet 5
+  # start snippet 6
+  - identifier: custom
+    container:
+      size: 1
+      mode: bootstrap
+      classes:
+        - floaty-shadow-1
+    mode: bootstrap
+    content:
+      key: a-bug
+      title: A Bug
+      description: Look! *There is a bug.*
+      image:
+        bootstrap:
+          name: bug-fill
+          classes:
+            - bg-black
+            - border
+            - border-red
+            - border-5
+            - rounded-5
+            - p-5
+      classes:
+        - p-3
+        - text-red
+      # end snippet 6
+
+
