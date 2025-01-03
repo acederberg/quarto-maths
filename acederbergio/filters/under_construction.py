@@ -68,9 +68,9 @@ class ConfigContainer(floaty.ConfigFloatyContainer):
         return ["under-construction", f"under-construction-{self.size}", "floaty"]
 
 
-class ConfigUnderConstruction(floaty.ConfigFloaty):
-
-    container: ConfigContainer  # type: ignore
+class ConfigUnderConstruction(
+    floaty.ConfigFloaty[floaty.ConfigFloatyItem, ConfigContainer]
+):
 
     def hydrate(
         self,

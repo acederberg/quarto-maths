@@ -19,7 +19,7 @@ logger = env.create_logger(__name__)
 TEX_SPACER = pf.RawInline(r" \hfill \\", format="latex")
 TEX_SPACER_INLINE = pf.RawInline(r" \hfill ", format="latex")
 
-FieldSize = Annotated[int, pydantic.Field(ge=1, le=6)]
+FieldSize = Annotated[int, pydantic.Field(default=2, ge=1, le=6)]
 FieldSep = Annotated[Literal["newline", "hfill"], pydantic.Field("newline")]
 FieldInclude = Annotated[bool, pydantic.Field(default=True)]
 FieldKey = Annotated[
@@ -78,8 +78,15 @@ def replace_null_items(v):
         k: item if isinstance(item, dict) else create_null_item(item, data=item)
         for k, item in v_as_dict.items()
     }
-    logger.warning(out)
     return out
+
+
+def update_classes(update: list[str], *args: list[str] | None):
+    for item in args:
+        if item is not None:
+            update += item
+
+    return update
 
 
 class BaseConfigFloatyItemImageItem(pydantic.BaseModel):
@@ -96,13 +103,13 @@ class ConfigFloatyItemIconify(BaseConfigFloatyItemImageItem):
     name: str
 
 
-class ComfigFloatyItemTex(BaseConfigFloatyItemImageItem):
+class ConfigFloatyItemTex(BaseConfigFloatyItemImageItem):
     font_awesome: str
 
 
 class ConfigFloatyItemImage(pydantic.BaseModel):
     tex: Annotated[
-        ComfigFloatyItemTex,
+        ConfigFloatyItemTex,
         pydantic.Field(
             default_factory=lambda: dict(font_awesome="phone"),
             validate_default=True,
@@ -130,12 +137,20 @@ class ConfigFloatyItemImage(pydantic.BaseModel):
 #     inline: NotRequired[bool]
 #     _parent: Required["ConfigFloaty"]
 
+T_ConfigFloatyContainer = TypeVar(
+    "T_ConfigFloatyContainer", bound="ConfigFloatyContainer"
+)
 
-class ConfigFloatyItem(pydantic.BaseModel):
+
+class ConfigFloatyItem(pydantic.BaseModel, Generic[T_ConfigFloatyContainer]):
     key: FieldKey
+    container_maybe: Annotated[T_ConfigFloatyContainer | None, pydantic.Field(None)]
 
     mode: FieldModeOptional
-    image: ConfigFloatyItemImage
+    image: Annotated[
+        ConfigFloatyItemImage,
+        pydantic.Field(default_factory=dict, validate_default=True),
+    ]
     href: FieldHref
 
     # TODO: ``include_title`` should be ``include_body``.
@@ -147,11 +162,30 @@ class ConfigFloatyItem(pydantic.BaseModel):
     classes: util.FieldClasses
     classes_body: util.FieldClasses
 
-    def get_attributes(
-        self, *, container: "ConfigFloatyContainer", mode: FieldMode | None = None
-    ) -> dict[str, str]:
+    @pydantic.computed_field
+    @property
+    def container(self) -> T_ConfigFloatyContainer:
+        if self.container_maybe is None:
+            raise ValueError("Container not set.")
 
-        mode = self.resolve_mode(container, mode)
+        return self.container_maybe
+
+    @pydantic.computed_field
+    @property
+    def is_container(self) -> bool:
+        return self.container.columns < 0
+
+    @pydantic.computed_field
+    @property
+    def class_base_name(self) -> str:
+        return "floaty-item" if self.is_container else "card"
+
+    def class_name(self, *v: str) -> str:
+        return self.class_base_name + "-" + "-".join(v)
+
+    def get_attributes(self, *, mode: FieldMode | None = None) -> dict[str, str]:
+
+        mode = self.resolve_mode(mode)
         out = {
             "data-key": self.key,
             "aria-label": f"{self.label or self.title}",
@@ -173,10 +207,8 @@ class ConfigFloatyItem(pydantic.BaseModel):
 
         return out
 
-    def get_classes(
-        self, *, container: "ConfigFloatyContainer", mode: FieldMode | None = None
-    ):
-        mode = self.resolve_mode(container, mode)
+    def get_classes(self, *, mode: FieldMode | None = None):
+        mode = self.resolve_mode(mode)
         if mode == "iconify":
             return self.image.iconify.classes or list()
 
@@ -186,134 +218,131 @@ class ConfigFloatyItem(pydantic.BaseModel):
 
         return out
 
-    def create_attrs(
-        self, *, container: "ConfigFloatyContainer", mode: FieldMode | None = None
-    ) -> str:
+    def create_attrs(self, *, mode: FieldMode | None = None) -> str:
         return " ".join(
-            f"{key}='{value}'"
-            for key, value in self.get_attributes(
-                container=container, mode=mode
-            ).items()
+            f"{key}='{value}'" for key, value in self.get_attributes(mode=mode).items()
         )
 
-    def create_classes(
-        self, *, container: "ConfigFloatyContainer", mode: FieldMode | None = None
-    ) -> str:
-        classes = self.get_classes(container=container, mode=mode)
+    def create_classes(self, *, mode: FieldMode | None = None) -> str:
+        classes = self.get_classes(mode=mode)
         if not classes:
             return ""
 
         classes = "class=" + "'" + " ".join(classes) + "'"
         return classes
 
-    def resolve_mode(
-        self, container: "ConfigFloatyContainer", mode: FieldMode | None
-    ) -> FieldMode:
-        return mode or self.mode or container.mode
+    def iter_body(self, *, is_container: bool | None = None):
+        is_container = is_container if is_container is None else self.is_container
+
+        if self.container.include_titles:
+            yield pf.Div(
+                pf.Plain(pf.Str(self.title)),
+                classes=[self.class_name("title")],
+            )
+
+        if self.container.include_descriptions and self.description is not None:
+            yield pf.Div(
+                pf.Plain(pf.Str(self.description)),
+                classes=[self.class_name("text")],
+            )
+
+    def resolve_mode(self, mode: FieldMode | None) -> FieldMode:
+        return mode or self.mode or self.container.mode
 
     def hydrate_image(
         self,
         *,
-        container: "ConfigFloatyContainer",
         inline: bool = False,
         mode: FieldMode | None = None,
     ) -> pf.RawBlock | pf.RawInline:
         """Should make the iconify icon."""
 
-        mode = self.resolve_mode(container, mode)
+        mode = self.resolve_mode(mode)
 
-        attrs = self.create_attrs(container=container, mode=mode)
-        classes = self.create_classes(container=container, mode=mode)
+        attrs = self.create_attrs(mode=mode)
+        classes = self.create_classes(mode=mode)
         tag = "iconify-icon" if mode != "bootstrap" else "i"
         raw = f"<{tag} {attrs} {classes}></{tag}>"
         el = (pf.RawInline if inline else pf.RawBlock)(raw, format="html")
 
         return el
 
-    def hydrate_card_image(self, *, container: "ConfigFloatyContainer"):
+    def hydrate_footer(self) -> pf.Div | None:
+        return None
+
+    def hydrate_card_image(
+        self,
+    ):
         return pf.Div(
-            self.hydrate_image(container=container),
+            self.hydrate_image(),
             classes=["card-img-top"],
         )
 
-    def iter_body(
-        self, *, container: "ConfigFloatyContainer", is_container: bool | None = None
+    def hydrate_card_body(
+        self,
     ):
-        is_container = is_container or (container.columns < 0)
-        base_name = "floaty-item" if is_container else "card"
-
-        if container.include_titles:
-            yield pf.Div(
-                pf.Plain(pf.Str(self.title)),
-                classes=[base_name + "-title"],
-            )
-
-        if container.include_descriptions and self.description is not None:
-            yield pf.Div(
-                pf.Plain(pf.Str(self.description)),
-                classes=[base_name + "-text"],
-            )
-
-    def hydrate_card_body(self, *, container: "ConfigFloatyContainer"):
-        classes = self.resolve_classes(
-            ["card-body"], self.classes_body, container.classes_card_bodys
+        classes = update_classes(
+            ["card-body"], self.classes_body, self.container.classes_card_bodys,
         )
         return pf.Div(
-            *self.iter_body(container=container, is_container=False),
+            *self.iter_body(is_container=False),
             classes=classes,
         )
 
-    def resolve_classes(self, update: list[str], *args: list[str] | None):
-        for item in args:
-            if item is not None:
-                update += item
-
-        return update
-
-    def hydrate_card(self, *, container: "ConfigFloatyContainer"):
-        classes = self.resolve_classes(["card"], container.classes_cards, self.classes)
-        return pf.Div(
-            self.hydrate_card_image(container=container),
-            self.hydrate_card_body(container=container),
+    def hydrate_card(
+        self,
+    ):
+        classes = update_classes(["card"], self.container.classes_cards, self.classes,)
+        out = pf.Div(
+            self.hydrate_card_image(),
+            self.hydrate_card_body(),
             classes=classes,
             attributes={"data-key": self.key},
         )
 
-    def hydrate_container(self, *, container: "ConfigFloatyContainer"):
-        return pf.Div(
+        footer = self.hydrate_footer()
+        if footer is not None:
+            out.content.append(footer)
+
+        return out
+
+    def hydrate_container(self):
+        out = pf.Div(
             pf.Div(
-                self.hydrate_image(container=container),
+                self.hydrate_image(),
                 classes=["floaty-item-img"],
             ),
-            *self.iter_body(container=container, is_container=True),
+            *self.iter_body(is_container=True),
             classes=["floaty-item-container"],
         )
 
-    def hydrate_html(
-        self,
-        *,
-        container: "ConfigFloatyContainer",
-    ):
+        footer = self.hydrate_footer()
+        if footer is not None:
+            out.content.append(footer)
+
+        return out
+
+    def hydrate_html(self):
         return (
-            self.hydrate_container(container=container)
-            if container.columns < 0
-            else self.hydrate_card(container=container)
+            self.hydrate_container()
+            if self.container.columns < 0
+            else self.hydrate_card()
         )
 
-    def hydrate_tex(self, *, container: "ConfigFloatyContainer") -> pf.Inline:
+    def hydrate_tex(
+        self,
+    ) -> pf.Inline:
         """This will be very subclass specific, do not implement."""
         raise ValueError(f"Not implement for `{self.__class__.__name__}`.")
 
     def hydrate_overlay_content_item(
         self,
         element: pf.Element,
-        *,
-        container: "ConfigFloatyContainer",
     ):
         """Should match ``.overlay-content``."""
         element.classes.append("overlay-content-item")
         element.content = (
-            pf.Div(self.hydrate_image(container=container, inline=False)),
+            pf.Div(self.hydrate_image(inline=False)),
             *element.content,
         )
 
@@ -403,10 +432,7 @@ class ConfigFloatyContainer(pydantic.BaseModel):
         return ["floaty", f"floaty-size-{self.size}"]
 
     def hydrate(self, element: pf.Element):
-        element.classes += self.classes_always
-        if self.classes is not None:
-            element.classes += self.classes
-
+        update_classes(element.classes, self.classes_always, self.classes)
         return element
 
     def hydrate_html(
@@ -430,7 +456,7 @@ class ConfigFloatyContainer(pydantic.BaseModel):
         sorted = (
             (
                 pf.Div(
-                    item.hydrate_html(container=self),
+                    item.hydrate_html(),
                     classes=classes_items,
                 )
                 for item in items[k : k + n]
@@ -494,26 +520,39 @@ class ConfigFloatyContainer(pydantic.BaseModel):
         return pf.Para(*itertools.chain(*listed))
 
 
-T_ConfigFloaty = TypeVar("T_ConfigFloaty", bound=ConfigFloatyItem)
+T_ConfigFloatyItem = TypeVar("T_ConfigFloatyItem", bound=ConfigFloatyItem)
 
 
-class ConfigFloaty(util.BaseHasIdentifier, Generic[T_ConfigFloaty]):
+class ConfigFloaty(
+    util.BaseHasIdentifier, Generic[T_ConfigFloatyItem, T_ConfigFloatyContainer]
+):
     content: Annotated[
-        dict[str, T_ConfigFloaty],
+        dict[str, T_ConfigFloatyItem],
         pydantic.Field(description=""),
         pydantic.BeforeValidator(replace_null_items),
     ]
 
     container: Annotated[
-        ConfigFloatyContainer,
+        T_ConfigFloatyContainer,
         pydantic.Field(description="", validate_default=True, default_factory=dict),
     ]
     overlay: Annotated[overlay.ConfigOverlay | None, pydantic.Field(None)]
 
+    def _set_container(self, item: T_ConfigFloatyItem):
+        item.container_maybe = self.container
+
+    @pydantic.model_validator(mode="after")
+    def set_container(self):
+
+        for item in self.content.values():
+            self._set_container(item)
+
+        return self
+
     def hydrate_html(self, element: pf.Element) -> pf.Element:
         return self.container.hydrate_html(self, element, *self.content.values())
 
-    def get_content(self, element: pf.Element) -> T_ConfigFloaty | None:
+    def get_content(self, element: pf.Element) -> T_ConfigFloatyItem | None:
         """Given an element, try to find its corresponding ``content`` item."""
 
         key = element.attributes.get("data-key")
@@ -525,14 +564,22 @@ class ConfigFloaty(util.BaseHasIdentifier, Generic[T_ConfigFloaty]):
 
 class Config(pydantic.BaseModel):
     floaty: Annotated[
-        dict[str, ConfigFloaty[ConfigFloatyItem]] | None,
+        dict[
+            str,
+            ConfigFloaty[
+                ConfigFloatyItem[ConfigFloatyContainer], ConfigFloatyContainer
+            ],
+        ]
+        | None,
         pydantic.Field(None),
         pydantic.BeforeValidator(util.content_from_list_identifier),
     ]
 
     @pydantic.computed_field
     @property
-    def overlay_identifiers(self) -> dict[str, str]:
+    def overlay_identifiers(self) -> dict[str, str] | None:
+        if self.floaty is None:
+            return
         return {
             item.overlay.identifier: item.identifier
             for item in self.floaty.values()
@@ -540,28 +587,9 @@ class Config(pydantic.BaseModel):
         }
 
 
-class FilterFloaty(util.BaseFilter):
+class FilterFloaty(util.BaseFilterHasConfig):
     filter_name = "floaty"
     filter_config_cls = Config
-
-    _config: Config | None
-
-    def __init__(self, doc: pf.Doc | None = None):
-        super().__init__(doc=doc)
-        self._config = None
-
-    @property
-    def config(self) -> Config | None:
-        if self._config is not None:
-            return self._config
-
-        data = self.doc.get_metadata("floaty")  # type: ignore
-        if data is None:
-            self._config = None
-            return None
-
-        self._config = Config.model_validate({"floaty": data})
-        return self._config
 
     def __call__(self, element: pf.Element):
         if self.doc.format != "html":
@@ -578,7 +606,10 @@ class FilterFloaty(util.BaseFilter):
             element = config.hydrate_html(element)
             return element
 
-        if element.identifier in self.config.overlay_identifiers:
+        if (
+            self.config.overlay_identifiers is not None
+            and element.identifier in self.config.overlay_identifiers
+        ):
             floaty_identifier = self.config.overlay_identifiers[element.identifier]
             config = self.config.floaty[floaty_identifier]
             element = config.overlay.hydrate_html(element)
@@ -588,3 +619,14 @@ class FilterFloaty(util.BaseFilter):
 
 
 filter = util.create_run_filter(FilterFloaty)
+__all__ = (
+    "ConfigFloatyContainer",
+    "ConfigFloatyItemBootstrap",
+    "ConfigFloatyItemImage",
+    "ConfigFloatyTex",
+    "ConfigFloatyItemIconify",
+    "ConfigFloatyItemTex",
+    "ConfigFloaty",
+    "Config",
+    "FilterFloaty",
+)

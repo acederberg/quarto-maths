@@ -116,7 +116,7 @@ class BaseFilterHasConfig(BaseFilter, BaseFilterHasConfigProto[T_BaseMapFilter])
             return self._config
 
         data = self.doc.get_metadata(self.filter_name)  # type: ignore
-        if data is None:
+        if data is None or not data:  # Because panflute can get '' instead of null.
             self._config = None
             return None
 

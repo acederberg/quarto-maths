@@ -16,6 +16,130 @@ contents: true
 live_reload: true
 live_depends_on:
   - blog/components/floaty/floaty-pure.html
+floaty_progress:
+  # start snippet 7
+  - identifier: skills-minimal
+    key: whatever
+    container:
+      columns: 2
+      include_titles: true
+      include_descriptions: true
+      classes_rows:
+        - py-3
+    content:
+      - title: Programming Skills
+        description: Learn more about my programming skills.
+        key: impl
+        since: 2017-08-01
+        image:
+          iconify:
+            set: misc
+            name: binary
+
+      - title: APIs and Databases
+        description: Learn about my background in API development.
+        key: api-and-db
+        since: 2021-02-01
+        image:
+          iconify:
+            set: misc
+            name: api
+
+      - title: Dashboards and UIs
+        description: Learn more about UI/UX skills.
+        key: uiux
+        since: 2021-05-01
+        image:
+          iconify:
+            set: misc
+            name: dashboard
+
+      - title: DevOps Engineering
+        description: About my devops experience.
+        key: devops
+        since: 2021-06-01
+        image:
+          iconify:
+            set: misc
+            name: devops
+            # end snippet 7
+
+  # start snippet 8
+  - identifier: skills-listed
+    container:
+      size: 6
+      classes_progress_bar: ["progress-bar-animated", "progress-bar-striped"]
+      columns: -1
+      include_titles: true
+      classes_rows:
+        - py-3
+    content:
+      - title: Docker
+        key: docker
+        since: 2021-04-01
+        image:
+          iconify:
+            set: devicon
+            name: docker
+        classes_progress_bar:
+          - bg-red
+      - title: Pipelines
+        key: pipelines
+        since: 2021-07-01
+        image:
+          iconify:
+            set: logos
+            name: github-actions
+        classes_progress_bar:
+          - bg-indigo
+      - title: Terraform
+        key: terraform
+        since: 2022-04-01
+        image:
+          iconify:
+            set: devicon
+            name: terraform
+        classes_progress_bar:
+          - bg-blue
+      - title: Kuberenetes
+        key: k8s
+        since: 2022-04-01
+        image:
+          iconify:
+            set: devicon
+            name: kubernetes
+        classes_progress_bar:
+          - bg-teal
+      - title: Ansible
+        key: ansible
+        since: 2021-10-01
+        image:
+          iconify:
+            set: devicon
+            name: ansible
+        classes_progress_bar:
+          - bg-pink
+      - title: Cloud
+        key: cloud
+        since: 2021-06-01
+        image:
+          iconify:
+            set: hugeicons
+            name: cloud
+        classes_progress_bar:
+          - bg-orange
+
+      - title: Pulumi
+        key: pulumi
+        since: 2024-01-01
+        image:
+          iconify:
+            set: devicon
+            name: pulumi
+        classes_progress_bar:
+          - bg-yellow
+          # end snippet 8
+
 floaty:
   # start snippet 0
   - identifier: floaty-plain
