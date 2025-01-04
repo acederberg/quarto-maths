@@ -175,37 +175,6 @@ class ConfigEducationItem(BaseExperienceItem):
         return self.degree
 
 
-class ConfigLinkItem(floaty.ConfigFloatyItem):
-    font_awesome: str
-    value: str
-
-    def hydrate_tex(self, *, _parent: floaty.ConfigFloaty) -> pf.Inline:
-
-        out = pf.RawInline(
-            r"\%s { %s } \label{%s}" % (self.font_awesome, self.title, self.value),
-            format="latex",
-        )
-
-        if self.href is None:
-            return out
-
-        return pf.Link(
-            out,
-            url=self.href,
-            title=self.title,
-        )
-
-
-class ConfigContactItem(floaty.ConfigFloatyItem):
-
-    def hydrate_tex(self, *, _parent: floaty.ConfigFloaty) -> pf.Inline:
-        return pf.RawInline(
-            r"\%s { %s } \label{%s}"
-            % (self.image.tex.font_awesome, self.description, self.key),
-            format="latex",
-        )
-
-
 class ConfigHeadshot(pydantic.BaseModel):
     url: Annotated[str, pydantic.Field()]
     title: Annotated[str, pydantic.Field()]

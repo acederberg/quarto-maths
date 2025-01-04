@@ -167,6 +167,8 @@ def create_logging_config() -> dict[str, Any]:
             "acederbergio.filters.dev": config_pandoc_filters,
             "acederbergio.filters.floaty": config_pandoc_filters,
             "acederbergio.filters.minipage": config_pandoc_filters,
+            "acederbergio.filters.contacts": config_pandoc_filters,
+            "acederbergio.filters.links": config_pandoc_filters,
             "acederbergio.filters.resume": config_pandoc_filters,
             "acederbergio.filters.skills": config_pandoc_filters,
             "acederbergio.filters.under_construction": config_pandoc_filters,

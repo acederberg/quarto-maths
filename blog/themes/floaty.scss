@@ -227,6 +227,21 @@ $progress-heights : (1: 134px,
 
   }
 
+  &.links {
+    $font-size-svg: calc(1.25 * $font-size);
+
+    .card {
+      .card-img-top {
+
+        i,
+        iconify-icon {
+          min-height: $font-size-svg;
+          font-size: $font-size-svg;
+        }
+      }
+    }
+  }
+
 }
 
 /* ------------------------------------------------------------------------- */

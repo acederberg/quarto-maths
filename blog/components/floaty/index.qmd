@@ -1,4 +1,6 @@
 ---
+live_depends_on:
+  - blog/components/floaty/floaty-pure.html
 ---
 
 The motivation was to have listings that could open overlays, be wrapped in links,

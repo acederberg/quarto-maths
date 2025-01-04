@@ -1,0 +1,16 @@
+---
+title: Contacts Filter PDF Output
+format:
+  pdf:
+    template: ../../resume/templates/template.tex
+    keep-tex: true
+floaty: null
+under_construction: null
+filters:
+  - ../../filters/skills.py
+  - ../../filters/contacts.py
+---
+
+::: { #contacts-minimal }
+
+:::

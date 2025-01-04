@@ -34,6 +34,10 @@
   @return $overwrites;
 }
 
+/*--- scss:variables --*/
+$progress-height: 2rem;
+$progress-bar-animation-timing: 1s linear infinite;
+
 /*-- scss:defaults --*/
 $yellow: #FFD43B;
 

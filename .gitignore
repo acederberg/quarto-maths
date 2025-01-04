@@ -34,3 +34,5 @@ dist
 config
 blog/resume/resume.tex
 blog/resume/resume*.tex
+blog/components/floaty/resume-contacts.tex
+blog/components/floaty/resume-links.tex

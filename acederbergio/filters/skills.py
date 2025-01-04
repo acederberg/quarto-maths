@@ -166,10 +166,6 @@ class ProgressFilter(util.BaseFilterHasConfig[Config]):
             config = self.config.floaty_progress[element.identifier]
             element = config.hydrate_html(element)
 
-        if element.identifier:
-            logger.warning("%s", self.config)
-            logger.warning(element.identifier)
-
         return element
 
 

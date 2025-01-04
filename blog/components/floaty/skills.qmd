@@ -1,9 +1,15 @@
 ---
-title: Storybook Resume
+title: Storybook Skills
 floaty: null
 under_construction: null
 filters:
   - ../../filters/skills.py
+  - ../../filters/contacts.py
+  - ../../filters/links.py
+live_reload: true
+live_depends_on:
+  - blog/components/floaty/progress-bg.html
+  - blog/components/floaty/resume-contacts.qmd
 ---
 
 Here some of the componants and filters particular to the resume are discussed.
@@ -11,11 +17,7 @@ These componants are build on top of floaty and include some additional configur
 Further, these also have `PDF` equivalents - hoverever this must be
 implemented for each floaty item as the intended rendering differs quite a bit.
 
-## Contacts
-
-## Skills
-
-### Minimal
+## Minimal
 
 The following shows what is possible with minimal configuration and presents
 the various sizes in a carousel.
@@ -126,7 +128,7 @@ The elements in the above carousel are modifications of the following configurat
 
 :::
 
-### Rows
+## Rows and Custom Progress Bar Classes
 
 Skills can be put into rows just like the base floaty.
 Each row can be customized to have a different color.

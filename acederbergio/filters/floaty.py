@@ -282,7 +282,9 @@ class ConfigFloatyItem(pydantic.BaseModel, Generic[T_ConfigFloatyContainer]):
         self,
     ):
         classes = update_classes(
-            ["card-body"], self.classes_body, self.container.classes_card_bodys,
+            ["card-body"],
+            self.classes_body,
+            self.container.classes_card_bodys,
         )
         return pf.Div(
             *self.iter_body(is_container=False),
@@ -292,7 +294,11 @@ class ConfigFloatyItem(pydantic.BaseModel, Generic[T_ConfigFloatyContainer]):
     def hydrate_card(
         self,
     ):
-        classes = update_classes(["card"], self.container.classes_cards, self.classes,)
+        classes = update_classes(
+            ["card"],
+            self.container.classes_cards,
+            self.classes,
+        )
         out = pf.Div(
             self.hydrate_card_image(),
             self.hydrate_card_body(),
@@ -303,6 +309,9 @@ class ConfigFloatyItem(pydantic.BaseModel, Generic[T_ConfigFloatyContainer]):
         footer = self.hydrate_footer()
         if footer is not None:
             out.content.append(footer)
+
+        # if self.href and self.container.include_href:
+        #     out = pf.Link
 
         return out
 
@@ -437,9 +446,9 @@ class ConfigFloatyContainer(pydantic.BaseModel):
 
     def hydrate_html(
         self,
-        owner: util.BaseHasIdentifier,
         element: pf.Element,
         *items: ConfigFloatyItem,
+        owner: util.BaseHasIdentifier,
     ):
         """Create floaties and wrap in the container div."""
         # NOTE: Links are only ever included when the overlay is not present.
@@ -504,20 +513,22 @@ class ConfigFloatyContainer(pydantic.BaseModel):
 
         return element
 
-    def hydrate_tex(self, items: Iterable[pf.Inline]):
+    def hydrate_tex(self, element: pf.Element, *items: ConfigFloatyItem):
 
         # NOTE: Putting these in separate paragraphs does not work.
         #       In the first case, put each on a new line. In the second,
         #       try to share a line an equally.
         match self.tex.sep:
             case "newline":
-                listed = ((item, TEX_SPACER) for item in items)
+                listed = ((item.hydrate_tex(), TEX_SPACER) for item in items)
             case "fill":
-                listed = ((item, TEX_SPACER_INLINE) for item in items)
+                listed = ((item.hydrate_tex(), TEX_SPACER_INLINE) for item in items)
             case _:
                 raise ValueError
 
-        return pf.Para(*itertools.chain(*listed))
+        logger.warning(element.to_json())
+        element.content.append(pf.Para(*itertools.chain(*listed)))
+        return element
 
 
 T_ConfigFloatyItem = TypeVar("T_ConfigFloatyItem", bound=ConfigFloatyItem)
@@ -550,7 +561,10 @@ class ConfigFloaty(
         return self
 
     def hydrate_html(self, element: pf.Element) -> pf.Element:
-        return self.container.hydrate_html(self, element, *self.content.values())
+        return self.container.hydrate_html(element, *self.content.values(), owner=self)
+
+    def hydrate_tex(self, element: pf.Element) -> pf.Element:
+        return self.container.hydrate_tex(element, *self.content.values())  # type: ignore
 
     def get_content(self, element: pf.Element) -> T_ConfigFloatyItem | None:
         """Given an element, try to find its corresponding ``content`` item."""
@@ -596,9 +610,6 @@ class FilterFloaty(util.BaseFilterHasConfig):
             return element
 
         if not isinstance(element, pf.Div) or self.config is None:
-            return element
-
-        if self.doc.format != "html":
             return element
 
         if element.identifier in self.config.floaty:

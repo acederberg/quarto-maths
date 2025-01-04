@@ -34,10 +34,14 @@ website:
               href: ./components/overlay/index.qmd
         - section: Floaty
           contents:
-            - text: The Floaty Component
+            - text: The Floaty Component and Filter
               href: ./components/floaty/index.qmd
-            - text: Floaty Component Variations
-              href: ./components/floaty/resume.qmd
+            - text: The `Floaty Skills` Resume Component
+              href: ./components/floaty/skills.qmd
+            - text: The `Floaty Contacts` Resume Component
+              href: ./components/floaty/contacts.qmd
+            - text: The `Floaty Links` Resume Component
+              href: ./components/floaty/links.qmd
             - text: Under Construction
               href: ./components/floaty/under-construction.qmd
     - id: projects

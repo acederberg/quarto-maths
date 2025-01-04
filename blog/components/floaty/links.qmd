@@ -1,0 +1,58 @@
+---
+title: Storybook Links
+floaty: null
+under_construction: null
+filters:
+  - ../../filters/links.py
+live_reload: true
+live_depends_on:
+  - blog/components/floaty/resume-links.qmd
+---
+
+This should render some tex links as [font awesome]() icons.
+In this case, `$.container.tex.sep` is `hfill` which will cause them to appear all on the same line.
+
+<!-- START COLUMNS -----------------------------------------------------------> ::::: { .columns }
+
+<!-- START COLUMN ------------------------------------------------------------> :::: { .column }
+
+## HTML Output
+
+::: { #links-minimal }
+
+:::
+
+<!-- STOP COLUMN -------------------------------------------------------------> ::::
+
+<!-- START COLUMN ------------------------------------------------------------> :::: { .column }
+
+## PDF Output
+
+```{=html}
+<div class="embed-responsive" width="100%" height="100%">
+  <iframe id="live-pdf" type="application/pdf" width="100%" height="128px" src="/components/floaty/resume-links.pdf"></iframe>
+</div>
+```
+
+<!-- STOP COLUMN -------------------------------------------------------------> ::::
+
+<!-- END COLUMNS -------------------------------------------------------------> :::::
+
+::: { .callout-note collapse=false }
+
+## Filter Configuration: Links
+
+There are no additional configurations for this field.
+The `PDF` output is rendered from the following quarto document:
+
+```{quarto}
+{{< include resume-links.qmd >}}
+```
+
+and the following metadata under `$.floaty-links`:
+
+```{ .yaml include="_metadata.yaml" snippet="links" }
+
+```
+
+:::
