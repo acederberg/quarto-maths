@@ -115,11 +115,14 @@ class BaseFilterHasConfig(BaseFilter, BaseFilterHasConfigProto[T_BaseMapFilter])
         if self._config is not None:
             return self._config
 
+        logger.info("Getting metadata for filter `%s`.", self.filter_name)
         data = self.doc.get_metadata(self.filter_name)  # type: ignore
         if data is None or not data:  # Because panflute can get '' instead of null.
+            logger.warning("Metadata was empty, `%s`.", data)
             self._config = None
             return None
 
+        logger.warning("Validating metadata for filter `%s`.", self.filter_name)
         self._config = self.filter_config_cls.model_validate({self.filter_name: data})
         return self._config
 
@@ -189,3 +192,11 @@ def create_content_from_list(mode="identifier"):
 
 content_from_list_identifier = create_content_from_list("identifier")
 content_from_list_key = create_content_from_list("key")
+
+
+def update_classes(update: list[str], *args: list[str] | None):
+    for item in args:
+        if item is not None:
+            update += item
+
+    return update

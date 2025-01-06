@@ -69,6 +69,7 @@ class ConfigOverlay(pydantic.BaseModel):
 
     identifier: str
     colorize: Colorize | None
+    classes: util.FieldClasses
 
     @pydantic.computed_field
     @property
@@ -92,9 +93,11 @@ class ConfigOverlay(pydantic.BaseModel):
 
         items = pf.Div(classes=["overlay-content-items"])
         items.content = element.content
+
         content = pf.Div(items, classes=["overlay-content"])
+
         element.content = [content]
-        element.classes.append("overlay")
+        util.update_classes(element.classes, ["overlay"], self.classes)
 
         return pf.Div(element, self.hydrate_html_js(element))
 

@@ -46,6 +46,46 @@ $progress-heights : (1: 134px,
 
 /*-- scss:rules --*/
 
+@mixin make-floaty-hover($filter-init, $filter-final, $transform) {
+
+  .card {
+
+    &.hover,
+    &:hover {
+
+      cursor: pointer;
+      filter: $filter-final;
+      /* filter: $filter-init; */
+      /* background: var(--bs-gray-200); */
+      border-bottom: $floaty-border-hover;
+      border-radius: 0px;
+
+      .card-img-top {
+
+        i,
+        iconify-icon {
+          background: rgba(0, 0, 0, 0);
+          transform: $transform;
+          filter: none;
+        }
+      }
+
+    }
+  }
+
+  .floaty-item-container {
+
+    transition: background 0.1s;
+
+    &.hover,
+    &:hover {
+      cursor: pointer;
+      background: var(--bs-gray-200);
+    }
+  }
+}
+
+
 // start snippet make-floaty
 @mixin make-floaty {
   .floaty-container {
@@ -99,6 +139,7 @@ $progress-heights : (1: 134px,
 
 
         .card {
+          transition: filter 0.1s, transform 0.1s, background 0.1s, border 0.1s;
           border: none;
 
           .card-img-top {
@@ -123,10 +164,17 @@ $progress-heights : (1: 134px,
   }
 
   &.floaty-hover {
+    @include make-floaty-hover(none, none, none);
+
     .card {
-      cursor: pointer;
+
+      &.hover,
+      &:hover {
+        background: var(--bs-gray-200);
+      }
     }
   }
+
 
   @for $k from 1 through 4 {
     &.floaty-shadow-#{$k} {
@@ -260,9 +308,12 @@ $progress-heights : (1: 134px,
 */
 @mixin make-icon-filter($filter-init, $filter-final, $transform) {
 
+  &.floaty-hover {
+    @include make-floaty-hover($filter-init, $filter-final, $transform );
+  }
+
   .card {
     background: rgba(0, 0, 0, 0);
-    transition: border 0.1s; //, background 1s;
 
     .card-img-top {
 
@@ -279,32 +330,6 @@ $progress-heights : (1: 134px,
     }
   }
 
-  &.floaty-hover {
-
-    .card {
-
-      &.hover,
-      &:hover {
-
-        filter: $filter-final;
-        /* filter: $filter-init; */
-        /* background: var(--bs-gray-200); */
-        border-bottom: $floaty-border-hover;
-        border-radius: 0px;
-
-        .card-img-top {
-
-          i,
-          iconify-icon {
-            background: rgba(0, 0, 0, 0);
-            transform: $transform;
-            filter: none;
-          }
-        }
-
-      }
-    }
-  }
 }
 
 @mixin make-floaty-icon-bg($bg) {
@@ -338,7 +363,6 @@ $progress-heights : (1: 134px,
 
   .card {
     filter: $filter;
-    transition: filter 0.1s, transform 0.1s, background 1s;
     margin: auto;
 
     // Remove the pre-existing shadow.
@@ -430,4 +454,10 @@ $progress-heights : (1: 134px,
     @include make-floaty-card-bg($body-color);
   }
 
+}
+
+
+.floaty-tooltip {
+  --bs-tooltip-bg: var(--bs-gray-200);
+  --bs-tooltip-color: var(--bs-black);
 }

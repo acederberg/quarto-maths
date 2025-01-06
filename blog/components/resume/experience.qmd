@@ -1,0 +1,9 @@
+---
+title: Resume Filter Experience Output
+format:
+  pdf:
+    template: ../../resume/templates/template.tex
+    keep-tex: true
+---
+
+{{< include _example_experience.qmd >}}

@@ -19,10 +19,26 @@ From `links-newline`. It is defined as follows:
 
 :::
 
+## Contacts - `sep=newline`
+
+From `contacts-newline`.
+
+::: { #contacts-newline }
+
+:::
+
 ## Links - `sep=hfill`
 
 From `links-hfill`.
 
 ::: { #links-hfill }
+
+:::
+
+## Contacts - `sep=hfill`
+
+From `contacts-hfill`.
+
+::: { #contacts-hfill }
 
 :::

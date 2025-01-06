@@ -25,12 +25,12 @@ website:
   repo-url: https://github.com/acederberg/quarto-maths
   sidebar:
     - id: components
-      title: Components
+      title: Components and Filters
       style: "docked"
       contents:
         - section: Overlay
           contents:
-            - text: The Overlay Component
+            - text: The Overlay Component and Filter
               href: ./components/overlay/index.qmd
         - section: Floaty
           contents:
@@ -44,6 +44,10 @@ website:
               href: ./components/floaty/links.qmd
             - text: Under Construction
               href: ./components/floaty/under-construction.qmd
+        - section: Resume Filter
+          contents:
+            - text: The Resume Filter
+              href: ./components/resume/index.qmd
     - id: projects
       title: Projects
       style: "docked"

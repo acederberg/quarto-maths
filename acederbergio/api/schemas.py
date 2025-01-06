@@ -13,6 +13,8 @@ import pydantic
 
 from acederbergio import db, env, util
 
+logger = env.create_logger(__name__)
+
 
 def parse_path(v: str) -> pathlib.Path:
     # NOTE: Handle browser paths. This should just prepend the ``blog``
@@ -22,12 +24,13 @@ def parse_path(v: str) -> pathlib.Path:
         v = v.replace(".html", ".qmd")
         out = pathlib.Path("./blog" + v).resolve()
     else:
-        out = pathlib.Path(v).resolve()
+        # out = pathlib.Path(v).resolve()
+        out = env.ROOT / v
 
     return out if not out.is_dir() else (out / "index.qmd")
 
 
-def create_check_items(relative: bool = False):
+def create_check_items(relative: bool = False, *, singleton: bool = False):
     """For what should be a list of paths, resolve the list of paths and verify
     that they actually exist.
 
@@ -47,22 +50,31 @@ def create_check_items(relative: bool = False):
 
         return list(str(item) for item in items)
 
-    return pydantic.BeforeValidator(check_items)
+    if not singleton:
+        return pydantic.BeforeValidator(check_items)
+
+    def check_one(v):
+        out = check_items([v])
+
+        return str(out[0])
+
+    return pydantic.BeforeValidator(check_one)
 
 
-def path_to_url(path: str):
+def path_to_url(path: str, ext: str = "html"):
     """Take a path and return the url at which it should be available within
     the fastapi static mount (output of quarto render).
     """
 
     if path.startswith("/"):
-        raise ValueError("Not going to handle an absolute path.")
+        path = str(pathlib.Path(path).relative_to(env.ROOT))
+        # raise ValueError("Not going to handle an absolute path.")
 
     parts = path.replace("./", "").split("/")
     if not parts or parts[0] != "blog":
         return None
 
-    return ("/" + "/".join(parts[1:])).replace("qmd", "html")
+    return ("/" + "/".join(parts[1:])).replace("qmd", ext)
 
 
 UvicornUUID = Annotated[str, pydantic.Field(env.RUN_UUID)]

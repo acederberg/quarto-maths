@@ -60,12 +60,12 @@ class ConfigProgressItem(
         if _n_months:
             content_str.append(f"{_n_months} Months")
 
-        classes_progress_bar = floaty.update_classes(
+        classes_progress_bar = util.update_classes(
             ["progress-bar"],
             self.container.classes_progress_bar,
             self.classes_progress_bar,
         )
-        classes_progress = floaty.update_classes(
+        classes_progress = util.update_classes(
             ["progress"],
             self.container.classes_progress,
             self.classes_progress,

@@ -1,6 +1,8 @@
 format:
   html:
     page-layout: full
+    include-in-header:
+      - ../../includes/tooltip.html
     theme:
       light:
         - themes/extras.scss
@@ -143,8 +145,6 @@ floaty:
   - identifier: floaty-plain
     container:
       size: 1
-      classes:
-        - floaty-shadow-1
     content:
       - image:
           iconify:
@@ -275,6 +275,8 @@ floaty:
   # start snippet 3
   - identifier: floaty-bootstrap
     overlay:
+      classes:
+        - overlay-blur
       identifier: floaty-bootstrap-overlay
       colorize:
         color: teal
@@ -416,17 +418,22 @@ under_construction:
         # end snippet 6
 # start snippet contacts
 floaty_contacts:
-  - identifier: contacts-minimal
+  - identifier: contacts-newline
     mode: bootstrap
-    container:
+    container: &container-contacts
+      tex:
+        sep: "newline"
       size: 5
+      include_href: true
       include_titles: true
       include_descriptions: true
       mode: bootstrap
       columns: -9000
       classes_items:
         - text-teal
-    content:
+      classes:
+        - floaty-hover
+    content: &content-contacts
       - key: phone
         title: Phone
         description: (505) 589 - 6914
@@ -460,22 +467,34 @@ floaty_contacts:
             name: compass
           tex:
             font_awesome: faLocationArrow
-            # end snippet contacts
+  - identifier: contacts-hfill
+    mode: bootstrap
+    container:
+      tex:
+        sep: "hfill"
+      <<: *container-contacts
+    content: *content-contacts
+    # end snippet contacts
 
 
 # start snippet links
 floaty_links:
-  - identifier: links-minimal
-    container:
+  - identifier: links-hfill
+    container: &container-links
       tex:
         sep: "hfill"
-      include_descriptions: true
+      columns: 0
+      include_href: true
+      include_descriptions: false
       include_titles: true
       size: 5
       mode: bootstrap
-      classes_cards:
-        - text-teal
-    content:
+      classes:
+        - floaty-hover
+        # - floaty-card-bg-light
+        - floaty-shadow-1
+        - floaty-hover-1
+    content: &content-links
       - key: linkedin
         title: Linkedin
         description: My profile on linkedin.
@@ -489,6 +508,8 @@ floaty_links:
             name: linkedin
           bootstrap:
             name: linkedin
+            classes:
+              - text-blue
 
       - key: github
         title: Github
@@ -503,6 +524,8 @@ floaty_links:
             name: github
           bootstrap:
             name: github
+            classes:
+              - text-black
 
       - key: website
         title: Website
@@ -517,17 +540,34 @@ floaty_links:
             font_awesome: faCubes
           bootstrap:
             name: globe
-            # end snippet links
+            classes:
+              - text-cyan
 
-    # - title: Resume
-    #   href: https://acederberg.io/resume/resume.pdf
-    #   description: Most Recent Version of Resume
-    #   font_awaesome: faFilePdf
-    #   image:
-    #     iconify:
-    #       set: hugeicons
-    #       name: document
-    #       label: Resume
+      - key: resume
+        title: Resume
+        href: https://acederberg.io/resume
+        description: Most Recent Version of Resume
+        label: Resume
+        formats: ["latex"]
+        image:
+          tex:
+            font_awesome: faFilePdf
+          iconify:
+            set: hugeicons
+            name: document
+            label: Resume
+          bootstrap:
+            name: file-pdf
+            classes:
+              - text-red
+
+  - identifier: links-newline
+    container:
+      tex:
+        sep: "newline"
+      <<: *container-links
+    content: *content-links
+    # end snippet links
 
 
 

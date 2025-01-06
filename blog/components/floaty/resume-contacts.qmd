@@ -11,6 +11,18 @@ filters:
   - ../../filters/contacts.py
 ---
 
-::: { #contacts-minimal }
+## Contacts - `sep=newline`
+
+From `contacts-newline`.
+
+::: { #contacts-newline }
+
+:::
+
+## Contacts - `sep=hfill`
+
+From `contacts-hfill`.
+
+::: { #contacts-hfill }
 
 :::

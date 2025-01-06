@@ -14,6 +14,22 @@ function Floaty(elem, { overlayControls }) {
     })
   })
 
+  cards.map(card => {
+
+    if (!card.dataset.floatyUrl) {
+      console.log(card)
+      return
+    }
+
+    card.addEventListener("click", () => {
+      window.open(
+        card.dataset.floatyUrl,
+        "_blank"
+      ).focus()
+      console.log(card)
+    })
+  })
+
   return { elem, cards, overlayControls }
 }
 

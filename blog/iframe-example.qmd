@@ -1,0 +1,17 @@
+---
+filters:
+  - filters/iframe.py
+iframes:
+  - identifier: contacts-pdf-iframe
+    target: blog/components/floaty/resume-contacts.qmd
+    kind: pdf
+  - identifier: links-pdf-iframe
+    target: blog/components/floaty/resume-links.qmd
+    kind: pdf
+---
+
+There are problem with deserializing metadata, and I have no idea why.
+
+::: { #contacts-pdf-iframe }
+
+:::

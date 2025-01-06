@@ -19,7 +19,8 @@ $overlayItemTranformTime : 500ms;
   opacity: 1;
 
   &.overlay-blur {
-    backdrop-filter: blur(3px);
+    backdrop-filter: blur(7px);
+    background-color: rgba(0, 0, 0, 0.5);
   }
 
   &.overlay-blur-1 {
