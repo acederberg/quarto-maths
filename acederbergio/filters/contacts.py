@@ -19,14 +19,21 @@ class ConfigContactItem(floaty.ConfigFloatyItem[floaty.ConfigFloatyContainer]):
         )
 
 
+class ConfigContactsContainer(floaty.ConfigFloatyContainer):
+    @pydantic.computed_field
+    @property
+    def classes_always(self) -> list[str]:
+        return [*super().classes_always, "contacts"]
+
+
 class ConfigContacts(
-    floaty.ConfigFloaty[ConfigContactItem, floaty.ConfigFloatyContainer]
+    floaty.ConfigFloaty[ConfigContactItem, ConfigContactsContainer]
 ): ...
 
 
 # NOTE: Only expects one config.
-class Config(pydantic.BaseModel):
-    floaty_contacts: Annotated[
+class Config(util.BaseConfig):
+    contacts: Annotated[
         dict[str, ConfigContacts | None],
         pydantic.Field(None),
         pydantic.BeforeValidator(util.content_from_list_identifier),
@@ -34,16 +41,15 @@ class Config(pydantic.BaseModel):
 
 
 class FilterContacts(util.BaseFilterHasConfig):
-    filter_name = "floaty_contacts"
+    filter_name = "contacts"
     filter_config_cls = Config
 
     def __call__(self, element: pf.Element) -> pf.Element:
-        assert self.config is not None
         if not isinstance(element, pf.Div) or self.config is None:
             return element
 
-        if element.identifier in self.config.floaty_contacts:
-            config = self.config.floaty_contacts[element.identifier]
+        if element.identifier in self.config.contacts:
+            config = self.config.contacts[element.identifier]
             if self.doc.format == "latex":
                 element = config.hydrate_tex(element)
             elif self.doc.format == "html":

@@ -10,7 +10,7 @@ user that a section is not quite ready.
 
 ## Whole Page
 
-Using a fenced dive with id `under-construction-1` should result in the
+Using a fenced `div` with id `under-construction-1` should result in the
 following:
 
 ::: { #under-construction }
@@ -74,7 +74,7 @@ This ``under-construction`` is styled using ``{scss}``.
 
 :::
 
-::: {{ .{scss} }}
+::: {{ #{scss} .{scss} }}
 
 :::
 

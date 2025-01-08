@@ -23,14 +23,14 @@ FieldClassesProgressBar = Annotated[
 ]
 
 
-class HasProgressClasses(pydantic.BaseModel):
+class HasProgressClasses(util.BaseConfig):
     classes_progress: FieldClassesProgress
     classes_progress_bar: FieldClassesProgressBar
 
 
 # TODO: Skillbar to take up row on hover (and in overlay).
-class ConfigProgressItem(
-    HasProgressClasses, floaty.ConfigFloatyItem["ConfigProgressContainer"]
+class ConfigSkillsItem(
+    HasProgressClasses, floaty.ConfigFloatyItem["ConfigSkillsContainer"]
 ):
     since: Annotated[date, pydantic.Field]
     duration_total_maybe: Annotated[timedelta | None, pydantic.Field(None)]
@@ -112,7 +112,7 @@ class ConfigProgressItem(
     #     return el
 
 
-class ConfigProgressContainer(HasProgressClasses, floaty.ConfigFloatyContainer):
+class ConfigSkillsContainer(HasProgressClasses, floaty.ConfigFloatyContainer):
 
     @property
     def classes_always(self) -> list[str]:
@@ -121,7 +121,7 @@ class ConfigProgressContainer(HasProgressClasses, floaty.ConfigFloatyContainer):
         return out
 
 
-class ConfigProgress(floaty.ConfigFloaty[ConfigProgressItem, ConfigProgressContainer]):
+class ConfigSkills(floaty.ConfigFloaty[ConfigSkillsItem, ConfigSkillsContainer]):
 
     @pydantic.computed_field  # type: ignore[prop-decorator]
     @property
@@ -134,25 +134,27 @@ class ConfigProgress(floaty.ConfigFloaty[ConfigProgressItem, ConfigProgressConta
         vv = max(self.content.values(), key=lambda item: item.duration)  # type: ignore
         return vv.duration
 
-    def _set_container(self, item: ConfigProgressItem):
+    def _set_container(self, item: ConfigSkillsItem):
         item.container_maybe = self.container  # type: ignore
         item.duration_total_maybe = self.duration
 
 
-class Config(pydantic.BaseModel):
-    floaty_progress: Annotated[
-        dict[str, ConfigProgress] | None,
+class Config(floaty.BaseFloatyConfig):
+    filter_name = "skills"
+    skills: Annotated[
+        dict[str, ConfigSkills] | None,
         pydantic.Field(None),
         pydantic.BeforeValidator(util.content_from_list_identifier),
     ]
 
 
-class ProgressFilter(util.BaseFilterHasConfig[Config]):
+class FilterSkills(util.BaseFilterHasConfig[Config]):
 
-    filter_name = "floaty_progress"
+    filter_name = "skills"
     filter_config_cls = Config
 
     def __call__(self, element: pf.Element):
+
         if self.doc.format != "html":
             return element
 
@@ -162,11 +164,11 @@ class ProgressFilter(util.BaseFilterHasConfig[Config]):
         if self.doc.format != "html":
             return element
 
-        if element.identifier in self.config.floaty_progress:
-            config = self.config.floaty_progress[element.identifier]
+        if element.identifier in self.config.skills:
+            config = self.config.skills[element.identifier]
             element = config.hydrate_html(element)
 
-        return element
+        return self.config.hydrate_overlay(element)
 
 
-filter = util.create_run_filter(ProgressFilter)
+filter = util.create_run_filter(FilterSkills)

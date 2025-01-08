@@ -1,0 +1,33 @@
+---
+title: Iframes Storybook
+---
+
+The `iframes` filter make it easy to embed another page into the current page.
+For instance the following:
+
+::: { #links-pdf-iframe }
+
+:::
+
+::: { .callout-note collapse=false }
+
+## Filter Configuration: PDF In an `iframe`
+
+It is extemely easy to configure, only requiring a path (from the project root)
+to the target file, the render result type, and an identifier. For instance
+the document above is rendered by specifying a div with the the appropriate
+id
+
+```qmd
+::: { #contacts-pdf-iframe }
+
+:::
+```
+
+and the following `YAML` front matter:
+
+```{ include="_metadata.yaml" snippet=1}
+
+```
+
+:::

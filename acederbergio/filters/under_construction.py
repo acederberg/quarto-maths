@@ -40,7 +40,6 @@ def create_config(v: dict):
         ),
         container=dict(
             mode="iconify",
-            include=True,
             include_titles=True,
             include_descriptions=True,
             columns=1,
@@ -55,6 +54,8 @@ def create_config(v: dict):
 
 
 def validate_configs(v):
+    if v is None:
+        return v
     v = util.content_from_list_identifier(v)
     v = {k: create_config(w) for k, w in v.items()}
     return v
@@ -82,7 +83,7 @@ class ConfigUnderConstruction(
         return element
 
 
-class Config(pydantic.BaseModel):
+class Config(util.BaseConfig):
     under_construction: Annotated[
         dict[str, ConfigUnderConstruction],
         pydantic.Field(
@@ -140,7 +141,7 @@ class FilterUnderConstruction(util.BaseFilterHasConfig[Config]):
 
         if size := self.is_under_construction(element):
             logger.debug("Found ``under_construction`` div for for `%s`.", size)
-            config = create_config(dict(size=size))
+            config = create_config(dict(container=dict(size=size)))
             element = config.hydrate(element)
 
             return element

@@ -16,10 +16,9 @@ format:
 title: Floaty Storybook
 contents: true
 live_reload: true
-floaty_progress:
+skills:
   # start snippet 7
   - identifier: skills-minimal
-    key: whatever
     container:
       columns: 2
       include_titles: true
@@ -346,23 +345,26 @@ floaty:
         description: (505) 589 - 6914
         key: phone
         image:
-          font_awesome: faPhone
+          tex:
+            font_awesome: faPhone
           bootstrap:
             name: phone
 
       - title: Email
         description: adrn.cederberg123@gmail.com
         key: email
-        font_awesome: faEnvelope
         image:
+          tex:
+            font_awesome: faEnvelope
           bootstrap:
             name: envelope
 
       - title: Location
         description: Albuquerque, NM
         key: location
-        font_awesome: faLocationArrow
         image:
+          tex:
+            font_awesome: faLocationArrow
           bootstrap:
             name: compass
             # end snippet 4
@@ -397,7 +399,6 @@ under_construction:
       mode: bootstrap
       classes:
         - floaty-shadow-1
-    mode: bootstrap
     content:
       key: a-bug
       title: A Bug
@@ -417,9 +418,8 @@ under_construction:
         - text-red
         # end snippet 6
 # start snippet contacts
-floaty_contacts:
+contacts:
   - identifier: contacts-newline
-    mode: bootstrap
     container: &container-contacts
       tex:
         sep: "newline"
@@ -468,7 +468,6 @@ floaty_contacts:
           tex:
             font_awesome: faLocationArrow
   - identifier: contacts-hfill
-    mode: bootstrap
     container:
       tex:
         sep: "hfill"
@@ -478,7 +477,7 @@ floaty_contacts:
 
 
 # start snippet links
-floaty_links:
+links:
   - identifier: links-hfill
     container: &container-links
       tex:
@@ -548,14 +547,13 @@ floaty_links:
         href: https://acederberg.io/resume
         description: Most Recent Version of Resume
         label: Resume
-        formats: ["latex"]
+        # formats: ["latex"]
         image:
           tex:
             font_awesome: faFilePdf
           iconify:
             set: hugeicons
             name: document
-            label: Resume
           bootstrap:
             name: file-pdf
             classes:

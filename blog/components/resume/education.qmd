@@ -1,12 +1,12 @@
 ---
-title: Resume Filter Experience PDF Output
+title: Resume Filter Eduction PDF Output
 format:
   pdf:
     template: ../../resume/templates/template.tex
     keep-tex: true
 ---
 
-::: { #example-experience-resume }
+::: { #example-education-resume }
 
 {{< include _example_experience.qmd >}}
 

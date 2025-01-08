@@ -8,7 +8,7 @@ from acederbergio.filters import util
 logger = env.create_logger(__name__)
 
 
-class LiveFilter(util.BaseFilter):
+class FilterLive(util.BaseFilter):
     """Since intercepting ``main`` an modifying its content is not really
     possible (its parent does not contain the body, and it will be tricky
     to hunt that down), this filter looks for a div with `id=quarto-overlay`
@@ -132,4 +132,4 @@ class LiveFilter(util.BaseFilter):
         doc.content.insert(0, overlay_and_script)
 
 
-filter = util.create_run_filter(LiveFilter)
+filter = util.create_run_filter(FilterLive)

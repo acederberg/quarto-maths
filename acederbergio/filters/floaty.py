@@ -5,7 +5,7 @@ For exact detail on how to use, see `./blog/dev/componants/floaty.qmd`.
 
 import itertools
 import secrets
-from typing import Annotated, Generic, Literal, TypeVar
+from typing import Annotated, Any, ClassVar, Generic, Literal, TypeVar
 
 import panflute as pf
 import pydantic
@@ -81,7 +81,7 @@ def replace_null_items(v):
     return out
 
 
-class BaseConfigFloatyItemImageItem(pydantic.BaseModel):
+class BaseConfigFloatyItemImageItem(util.BaseConfig):
     classes: util.FieldClasses
     attributes: FieldAttributes
 
@@ -99,7 +99,7 @@ class ConfigFloatyItemTex(BaseConfigFloatyItemImageItem):
     font_awesome: str
 
 
-class ConfigFloatyItemImage(pydantic.BaseModel):
+class ConfigFloatyItemImage(util.BaseConfig):
     tex: Annotated[
         ConfigFloatyItemTex,
         pydantic.Field(
@@ -134,9 +134,12 @@ T_ConfigFloatyContainer = TypeVar(
 )
 
 
-class ConfigFloatyItem(pydantic.BaseModel, Generic[T_ConfigFloatyContainer]):
+class ConfigFloatyItem(util.BaseConfig, Generic[T_ConfigFloatyContainer]):
     key: FieldKey
-    container_maybe: Annotated[T_ConfigFloatyContainer | None, pydantic.Field(None)]
+    container_maybe: Annotated[
+        T_ConfigFloatyContainer | None,
+        pydantic.Field(None, exclude=True),
+    ]
 
     mode: FieldModeOptional
     image: Annotated[
@@ -153,6 +156,7 @@ class ConfigFloatyItem(pydantic.BaseModel, Generic[T_ConfigFloatyContainer]):
     tooltip: Annotated[str | None, pydantic.Field(default=None)]
     classes: util.FieldClasses
     classes_body: util.FieldClasses
+    attributes: Annotated[dict[str, str], pydantic.Field(default_factory=dict)]
 
     @pydantic.computed_field
     @property
@@ -161,6 +165,10 @@ class ConfigFloatyItem(pydantic.BaseModel, Generic[T_ConfigFloatyContainer]):
             raise ValueError("Container not set.")
 
         return self.container_maybe
+
+    @pydantic.field_serializer("container")
+    def serialize_container(self, v) -> bool:
+        return v is not None
 
     @pydantic.computed_field
     @property
@@ -195,9 +203,9 @@ class ConfigFloatyItem(pydantic.BaseModel, Generic[T_ConfigFloatyContainer]):
             "data-bs-custom-class": "floaty-tooltip",
         }
 
-    def get_classes(self, *, mode: FieldMode | None = None):
+    def get_classes_image(self, *, mode: FieldMode | None = None):
         mode = self.resolve_mode(mode)
-        classes = list()
+        classes = util.update_classes(list(), self.container.classes_card_images)
 
         if mode == "iconify":
             classes = util.update_classes(classes, self.image.iconify.classes)
@@ -208,6 +216,8 @@ class ConfigFloatyItem(pydantic.BaseModel, Generic[T_ConfigFloatyContainer]):
                 self.image.bootstrap.classes,
             )
 
+        logger.warning(classes)
+
         return classes
 
     # def create_attrs(self, *, mode: FieldMode | None = None) -> str:
@@ -215,8 +225,8 @@ class ConfigFloatyItem(pydantic.BaseModel, Generic[T_ConfigFloatyContainer]):
     #         f"{key}='{value}'" for key, value in self.get_attributes(mode=mode).items()
     #     )
 
-    def create_classes(self, *, mode: FieldMode | None = None) -> str:
-        classes = self.get_classes(mode=mode)
+    def create_classes_image(self, *, mode: FieldMode | None = None) -> str:
+        classes = self.get_classes_image(mode=mode)
         if not classes:
             return ""
 
@@ -251,7 +261,7 @@ class ConfigFloatyItem(pydantic.BaseModel, Generic[T_ConfigFloatyContainer]):
 
         mode = self.resolve_mode(mode)
 
-        classes = self.create_classes(mode=mode)
+        classes = self.create_classes_image(mode=mode)
         tag = "iconify-icon" if mode != "bootstrap" else "i"
 
         attrs = ""
@@ -336,6 +346,7 @@ class ConfigFloatyItem(pydantic.BaseModel, Generic[T_ConfigFloatyContainer]):
         if self.href and self.container.include_href:
             out.attributes.update({"data-floaty-url": self.href})
 
+        out.attributes.update(self.attributes)
         out.attributes.update(self.get_attributes())
         return out
 
@@ -359,13 +370,13 @@ class ConfigFloatyItem(pydantic.BaseModel, Generic[T_ConfigFloatyContainer]):
         return element
 
 
-class ConfigFloatyTex(pydantic.BaseModel):
+class ConfigFloatyTex(util.BaseConfig):
     """Options for rendering latex."""
 
     sep: FieldSep
 
 
-class ConfigFloatyContainer(pydantic.BaseModel):
+class ConfigFloatyContainer(util.BaseConfig):
     """Global configuration for floaty items is defined here.
 
     This is passed to most methods of ``ConfigFloatyItem`` to determine how
@@ -437,6 +448,17 @@ class ConfigFloatyContainer(pydantic.BaseModel):
             description="SCSS classes to be applied to the body of each card."
         ),
     ]
+    classes_card_images: Annotated[
+        util.FieldClasses,
+        pydantic.Field(
+            description="""
+            ``SCSS`` classes to be applied to the card images.
+            This applies to the `<i></i>` or `<iconify></iconify>` element, and
+            not ``card-img-top`` element. The current use case for this is to 
+            ensure that bootstrap icons can fill their background.
+        """
+        ),
+    ]
 
     @pydantic.computed_field
     @property
@@ -502,8 +524,6 @@ class ConfigFloatyContainer(pydantic.BaseModel):
         js = f"const {owner.js_name} = lazyFloaty('{ element.identifier }', {{ {js_overlay_id} }})\n"
         js += f"globalThis.{owner.js_name} = {owner.js_name}\n"
         js += f'console.log("overlay", {overlay.js_name if overlay is not None else "null"})'
-
-        logger.warning(owner.js_name)
 
         element.content.append(
             pf.RawBlock(f"<script id={owner.identifier + '-script' }>{js}</script>")
@@ -573,7 +593,37 @@ class ConfigFloaty(
         return self.content.get(key)
 
 
-class Config(pydantic.BaseModel):
+class BaseFloatyConfig(util.BaseConfig):
+
+    filter_name: ClassVar[str]
+
+    @pydantic.computed_field
+    @property
+    def overlay_identifiers(self) -> dict[str, str] | None:
+        if (attr := getattr(self, self.filter_name, None)) is None:
+            return
+
+        return {
+            item.overlay.identifier: item.identifier
+            for item in attr.values()
+            if item.overlay is not None
+        }
+
+    def hydrate_overlay(self, element: pf.Div):
+        if (
+            self.overlay_identifiers is None
+            or element.identifier not in self.overlay_identifiers
+        ):
+            return element
+
+        floaty_identifier = self.overlay_identifiers[element.identifier]
+        config = getattr(self, self.filter_name)[floaty_identifier]
+        element = config.overlay.hydrate_html(element)
+        return element
+
+
+class Config(BaseFloatyConfig):
+    filter_name = "floaty"
     floaty: Annotated[
         dict[
             str,
@@ -585,17 +635,6 @@ class Config(pydantic.BaseModel):
         pydantic.Field(None),
         pydantic.BeforeValidator(util.content_from_list_identifier),
     ]
-
-    @pydantic.computed_field
-    @property
-    def overlay_identifiers(self) -> dict[str, str] | None:
-        if self.floaty is None:
-            return
-        return {
-            item.overlay.identifier: item.identifier
-            for item in self.floaty.values()
-            if item.overlay is not None
-        }
 
 
 class FilterFloaty(util.BaseFilterHasConfig):
@@ -614,15 +653,7 @@ class FilterFloaty(util.BaseFilterHasConfig):
             element = config.hydrate_html(element)
             return element
 
-        if (
-            self.config.overlay_identifiers is not None
-            and element.identifier in self.config.overlay_identifiers
-        ):
-            floaty_identifier = self.config.overlay_identifiers[element.identifier]
-            config = self.config.floaty[floaty_identifier]
-            element = config.overlay.hydrate_html(element)
-            return element
-
+        element = self.config.hydrate_overlay(element)
         return element
 
 

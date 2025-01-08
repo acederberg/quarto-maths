@@ -41,7 +41,7 @@ class IFrameConfig(util.BaseHasIdentifier):
         return element
 
 
-class Config(pydantic.BaseModel):
+class Config(util.BaseConfig):
 
     iframes: Annotated[
         dict[str, IFrameConfig] | None,

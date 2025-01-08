@@ -2,8 +2,31 @@
 title: Overlay Storybook
 filters:
   - ../../filters/under_construction.py
+under_construction:
+  - identifier: under-construction
+    container:
+      size: 1
+      mode: bootstrap
+      classes:
+        - floaty-shadow-1
+    content:
+      key: uses-bs
+      title: This section is under construction.
+      description: Soon this will be completed.
+      image:
+        bootstrap:
+          # NOTE: Applies classes specificaly to the bootstrap icon.
+          classes:
+            - bg-yellow
+            - border
+            - border-black
+            - border-5
+            - rounded-4
+            - p-5
+      classes:
+        - p-3
 ---
 
-::: { #under-construction }
+::: { #under-construction .under-construction-1 }
 
 :::

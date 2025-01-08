@@ -59,12 +59,6 @@ With minimal configuration, the following is possible:
 ::: { #floaty-plain }
 :::
 
-::: { .callout-warning }
-
-Soon, size should be configurable using `$.container.size`.
-
-:::
-
 ::: { .callout-note collapse=true }
 
 #### Filter Configuration: Minimal Configuration

@@ -14,59 +14,51 @@ filters:
   - ../filters/minipage.py
 ---
 
-<!-- START RESUME --------------------------------> ::: { #resume }
+<!-- START RESUME ------------------------------------------------------------> ::: { #resume }
 
-<!-- START LEFT ----------------------------------> ::: { #left .minipage minipage-width=".49" .minipage-first }
+<!-- START LEFT --------------------------------------------------------------> ::: { #top-left .minipage minipage-width=".49" .minipage-first }
 
 {{< include ./partials/_title.qmd >}}
 
-<!-- STOP LEFT -----------------------------------> :::
+<!-- STOP LEFT ---------------------------------------------------------------> :::
 
 {{< include ./partials/_tex_filler.qmd >}}
 
-<!-- START RIGHT ---------------------------------> ::: { #left .minipage minipage-width=".49" .minipage-final }
-
-::: { #contact-minipage .minipage minipage-width=".49" .minipage-first minipage-height="unset" }
+<!-- START RIGHT -------------------------------------------------------------> ::: { #top-right .minipage minipage-width=".49" .minipage-final }
 
 {{< include ./partials/_contact.qmd >}}
 
-:::
-
-::: { #links-minipage .minipage minipage-width=".49" .minipage-final minipage-height="unset" }
-
 {{< include ./partials/_links.qmd >}}
 
-:::
+<!-- STOP RIGHT --------------------------------------------------------------> :::
 
-<!-- STOP RIGHT -----------------------------------> :::
-
-<!-- START LEFT ----------------------------------> ::: { #left .minipage minipage-width=".49" minipage-height="0.80" .minipage-first }
+<!-- START LEFT --------------------------------------------------------------> ::: { #bottom-left .minipage minipage-width=".49" minipage-height="0.80" .minipage-first }
 
 {{< include ./partials/_profile.qmd >}}
 
-<!-- START EXPERIENCE ----------------------------> :::: { #resume-experience }
+## Experience
 
 {{< include ./partials/_consulting.qmd >}}
 
 {{< include ./partials/_mve.qmd >}}
 
-<!-- STOP EXPERIENCE -----------------------------> ::::
-
-<!-- STOP LEFT -----------------------------------> :::
+<!-- STOP LEFT ---------------------------------------------------------------> :::
 
 {{< include ./partials/_tex_filler.qmd >}}
 
-<!-- START RIGHT ---------------------------------> ::: { #right .minipage minipage-width=".49"  minipage-height="0.80" .minipage-final }
+<!-- START RIGHT -------------------------------------------------------------> ::: { #bottom-right .minipage minipage-width=".49"  minipage-height="0.80" .minipage-final }
+
+## Skills
 
 {{< include ./partials/_skills.qmd >}}
 
+## Projects
+
 {{< include ./partials/_projects.qmd >}}
 
-<!-- START EDUCATION ------------------------------> :::: { #resume-education }
+## Education
 
 {{< include ./partials/_unm.qmd >}}
 
-<!-- STOP EDUCATION ------------------------------> ::::
-
-<!-- STOP RIGHT ----------------------------------> :::
-<!-- STOP RESUME ---------------------------------> :::
+<!-- STOP RIGHT --------------------------------------------------------------> :::
+<!-- STOP RESUME -------------------------------------------------------------> :::

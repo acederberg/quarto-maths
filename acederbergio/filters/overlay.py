@@ -68,7 +68,7 @@ class Colorize(pydantic.BaseModel):
 class ConfigOverlay(pydantic.BaseModel):
 
     identifier: str
-    colorize: Colorize | None
+    colorize: Annotated[Colorize | None, pydantic.Field(None)]
     classes: util.FieldClasses
 
     @pydantic.computed_field
@@ -80,7 +80,7 @@ class ConfigOverlay(pydantic.BaseModel):
     def hydrate_html_js(self, element: pf.Div):
 
         colorize = (
-            self.colorize.model_dump_json() if self.colorize is not None else "null"
+            self.colorize.model_dump_json() if self.colorize is not None else "{}"
         )
 
         js = f"const {self.js_name} = Overlay(document.getElementById('{element.identifier}'), {{ paramsColorize: {colorize} }})\n"

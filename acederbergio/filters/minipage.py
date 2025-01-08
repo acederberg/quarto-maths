@@ -47,14 +47,14 @@ class FilterMinipage(util.BaseFilter):
 
         env_start += rf"{{{width}\textwidth}}"
 
-        util.record()
-        util.record(el.identifier)
-        util.record(el.classes)
-        util.record("height", height_raw)
-        util.record("width", width)
-        util.record("align", align)
-        util.record(env_start)
-
+        # util.record()
+        # util.record(el.identifier)
+        # util.record(el.classes)
+        # util.record("height", height_raw)
+        # util.record("width", width)
+        # util.record("align", align)
+        # util.record(env_start)
+        #
         # NOTE: First only needs a start, final only needs a stop. Because of
         #       stupid newline rules, each on interior needs to stop the last
         #       minipage and start its own.
@@ -69,7 +69,7 @@ class FilterMinipage(util.BaseFilter):
         else:
             out = pf.Div(pf.RawBlock(env_stop + env_start, format="latex"), el)
 
-        util.record(json.dumps(out.to_json(), indent=2))
+        # util.record(json.dumps(out.to_json(), indent=2))
         return out
 
     def __call__(self, el: pf.Element):

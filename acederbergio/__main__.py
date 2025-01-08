@@ -4,6 +4,7 @@ from acederbergio.api.main import cli as cli_server
 from acederbergio.config import cli as cli_config
 from acederbergio.db import cli as cli_db
 from acederbergio.env import cli as cli_env
+from acederbergio.filters.__main__ import cli as cli_filters
 from acederbergio.iconify import cli as cli_iconify_kubernetes
 from acederbergio.verify import cli as cli_verify
 
@@ -14,6 +15,7 @@ cli.add_typer(cli_iconify_kubernetes, name="iconify")
 cli.add_typer(cli_env, name="env")
 cli.add_typer(cli_verify, name="verify")
 cli.add_typer(cli_db, name="db")
+cli.add_typer(cli_filters, name="filters")
 
 if __name__ == "__main__":
     cli()

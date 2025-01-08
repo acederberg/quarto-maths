@@ -1,88 +1,203 @@
 /*-- scss:rules --*/
 
 
+@mixin make-gutters($size) {
+  padding-left: $size;
+  padding-right: $size;
+}
 
+
+
+.page-layout-custom {
+  @include make-container();
+
+  $bg-sidebar: $gray-200;
+  $bg-main: $white;
+
+  background: $bg-sidebar;
+  padding-bottom: calc(3 * map-get($spacers, 5)) !important;
+
+
+  // NOTE: Content independent of screen size.
+  .page-layout-custom-content {
+    background: $bg-sidebar;
+    @include make-row();
+    margin: 0px; // Makes page overflow when not set
+
+    .page-layout-custom-main {
+      background: $bg-main;
+    }
+
+    .page-layout-custom-sidebar {
+      background: $bg-sidebar;
+    }
+  }
+
+
+
+  // Make the columns take up the entire page around a medium view.
+  @include media-breakpoint-up(xxl) {
+
+    $gutter-size: map-get($spacers, 5);
+    $page-padding: calc(3 * map-get($spacers, 5));
+
+    .page-layout-custom-content {
+      padding-left: $page-padding;
+      padding-right: $page-padding;
+
+      .page-layout-custom-sidebar {
+        @include make-col(5);
+        @include make-gutters($gutter-size);
+        /* background: $gray-100; */
+      }
+
+      .page-layout-custom-main {
+        @include make-col(7);
+        @include make-gutters($gutter-size);
+      }
+    }
+
+  }
+
+  @include media-breakpoint-only(xl) {
+    $gutter-size: map-get($spacers, 5);
+    $page-padding: calc(map-get($spacers, 5));
+
+    .page-layout-custom-content {
+      padding-left: $page-padding;
+      padding-right: $page-padding;
+
+      .page-layout-custom-sidebar {
+        @include make-col(5);
+        @include make-gutters($gutter-size);
+        /* background: $gray-100; */
+      }
+
+      .page-layout-custom-main {
+        @include make-col(7);
+        @include make-gutters($gutter-size);
+      }
+    }
+  }
+
+  // NOTE: Padding goes to zero because these should now be in their own
+  //       rows.
+  @include media-breakpoint-only(lg) {
+
+    $gutter-size: none;
+    $page-padding: map-get($spacers, 5);
+
+    .page-layout-custom-content {
+      @include make-gutters($page-padding);
+
+      .page-layout-custom-main {
+        @include make-col(12);
+        @include make-gutters($gutter-size);
+      }
+
+      .page-layout-custom-sidebar {
+        @include make-col(12);
+        @include make-gutters($gutter-size);
+      }
+    }
+  }
+
+  @include media-breakpoint-only(md) {
+
+    $gutter-size: none;
+    $page-padding: map-get($spacers, 3);
+
+    .page-layout-custom-content {
+      @include make-gutters($page-padding);
+
+      .page-layout-custom-main {
+        @include make-col(12);
+        @include make-gutters($gutter-size);
+      }
+
+      .page-layout-custom-sidebar {
+        @include make-col(12);
+        @include make-gutters($gutter-size);
+      }
+    }
+  }
+
+  @include media-breakpoint-down(md) {
+    $gutter-size: map-get($spacers, 1);
+
+    .page-layout-custom-content {
+      @include make-gutters(none);
+
+      .page-layout-custom-main {
+        @include make-col(12);
+        @include make-gutters($gutter-size);
+      }
+
+      .page-layout-custom-sidebar {
+        @include make-col(12);
+        @include make-gutters($gutter-size);
+      }
+    }
+  }
+
+}
 
 #resume {
   #resume-headshot img {
     border-radius: 50% !important;
   }
 
-  h2,
-  h3,
-  h4 {
-    border: none;
-    font-size: large;
+  // Want all headers a level less large.
+  h2 {
+    /* border: none; */
+    font-size: map-get($font-sizes, 3);
     text-align: center;
   }
 
-  p {
-    font-size: medium;
-  }
-
-  ul li p {
-    padding: 0px;
-    margin: 0px;
-  }
-
-  .progress {
-    background: var(--bs-gray-400);
-    height: 32px;
-
-    .progress-bar {
-      color: var(--bs-black);
-      font-size: large !important;
-      text-align: left !important;
+  @for $size from 3 through 5 {
+    h#{$size} {
+      font-size: map-get($font-sizes, $size + 1)
     }
   }
 
-  #resume-experience section h3,
-  #resume-experience section h4,
-  #resume-education section h3,
-  #resume-education section h4 {
+
+
+  .skills-page {
+    height: 80vh;
+    overflow-y: scroll;
+  }
+
+  .skills-content {
     text-align: left;
   }
 
-  #resume-links p {
-    text-align: center;
-  }
+  #resume-skills-main {
+    .card {
+      margin-left: map-get($spacers, 5);
+      margin-right: map-get($spacers, 5);
 
-  #resume-projects ul li,
-  #resume-skills li {
-    height: 160px;
-    width: 160px;
-    border: 1px solid var(--bs-body-bg);
-    padding: 5px;
-  }
+      border-radius: $border-radius-lg !important;
+      border-width: map-get($border-widths, 5) !important;
+      border-style: solid;
+      border-color: var(--bs-white);
 
+      transition: color 300ms,
+        transform 100ms;
 
-  #resume-skills {
-    .overlay ul li {
-      border: none;
+      &.hover,
+      &:hover {
+        $hover-color: var(--bs-blue);
+        z-index: 1;
+        filter: drop-shadow(4px 4px 8px rgba(0, 0, 0, 0.5));
+        cursor: pointer;
+        transform: scale(1.1);
+        color: $hover-color;
 
-      :hover {
-        animation: none;
-        border-image: none;
-        transform: none;
-        border-color: var(--color-hover-1);
+        iconify-icon,
+        i {
+          color: var(--bs-blue);
+        }
       }
-    }
-
-    table {
-      width: 100%;
-
-      tr:hover {
-        transform: none;
-      }
-    }
-
-    .skills-page {
-      height: 80vh;
-      overflow-y: scroll;
-    }
-
-    .skills-content {
-      text-align: left;
     }
 
   }

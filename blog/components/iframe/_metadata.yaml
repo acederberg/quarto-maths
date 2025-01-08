@@ -1,0 +1,12 @@
+# start snippet 1
+format:
+  html:
+    layout: full-page
+filters:
+  - ../../filters/iframe.py
+iframes:
+  - identifier: links-pdf-iframe
+    target: blog/components/floaty/resume-links.qmd
+    kind: pdf
+    # end snippet 1
+

@@ -4,7 +4,7 @@ subtitle: Software Engineer | Resume v5
 format:
   html:
     toc: false
-    page-layout: full
+    page-layout: custom
     include-in-header:
       - file: ../includes/overlay.html
       - file: ../includes/tooltip.html
@@ -12,10 +12,14 @@ filters:
   - ../filters/under_construction.py
   - ../filters/resume.py
   - ../filters/floaty.py
+  - ../filters/skills.py
 live_reload: true
 ---
 
-<!-- Start Resume --> :::::: { #resume }
+<!-- Start Resume --> :::::: { #resume .page-layout-custom-content }
+
+<!---
+
 
 ::: { .callout-tip collapse="true"}
 
@@ -28,7 +32,6 @@ _For instance, the items in the `skills` section can be clicked on to learn more
 
 :::
 
-<!---
 
 ###############################################################################
 ###############################################################################
@@ -41,19 +44,25 @@ NOTE: The first set of columns should contain the headshot, links, contact,
 
 --->
 
-<!-- Start Columns 1 ------------> ::::: { .columns }
-<!--- Start Left -----------------> :::: { .column width=30% }
+<!----------------------------------------------------------------------------> ::: { #resume-sidebar .page-layout-custom-sidebar }
 
 {{< include "./partials/_headshot.qmd" >}}
 
+## Links { .py-3 }
+
 {{< include "./partials/_links.qmd" >}}
+
+## Contacts { .py-3 }
 
 {{< include "./partials/_contact.qmd" >}}
 
-<!--- Stop Left ----------------------> ::::
+```{=html}
+<script>
+  {{< include copy.js >}}
+</script>
+```
 
-<!--- Start Filler -------------------> ::: { .column width="1%" }
-<!--- Stop Filler --------------------> :::
+<!----------------------------------------------------------------------------> :::
 
 <!---
 ###############################################################################
@@ -65,41 +74,27 @@ NOTE: This section should contain education, profile, and experience.
 
 
 --->
-<!--- Start Right --------------------> :::: { .column width=69% }
+
+<!----------------------------------------------------------------------------> ::: { #resume-main .page-layout-custom-main }
+
+## Profile
 
 {{< include ./partials/_profile.qmd >}}
 
+## Skills
+
 {{< include ./partials/_skills.qmd >}}
 
-<!--- Start Experience ---------------> ::::: { #resume-experience .py-3 }
+## Experience { .py-3 }
 
 {{< include ./partials/_consulting.qmd >}}
 
 {{< include ./partials/_mve.qmd >}}
 
-<!--- Stop Experience ----------------> :::::
-
 {{< include ./partials/_projects.qmd >}}
 
-<!-- Start Education -----------------> ::::: { #resume-education .py-3 }
+## Education { .py-3 }
 
 {{< include ./partials/_unm.qmd >}}
 
-<!--- Stop Edication -----------------> :::::
-
-<!--- Stop Right ---------------------> ::::
-<!--- Stop Columns 1 -----------------> :::::
-
-<!---
-
-###############################################################################
-###############################################################################
-
-NOTE: This second batch of columns will include skills and projects. Both of
-      these should include overlays with descriptions of each item.
-
-
-
---->
-
-<!--- Stop Resume   ------------------> ::::::
+<!--- Stop Resume ------------------------------------------------------------> ::::::

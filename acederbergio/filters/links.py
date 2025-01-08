@@ -36,8 +36,8 @@ class ConfigLinksContainer(floaty.ConfigFloatyContainer):
 class ConfigLinks(floaty.ConfigFloaty[ConfigLinkItem, ConfigLinksContainer]): ...
 
 
-class Config(pydantic.BaseModel):
-    floaty_links: Annotated[
+class Config(util.BaseConfig):
+    links: Annotated[
         dict[str, ConfigLinks | None],
         pydantic.Field(None),
         pydantic.BeforeValidator(util.content_from_list_identifier),
@@ -45,7 +45,7 @@ class Config(pydantic.BaseModel):
 
 
 class FilterLinks(util.BaseFilterHasConfig):
-    filter_name = "floaty_links"
+    filter_name = "links"
     filter_config_cls = Config
 
     def __call__(self, element: pf.Element) -> pf.Element:
@@ -53,8 +53,8 @@ class FilterLinks(util.BaseFilterHasConfig):
         if not isinstance(element, pf.Div) or self.config is None:
             return element
 
-        if element.identifier in self.config.floaty_links:
-            config = self.config.floaty_links[element.identifier]
+        if element.identifier in self.config.links:
+            config = self.config.links[element.identifier]
             if self.doc.format == "latex":
                 element = config.hydrate_tex(element)
             elif self.doc.format == "html":
