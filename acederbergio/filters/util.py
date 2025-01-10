@@ -1,12 +1,22 @@
 import abc
 import os
 import pathlib
-from typing import (Annotated, ClassVar, Literal, Protocol, Required, Type,
-                    TypeAlias, TypedDict, TypeVar)
+from typing import (
+    Annotated,
+    ClassVar,
+    Literal,
+    Protocol,
+    Required,
+    Type,
+    TypeAlias,
+    TypedDict,
+    TypeVar,
+)
 
 import panflute as pf
 import pydantic
 from dsa.bst import secrets
+from pydantic.v1.utils import deep_update
 
 from acederbergio import env
 
@@ -16,7 +26,8 @@ FieldKey = Annotated[
     str,
     pydantic.Field(default_factory=lambda: secrets.token_urlsafe(16)),
 ]
-FieldClasses: TypeAlias = Annotated[list[str] | None, pydantic.Field(None)]
+FieldClasses = Annotated[list[str] | None, pydantic.Field(None)]
+FieldAttributes = Annotated[dict[str, str] | None, pydantic.Field(None)]
 FieldIdentifier = Annotated[
     str,
     pydantic.Field(default_factory=lambda: secrets.token_urlsafe(16)),
@@ -226,6 +237,13 @@ def update_classes(update: list[str], *args: list[str] | None):
             update += item
 
     return update
+
+
+def update_attributes(
+    update: dict[str, str], *args: dict[str, str] | None
+) -> dict[str, str]:
+    items = tuple(item for item in args if item is not None)
+    return deep_update(update, *items)
 
 
 def config_infos():

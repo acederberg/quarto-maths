@@ -11,16 +11,10 @@ logger = env.create_logger(__name__)
 TODAY = date.today()
 
 
-DEFAULT_CLASSES_PROGRESS = []
-DEFAULT_CLASSES = ["bg-primary", "progress-bar-animated", "progress-bar-striped"]
-FieldClassesProgress = Annotated[
-    list[str] | None,
-    pydantic.Field(default_factory=lambda: DEFAULT_CLASSES_PROGRESS),
-]
-FieldClassesProgressBar = Annotated[
-    list[str] | None,
-    pydantic.Field(default_factory=lambda: DEFAULT_CLASSES),
-]
+# DEFAULT_CLASSES_PROGRESS = []
+# DEFAULT_CLASSES = [] #["bg-primary", "progress-bar-animated", "progress-bar-striped"]
+FieldClassesProgress = Annotated[list[str] | None, pydantic.Field(None)]
+FieldClassesProgressBar = Annotated[list[str] | None, pydantic.Field(None)]
 
 
 class HasProgressClasses(util.BaseConfig):

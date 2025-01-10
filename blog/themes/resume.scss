@@ -6,32 +6,41 @@
   padding-right: $size;
 }
 
+$resume-bg-sidebar: $gray-100;
+$resume-bg-main: $white;
+
 
 
 .page-layout-custom {
   @include make-container();
 
-  $bg-sidebar: $gray-200;
-  $bg-main: $white;
-
-  background: $bg-sidebar;
-  padding-bottom: calc(3 * map-get($spacers, 5)) !important;
+  background: $resume-bg-sidebar;
+  padding-bottom: calc(5 * map-get($spacers, 5)) !important;
 
 
   // NOTE: Content independent of screen size.
   .page-layout-custom-content {
-    background: $bg-sidebar;
     @include make-row();
-    margin: 0px; // Makes page overflow when not set
+
+    background: $resume-bg-sidebar;
+    margin: auto; // Makes page overflow when not set
+    max-width: 1600px;
 
     .page-layout-custom-main {
-      background: $bg-main;
+      background: $resume-bg-main;
     }
 
     .page-layout-custom-sidebar {
-      background: $bg-sidebar;
+      background: $resume-bg-sidebar;
+      padding-bottom: map-get($spacers, 5);
     }
+
+    .page-layout-custom-footer {
+      @include make-col(12);
+    }
+
   }
+
 
 
 
@@ -39,7 +48,7 @@
   @include media-breakpoint-up(xxl) {
 
     $gutter-size: map-get($spacers, 5);
-    $page-padding: calc(3 * map-get($spacers, 5));
+    $page-padding: map-get($spacers, 5);
 
     .page-layout-custom-content {
       padding-left: $page-padding;
@@ -53,6 +62,10 @@
 
       .page-layout-custom-main {
         @include make-col(7);
+        @include make-gutters($gutter-size);
+      }
+
+      .page-layout-custom-footer {
         @include make-gutters($gutter-size);
       }
     }
@@ -60,21 +73,25 @@
   }
 
   @include media-breakpoint-only(xl) {
-    $gutter-size: map-get($spacers, 5);
-    $page-padding: calc(map-get($spacers, 5));
+    $gutter-size: map-get($spacers, 3);
+    $page-padding: map-get($spacers, 5);
 
     .page-layout-custom-content {
       padding-left: $page-padding;
       padding-right: $page-padding;
 
       .page-layout-custom-sidebar {
-        @include make-col(5);
+        @include make-col(4);
         @include make-gutters($gutter-size);
         /* background: $gray-100; */
       }
 
       .page-layout-custom-main {
-        @include make-col(7);
+        @include make-col(8);
+        @include make-gutters($gutter-size);
+      }
+
+      .page-layout-custom-footer {
         @include make-gutters($gutter-size);
       }
     }
@@ -84,8 +101,8 @@
   //       rows.
   @include media-breakpoint-only(lg) {
 
-    $gutter-size: none;
-    $page-padding: map-get($spacers, 5);
+    $gutter-size: map-get($spacers, 3);
+    $page-padding: map-get($spacers, 2);
 
     .page-layout-custom-content {
       @include make-gutters($page-padding);
@@ -97,6 +114,10 @@
 
       .page-layout-custom-sidebar {
         @include make-col(12);
+        @include make-gutters($gutter-size);
+      }
+
+      .page-layout-custom-footer {
         @include make-gutters($gutter-size);
       }
     }
@@ -104,8 +125,8 @@
 
   @include media-breakpoint-only(md) {
 
-    $gutter-size: none;
-    $page-padding: map-get($spacers, 3);
+    $gutter-size: map-get($spacers, 2);
+    $page-padding: map-get($spacers, 1);
 
     .page-layout-custom-content {
       @include make-gutters($page-padding);
@@ -117,6 +138,10 @@
 
       .page-layout-custom-sidebar {
         @include make-col(12);
+        @include make-gutters($gutter-size);
+      }
+
+      .page-layout-custom-footer {
         @include make-gutters($gutter-size);
       }
     }
@@ -126,7 +151,7 @@
     $gutter-size: map-get($spacers, 1);
 
     .page-layout-custom-content {
-      @include make-gutters(none);
+      @include make-gutters(0px);
 
       .page-layout-custom-main {
         @include make-col(12);
@@ -137,14 +162,37 @@
         @include make-col(12);
         @include make-gutters($gutter-size);
       }
+
+      .page-layout-custom-footer {
+        @include make-gutters($gutter-size);
+      }
     }
   }
 
 }
 
 #resume {
-  #resume-headshot img {
-    border-radius: 50% !important;
+  /* #title-block-header { */
+  /* } */
+
+  /* .experience { */
+  .experience-header {
+    .experience-organization {
+      margin-left: auto;
+    }
+  }
+
+  /* .experience-duration { */
+  /* } */
+
+  #resume-headshot {
+    display: flex;
+
+    img {
+      margin: auto;
+      border-radius: 50% !important;
+      max-height: 384px;
+    }
   }
 
   // Want all headers a level less large.
@@ -161,16 +209,104 @@
   }
 
 
+  #resume-sidebar {
 
-  .skills-page {
-    height: 80vh;
-    overflow-y: scroll;
+    // NOTE: Because I want quarto to make sections, but don't want the titles
+    //       shown.
+
+    @include media-breakpoint-up(xl) {
+
+      h2,
+      h3,
+      h4,
+      h5 {
+        display: none;
+      }
+
+    }
+
+    .floaty {
+      .card {
+        background: $resume-bg-sidebar;
+        /* margin-left: map-get($spacers, 5); */
+        /* margin-right: map-get($spacers, 5); */
+
+        &:hover,
+        &.hover {
+          background: $gray-200;
+          cursor: pointer;
+        }
+      }
+    }
   }
 
-  .skills-content {
-    text-align: left;
+  #resume-education,
+  #resume-experience {
+    section {
+      padding-top: map-get($spacers, 5);
+      padding-bottom: map-get($spacers, 5);
+    }
   }
 
+  #resume-contacts {
+    .floaty {
+      .floaty-item-img {
+        flex-grow: 5;
+      }
+
+      .floaty-item-text {
+        flex-grow: 8;
+      }
+
+      .floaty-item-footer {
+        flex-grow: 13;
+      }
+    }
+  }
+
+
+  #resume-skills {
+    .overlay-content-item {
+      &.skills-content {
+        height: 80vh;
+        overflow-y: scroll;
+
+        .skills-page {
+          text-align: left;
+          margin-right: map-get($spacers, 3);
+          margin-left: map-get($spacers, 3);
+          padding-top: map-get($spacers, 5);
+          padding-bottom: calc(2 * map-get($spacers, 5));
+          /* background: $red; */
+
+          h1,
+          h2,
+          h3,
+          h4,
+          h5,
+          h6 {
+            text-align: center;
+          }
+
+          .skills-header {
+            /* background: $green; */
+
+            padding-top: map-get($spacers, 5);
+            padding-bottom: map-get($spacers, 5);
+          }
+
+          .skills-text {
+
+            padding-top: map-get($spacers, 5);
+            padding-bottom: map-get($spacers, 5);
+          }
+        }
+      }
+    }
+  }
+
+
+  #resume-projects-floaty,
   #resume-skills-main {
     .card {
       margin-left: map-get($spacers, 5);

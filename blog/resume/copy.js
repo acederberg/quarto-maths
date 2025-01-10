@@ -1,16 +1,20 @@
 function addCopyToContacts() {
   const contacts = document.getElementById("contacts")
-  Array.from(contacts.getElementsByClassName("floaty-item-text")).map(item => {
-    const value = item.innerText
+  Array.from(contacts.getElementsByClassName("floaty-item")).map(item => {
+
+
+    const itemText = item.querySelector(".card-text")
+    const value = itemText.innerText
 
     const button = document.createElement("i")
     button.title = "Copy to Clipboard"
     button.dataset.bsToggle = "tooltip"
     button.dataset.bsPlacement = "right"
     button.dataset.bsCustomClass = "floaty-tooltip"
+    button.dataset.bsOffset = "[0,16]"
     button.style.marginLeft = 'auto'
 
-    button.classList.add("bi", "bi-clipboard", "contact-copy", "px-1")
+    button.classList.add("bi", "bi-clipboard", "contact-copy", "px-1", "hidden")
 
     button.addEventListener("click", () => {
       navigator.permissions.query({ name: "clipboard-write" }).then(async (result) => {
@@ -24,8 +28,12 @@ function addCopyToContacts() {
         }
       });
     })
+    button.addEventListener("mouseover", () => { button.classList.add("text-blue") })
+    button.addEventListener("mouseout", () => { button.classList.remove("text-blue") })
+    item.addEventListener("mouseover", () => { button.classList.remove("hidden") })
+    item.addEventListener("mouseout", () => { button.classList.add("hidden") })
 
-    item.appendChild(button)
+    itemText.appendChild(button)
   })
 }
 

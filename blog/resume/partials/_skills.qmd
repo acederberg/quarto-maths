@@ -9,19 +9,36 @@
 :::
 
 <!-- Start Conditional Content -----------------------------------------------> ::: { .content-hidden when-format="latex" }
+
+::: { .fw-light .text-center .fst-italic }
+
+Click on any the content bellow to learn more.
+
+:::
+
 <!-- Start Overlay -----------------------------------------------------------> ::: { #resume-skills-overlay }
 <!-- Start impl --------------------------------------------------------------> ::: { .overlay-content-item data-key="impl" data-colorize-color="indigo" data-colorize-color-text="white" }
 
-::: { #impl .pt-5 }
+Whatever you might prefer to call text on screens ('programming', 'coding',
+'scripting', _etc_), it is an essential skill for any engineer in the current
+day. While certainly I have been playing with computers my entire life at level
+deeper than most, I have spent the last `7+` years obsessed with computer
+science and mathematics.
+
+::: { #resume-skills-impl }
 :::
 
-### Other Tools { .py-5 }
+### Other Tools { .skills-header }
+
+::: { .skills-text }
 
 Here are some other tools I use frequently.
 
 _Most of these will be covered in detail in subsequent sections._
 
-::: { #resume-skills-impl .pt-5 }
+:::
+
+::: { #resume-skills-impl-etc }
 
 :::
 
@@ -29,11 +46,7 @@ _Most of these will be covered in detail in subsequent sections._
 
 <!-- Start API and DB --------------------------------------------------------> ::: { .overlay-content-item data-key="api-and-db" data-colorize-color="yellow" }
 
-::: { #api-and-db .py-5 }
-
-:::
-
-::: { .skills-content .py-5 }
+::: { .skills-text}
 
 Data is the star of the show and thus the storage, distribution, and retrieval of data is paramount.
 I have plenty of experience developing APIs and ETLs
@@ -45,15 +58,15 @@ and `curl` and protocols like `http` and `websockets`.
 
 :::
 
+::: { #api-and-db }
+
+:::
+
 <!-- STOP API and DB ---------------------------------------------------------> :::
 
 <!-- Start UIUX --------------------------------------------------------------> ::: { .overlay-content-item data-key="uiux" data-colorize-color="blue" }
 
-::: { #uiux .py-5 }
-
-:::
-
-::: { .skills-content .py-5 }
+::: { .skills-text }
 
 While APIs and the backend aggregate, transform, and serve data, the data is
 of little use in assertaining the 'big picture' without visualization and
@@ -63,18 +76,23 @@ my resume if it were in `YAML` format?
 
 :::
 
+::: { #uiux }
+
+:::
+
 <!-- Stop UIUX ---------------------------------------------------------------> :::
 
 <!-- Start DevOps ------------------------------------------------------------> ::: { .overlay-content-item data-key="devops" data-colorize-color="teal" }
 
-::: { #devops .py-5 }
-:::
-
-::: { .skills-content .py-5 }
+::: { .skills-text }
 
 A service is not useful or accessible unless it is deployed, and
 deploying a website manually is a thing of the past. Automation is
 mandatory for building reliable and secure products.
+
+:::
+
+::: { #devops }
 
 :::
 

@@ -105,12 +105,11 @@ $progress-heights : (1: 134px,
             @include make-col();
 
             display: flex;
-            flex-grow: 5;
 
-            i,
-            iconify-icon {
-              margin: auto;
-            }
+            /* i, */
+            /* iconify-icon { */
+            /*   margin: auto; */
+            /* } */
           }
 
           .floaty-item-title,
@@ -123,17 +122,15 @@ $progress-heights : (1: 134px,
 
           .floaty-item-title {
             @include make-col();
-            flex-grow: 13;
           }
 
           .floaty-item-text {
             @include make-col();
-            flex-grow: 34;
           }
 
           .floaty-item-footer {
             @include make-col();
-            flex-grow: 89;
+            flex-grow: 3;
           }
         }
 
@@ -461,4 +458,9 @@ $progress-heights : (1: 134px,
 .floaty-tooltip {
   --bs-tooltip-bg: var(--bs-gray-200);
   --bs-tooltip-color: var(--bs-black);
+  --bs-tooltip-opacity: 0.7;
+  --bs-tooltip-arrow-height: 1rem;
+  --bs-tooltip-margin: 1rem;
+
+  /* map-get($spacers, 3); */
 }

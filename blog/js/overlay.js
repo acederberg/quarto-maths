@@ -286,7 +286,6 @@ function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
     if (oldContent && (oldKey != key) && isAnimated) {
 
       const [slideRight, slideCenter, slideLeft] = animationToRight ? slideyClasses : slideyClassesReverse
-      console.log(animationToRight, slideRight, slideCenter, slideLeft)
 
       // NOTE: Put old in middle and new on left of it.
       oldContent.classList.add(slideCenter)

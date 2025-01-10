@@ -176,6 +176,8 @@ def parse_config(
         parsed = model.model_validate(parsed).model_dump(mode="json", exclude_none=True)
 
     if json_filter is not None:
-        parsed = next((item.value for item in json_filter.find(data)), None)
+        parsed = list(item.value for item in json_filter.find(data))
+        if len(parsed) == 1:
+            parsed = parsed[0]
 
     u.print_yaml(parsed)

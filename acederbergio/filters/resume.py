@@ -48,13 +48,17 @@ class BaseExperienceItem(util.BaseHasIdentifier):
             pf.Header(
                 pf.RawInline(
                     "<div class='d-flex'>"
-                    f"  <div><strong>{ self.title }</strong></div>"  # type: ignore[attr-defined]
-                    f"  <div><strong style='margin-left: auto;'>{ self.organization }</strong></div>"
+                    f"  <div class='experience-title'><strong>{ self.title }</strong></div>"  # type: ignore[attr-defined]
+                    f"  <div class='experience-organization'><strong>{ self.organization }</strong></div>"
                     "</div>"
                 ),
                 level=self.level,
+                classes=["experience-header"],
             ),
-            pf.Para(pf.Emph(*self.create_start_stop())),
+            pf.Div(
+                pf.Para(pf.Emph(*self.create_start_stop())),
+                classes=["experience-duration"],
+            ),
         )
 
     def create_header_tex(self) -> tuple[pf.Element, pf.Element]:
@@ -95,6 +99,7 @@ class BaseExperienceItem(util.BaseHasIdentifier):
 
         head_elements = self.create_header_html()
         element.content = (*head_elements, *element.content)
+        element.classes.append("experience")
         return element
 
     def hydrate_tex(self, element: pf.Element) -> pf.Element:
@@ -189,6 +194,9 @@ class FilterResume(util.BaseFilterHasConfig):
 
         for subconfig in (self.config.resume.education, self.config.resume.experience):
             element = self.hydrate(element, subconfig)
+
+        if element.identifier == "resume-headshot":
+            element = self.config.resume.hydrate_headshot(self.doc, element)
 
         return element
 

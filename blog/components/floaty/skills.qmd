@@ -143,7 +143,7 @@ Each row can be customized to have a different color.
 
 The Following Shows How Individual Configuration can be Specified.
 
-```{.yaml include="_metadata.yaml" snippet=7}
+```{.yaml include="_metadata.yaml" snippet=8}
 
 ```
 

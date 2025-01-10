@@ -17,7 +17,6 @@ function Floaty(elem, { overlayControls }) {
   cards.map(card => {
 
     if (!card.dataset.floatyUrl) {
-      console.log(card)
       return
     }
 
@@ -26,7 +25,6 @@ function Floaty(elem, { overlayControls }) {
         card.dataset.floatyUrl,
         "_blank"
       ).focus()
-      console.log(card)
     })
   })
 

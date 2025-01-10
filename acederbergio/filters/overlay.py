@@ -70,6 +70,8 @@ class ConfigOverlay(pydantic.BaseModel):
     identifier: str
     colorize: Annotated[Colorize | None, pydantic.Field(None)]
     classes: util.FieldClasses
+    classes_items_wrapper: util.FieldClasses
+    classes_items: util.FieldClasses
 
     @pydantic.computed_field
     @property
@@ -92,7 +94,21 @@ class ConfigOverlay(pydantic.BaseModel):
     def hydrate_html(self, element: pf.Div):
 
         items = pf.Div(classes=["overlay-content-items"])
-        items.content = element.content
+        classes_wrap = util.update_classes(list(), self.classes_items_wrapper)
+
+        def hydrate_item(item):
+            if not isinstance(item, pf.Div):
+                logger.warning(
+                    "Encountered non-div in overlay-hydration, `%s`.", item.to_json()
+                )
+                return item
+
+            util.update_classes(item.classes, self.classes_items)
+            wrapped = pf.Div(*item.content, classes=classes_wrap)
+            item.content = (wrapped,)
+            return item
+
+        items.content = list(map(hydrate_item, element.content))
 
         content = pf.Div(items, classes=["overlay-content"])
 

@@ -5,7 +5,7 @@ For exact detail on how to use, see `./blog/dev/componants/floaty.qmd`.
 
 import itertools
 import secrets
-from typing import Annotated, Any, ClassVar, Generic, Literal, TypeVar
+from typing import Annotated, ClassVar, Generic, Literal, TypeVar
 
 import panflute as pf
 import pydantic
@@ -42,7 +42,6 @@ FieldHref = Annotated[
     ),
 ]
 FieldLabel = Annotated[str | None, pydantic.Field(default=None)]
-FieldAttributes = Annotated[dict[str, str] | None, pydantic.Field(None)]
 
 
 def create_null_item(index: str | int, *, data: dict | str | None = None) -> dict:
@@ -83,7 +82,10 @@ def replace_null_items(v):
 
 class BaseConfigFloatyItemImageItem(util.BaseConfig):
     classes: util.FieldClasses
-    attributes: FieldAttributes
+    attributes: Annotated[
+        util.FieldAttributes,
+        pydantic.Field(description="Image attributes for this particular image."),
+    ]
 
 
 class ConfigFloatyItemBootstrap(BaseConfigFloatyItemImageItem):
@@ -216,8 +218,6 @@ class ConfigFloatyItem(util.BaseConfig, Generic[T_ConfigFloatyContainer]):
                 self.image.bootstrap.classes,
             )
 
-        logger.warning(classes)
-
         return classes
 
     # def create_attrs(self, *, mode: FieldMode | None = None) -> str:
@@ -307,9 +307,11 @@ class ConfigFloatyItem(util.BaseConfig, Generic[T_ConfigFloatyContainer]):
         )
         out = pf.Div(
             self.hydrate_card_image(),
-            self.hydrate_card_body(),
             classes=classes,
         )
+
+        if len((body := self.hydrate_card_body()).content):
+            out.content.append(body)
 
         footer = self.hydrate_footer()
         if footer is not None:
@@ -339,15 +341,31 @@ class ConfigFloatyItem(util.BaseConfig, Generic[T_ConfigFloatyContainer]):
             if self.container.columns < 0
             else self.hydrate_card()
         )
-        # NOTE: Tooltip section should be configured to include tooltips.
-        if self.container.include_tooltips:
-            out.attributes.update(self.get_tooltips())
 
-        if self.href and self.container.include_href:
-            out.attributes.update({"data-floaty-url": self.href})
+        # NOTE: From least priority to greatest priority.
+        items = (
+            out.attributes,
+            self.container.attributes_cards,
+            self.get_attributes(),
+            (
+                out.attributes.update(self.get_tooltips())
+                if self.container.include_tooltips
+                else None
+            ),
+            (
+                {"data-floaty-url": self.href}
+                if self.href and self.container.include_href
+                else None
+            ),
+            self.attributes,
+        )
 
-        out.attributes.update(self.attributes)
-        out.attributes.update(self.get_attributes())
+        out.attributes = util.update_attributes(*items)
+        if self.key == "devops":
+            logger.warning("%s", items)
+            logger.warning("Self attributes `%s`", self.attributes)
+            logger.warning("Final attributes `%s`", out.attributes)
+
         return out
 
     def hydrate_tex(
@@ -459,6 +477,8 @@ class ConfigFloatyContainer(util.BaseConfig):
         """
         ),
     ]
+
+    attributes_cards: util.FieldAttributes
 
     @pydantic.computed_field
     @property

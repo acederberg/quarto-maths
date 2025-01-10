@@ -1,4 +1,6 @@
-::: { #resume-projects }
+::: { #resume-projects-floaty when-format="html"}
+
+:::
 
 ::: { .content-visible when-format="latex" }
 
@@ -7,7 +9,5 @@
 - [Automation](https://acederberg.io/projects/automation) - Automation for this website and other projects.
 - [NeoVim Configuration](https://acederberg.io/projects/nvim) - Configuration for my favorite text editor.
 - [Python TLSH](https://github.com/acederberg/py-tlsh) - Python fuzzy hashing project using TLSH in pure python.
-
-:::
 
 :::

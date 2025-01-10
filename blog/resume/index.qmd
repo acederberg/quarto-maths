@@ -3,7 +3,7 @@ title: Adrian Cederberg
 subtitle: Software Engineer | Resume v5
 format:
   html:
-    toc: false
+    toc: true
     page-layout: custom
     include-in-header:
       - file: ../includes/overlay.html
@@ -16,8 +16,9 @@ filters:
 live_reload: true
 ---
 
-<!-- Start Resume --> :::::: { #resume .page-layout-custom-content }
+<!-- Start Resume ------------------------------------------------------------> :::::: { #resume }
 
+<!-- START FIRST CONTAINER ---------------------------------------------------> :::::  { .page-layout-custom-content }
 <!---
 
 
@@ -44,25 +45,59 @@ NOTE: The first set of columns should contain the headshot, links, contact,
 
 --->
 
-<!----------------------------------------------------------------------------> ::: { #resume-sidebar .page-layout-custom-sidebar }
+<!--- START SIDEBAR ----------------------------------------------------------> :::: { #resume-sidebar .page-layout-custom-sidebar }
 
 {{< include "./partials/_headshot.qmd" >}}
 
-## Links { .py-3 }
+```{=html}
+<script>
+  const title = document.getElementById("title-block-header")
+  const sidebar = document.getElementById("resume-sidebar")
+  const headshot = document.getElementById("resume-headshot")
 
-{{< include "./partials/_links.qmd" >}}
+  sidebar.insertBefore(title, headshot)
+  title.classList.add("text-center")
+</script>
+```
 
 ## Contacts { .py-3 }
 
 {{< include "./partials/_contact.qmd" >}}
 
+## Links { #resume-links-section .py-3 }
+
+{{< include "./partials/_links.qmd" >}}
+
 ```{=html}
 <script>
+// NOTE: Want the clipboard in the upper right hand corner.
+/*
   {{< include copy.js >}}
+*/
 </script>
 ```
 
-<!----------------------------------------------------------------------------> :::
+<!---
+## Contents
+
+::: { #resume-contents }
+
+- [Profile](#profile)
+- [Experience](#resume-experience)
+- [Education](#resume-education)
+- [Skills](#skills)
+- [Projects](#projects)
+
+:::
+--->
+
+<script>
+  const content = document.getElementById("resume-contents")
+  conent
+
+</script>
+
+<!--- END SIDEBAR ------------------------------------------------------------> ::::
 
 <!---
 ###############################################################################
@@ -75,26 +110,40 @@ NOTE: This section should contain education, profile, and experience.
 
 --->
 
-<!----------------------------------------------------------------------------> ::: { #resume-main .page-layout-custom-main }
+<!--- START MAIN -------------------------------------------------------------> :::: { #resume-main .page-layout-custom-main .pb-5 .rounded-4 }
 
 ## Profile
 
 {{< include ./partials/_profile.qmd >}}
 
-## Skills
-
-{{< include ./partials/_skills.qmd >}}
-
-## Experience { .py-3 }
+## Experience { .py-3 #resume-experience }
 
 {{< include ./partials/_consulting.qmd >}}
 
 {{< include ./partials/_mve.qmd >}}
 
-{{< include ./partials/_projects.qmd >}}
-
-## Education { .py-3 }
+## Education { .py-3 #resume-education }
 
 {{< include ./partials/_unm.qmd >}}
+
+<!--- STOP MAIN --------------------------------------------------------------> ::::
+
+<!--- STOP FIRST CONTAINER ---------------------------------------------------> :::::
+
+<!--- START SECOND CONTAINER -------------------------------------------------> :::::  { .page-layout-custom-content }
+
+<!--- START FOOTER -----------------------------------------------------------> :::: { .page-layout-custom-footer }
+
+## Projects { .py-3 }
+
+{{< include ./partials/_projects.qmd >}}
+
+## Skills { .py-3 }
+
+{{< include ./partials/_skills.qmd >}}
+
+<!--- START FOOTER -----------------------------------------------------------> ::::
+
+<!--- STOP SECOND CONTAINER --------------------------------------------------> :::::
 
 <!--- Stop Resume ------------------------------------------------------------> ::::::

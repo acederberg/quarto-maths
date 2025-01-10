@@ -113,6 +113,10 @@ I have been looking for a few options for AI collaboration:
 I do not know exactly what the plan is, however I would like to be able to
 provide only the content and not the formatting.
 
+### Resume Review
+
+https://www.headlessheadhunter.org/
+
 ## In General
 
 There are some things that must be handled in general.
