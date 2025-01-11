@@ -2,9 +2,10 @@
 
 ::: { .content-visible when-format="latex" }
 
-- **Software Engineering**: I've been writing software seriously for the last 7 years and have successfully delivered APIs, dashboards, technical reports, and more.
-- **Devops Engineering**: Saved dev hours with pipelines and automation. Provided uptime greater than $99.99\%$ and resiliant with infrastructure as code and CI/CD.
-- **REST, Data, and Web**: Designed APIs and database schemas ensuring delivery and privacy of accurate data. Ensured excellent user experiences and smooth user interface performance.
+Software implementation (`python`, `javascsript`, `shell`, `git`, `docker`),
+deployment (`terraform`, `pulumi`, `kubernetes`, `actions`),
+back-end (`fastapi`, `mysql`, `mongodb`),
+and front-end (`react`, `nextjs`, `scss`, `jinja`).
 
 :::
 
@@ -19,22 +20,29 @@ Click on any the content bellow to learn more.
 <!-- Start Overlay -----------------------------------------------------------> ::: { #resume-skills-overlay }
 <!-- Start impl --------------------------------------------------------------> ::: { .overlay-content-item data-key="impl" data-colorize-color="indigo" data-colorize-color-text="white" }
 
-Whatever you might prefer to call text on screens ('programming', 'coding',
-'scripting', _etc_), it is an essential skill for any engineer in the current
-day. While certainly I have been playing with computers my entire life at level
-deeper than most, I have spent the last `7+` years obsessed with computer
-science and mathematics.
+::: { #resume-skills-overlay-head-impl }
+
+:::
+
+Whatever you might prefer to call the editing and running of text on screens
+('programming', 'coding', 'scripting', _etc_),
+it is an essential skill for any serious engineer or academic in the current
+day to understand and utilize the computer at a deep level.
+While I have certainly been playing with computers my entire life more than
+most would be inclined to,
+I have spent the last `7+` years particularly obsessed with computer science
+and mathematics.
 
 ::: { #resume-skills-impl }
 :::
 
-### Other Tools { .skills-header }
+### Additional Tools { .skills-header }
 
 ::: { .skills-text }
 
 Here are some other tools I use frequently.
 
-_Most of these will be covered in detail in subsequent sections._
+_Most of these will be covered in greater detail in subsequent sections._
 
 :::
 
@@ -46,15 +54,25 @@ _Most of these will be covered in detail in subsequent sections._
 
 <!-- Start API and DB --------------------------------------------------------> ::: { .overlay-content-item data-key="api-and-db" data-colorize-color="yellow" }
 
+::: { #resume-skills-overlay-head-api-and-db }
+
+:::
+
 ::: { .skills-text}
 
-Data is the star of the show and thus the storage, distribution, and retrieval of data is paramount.
-I have plenty of experience developing APIs and ETLs
-in languages like `python` {{< iconify devicons python >}}, and `nodejs` {{< iconify devicons nodejs>}}
-using database technologies such as `mysql` {{< iconify devicon mysql >}}, `mongodb` {{< iconify devicon mongodb >}}, and `redis` {{< iconify devicon redis >}}.
+In the modern world, data is the star of the show and thus the storage,
+distribution, and programmatic acquisition of data is paramount.
 
-Further, I am familiar with means of consuming APIs like `httpx`, `fetch`,
-and `curl` and protocols like `http` and `websockets`.
+I have plenty of experience developing the tools for this - for instance
+REST APIs for the distribution of data and ETLs for the aggregation of data
+in languages like `python` {{< iconify devicons python >}}, and
+`nodejs` {{< iconify devicons nodejs>}} using database technologies a storage
+solutions such as `mysql` {{< iconify devicon mysql >}},
+`mongodb` {{< iconify devicon mongodb >}},
+and `redis` {{< iconify devicon redis >}}.
+
+Additional, I am exceptional familiar with means of consuming data like
+`httpx`, `fetch`, and `curl` and protocols like `http` and `websockets`.
 
 :::
 
@@ -66,13 +84,19 @@ and `curl` and protocols like `http` and `websockets`.
 
 <!-- Start UIUX --------------------------------------------------------------> ::: { .overlay-content-item data-key="uiux" data-colorize-color="blue" }
 
+::: { #resume-skills-overlay-head-uiux }
+
+:::
+
 ::: { .skills-text }
 
-While APIs and the backend aggregate, transform, and serve data, the data is
-of little use in assertaining the 'big picture' without visualization and
-interactivity.
+While APIs and rest of the back-end aggregate, transform, and serve data, said
+data is of little use in ascertaining the 'big picture' without visualization
+and interactivity.
+
 For instance, you are probably viewing this resume on my blog - would you read
-my resume if it were in `YAML` format?
+my resume if it were in `YAML` format? For most of us, the answer is absolutely
+not.
 
 :::
 
@@ -84,11 +108,17 @@ my resume if it were in `YAML` format?
 
 <!-- Start DevOps ------------------------------------------------------------> ::: { .overlay-content-item data-key="devops" data-colorize-color="teal" }
 
+::: { #resume-skills-overlay-head-devops }
+
+:::
+
 ::: { .skills-text }
 
-A service is not useful or accessible unless it is deployed, and
-deploying a website manually is a thing of the past. Automation is
-mandatory for building reliable and secure products.
+Development operations, automation, and cloud engineering make it possible
+to turn `code` into fully functioning software systems. Without this piece of
+the puzzle, deployments are inconsistent and likely quickly cobbled together,
+wasting enumerable hours of developer time and inevitably introducing bugs and
+reducing uptime.
 
 :::
 

@@ -353,6 +353,7 @@ function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
       colorText: contentItem.dataset.colorizeColorText,
       colorTextHover: contentItem.dataset.colorizeColorTextHover,
     }
+    // console.log("colorizeParams", colorizeParams)
 
     colorize(colorizeParams)
   }

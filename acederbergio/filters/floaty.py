@@ -543,7 +543,7 @@ class ConfigFloatyContainer(util.BaseConfig):
         )
         js = f"const {owner.js_name} = lazyFloaty('{ element.identifier }', {{ {js_overlay_id} }})\n"
         js += f"globalThis.{owner.js_name} = {owner.js_name}\n"
-        js += f'console.log("overlay", {overlay.js_name if overlay is not None else "null"})'
+        # js += f'console.log("overlay", {overlay.js_name if overlay is not None else "null"})'
 
         element.content.append(
             pf.RawBlock(f"<script id={owner.identifier + '-script' }>{js}</script>")

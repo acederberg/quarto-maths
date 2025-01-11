@@ -1,10 +1,16 @@
 <!-- Start UNM ---------> :::: { #unm .education education-item=unm }
 
-- Improved student outcomes as tutor and exam proctor in remedial algebra.
-  Ensured thorough student feedback by grading algebra, linear algebra, and
-  ordinary differential equations homework.
-- Documented efficient air plasma production using electricity and magnetism.
-  Built and programmed sensor arrays using rapberry pi and arduino (using
-  `python` and `c`).
+- Ensured consistent, actionable feedback and organization itegrity as a tutor
+  and exam proctor in remedial algebra at UNMs math learning lab.
+  Ensured actionable and detailed feedback by grading college algebra (100+
+  students), undergraduate linear algebra (20+ students), and ordinary
+  differential (20+ students) equations homework.
+- Graduated with coursework in graduate mathematics, for instance topology,
+  differentiable manifolds, and real analysis. Learned and implemented a number
+  of numerical solutions using `python` and Mathwork's `matlab`.
+- Documented efficient air plasma production leveraging advanced principals in
+  fluid dynamics, electricity, and magnetism. Recorded and analyzed
+  large sets of experimental results using `python` by building and
+  programming I2C sensor arrays using rapberry pi and arduino.
 
 <!-- Stop UNM -----------> ::::

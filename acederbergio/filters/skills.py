@@ -81,6 +81,9 @@ class ConfigSkillsItem(
         )
 
     def hydrate_footer(self):
+        if not self.container.include_progress:
+            return None
+
         pb = self.hydrate_progress_bar()
         return pf.Div(pb, classes=[self.class_name("footer")])
 
@@ -107,6 +110,8 @@ class ConfigSkillsItem(
 
 
 class ConfigSkillsContainer(HasProgressClasses, floaty.ConfigFloatyContainer):
+
+    include_progress: Annotated[bool, pydantic.Field(True)]
 
     @property
     def classes_always(self) -> list[str]:

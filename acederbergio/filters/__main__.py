@@ -34,6 +34,7 @@ from typing import Annotated
 
 import jsonpath_ng
 import panflute as pf
+import pydantic
 import rich
 import typer
 import yaml
@@ -157,13 +158,13 @@ def parse_config(
     json_path: str | None = None,
     lazy: bool = True,
     validate: Annotated[bool, typer.Option("--validate/--raw")] = True,
+    silent: Annotated[bool, typer.Option("--silent/--print")] = True,
 ):
     """Parse the configuration for a source."""
 
     # NOTE: Compoute model and json_filter before, because it is painful to
     #       wait for quarto just to have these fail.
     names = names or list(util.config_infos().keys())
-    print(names)
     model = util.compile_model(*names) if validate else None
     path = target.resolve(strict=True)
     json_filter = jsonpath_ng.parse(json_path) if json_path is not None else None
@@ -173,11 +174,22 @@ def parse_config(
 
     parsed = {key: data.get(key) for key in names}
     if model is not None:
-        parsed = model.model_validate(parsed).model_dump(mode="json", exclude_none=True)
+        try:
+            parsed = model.model_validate(parsed)
+        except pydantic.ValidationError as err:
+            # raise err
+            rich.print("[red]Invalid configuration.")
+            u.print_yaml(err.errors())
+            raise typer.Exit(1) from err
+
+        parsed = parsed.model_dump(mode="json", exclude_none=True)
 
     if json_filter is not None:
         parsed = list(item.value for item in json_filter.find(data))
         if len(parsed) == 1:
             parsed = parsed[0]
 
-    u.print_yaml(parsed)
+    if not silent:
+        u.print_yaml(parsed)
+    else:
+        rich.print("[green]Configuration valid.")

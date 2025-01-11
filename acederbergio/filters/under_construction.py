@@ -85,7 +85,7 @@ class ConfigUnderConstruction(
 
 class Config(util.BaseConfig):
     under_construction: Annotated[
-        dict[str, ConfigUnderConstruction],
+        dict[str, ConfigUnderConstruction] | None,
         pydantic.Field(
             default=None,
             description=(

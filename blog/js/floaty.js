@@ -46,4 +46,56 @@ function lazyFloaty(elemId, { overlayId, overlayControls }) {
 
 
 
+function handleTooltipOnResize() {
+  function addDescription(item) {
+    const elem = item._element
+    item.disable()
 
+    if (!elem.dataset.cardTooltipToggle) return
+
+    // NOTE: Check if card text has been added.
+    const textFromResize = Array.from(elem.getElementsByClassName("card-text")).filter(item => item.dataset.cardFromResize != null)
+    if (textFromResize.length) return
+
+    // NOTE: Look for a card  body. If there isn't one, make it.
+    let body = elem.querySelector(".card-body")
+    if (!body) {
+      body = document.createElement("div")
+      body.classList.add("card-body")
+      body.dataset.cardFromResize = true
+      elem.appendChild(body)
+    }
+
+    // NOTE: Add tooltip as card-text.
+    const description = document.createElement("div")
+    description.classList.add("card-text")
+    description.innerText = elem.dataset.bsTitle
+    description.dataset.cardFromResize = true
+
+    body.appendChild(description)
+  }
+
+  function removeDescription(item) {
+    item.enable()
+    const elem = item._element
+    if (!elem.dataset.cardTooltipToggle) return
+
+    // NOTE: Find all ``card-text`` children marked with ``cardFromResize`` and remove.
+    const textFromResize = Array.from(elem.getElementsByClassName("card-text")).filter(item => item.dataset.cardFromResize != null)
+    textFromResize.map(item => item.remove())
+
+    // NOTE: If a card body is marked with ``cardFromResize``, then it should 
+    //       be removed.
+    const bodyFromResize = Array.from(elem.getElementsByClassName("card-body")).filter(item => item.dataset.cardFromResize != null)
+    bodyFromResize.map(item => item.remove())
+  }
+
+
+  function onResize() {
+    tooltipList.map(item => {
+      window.innerWidth > 1200 ? removeDescription(item) : addDescription(item)
+    })
+  }
+
+  return { addDescription, removeDescription, onResize }
+}

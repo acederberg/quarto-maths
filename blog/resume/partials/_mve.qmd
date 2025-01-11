@@ -1,22 +1,24 @@
 :::: { #mve .experience experience-item="mve" }
 
-Architected building management and analytics SaaS for existing and potential
-customers.
-Designed, implemented, and tested APIs, continuous integration and
-delivery, and infrastructure as code projects to reliably power a customer
+Lead the architecting and implementation of building management and analytics
+SaaS to empower building management teams and owners to optomize and have clear
+insights into their utility usage and expendurature.
+Designed, implemented, and tested the Cufflink data API (using `python`),
+SaaS continuous integration and delivery across multiple developers and
+projects, and infrastructure as code projects to reliably power the user
 dashboard and deliver new releases.
 
 - Ensured confidentiality, security, and accuracy of customer data from the
-  Cufflink API using `OAuth`, `MySQL`, and `PyTest`.
-
-- Enhanced developer productivity,
-  maximized platform uptime,
-  ensured platform stability and reproducibility,
-  and guaranteed rapid software delivery by designing and
-  implementing pipelines and infrastructure as code using
-  `Bitbucket` pipelines, `Helm`, and `Terraform` with `Azure`.
-
-- Kick started admin dashboard to enhance company data operations and monitor
-  data pipelines using `NextJS`.
+  Cufflink API using `OAuth` to safegaurd API endpoints, `MySQL` to make secure
+  queries, `traefik` to implement `SSL` termination, and writing robust tests
+  with `PyTest` to ensure the effectiveness of these measures.
+- Enhanced developer productivity and ensure software quality with automated
+  tests and `docker` builds in `bitbucket` pipelines.
+- Ensured SaaS platform uptime to above `99%`,
+  platform stability and reproducibility using `terraform` infrastructure as
+  code on `Azure`, and guaranteed rapid software delivery by designing self
+  testing deployments using `helm`.
+- Streamlined internal data opperations and created data pipeline visibility by
+  initiating the development of an admin dashboard using using `NextJS`.
 
 ::::

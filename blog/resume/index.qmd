@@ -1,13 +1,13 @@
 ---
 title: Adrian Cederberg
-subtitle: Software Engineer | Resume v5
+subtitle: Senior Software Engineer | Resume v5
 format:
   html:
     toc: true
     page-layout: custom
     include-in-header:
       - file: ../includes/overlay.html
-      - file: ../includes/tooltip.html
+        # - file: ../includes/tooltip.html
 filters:
   - ../filters/under_construction.py
   - ../filters/resume.py
@@ -91,12 +91,6 @@ NOTE: The first set of columns should contain the headshot, links, contact,
 :::
 --->
 
-<script>
-  const content = document.getElementById("resume-contents")
-  conent
-
-</script>
-
 <!--- END SIDEBAR ------------------------------------------------------------> ::::
 
 <!---
@@ -147,3 +141,13 @@ NOTE: This section should contain education, profile, and experience.
 <!--- STOP SECOND CONTAINER --------------------------------------------------> :::::
 
 <!--- Stop Resume ------------------------------------------------------------> ::::::
+
+```{=html}
+<script>
+  const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+  const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+  const resizer = handleTooltipOnResize()
+  window.addEventListener("resize", resizer.onResize)
+  resizer.onResize()
+</script>
+```

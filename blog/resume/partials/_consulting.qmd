@@ -1,11 +1,49 @@
 :::: { #consulting .experience experience-item="consulting" }
 
-Starting blogging and consulting, made [acederberg.io](https://aceederberg.io/projects/blog).
-I am currently a part time care taker for family members with failing health.
+<!--
 
-- Delivered [acederberg.io](https://acederberg.io){ data-bs-toggle="tooltip" data-bs-title="My blog" } to advertise services,
-  distribute resume, host blog posts and notes, and showcase projects.
-- Ensured site reliability of [acederberg.io](https://acederberg.io){ data-bs-toggle="tooltip" data-bs-title="My blog" } and future
-  web services with CI/CD and IaC.
+Without GPT mods
+
+Starting blogging about topics in data science, data structures and algorithms,
+and development operations to share insights, expertise, and progress.
+Built [acederberg.io](https://aceederberg.io/projects/blog) using `quarto`
+and `python` to showcase `30+` blog posts, `4` projects, resume, and
+professional portfolio.
+
+- Achieved `>99%` reliability of [acederberg.io](https://acederberg.io) and
+  reliable deployment and builds via infrastructure as code with `pulumi` on
+  `linode` and `github` actions.
+- Developed additional components for [acederberg.io](https://acederberg.io)
+  to enhance content clarity and reactivity using `pandoc` filters implemented
+  in `python` with `pydantic`, including additional `javascript` and extended
+  `SCSS` built upon `bootstrap`.
+- Expedited authorship for [acederbergio](https://acederberg.io) by creating
+  a development dashboard and `typer` CLI to provide visibility into
+  `pandoc` filter and `http` server logs using `FastAPI`, `websockets`, UNIX
+  domain sockets, and `mongodb`.
+- Contributed to `github` open source community by raising and resolving issues,
+  especially through `quarto` and its associated projects.
+
+-->
+
+Started blogging about topics in data science, data structures and algorithms,
+and development operations to share insights, expertise, and progress.
+Built [acederberg.io](https://acederberg.io/projects/blog) using `quarto` and
+`python` to showcase 30+ blog posts, 4 projects, a resume, and a professional
+portfolio.
+
+- Achieved >99% site reliability for [acederberg.io](https://acederberg.io) and
+  ensured consistent deployments and builds using infrastructure as code with
+  `pulumi` on `linode` and `GitHub Actions`.
+- Developed additional components for [acederberg.io](https://acederberg.io) to
+  enhance content clarity and interactivity using custom `pandoc` filters in
+  `python` with `pydantic`, supplemented by additional `javascript` and
+  extended `SCSS` built on `bootstrap`.
+- Streamlined authorship for [acederberg.io](https://acederberg.io) by creating
+  a development dashboard and a `typer` CLI to monitor `pandoc` filters and
+  `http` server logs, utilizing `FastAPI`, `websockets`, UNIX domain sockets,
+  and `mongodb`.
+- Contributed to the `GitHub` open-source community by raising and resolving
+  issues, particularly in `quarto` and its associated projects.
 
 ::::

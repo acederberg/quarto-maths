@@ -1,3 +1,112 @@
+definitions:
+  skills:
+    classes:
+      classes_progress_impl: &classes-progress-impl
+        - bg-indigo
+        - progress-bar-striped
+        - progress-bar-animated
+      classes_progress_front_end: &classes-progress-front-end
+        - "bg-blue"
+        - "text-white"
+        - "progress-bar-animated"
+        - "progress-bar-striped"
+      classes_progress_back_end: &classes-progress-back-end
+        - "bg-yellow"
+        - "progress-bar-animated"
+        - "progress-bar-striped"
+      classes_progress_devops: &classes-progress-devops
+        - "bg-teal"
+        - "progress-bar-animated"
+        - "progress-bar-striped"
+
+
+    containers:
+      # NOTE: Container for floaties at the end of the HTML resume.
+      #       Do not include fields incompatible with ``FloatyContainer`` since
+      #       this is also used for projects.
+      main: &skills-container-main
+        mode: bootstrap
+        size: 5
+        columns: 2
+        include_titles: true
+        include_tooltips: true
+        classes: []
+        classes_card_images:
+          - px-5
+          - py-3
+        classes_items:
+          - py-3
+        attributes_cards:
+          data-bs-offset: '[0,32]'
+          data-bs-placement: bottom
+          data-card-tooltip-toggle: 'true'
+
+      # NOTE: The rows in the skills overlay.
+      overlay-content: &skills-container-overlay-content
+        size: 6
+        include_titles: true
+        columns: -9000
+        classes: [px-5]
+        classes_rows: [py-3]
+
+      # NOTE: How overlay header content should look.
+      overlay-head: &skills-container-overlay-head
+        mode: bootstrap
+        size: 1
+        columns: 1
+        include_titles: true
+        include_tooltips: false
+        classes:
+          - m-5
+    contents:
+      code: &skill-code
+        title: Code
+        key: impl
+        tooltip: Learn more about my programming skills in general.
+        since: 2017-08-01
+        image:
+          iconify:
+            set: misc
+            name: binary
+          bootstrap:
+            name: code-slash
+            # code, braces, regex, etc.
+
+      back-end: &skill-back-end
+        title: Back End
+        key: api-and-db
+        tooltip: Learn more about my experience implementing REST APIs and database applications.
+        since: 2021-02-01
+        image:
+          iconify:
+            set: misc
+            name: api
+          bootstrap:
+            name: database-fill-gear
+
+      front-end: &skill-front-end
+        title: Front End
+        tooltip: Learn more about my experience with user interface and dashboard design and implementation.
+        key: uiux
+        since: 2021-05-01
+        image:
+          iconify:
+            set: misc
+            name: dashboard
+          bootstrap:
+            name: speedometer
+
+      cloud: &skill-cloud
+        title: Cloud/DevOps
+        tooltip: Learn about my automation, containerization, and cloud engineering experience
+        key: devops
+        since: 2021-06-01
+        image:
+          iconify:
+            set: misc
+            name: devops
+          bootstrap:
+            name: cloud-lightning-fill
 filters:
   - ../filters/links.py
   - ../filters/contacts.py
@@ -10,7 +119,7 @@ links:
       include_tooltips: true
       include_href: true
       include_descriptions: false
-      include_titles: false
+      include_titles: true
       size: 6
       mode: bootstrap
       classes:
@@ -18,15 +127,16 @@ links:
       classes_cards:
         - py-2
         - rounded-3
+      attributes_cards:
+        data-bs-placement: bottom
+        data-bs-offset: '[0,16]'
+        data-card-tooltip-toggle: 'true'
     content:
       - key: linkedin
         title: Linkedin
         tooltip: Check out my profile on LinkedIn.
         href: https://www.linkedin.com/in/adrian-cederberg-b453571b9
         label: Linkedin
-        attributes:
-          data-bs-placement: bottom
-          data-bs-offset: '[0,16]'
         image:
           tex:
             font_awesome: faLinkedin
@@ -43,10 +153,6 @@ links:
         tooltip: Check out my Github profile! This is the best place to learn about my skills.
         href: https://github.com/acederberg
         label: Github
-        attributes:
-          data-bs-placement: bottom
-          data-bs-offset: '[0,16]'
-
         image:
           tex:
             font_awesome: faGithub
@@ -63,9 +169,6 @@ links:
         tooltip: My website - projects, articles, blog posts, notes, and this resume.
         href: https://acederberg.io
         label: Blog
-        attributes:
-          data-bs-placement: bottom
-          data-bs-offset: '[0,16]'
         image:
           iconify:
             set: hugeicons
@@ -78,13 +181,10 @@ links:
               - text-cyan
 
       - key: resume
-        title: Resume PDF
+        title: PDF
         href: https://acederberg.io/resume
         tooltip: Most recent version of my resume in ``PDF`` format.
         label: Resume
-        attributes:
-          data-bs-placement: bottom
-          data-bs-offset: '[0,16]'
         # formats: ["latex"]
         image:
           tex:
@@ -105,40 +205,17 @@ contacts:
         sep: "hfill"
       size: 6
       include_tooltips: true
-      include_titles: false
-      include_descriptions: true
+      include_titles: true
+      include_descriptions: false
       columns: 3
       attributes_cards:
         data-bs-offset: '[0,16]'
         data-bs-placement: bottom
+        data-card-tooltip-toggle: 'true'
     content:
-      - key: phone
-        title: Phone
-        description: (505) 589 - 6914
-        tooltip: Reach out by phone.
-        image:
-          iconify:
-            set: hugeicons
-            name: smart-phone-01
-          bootstrap:
-            name: phone
-          tex:
-            font_awesome: faPhone
-      - key: email
-        title: Email
-        description: adrn.cederberg123 @gmail.com
-        tooltip: Reach out by email.
-        image:
-          iconify:
-            set: hugeicons
-            name: mail-01
-          bootstrap:
-            name: envelope
-          tex:
-            font_awesome: faEnvelope
       - key: location
-        title: Location
-        description: Albuquerque, NM
+        title: Albuquerque, NM
+        description: Location
         tooltip: I current reside in Albuquerque, New Mexico.
         image:
           iconify:
@@ -149,6 +226,30 @@ contacts:
           tex:
             font_awesome: faLocationArrow
             # end snippet contacts
+      - key: phone
+        description: Phone
+        title: (505) 589 - 6914
+        tooltip: Reach out by phone.
+        image:
+          iconify:
+            set: hugeicons
+            name: smart-phone-01
+          bootstrap:
+            name: phone
+          tex:
+            font_awesome: faPhone
+      - key: email
+        title: adrn.cederberg123@gmail.com
+        description: Email
+        tooltip: Reach out by email.
+        image:
+          iconify:
+            set: hugeicons
+            name: mail-01
+          bootstrap:
+            name: envelope
+          tex:
+            font_awesome: faEnvelope
 
 
 resume:
@@ -390,17 +491,55 @@ resume:
 # ---------------------------------------------------------------------------- #
 # Skills
 skills:
+  - identifier: resume-skills-overlay-head-impl
+    container:
+      <<: *skills-container-overlay-head
+      classes_progress_bar: *classes-progress-impl
+    content:
+      - *skill-code
+
+  - identifier: resume-skills-overlay-head-api-and-db
+    container:
+      <<: *skills-container-overlay-head
+      classes_progress_bar: *classes-progress-back-end
+    content:
+      - *skill-back-end
+
+  - identifier: resume-skills-overlay-head-uiux
+    container:
+      <<: *skills-container-overlay-head
+      classes_progress_bar: *classes-progress-front-end
+    content:
+      - *skill-front-end
+
+  - identifier: resume-skills-overlay-head-devops
+    container:
+      <<: *skills-container-overlay-head
+      classes_progress_bar: *classes-progress-devops
+    content:
+      - *skill-cloud
+
+  - identifier: resume-skills-main
+    container:
+      <<: *skills-container-main
+      include_progress: false
+    overlay:
+      identifier: resume-skills-overlay
+      classes:
+        - overlay-blur-1
+      classes_items:
+        - skills-content
+      classes_items_wrapper:
+        - skills-page
+    content:
+      - *skill-code
+      - *skill-front-end
+      - *skill-back-end
+      - *skill-cloud
   - identifier: resume-skills-impl
-    container: &skills-container
-      size: 5
-      include_titles: true
-      columns: -9000
-      classes: [px-5]
-      classes_rows: [py-3]
-      classes_progress_bar:
-        - bg-indigo
-        - progress-bar-striped
-        - progress-bar-animated
+    container:
+      <<: *skills-container-overlay-content
+      classes_progress_bar: *classes-progress-impl
     content:
       - title: Python
         key: python
@@ -454,8 +593,8 @@ skills:
             name: javascript
   - identifier: api-and-db
     container:
-      <<: *skills-container
-      classes_progress_bar: ["bg-yellow", "progress-bar-animated", "progress-bar-striped"]
+      <<: *skills-container-overlay-content
+      classes_progress_bar: *classes-progress-back-end
     content:
       - title: HTTP
         key: http
@@ -502,8 +641,9 @@ skills:
 
   - identifier: uiux
     container:
-      <<: *skills-container
-      classes_progress_bar: ["bg-blue", "text-white", "progress-bar-animated", "progress-bar-striped"]
+      <<: *skills-container-overlay-content
+      classes_progress_bar: *classes-progress-front-end
+
     content:
       - title: Jinja
         key: jinja
@@ -550,8 +690,8 @@ skills:
 
   - identifier: devops
     container:
-      <<: *skills-container
-      classes_progress_bar: ["bg-teal", "progress-bar-animated", "progress-bar-striped"]
+      <<: *skills-container-overlay-content
+      classes_progress_bar: *classes-progress-devops
     content:
       - title: Docker
         key: docker
@@ -737,82 +877,17 @@ floaty:
             set: codicon
             name: terminal-bash
       - empty-18
-  - identifier: resume-skills-main
-    container: &container-skills
-      mode: bootstrap
-      size: 6
-      columns: 4
-      include_titles: true
-      include_tooltips: true
-      classes: []
-      classes_card_images:
-        - px-5
-        - py-3
-      classes_items:
-        - py-3
-      attributes_cards:
-        data-bs-offset: '[0,32]'
-        data-bs-placement: bottom
-    overlay:
-      identifier: resume-skills-overlay
-      classes:
-        - overlay-blur-1
-      classes_items:
-        - skills-content
-      classes_items_wrapper:
-        - skills-page
-    content:
-      - title: Code
-        key: impl
-        tooltip: Learn more about my programming skills in general.
-        # since: 2017-08-01
-        image:
-          iconify:
-            set: misc
-            name: binary
-          bootstrap:
-            name: code-slash
-            # code, braces, regex, etc.
-      - title: Back End
-        key: api-and-db
-        tooltip: Learn more about my experience architecting, implementing, testing, consuming, and deploying APIs, ETLs, and database applications.
-        # since: 2021-02-01
-        image:
-          iconify:
-            set: misc
-            name: api
-          bootstrap:
-            name: database-fill-gear
-      - title: Front End
-        tooltip: Learn more about my experience with user interface and dashboard design and implementation.
-        key: uiux
-        # since: 2021-05-01
-        image:
-          iconify:
-            set: misc
-            name: dashboard
-          bootstrap:
-            name: speedometer
-      - title: Cloud/DevOps
-        tooltip: Learn about my devops and cloud engineering.
-        key: devops
-        # since: 2021-06-01
-        image:
-          iconify:
-            set: misc
-            name: devops
-          bootstrap:
-            name: cloud-lightning-fill
 
   - identifier: resume-projects-floaty
     container:
-      <<: *container-skills
-      columns: 4
+      <<: *skills-container-main
+      columns: 2
       mode: iconify
       include_href: true
     content:
       - title: acederberg.io
         href: /projects/blog
+        tooltip: The website that you are viewing this resume on.
         key: website
         image:
           iconify:
@@ -822,6 +897,7 @@ floaty:
       - title: Automation
         key: automation
         href: /projects/automation
+        tooltip: The actions and automation used to deploy this website.
         image:
           iconify:
             set: material-symbols
@@ -830,6 +906,7 @@ floaty:
       - title: Nvim Configuration
         key: nvim
         href: /projects/nvim-config
+        tooltip: My custom configuration for my favorite text editor.
         image:
           iconify:
             set: devicon
@@ -838,6 +915,7 @@ floaty:
       - title: Captura
         key: captura
         href: https://github.com/acederberg/captura
+        tooltip: A REST API I built for permissions management.
         image:
           iconify:
             set: misc

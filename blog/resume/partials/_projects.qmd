@@ -1,3 +1,9 @@
+::: { .fw-light .text-center .fst-italic }
+
+Click on any the content bellow to learn more.
+
+:::
+
 ::: { #resume-projects-floaty when-format="html"}
 
 :::
