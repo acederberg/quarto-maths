@@ -89,6 +89,7 @@ class FilterLive(util.BaseFilter):
         )
 
         filters = json.dumps({"targets": targets, "last": 1})
+        # TODO: Simplify this JS, make this configurable using this live filter.
         overlay_and_script = pf.Div(
             pf.Div(
                 pf.Div(
@@ -100,7 +101,10 @@ class FilterLive(util.BaseFilter):
             ),
             pf.RawBlock(
                 f"""
-                <script id="quarto-hydrate">
+                <script id="quarto-hydrate" type="module">
+
+                  import {{ Overlay }} from "/js/overlay.js"
+                  import {{ Quarto, QuartoRenderBanner }} from "/js/live.js"
 
                   // This should allow users to extend this function.
                   // It needs to have a name so it can be overwritten.

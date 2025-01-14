@@ -13,6 +13,7 @@ from typing import (
     TypeVar,
 )
 
+import jinja2
 import panflute as pf
 import pydantic
 from dsa.bst import secrets
@@ -22,6 +23,7 @@ from acederbergio import env
 
 logger = env.create_logger(__name__)
 
+Breakpoint = Literal["xs", "sm", "md", "lg", "xl", "xxl"]
 FieldKey = Annotated[
     str,
     pydantic.Field(default_factory=lambda: secrets.token_urlsafe(16)),
@@ -275,3 +277,7 @@ def compile_model(*names: str):
 
 def create_run_filter(Filter: type[BaseFilter]):
     return Filter.createFilter()
+
+
+JINJA_ENV = jinja2.Environment(loader=jinja2.FileSystemLoader(env.TEMPLATES))
+JINJA_ENV.get_template("./floaty.j2")

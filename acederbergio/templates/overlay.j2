@@ -1,0 +1,10 @@
+// vi: set ft=django
+
+import { Overlay } from '/js/overlay.js'
+
+// NOTE: Look at ``OverlayInstances`` to get closures.
+Overlay(
+  document.getElementById('{{ element.identifier }}'), 
+  { paramsColorize: {{ colorize }} }
+)
+

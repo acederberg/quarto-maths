@@ -100,6 +100,7 @@ else:
     BUILD = require_path("build", BLOG / "build")
     ICONS = require_path("icons", BLOG / "icons")
 
+TEMPLATES = require_path("templates", SCRIPTS / "templates")
 ICONS_SETS = require_path("icon_sets", ICONS / "sets")
 BUILD_JSON = require_path("build_json", BLOG / "build.json")
 
@@ -238,6 +239,7 @@ def show_environ():
             "icons": str(ICONS),
             "icon_sets": str(ICONS_SETS),
             "configs": str(CONFIGS),
+            "templates": str(TEMPLATES),
         },
         name="variables",
     )

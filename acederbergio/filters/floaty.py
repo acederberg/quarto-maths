@@ -4,8 +4,9 @@ For exact detail on how to use, see `./blog/dev/componants/floaty.qmd`.
 """
 
 import itertools
+import json
 import secrets
-from typing import Annotated, ClassVar, Generic, Literal, TypeVar
+from typing import Annotated, Any, ClassVar, Generic, Literal, TypeVar
 
 import panflute as pf
 import pydantic
@@ -421,9 +422,30 @@ class ConfigFloatyContainer(util.BaseConfig):
         pydantic.Field(
             default=3,
             description="""
-            Number of columns in each ``floaty-row``.
-            When this is negative, ``floaty-grid`` is used.
-            When this is ``0``, there will be only one row.
+                Number of columns in each ``floaty-row``.
+                When this is negative, ``floaty-grid`` is used.
+                When this is ``0``, there will be only one row.
+            """,
+        ),
+    ]
+    resize: Annotated[
+        dict[util.Breakpoint, int] | bool,
+        pydantic.Field(
+            False,
+            description="""
+                Include responsive resizing or not.
+                When true, the default resizings are used.
+            """,
+        ),
+    ]
+    tooltips_toggle: Annotated[
+        util.Breakpoint | bool,
+        pydantic.Field(
+            True,
+            description="""
+            Include responsive tooltip toggling.
+            Tooltips should be moved to card descriptions when this is set.
+            If set to ``True``, the default breakpoint is used.
         """,
         ),
     ]
@@ -538,15 +560,39 @@ class ConfigFloatyContainer(util.BaseConfig):
         if not element.identifier:
             raise ValueError("Missing identifier for div.")
 
-        js_overlay_id = (
-            f"overlayControls: {overlay.js_name if overlay is not None else 'null'}"
+        options: dict[str, Any] = {
+            "resize": bool(self.resize),
+            "tooltipsToggle": bool(self.tooltips_toggle),
+            "overlayControls": overlay.js_name if overlay is not None else "null",
+        }
+        options["resizeBreakpoints"] = (
+            self.resize
+            if options["resize"] and not isinstance(self.resize, bool)
+            else "null"
         )
-        js = f"const {owner.js_name} = lazyFloaty('{ element.identifier }', {{ {js_overlay_id} }})\n"
-        js += f"globalThis.{owner.js_name} = {owner.js_name}\n"
+        options["tooltipsToggleBreakpoint"] = (
+            self.tooltips_toggle
+            if options["tooltipsToggle"] and not isinstance(self.tooltips_toggle, bool)
+            else "null"
+        )
+
+        # js = "import { Overlay } from '/js/overlay.js'\n"
+        # js += "import { lazyFloaty } from '/js/floaty.js'\n"
+        # js += f"const {owner.js_name} = lazyFloaty('{ element.identifier }', {json.dumps(options)})\n"
+        # js += f"globalThis.{owner.js_name} = {owner.js_name}\n"
         # js += f'console.log("overlay", {overlay.js_name if overlay is not None else "null"})'
 
+        js = util.JINJA_ENV.get_template("floaty.j2").render(
+            owner=owner,
+            overlay=overlay,
+            element=element,
+            options=options,
+        )
+
         element.content.append(
-            pf.RawBlock(f"<script id={owner.identifier + '-script' }>{js}</script>")
+            pf.RawBlock(
+                f"<script id={owner.identifier + '-script' } type='module'>{js}</script>"
+            )
         )
 
         return element

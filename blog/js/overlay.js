@@ -1,9 +1,10 @@
+export const OverlayInstances = new Map()
 const OVERLAY_VERBOSE = false
-const FLOATY_VERBOSE = false
 const OVERLAY_ITEM_TRANSFORMATION_DELAY = 10
 const OVERLAY_ITEM_TRANSFORMATION_TIME = 500
 
-function Colorize(overlay, { color, colorText, colorTextHover }) {
+
+export function Colorize(overlay, { color, colorText, colorTextHover }) {
 
   const state = {
     // Colors
@@ -136,7 +137,7 @@ function Colorize(overlay, { color, colorText, colorTextHover }) {
   }
 }
 
-function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
+export function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
   // NOTE: Veryify structure of overlay. It should require an id and seequence
   //       of children ``.overlay-content`` and ``.overlay-content-items``.
   if (!overlay.id) throw Error("Overlay missing required `id`.")
@@ -402,5 +403,7 @@ function Overlay(overlay, { paramsColorize } = { paramsColorize: {} }) {
   Array.from(overlayContentItems.getElementsByClassName(".overlay-content-item")).map(fixIconSizes)
   restoreOverlay()
 
+  OverlayInstances.set(overlay.id, overlayClosure)
   return overlayClosure
 }
+

@@ -201,6 +201,9 @@ format:
 
 ```{=html}
 <script type="module">
+  import { ServerLog, Quarto, QuartoControls } from "/js/live.js"
+  import { Overlay } from "/js/overlay.js"
+
   document.getElementById("title-block-header").remove()
   document.getElementById("quarto-document-content").classList.add("px-1")
 

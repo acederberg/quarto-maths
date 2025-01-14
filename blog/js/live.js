@@ -1,5 +1,6 @@
-const UvicornLogPattern = /(?<ip>[\d.]+):(?<port>\d+)\s+-\s+"(?<method>[A-Z]+)\s+(?<path>[^\s]+)\s+(?<protocol>HTTP\/\d+\.\d+)"\s+(?<status>\d+)/;
+import { Overlay } from "./overlay.js"
 
+const UvicornLogPattern = /(?<ip>[\d.]+):(?<port>\d+)\s+-\s+"(?<method>[A-Z]+)\s+(?<path>[^\s]+)\s+(?<protocol>HTTP\/\d+\.\d+)"\s+(?<status>\d+)/;
 const LIVE_VERBOSE = false
 const LIVE_QUARTO_VERBOSE = false
 const LIVE_SERVER_VERBOSE = false
@@ -15,7 +16,7 @@ const EXT_TO_ICON = {
 
 function hydrateServerLogItem(item, index, array) {
 
-  itemPrevious = index > 0 ? array[index - 1] : null
+  const itemPrevious = index > 0 ? array[index - 1] : null
 
   const elem = document.createElement("tr")
   const itemTime = document.createElement("td")
@@ -115,7 +116,7 @@ function createWebsocketTimer(ws) {
 }
 
 
-function ServerLog({
+export function ServerLog({
   serverLogContainer,
   serverLogParent,
 }) {
@@ -360,7 +361,7 @@ function QuartoOverlayItem(item, { quartoOverlayControls }) {
 /*
   Create a log item and items actions.
 */
-function QuartoLogItem(item, { quartoLogs }) {
+export function QuartoLogItem(item, { quartoLogs }) {
   if (!quartoLogs) return
 
   const logItem = hydrateQuartoLogItem(item)
@@ -408,7 +409,7 @@ function QuartoItem(item, { quartoLogs, quartoOverlayControls }) {
   When a message arrives, ensure that a row is added to the display.
   When the message is an error, show the overlay with the page scrolled down to the bottom of the content.
 */
-function Quarto({ filters, last, quartoLogsParent, quartoLogs, quartoOverlayControls, quartoBannerInclude, reload }) {
+export function Quarto({ filters, last, quartoLogsParent, quartoLogs, quartoOverlayControls, quartoBannerInclude, reload }) {
 
   /*
     If there is an overlay, show an overlay if there is an error.
@@ -485,7 +486,7 @@ function Quarto({ filters, last, quartoLogsParent, quartoLogs, quartoOverlayCont
 async function requestRender({ items }) {
   LIVE_QUARTO_VERBOSE && console.log("Requesting quarto render.")
 
-  res = await fetch("/api/dev/quarto/render", {
+  const res = await fetch("/api/dev/quarto/render", {
     body: JSON.stringify({ items: items || [window.location.pathname] }),
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', },
     method: "POST",
@@ -522,7 +523,7 @@ async function requestLast(filter) {
   return res
 }
 
-function QuartoRenderBanner(item, { bannerTextInnerHTML } = {}) {
+export function QuartoRenderBanner(item, { bannerTextInnerHTML } = {}) {
   /* Re-render this page. */
   async function renderAction() {
     render.remove()
@@ -650,7 +651,7 @@ async function hydrateServerResponse(response) {
   const responseText = await response.text()
   try {
     const json = JSON.parse(responseText);
-    responseBody = JSON.stringify(json, null, 2); // Pretty print with 2 spaces
+    const responseBody = JSON.stringify(json, null, 2); // Pretty print with 2 spaces
 
     responseBody.split("\n").map(
       line => {
@@ -951,7 +952,7 @@ function hydrateGetLast(overlay) {
 }
 
 
-function QuartoControls() {
+export function QuartoControls() {
   const overlay = Overlay(document.getElementById("api-params"))
   overlay.colorize({ color: "primary", colorText: "white", colorTextHover: "black" })
 

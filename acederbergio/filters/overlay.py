@@ -85,9 +85,9 @@ class ConfigOverlay(pydantic.BaseModel):
             self.colorize.model_dump_json() if self.colorize is not None else "{}"
         )
 
-        js = f"const {self.js_name} = Overlay(document.getElementById('{element.identifier}'), {{ paramsColorize: {colorize} }})\n"
-        js += f"globalThis.{self.js_name} = {self.js_name}"
-        js = f"<script id='{self.identifier + 'script'}'>{ js }</script>"
+        tpl = util.JINJA_ENV.get_template("overlay.j2")
+        js = tpl.render(element=element, colorize=colorize, config=self)
+        js = f"<script type='module' id='{self.identifier + 'script'}'>{ js }</script>"
 
         return pf.RawBlock(js, format="html")
 
