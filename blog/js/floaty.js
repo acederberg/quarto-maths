@@ -1,10 +1,10 @@
 import { Overlay } from "./overlay.js"
-import { getBreakpoint } from "./util.js"
+import { getBreakpoint, BREAKPOINTS } from "./util.js"
 
 // NOTE: Should persist over imports.
 export const FloatyInstances = new Map()
-const BREAKPOINTS_RESIZE = { xs: 1, sm: 1, md: 2, lg: 3, xl: 5 }
-const BREAKPOINT_TOOLTIPS_TRANSFORM = 'lg'
+const BREAKPOINTS_RESIZE = { xs: 1, sm: 1, md: 2, lg: 3, xl: 5, xxl: 5 }
+const BREAKPOINT_TOOLTIPS_TRANSFORM = 'xl'
 
 /** Add responsiveness to a `floaty` element.
  *
@@ -30,35 +30,20 @@ const BREAKPOINT_TOOLTIPS_TRANSFORM = 'lg'
  *   contain a `floaty-container` element.
  *
  * */
-export function Floaty(elem, { overlayControls, doResize, doTooltipsToggle, resizeBreakpoints, tooltipsToggleBreakpoint }) {
+export function Floaty(elem, { overlayControls, resize, tooltipsToggle, resizeBreakpoints, tooltipsToggleBreakpoint }) {
 
   resizeBreakpoints = resizeBreakpoints || BREAKPOINTS_RESIZE
   tooltipsToggleBreakpoint = tooltipsToggleBreakpoint || BREAKPOINT_TOOLTIPS_TRANSFORM
   if (!elem) throw Error("Missing required element.")
 
-  const toggleTooltipWidth = BREAKPOINTS_RESIZE[tooltipsToggleBreakpoint].start
-
   const container = elem.querySelector(".floaty-container")
   if (!container) throw Error("Missing container.")
 
+  const floatyItemContainers = Array.from(container.querySelectorAll("floaty-item-container"))
   const cards = Array.from(container.getElementsByClassName("card"))
-  if (overlayControls) cards.map(card => {
-    card.addEventListener("click", () => {
-      overlayControls.showOverlay()
-      overlayControls.showOverlayContentItem(card.dataset.key)
-    })
-  })
-
-  cards.map(card => {
-    if (!card.dataset.floatyUrl) return
-    card.addEventListener("click", () => {
-      window.open(
-        card.dataset.floatyUrl,
-        "_blank"
-      ).focus()
-    })
-  })
-
+  const tooltips = [...elem.querySelectorAll(".floaty-item .card[data-bs-toggle='tooltip']")].map(
+    card => new bootstrap.Tooltip(card)
+  )
 
   /** Make an empty (invisible) floaty item.
    *
@@ -69,11 +54,16 @@ export function Floaty(elem, { overlayControls, doResize, doTooltipsToggle, resi
    * @throws {Error} when a `floaty-item` or card cannot be found.
   */
   function createEmptyItem() {
-    const floatyItemFirst = elem.querySelector(".floaty-item")
-    if (!floatyItemFirst) throw Error("No `floaty-item` found in `elem`.")
+    if (!cards.length) {
+      console.log("No cards.")
+      return
+    }
 
-    const floatyItemFirstCard = floatyItemFirst.querySelector(".card")
-    if (!floatyItemFirstCard) throw Error("No `card` found in `elem`.")
+    const floatyItemFirst = elem.querySelector(".floaty-item")
+    if (!floatyItemFirst) throw Error(`No \`floaty-item\` found in \`elem\` with \`id=${elem.id}\`.`)
+
+    const floatyItemFirstCard = elem.querySelector(".card")
+    if (!floatyItemFirstCard) throw Error(`No \`card\` found in \`elem\` with \`id=${elem.id}\`.`)
 
     const floatyItemEmpty = document.createElement("div")
     floatyItemEmpty.classList.add("floaty-item", ...floatyItemFirst.classList)
@@ -137,18 +127,23 @@ export function Floaty(elem, { overlayControls, doResize, doTooltipsToggle, resi
    *
    * */
   function resizeForColumns({ countColumns }) {
+    if (!cards.length) {
+      console.log("No cards.")
+      return
+    }
+
+    // NOTE: Assume all rows have the same classes.
+    const items = elem.querySelectorAll(".floaty-item")
+    if (!items) throw Error("Missing items.")
 
     if (!countColumns) {
       const rowFirst = elem.querySelector(".floaty-row")
       if (!rowFirst) throw Error("Missing row.")
       countColumns = rowFirst.querySelectorAll(".floaty-item").length
-      console.log(countColumns)
+      // console.log("countColumns", countColumns, elem.id)
+      // console.log(items)
     }
     if (countColumns <= 0) throw Error("`countColumns` must be a positive number.")
-
-    // NOTE: Assume all rows have the same classes.
-    const items = elem.querySelectorAll(".floaty-item")
-    if (!items) throw Error("Missing items.")
 
     let countRows = Math.floor(items.length / countColumns)
     const countIncomplete = items.length % countColumns
@@ -157,9 +152,6 @@ export function Floaty(elem, { overlayControls, doResize, doTooltipsToggle, resi
     if (countIncomplete) countRows++
 
     const emptyItem = createEmptyItem()
-
-
-    console.log("countEmptyRequired", countEmptyRequired)
     const empty = Array.from(Array(countEmptyRequired).keys()).map(
       (index) => {
         const emptyItemCurrent = emptyItem.cloneNode(true)
@@ -192,7 +184,7 @@ export function Floaty(elem, { overlayControls, doResize, doTooltipsToggle, resi
    *
    * @param {number|null} width - Number of pixels that the resize is for.
   */
-  function resize(width) {
+  function resizeForWidth(width) {
     const breakpoint = getBreakpoint(width)
     const countColumns = resizeBreakpoints[breakpoint]
     if (!countColumns) {
@@ -212,12 +204,11 @@ export function Floaty(elem, { overlayControls, doResize, doTooltipsToggle, resi
    */
   function toggleTooltipToCardDescription(item) {
     const elem = item._element
+    // NOTE: Does not disable tooltip.
     item.disable()
 
-    if (!elem.dataset.cardTooltipToggle) return
-
     // NOTE: Check if card text has been added.
-    const textFromResize = Array.from(elem.getElementsByClassName("card-text")).filter(item => item.dataset.cardFromResize != null)
+    const textFromResize = Array.from(elem.getElementsByClassName("card-text")).filter(item => item.dataset.cardTextFromResize != null)
     if (textFromResize.length) return
 
     // NOTE: Look for a card  body. If there isn't one, make it.
@@ -225,7 +216,7 @@ export function Floaty(elem, { overlayControls, doResize, doTooltipsToggle, resi
     if (!body) {
       body = document.createElement("div")
       body.classList.add("card-body")
-      body.dataset.cardFromResize = true
+      body.dataset.cardTextFromResize = true
       elem.appendChild(body)
     }
 
@@ -233,7 +224,7 @@ export function Floaty(elem, { overlayControls, doResize, doTooltipsToggle, resi
     const description = document.createElement("div")
     description.classList.add("card-text")
     description.innerText = elem.dataset.bsTitle
-    description.dataset.cardFromResize = true
+    description.dataset.cardTextFromResize = true
 
     body.appendChild(description)
   }
@@ -243,20 +234,18 @@ export function Floaty(elem, { overlayControls, doResize, doTooltipsToggle, resi
    * @param {HTMLElement} item - Ideally a ``floaty-item``.
    */
   function toggleCardDescriptionToTooltip(item) {
-    item.enable()
     const elem = item._element
-    if (!elem.dataset.cardTooltipToggle) return
+    item.enable()
 
-    // NOTE: Find all ``card-text`` children marked with ``cardFromResize`` and remove.
-    const textFromResize = Array.from(elem.getElementsByClassName("card-text")).filter(item => item.dataset.cardFromResize != null)
+    // NOTE: Find all ``card-text`` children marked with ``cardTextFromResize`` and remove.
+    const textFromResize = Array.from(elem.getElementsByClassName("card-text")).filter(item => item.dataset.cardTextFromResize != null)
     textFromResize.map(item => item.remove())
 
-    // NOTE: If a card body is marked with ``cardFromResize``, then it should 
+    // NOTE: If a card body is marked with ``cardTextFromResize``, then it should 
     //       be removed.
-    const bodyFromResize = Array.from(elem.getElementsByClassName("card-body")).filter(item => item.dataset.cardFromResize != null)
+    const bodyFromResize = Array.from(elem.getElementsByClassName("card-body")).filter(item => item.dataset.cardTextFromResize != null)
     bodyFromResize.map(item => item.remove())
   }
-
 
   /** Toggle tooltips into card descriptions and vice versa around some
    * breakpoint.
@@ -264,44 +253,66 @@ export function Floaty(elem, { overlayControls, doResize, doTooltipsToggle, resi
    * @param {number|null} width - width at which to toggle.
    */
   function toggleTooltip(width) {
-    width = width || toggleTooltipWidth
-    document.querySelectorAll(".floaty-item[data-bs-toggle='tooltip']")
-      .map(item => (
-        window.innerWidth > width
-          ? toggleTooltipToCardDescription(item)
-          : toggleCardDescriptionToTooltip(item)
-      ))
-
+    width = width || BREAKPOINTS[tooltipsToggleBreakpoint].start
+    tooltips.map(item => (
+      window.innerWidth < width
+        ? toggleTooltipToCardDescription(item)
+        : toggleCardDescriptionToTooltip(item)
+    ))
   }
 
 
   /** Initialization steps. */
   function initialize() {
     // Add resizing on window size change if it is desired.
-    if (doResize) {
-      window.addEventListener("resize", () => resize())
-      window.addEventListener("load", () => resize())
+    if (resize) {
+      console.log(`Resizing for \`${elem.id}\`.`, resize)
+      window.addEventListener("resize", () => resizeForWidth())
+      window.addEventListener("load", () => resizeForWidth())
     }
 
     // Add toggle on window resize if it is desired.
-    if (doTooltipsToggle) {
+    if (tooltipsToggle) {
       window.addEventListener("resize", () => toggleTooltip())
       window.addEventListener("load", () => toggleTooltip())
+      toggleTooltip()
     }
+
+    // Add links.
+    cards.map(card => {
+      if (!card.dataset.floatyUrl) return
+      card.addEventListener("click", () => {
+        window.open(
+          card.dataset.floatyUrl,
+          "_blank"
+        ).focus()
+      })
+    })
+
+    // Add overlay.
+    if (overlayControls) cards.map(card => {
+      card.addEventListener("click", () => {
+        overlayControls.showOverlay()
+        overlayControls.showOverlayContentItem(card.dataset.key)
+      })
+    })
+
 
     // NOTE: Add fillers.
     resizeForColumns({})
+
   }
 
   initialize()
 
+
   return {
     elem, container, cards, overlayControls,
     resizeForColumns,
-    resize,
+    resizeForWidth,
     toggleTooltip,
     initialize,
-    _toggleTooltipWidth: toggleTooltipWidth,
+    _tooltips: tooltips,
     _toggleTooltipToCardDescription: toggleTooltipToCardDescription,
     _toggleCardDescriptionToTooltip: toggleCardDescriptionToTooltip,
     _createRow: createRow,

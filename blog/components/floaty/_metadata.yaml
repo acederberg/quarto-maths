@@ -1,3 +1,39 @@
+definitions:
+  # start snippet resizeDefinitions
+  floaty-with-resize:
+    classes:
+      classes_red: &resize-classes-red
+        - bg-red
+        - text-black
+      classes_black: &resize-classes-black
+        - bg-black
+        - text-yellow
+      classes_yellow: &resize-classes-yellow
+        - bg-yellow
+
+    content:
+      yellow: &resize-content-yellow
+        tooltip: This text should show up in the card body when the window is small.
+        image:
+          bootstrap:
+            name: egg-fried
+        classes: *resize-classes-yellow
+
+      black: &resize-content-black
+        tooltip: This text should show up in the card body when the window is small.
+        image:
+          bootstrap:
+            name: box
+        classes: *resize-classes-black
+
+      red: &resize-content-red
+        tooltip: This text should show up in the card body when the window is small.
+        image:
+          bootstrap:
+            name: bricks
+        classes: *resize-classes-red
+        # end snippet resizeDefinitions
+
 format:
   html:
     page-layout: full
@@ -140,6 +176,100 @@ skills:
           # end snippet 8
 
 floaty:
+  # start snippet resize
+  - identifier: floaty-with-resize
+    container:
+      size: 6
+      mode: bootstrap
+      include_titles: true
+      include_descriptions: true
+      include_tooltips: true
+      columns: 4
+      classes_items:
+        - py-3
+      classes_cards:
+        - rounded-4
+      resize:
+        sm: 1
+        md: 2
+        lg: 3
+        xl: 5
+        xxl: 5
+      tooltips_toggle: true
+    content:
+      - title: Red 1
+        key: red-1
+        <<: *resize-content-red
+
+      - title: Black 1
+        key: redblack-1
+        <<: *resize-content-black
+
+      - title: Yellow 1
+        key: yellow-1
+        <<: *resize-content-yellow
+
+      - title: Red 2
+        key: red-2
+        <<: *resize-content-red
+
+      - title: Black 2
+        key: redblack-2
+        <<: *resize-content-black
+
+      - title: Yellow 2
+        key: yellow-2
+        <<: *resize-content-yellow
+
+      - title: Red 3
+        key: red-3
+        <<: *resize-content-red
+
+      - title: Black 3
+        key: redblack-3
+        <<: *resize-content-black
+
+      - title: Yellow 3
+        key: yellow-3
+        <<: *resize-content-yellow
+
+      - title: Red 4
+        key: red-4
+        <<: *resize-content-red
+
+      - title: Black 4
+        key: redblack-4
+        <<: *resize-content-black
+
+      - title: Yellow 4
+        key: yellow-4
+        <<: *resize-content-yellow
+
+      - title: Red 5
+        key: red-5
+        <<: *resize-content-red
+
+      - title: Black 5
+        key: redblack-5
+        <<: *resize-content-black
+
+      - title: Yellow 5
+        key: yellow-5
+        <<: *resize-content-yellow
+
+      - title: Red 6
+        key: red-6
+        <<: *resize-content-red
+
+      - title: Black 6
+        key: redblack-6
+        <<: *resize-content-black
+
+      - title: Yellow 6
+        key: yellow-6
+        <<: *resize-content-yellow
+        # end snippet resize
+
   # start snippet 0
   - identifier: floaty-plain
     container:

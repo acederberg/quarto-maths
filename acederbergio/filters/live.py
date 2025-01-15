@@ -72,23 +72,26 @@ class FilterLive(util.BaseFilter):
         # NOTE: Depends on should be a list of paths relative to the project root.
         targets = [file_path]
         depends_on = self.doc.get_metadata("live_depends_on")  # type: ignore
-        logger.warning("live_depends_on = %s", depends_on)
         if depends_on and isinstance(depends_on, list):
             targets += depends_on
 
         # NOTE: Look for names of additional elements to populate.
-        quarto_logs = self.doc.get_metadata("live_id_quarto_logs") or "null"  # type: ignore
-        quarto_logs_parent = self.doc.get_metadata("live_id_quarto_logs_parent") or "null"  # type: ignore
-        quarto_banner_include = self.doc.get_metadata("live_quarto_banner_include")  # type: ignore
-        last = self.doc.get_metadata("live_quarto_logs_last")
-        reload = self.doc.get_metadata("live_reload")
-
-        logger.warning("Expecting quarto logs to have id `%s`.", quarto_logs)
-        logger.warning(
-            "Expecting quarto logs parent to have id `%s`.", quarto_logs_parent
+        options = dict(
+            quarto_logs=self.doc.get_metadata("live_id_quarto_logs"),  # type: ignore
+            quarto_logs_parent=self.doc.get_metadata("live_id_quarto_logs_parent"),  # type: ignore
+            quarto_banner_include=self.doc.get_metadata("live_quarto_banner_include"),  # type: ignore
+            last=self.doc.get_metadata("live_quarto_logs_last"),  # type: ignore
+            reload=self.doc.get_metadata("live_reload"),  # type: ignore
+            filters={"targets": targets},
         )
 
-        filters = json.dumps({"targets": targets, "last": 1})
+        logger.warning("%s %s", type(last := options["last"]), last)
+        js = util.JINJA_ENV.get_template("live.j2").render(options=options)
+        script = pf.RawBlock(
+            f"<script id='quarto-hydrate' type='module'>{ js }</script> ",
+            format="html",
+        )
+
         # TODO: Simplify this JS, make this configurable using this live filter.
         overlay_and_script = pf.Div(
             pf.Div(
@@ -99,39 +102,7 @@ class FilterLive(util.BaseFilter):
                 classes=["overlay", "when-navbar"],
                 identifier="quarto-overlay",
             ),
-            pf.RawBlock(
-                f"""
-                <script id="quarto-hydrate" type="module">
-
-                  import {{ Overlay }} from "/js/overlay.js"
-                  import {{ Quarto, QuartoRenderBanner }} from "/js/live.js"
-
-                  // This should allow users to extend this function.
-                  // It needs to have a name so it can be overwritten.
-                  function hydrateQuarto() {{
-                    globalThis.quartoDevOverlay = Overlay(document.getElementById("quarto-overlay"))
-                    globalThis.quartoDev = Quarto({{
-                      reload: {"true" if reload else "false"},
-                      last: {last or 1},
-                      filters: {filters},
-                      quartoOverlayControls: globalThis.quartoDevOverlay,
-                      quartoLogs: { ('document.querySelector("#' + quarto_logs + ' tbody")') if quarto_logs is not None else 'null' },
-                      quartoLogsParent: { ('document.querySelector("#' + quarto_logs_parent + '")') if quarto_logs_parent is not None else 'null' },
-                      quartoBannerInclude: {'true' if quarto_banner_include else 'false' },
-                    }})
-                    const quartoBanner = QuartoRenderBanner({{}}, {{
-                      'bannerTextInnerHTML': '<text>No renders yet.</text>'
-                    }})
-                    document.body.appendChild(quartoBanner.elem)
-
-                    return {{quartoDev, quartoDevOverlay, quartoBanner}}
-                  }}
-
-                  window.addEventListener("load", hydrateQuarto)
-                </script>
-                """,
-                format="html",
-            ),
+            script,
         )
         doc.content.insert(0, overlay_and_script)
 

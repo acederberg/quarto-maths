@@ -141,13 +141,3 @@ NOTE: This section should contain education, profile, and experience.
 <!--- STOP SECOND CONTAINER --------------------------------------------------> :::::
 
 <!--- Stop Resume ------------------------------------------------------------> ::::::
-
-```{=html}
-<script>
-  const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-  const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
-  const resizer = handleTooltipOnResize()
-  window.addEventListener("resize", resizer.onResize)
-  resizer.onResize()
-</script>
-```

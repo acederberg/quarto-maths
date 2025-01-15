@@ -175,6 +175,7 @@ def create_logging_config() -> dict[str, Any]:
             "acederbergio.filters.under_construction": config_pandoc_filters,
             "acederbergio.filters.iframe": config_pandoc_filters,
             "acederbergio.filters.util": config_pandoc_filters,
+            "acederbergio.filters.live": config_pandoc_filters,
             # API
             "acederbergio.api.base": config_api,
             "acederbergio.api.depends": config_api,

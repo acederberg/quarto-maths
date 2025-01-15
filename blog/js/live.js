@@ -14,6 +14,20 @@ const EXT_TO_ICON = {
   "pdf": ["bi-filetype-pdf", "text-red"],
 }
 
+/** Turn a websocket log item into a table row for display.
+ *
+ * Uvicorn server logs get special highlighting to make them easier to read.
+ * Time should not be added unless it does not equal the time in the previous
+ * row.
+ *
+ * The parameters are derived from ``Array.map``.
+ * These parameters are used to inspect the previous row to omit repeated
+ * information (and eventually repeated logs).
+ *
+ * @param {number} index - The index of the current item.
+ * @param {object} item - The current item.
+ * @param {Array} array - All items.
+ */
 function hydrateServerLogItem(item, index, array) {
 
   const itemPrevious = index > 0 ? array[index - 1] : null
@@ -112,17 +126,23 @@ function createWebsocketTimer(ws) {
   ws.addEventListener("open", state.start)
   ws.addEventListener("close", state.stop)
   return state
-
 }
 
 
+/** Add reactivity to ``ServerLog``. Generates new rows when logs are pushed
+ * to the websocket.
+ *
+ * @param {HTMLElement} serverLogContainer - The table containing all of the
+ *   server logs.
+ * @param {HTMLElement} serverLogParent - A parent element of the table. This
+ *   makes it such that when new logs are pushed the bottom of the page is
+ *   scrolled to.
+ *
+ */
 export function ServerLog({
   serverLogContainer,
   serverLogParent,
 }) {
-
-  // const parent = document.querySelector("#tab-content-1")
-  // const container = document.querySelector("#live-logs-server tbody")
   if (!serverLogContainer) throw Error("`serverLogContainer` is required.")
   if (!serverLogParent) throw Error("`serverLogParent` is required.")
 
@@ -153,14 +173,26 @@ export function ServerLog({
 }
 
 // ------------------------------------------------------------------------- //
-// Quarto 
+// Quarto
+// TODO: Write these like a closure as was done for ``Floaty`` and ``Overlay``.
 
+/** Create overlay content for a quarto render.
+ *
+ * All errors will be highlighted in red and the overlay content will be colorized to red.
+ * Successful renders of ``qmd`` documents will be colorized to blue.
+ * Successful updates of static assets will be colorized in teal.
+ *
+ * @param {object} item - an item pushed from ``quarto`` logs websocket.
+ *
+ */
 function hydrateQuartoOverlayItem(item) {
 
   const contentItem = document.createElement("div")
   contentItem.classList.add("overlay-content-item", "hidden")
   contentItem.dataset.key = item.timestamp
-  contentItem.dataset.colorizeColor = item.status_code ? "danger" : "primary"
+  contentItem.dataset.colorizeColor = item.status_code ? "danger" : (
+    item.kind === "state" ?
+      "primary" : "teal")
 
   const terminal = document.createElement('code')
   terminal.classList.add('terminal', 'p-3')
@@ -208,6 +240,19 @@ function hydrateQuartoOverlayItem(item) {
 }
 
 
+/** Get and style bootstrap icon for a path.
+ *
+ * @param {string} pathlike - 
+ * @param {object} options - Additional options for output.
+ * @param {string} options.wrapperTag - Tag for the output `HTMLElement`.
+ * @param {array<string>} textClasses - Additional classes for the text. Text
+ *   is usually ``pathlike``.
+ * @param {string} textTag - ``HTML`` tag to wrap ``pathlike`` in. By default it is ``text``.
+ * @param {array<string} iconClasses - Additional classes to apply to the icon.
+ * @returns a stylized ``HTML`` element with ``pathlike`` and an appropriate
+ *   bootstrap file icon.
+ *
+ */
 function handlePathlike(pathlike, { wrapperTag, textClasses, textTag, iconClasses } = {}) {
 
   const text = document.createElement(textTag || "text")
@@ -223,14 +268,22 @@ function handlePathlike(pathlike, { wrapperTag, textClasses, textTag, iconClasse
     output.href = pathlike
   }
 
-
   output.appendChild(icon)
   output.appendChild(text)
 
   return output
 }
 
-/* Create quarto table table row for a log item. */
+/** Create quarto table table row for a log item.
+ *
+ * Includes buttons to active the overlay and re-render, kind, origin, time,
+ * target, and origin.
+ * Highlights depending on success or failure of render.
+ *
+ * @param {object} item - Log item pushed from websocket.
+ * @returns a hydrated table row.
+ *
+ */
 function hydrateQuartoLogItem(item) {
   const elem = document.createElement("tr")
   elem.classList.add(!item.status_code ? "quarto-success" : "quarto-failure")
@@ -326,10 +379,12 @@ function hydrateQuartoLogItem(item) {
   return { elem, renderAction, info, render }
 }
 
-/*
-  Add content to overlay.
-  If overlay exists, add new page to overlay content.
-  Define a callback for any subsequent actions callbacks (e.g. clicking on any log items.
+/** Add quarto render data content to overlay (if the overlay exists).
+ *
+ * @param {object} item - Render log item from the websocket.
+ * @param {object} options - Additional options.
+ * @param {object} options.quartoOverlayControls - Overlay controls. This is 
+ *   the overlay in which the content will be added.
 */
 function QuartoOverlayItem(item, { quartoOverlayControls }) {
   if (!quartoOverlayControls) return
@@ -358,8 +413,13 @@ function QuartoOverlayItem(item, { quartoOverlayControls }) {
 
 
 
-/*
-  Create a log item and items actions.
+/** Create a log item and items actions.
+ *
+ * @param {object} item - Render log item from the websocket.
+ * @param {object} options - Additional options.
+ * @param {HTMLElement} quartoLogs - The table containing the render logs.
+ * @returns the output of ``hydrateQuartoLogItem`` and an additional function
+ *   to highlight the row when it is rendered.
 */
 export function QuartoLogItem(item, { quartoLogs }) {
   if (!quartoLogs) return
@@ -387,9 +447,13 @@ export function QuartoLogItem(item, { quartoLogs }) {
 }
 
 
-/*
-  Add overlay content (if possible).
-  Add log item (if possible).
+/** Add overlay content (if possible) and log item (if possible).
+ *
+ * @param {object} item - Render  log item from the websocket.
+ * @param {object} options - 
+ * @param {object} options.quartoOverlayControls - controls for the overlay 
+ *   that will contain render log details.
+ * @param {HTMLElement} options.quartoLogs - The table containing quarto logs.
 */
 function QuartoItem(item, { quartoLogs, quartoOverlayControls }) {
 

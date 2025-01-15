@@ -31,6 +31,13 @@ definitions:
         include_titles: true
         include_tooltips: true
         classes: []
+        resize:
+          xs: 1
+          sm: 1
+          md: 2
+          lg: 2
+          xl: 2
+          xxl: 4
         classes_card_images:
           - px-5
           - py-3
@@ -122,6 +129,13 @@ links:
       include_titles: true
       size: 6
       mode: bootstrap
+      resize:
+        xxl: 4
+        xl: 4
+        lg: 2
+        md: 2
+        sm: 1
+        xs: 1
       classes:
         - py-3
       classes_cards:
@@ -212,6 +226,13 @@ contacts:
         data-bs-offset: '[0,16]'
         data-bs-placement: bottom
         data-card-tooltip-toggle: 'true'
+      resize:
+        xxl: 3
+        xl: 1
+        lg: 3
+        md: 1
+        sm: 1
+        xs: 1
     content:
       - key: location
         title: Albuquerque, NM
