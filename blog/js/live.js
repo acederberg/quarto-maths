@@ -737,7 +737,14 @@ async function hydrateServerResponse(response) {
 }
 
 
-function hydrateInputKind(baseId) {
+/** Create input group for enum and helpers.
+ *
+ * @param {string} baseId - 
+ * @param {object} options - Additional configuration options.
+ * @param {string} innerHTML - Select options
+ *
+ */
+function hydrateInputKind(baseId, { selectInnerHTML } = {}) {
   const inputGroup = document.createElement("div")
   inputGroup.classList.add("input-group", "bg-black", "my-4", "flex-wrap")
 
@@ -745,7 +752,7 @@ function hydrateInputKind(baseId) {
   const input = document.createElement("select")
   input.classList.add("form-select", "w-100")
   input.id = `api-params-${baseId}-kind`
-  input.innerHTML = `
+  input.innerHTML = selectInnerHTML || `
     <option value="none" selected>Select Render Kind</option>
     <option value="direct">Direct</option>
     <option value="defered">Defered</option>
@@ -933,21 +940,34 @@ function hydrateRender(overlay) {
 
   const baseId = "render"
   const inputItems = hydrateInputItems(baseId)
+  const inputKind = hydrateInputKind(
+    baseId,
+    {
+      selectInnerHTML: `
+        <option value="file" selected>File</option>
+        <option value="directory">Directory</option>
+      `
+    }
+  )
 
-  const formContentItem = hydrateForm(baseId, { title: "Render By URL", overlay, inputs: [inputItems] })
+  const formContentItem = hydrateForm(baseId, { title: "Render By URL", overlay, inputs: [inputItems, inputKind] })
 
   formContentItem.button.addEventListener("click", async () => {
     if (!inputItems.input.value) {
       inputItems.onInvalid()
       formContentItem.onInvalid()
+      inputKind.onInvalid()
       return
     }
     else {
       inputItems.onValid()
+      inputKind.onValid()
     }
 
     formContentItem.onRequestSent()
-    hydrateServerResponse(await requestRender({ items: [inputItems.input.value] }))
+    const items = [{ path: inputItems.input.value, kind: inputKind.input.value }]
+    console.log(items)
+    hydrateServerResponse(await requestRender({ items: items }))
     formContentItem.onRequestOver()
   })
 
@@ -994,7 +1014,7 @@ function hydrateGetLast(overlay) {
   elem.addEventListener("click", action)
 
   const baseId = "get-last"
-  const inputKind = hydrateInputKind(baseId)
+  const inputKind = hydrateInputKind(baseId, {})
   const formContentItem = hydrateForm(baseId, { overlay, inputs: [inputKind], title: "Render by URL" })
 
   formContentItem.button.addEventListener("click", async () => {

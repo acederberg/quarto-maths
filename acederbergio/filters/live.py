@@ -54,7 +54,6 @@ class FilterLive(util.BaseFilter):
             "This is a test to ensure that filter logs do not show up in stdout."
         )
         # data = doc.get_metadata("live")
-        # logger.warning("data = %s", data)
 
         include_raw = doc.get_metadata("live_include")  # type: ignore
         include = include_raw if include_raw is not None else True
@@ -85,7 +84,6 @@ class FilterLive(util.BaseFilter):
             filters={"targets": targets},
         )
 
-        logger.warning("%s %s", type(last := options["last"]), last)
         js = util.JINJA_ENV.get_template("live.j2").render(options=options)
         script = pf.RawBlock(
             f"<script id='quarto-hydrate' type='module'>{ js }</script> ",

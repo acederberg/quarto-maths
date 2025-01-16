@@ -100,6 +100,7 @@ else:
     BUILD = require_path("build", BLOG / "build")
     ICONS = require_path("icons", BLOG / "icons")
 
+VERBOSE = require("verbose", "0") != "0"
 TEMPLATES = require_path("templates", SCRIPTS / "templates")
 ICONS_SETS = require_path("icon_sets", ICONS / "sets")
 BUILD_JSON = require_path("build_json", BLOG / "build.json")

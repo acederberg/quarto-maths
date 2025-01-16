@@ -362,10 +362,6 @@ class ConfigFloatyItem(util.BaseConfig, Generic[T_ConfigFloatyContainer]):
         )
 
         out.attributes = util.update_attributes(*items)
-        if self.key == "devops":
-            logger.warning("%s", items)
-            logger.warning("Self attributes `%s`", self.attributes)
-            logger.warning("Final attributes `%s`", out.attributes)
 
         return out
 

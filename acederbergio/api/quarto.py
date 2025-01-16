@@ -5,7 +5,7 @@ import os
 import pathlib
 import subprocess
 import time
-from typing import Annotated, ClassVar, Iterable
+from typing import Annotated, AsyncGenerator, ClassVar, Iterable, Iterator
 
 import bson
 import motor
@@ -401,6 +401,7 @@ class Filter:
             or self.assets.has_prefix(path)
             or self.static.has_prefix(path)
         ):
+            logger.debug("Not ignored.")
             return False
 
         logger.debug("Not ignoring changes in `%s`.", path)
@@ -444,11 +445,12 @@ class Handler:
         self.mongo_id = mongo_id
         self._from = _from
 
-    async def __call__(self, v: str) -> schemas.QuartoRender | None:
+    async def __call__(self, v: str | pathlib.Path) -> schemas.QuartoRender | None:
         """Entrypoint."""
 
-        if os.path.isdir(path := pathlib.Path(v)):
-            return
+        path = pathlib.Path(v).resolve() if isinstance(v, str) else v
+        if os.path.isdir(path):
+            raise ValueError("Cannot handle directory.")
 
         # NOTE: If a qmd file was modified, then rerender the modified ``qmd``
         #       If a watched filter (from ``--quarto-filter``) is changed, do
@@ -468,6 +470,14 @@ class Handler:
         elif self.filter.static.has_prefix(path):
             return await self.do_static(path)
 
+    # TODO: Should echo stdout when rendering. This will be helpful in for
+    #       larger projects. What I would like in the end is to have the quarto
+    #       overlay display the progress in real time using a websocket (or
+    #       possible ``HTTP`` streaming) instead of an ``HTTP`` ``POST``
+    #       request. This should be possible using ``process.communicate``.
+    #
+    #       For websockets, it would also be useful to have an event pushed for
+    #       when the render starts.
     async def render_qmd(
         self,
         path: pathlib.Path,
@@ -543,19 +553,20 @@ class Handler:
             self.context.db, filters=filters
         )
 
-        print("====================================================")
-        print("Filters (do_defered).")
-        util.print_yaml(filters, name="From `do_defered`.", as_json=True)
+        if env.VERBOSE:
+            print("====================================================")
+            print("Filters (do_defered).")
+            util.print_yaml(filters, name="From `do_defered`.", as_json=True)
+
         if history is None:
             logger.info("No render to dispatch from changes in `%s`.", path)
             return
 
-        last= history.items[0]
-
-        print("====================================================")
-        print("Last rendered (do_defered).")
-        util.print_yaml(last, name="Last Rendered.", as_json=True)
-
+        last = history.items[0]
+        if env.VERBOSE:
+            print("====================================================")
+            print("Last rendered (do_defered).")
+            util.print_yaml(last, name="Last Rendered.", as_json=True)
 
         logger.info(
             "Dispatching render of `%s` from changes in `%s`.", last.target, path
@@ -597,6 +608,52 @@ class Handler:
         )
 
         return data
+
+    async def do_directory(
+        self,
+        directory: str | pathlib.Path,
+        *,
+        depth_max: int = 5,
+    ) -> AsyncGenerator[schemas.QuartoRender | schemas.QuartoRenderRequestItem, None]:
+        directory = pathlib.Path(directory) if isinstance(directory, str) else directory
+        directory = directory.resolve()
+        if not os.path.isdir(directory):
+            raise ValueError(f"No such directory `{directory}`.")
+
+        for item in self.walk(directory, depth_max=depth_max):
+            if (res := await self(item)) is None:
+                yield schemas.QuartoRenderRequestItem(  # type: ignore
+                    path=str(item.relative_to(env.ROOT)),
+                    kind="file",
+                )
+                continue
+
+            yield res
+
+    def walk(
+        self,
+        path: pathlib.Path | str,
+        *,
+        depth: int = 0,
+        # items: int = 0,
+        depth_max: int = 5,
+        # max_items: int = 100,
+    ) -> Iterator[pathlib.Path]:
+
+        if isinstance(path, str):
+            path = pathlib.Path(path).resolve()
+
+        if depth > depth_max:
+            return
+
+        path = path.resolve()
+        if os.path.isdir(path):
+            for item in os.listdir(path):
+                yield from self.walk(path / item, depth=depth, depth_max=depth_max + 1)
+        elif os.path.isfile(path) and not self.filter.is_ignored(path):
+            yield path
+
+        return
 
 
 class Watch:

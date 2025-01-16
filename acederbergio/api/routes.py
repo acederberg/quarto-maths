@@ -1,4 +1,5 @@
 import asyncio
+import pathlib
 from time import time
 from typing import Any, Awaitable, Callable, ClassVar, TypeVar
 
@@ -233,14 +234,7 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
             filters=filters,
         )
 
-    # @classmethod
-    # async def post_filter(
-    #     cls, filters: schemas.QuartoHistoryFilters
-    # ) -> schemas.QuartoHistoryFilters:
-    #     """Returns hydrated filter."""
-    #
-    #     return filters
-
+    # TODO: Would like to stream output from render.
     @classmethod
     async def post_render(
         cls,
@@ -250,14 +244,31 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
 
         items = []
         ignored = []
+
+        # NOTE: File items.
         for item in render_data.items:
-            data = await quarto_handler(item)
-            if data is None:
-                ignored.append(item)
-                continue
+            if item.kind == "file":
+                data = await quarto_handler(item.path)
+                if data is None:
+                    ignored.append(item)
+                    continue
 
-            items.append(data)
+                items.append(data)
+            else:
+                # NOTE: When render request items are emitted, then an item
+                #       falied to render.
+                iter_directory = quarto_handler.do_directory(
+                    item.path,
+                    depth_max=item.directory_depth_max,
+                )
+                async for data in iter_directory:
+                    if isinstance(data, schemas.QuartoRenderRequestItem):
+                        ignored.append(data)
+                        continue
 
+                    items.append(data)
+
+        # NOTE: Directory items
         return schemas.QuartoRenderResponse(  # type: ignore
             items=items,
             ignored=ignored,
@@ -276,6 +287,7 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
         res = await cls.delete(schemas.QuartoHistory, database)
         return res.deleted_count
 
+    # NOTE: Use chatroom model to reduce watchers to `1` per app instance
     @classmethod
     async def websocket_log(
         cls,

@@ -1,10 +1,11 @@
 import asyncio
 import datetime
 import http
+import itertools
 import os
 import pathlib
 import re
-from typing import Annotated, Any, ClassVar, Generic, Literal, Self, TypeVar
+from typing import Annotated, Any, ClassVar, Generic, Iterator, Literal, Self, TypeVar
 
 import bson
 import fastapi
@@ -16,30 +17,41 @@ from acederbergio import db, env, util
 logger = env.create_logger(__name__)
 
 
-def parse_path(v: str) -> pathlib.Path:
+def parse_path(v: str, *, directory: bool = False) -> pathlib.Path:
     # NOTE: Handle browser paths. This should just prepend the ``blog``
     #       directory to the path, and if the path is a directory then add
     #       ``index.html``.
-    if v.startswith("/") and not v.endswith(".qmd"):
-        v = v.replace(".html", ".qmd")
+    if v.startswith("/") and (directory or not v.endswith(".qmd")):
+        if not directory:
+            v = v.replace(".html", ".qmd")
         out = pathlib.Path("./blog" + v).resolve()
     else:
         # out = pathlib.Path(v).resolve()
         out = env.ROOT / v
 
+    if directory:
+        return out
+
     return out if not out.is_dir() else (out / "index.qmd")
 
 
-def create_check_items(relative: bool = False, *, singleton: bool = False):
+def create_check_items(
+    relative: bool = False,
+    *,
+    singleton: bool = False,
+    directory: bool = False,
+):
     """For what should be a list of paths, resolve the list of paths and verify
     that they actually exist.
 
     All resolved paths should be contained within the root directory.
     """
 
+    check_exists = os.path.isfile if not directory else os.path.isdir
+
     def check_items(v):
         items = list(parse_path(item) for item in v)
-        if dne := tuple(filter(lambda item: not os.path.isfile(item), items)):
+        if dne := tuple(filter(lambda item: not check_exists(item), items)):
             raise ValueError(f"The following paths are not files: `{dne}`.")
 
         if bad := tuple(item for item in items if not item.is_relative_to(env.ROOT)):
@@ -438,24 +450,53 @@ class QuartoHistoryFilters(pydantic.BaseModel):
         return {"$filter": {"input": "$items", "as": "item", "cond": cond}}
 
 
+class QuartoRenderRequestItem(pydantic.BaseModel):
+
+    kind: Annotated[Literal["file", "directory"], pydantic.Field("file")]
+    path: Annotated[str, pydantic.Field()]
+    directory_depth_max: Annotated[int, pydantic.Field(100, exclude=True)]
+
+    @pydantic.model_validator(mode="before")
+    def validate_path(cls, v):
+        is_directory = v.get("kind") == "directory"
+        path = parse_path(v["path"], directory=is_directory)
+        v["path"] = str(path.relative_to(env.ROOT))
+
+        tpl, msg = f"`{v['path']}` is not a {{}} or does not exist.", None
+        if is_directory and not os.path.isdir(path):
+            msg = tpl.format("directory")
+        elif not is_directory and not os.path.isfile(path):
+            msg = tpl.format("file")
+
+        if msg is not None:
+            raise ValueError(msg)
+
+        return v
+
+
 class QuartoRenderRequest(pydantic.BaseModel):
     """Use this to request a render."""
 
     items: Annotated[
-        list[str],
+        list[QuartoRenderRequestItem],
         pydantic.Field(
-            default_factory=list,
             description="Provide relative paths from the project root or absolute paths to browser resources.",
         ),
-        create_check_items(relative=False),
     ]
+
+    @pydantic.field_validator("items", mode="before")
+    def hydrate_item_from_string(cls, v):
+        if not isinstance(v, list):
+            return v
+
+        return [{"path": item} if isinstance(item, str) else item for item in v]
 
 
 class QuartoRenderResponse(pydantic.BaseModel):
     """Response from rendering."""
 
     uuid_uvicorn: UvicornUUID
-    ignored: Annotated[list[str], pydantic.Field()]
+    ignored: Annotated[list[QuartoRenderRequestItem], pydantic.Field()]
     items: Annotated[list[QuartoRenderMinimal], pydantic.Field()]
 
 
