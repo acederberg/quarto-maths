@@ -144,9 +144,8 @@ def get_metadata_lazy(path: pathlib.Path):
 
         start, stop = bounds
         file.seek(start)
-        lines = file.readlines(stop - start)
+        lines = [file.readline() for _ in range(stop - start)]
 
-        print(lines)
         return yaml.safe_load("".join(lines))
 
 

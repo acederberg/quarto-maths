@@ -524,7 +524,7 @@ class Handler:
             _from=self._from,
         )
 
-        if self.context.render_verbose:
+        if env.VERBOSE or self.context.render_verbose:
             util.print_yaml(data)
 
         await schemas.QuartoHistory.push(

@@ -73,14 +73,21 @@
 
 
 
-#quarto-live-logs {
-  &.quarto {
-    table-layout: fixed;
-    border: none;
-    background: none;
-    font-family: monospace;
-    font-size: medium;
-    color: var(--bs-white);
+.quarto {
+  word-break: break-all;
+  table-layout: fixed;
+  border: none;
+  background: none;
+  font-family: monospace;
+  font-size: medium;
+  color: var(--bs-white);
+
+  td {
+    align-content: center;
+
+    p {
+      margin: 0
+    }
   }
 
   .quarto-row {
@@ -150,6 +157,7 @@
 
 .terminal {
 
+  word-break: break-all;
   text-align: left !important;
   table-layout: fixed;
   font-size: medium;
@@ -246,27 +254,28 @@
 
 
 
+.banner-tooltip {
+  --bs-tooltip-zindex: 9001;
+  --bs-tooltip-color: red;
+
+}
 
 #quarto-render-notification {
+  @include make-container();
+
+
   transition: 15s border-color;
   z-index: 9000;
-
-  i {
-    transition: 15s color, 0.1s filter;
-
-    &.banner-control {
-      cursor: pointer;
-    }
-
-    :hover {
-      transform: scale(1.1);
-    }
-  }
-
-  border-top: 5px solid $black;
-  border-bottom: 5px solid $black;
+  width: 100%;
+  color: var(--bs-white);
+  background: var(--bs-black);
+  position: fixed !important;
+  bottom: 0 !important;
+  border-top: 2px solid var(--bs-black);
+  border-bottom: 2px solid var(--bs-black);
   padding-top: 5px;
   padding-bottom: 5px;
+
 
   &.success {
     border-color: $teal;
@@ -302,15 +311,79 @@
 
   }
 
-  code {
-    background: $black;
-    color: $white;
+  .banner-content {
+    @include make-row();
+
+
+    .banner-controls {
+      display: flex;
+      align-items: center;
+
+      .banner-controls-container {
+
+        margin: auto;
+
+        button {
+          i {
+            transition: 15s color, 0.1s filter;
+            /*
+        padding-right: map-get($spacers, 2);
+        padding-left: map-get($spacers, 2);
+        */
+          }
+        }
+      }
+
+    }
+
+    .banner-text {
+
+      display: flex;
+      align-items: center;
+      border-left: none;
+
+      .banner-text-container {
+        text-align: center !important;
+        margin: auto;
+
+        code {
+          background: $black;
+          color: var(--bs-yellow);
+        }
+      }
+    }
+
+    @include media-breakpoint-up(xxl) {
+      $border-sides: 1px solid var(--bs-gray-800);
+
+      .banner-controls {
+        @include make-col(4);
+
+        border-left: $border-sides;
+        border-right: $border-sides;
+      }
+
+      .banner-text {
+        @include make-col(8);
+
+        border-left: $border-sides;
+        border-right: $border-sides;
+      }
+    }
+
+    @include media-breakpoint-down(xxl) {
+      .banner-controls {
+        @include make-col(12);
+      }
+
+      .banner-text {
+        @include make-col(12);
+      }
+    }
   }
 
 
-  .spinner-border:hover {
-    color: var(--bs-white);
-  }
+
 
 }
 

@@ -3,6 +3,7 @@ import os
 import pathlib
 from typing import (
     Annotated,
+    Any,
     ClassVar,
     Literal,
     Protocol,
@@ -30,10 +31,7 @@ FieldKey = Annotated[
 ]
 FieldClasses = Annotated[list[str] | None, pydantic.Field(None)]
 FieldAttributes = Annotated[dict[str, str] | None, pydantic.Field(None)]
-FieldIdentifier = Annotated[
-    str,
-    pydantic.Field(default_factory=lambda: secrets.token_urlsafe(16)),
-]
+FieldIdentifier = Annotated[str, pydantic.Field()]
 
 
 class BaseFilter(abc.ABC):
@@ -193,6 +191,11 @@ class BaseHasIdentifier(BaseConfig):
         return "floaty" + "".join(name_segments)
 
 
+class BaseElemConfig(BaseConfig):
+    classes: FieldClasses
+    identifier: FieldIdentifier
+
+
 class BaseHasKey(BaseConfig):
     key: FieldKey
 
@@ -230,6 +233,18 @@ def create_content_from_list(mode="identifier"):
 
 content_from_list_identifier = create_content_from_list("identifier")
 content_from_list_key = create_content_from_list("key")
+
+
+def ignore_null_string(v: Any):
+    """Because getting metadata using panflute results in `''` when `null`
+    is provided and pydantic does not ignore it."""
+    if isinstance(v, dict):
+        return v
+
+    return None if not v else v
+
+
+ValidatorIgnoreFalsy = pydantic.BeforeValidator(ignore_null_string)
 
 
 def update_classes(update: list[str], *args: list[str] | None):

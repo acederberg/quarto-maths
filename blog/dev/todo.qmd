@@ -1,10 +1,21 @@
---
-tie: A To Do List
---
+---
+title: Todo List
+format:
+  html:
+    page-layout: full
+toc: false
+live_reload: True
+tbl-colwidths: [25, 15, 60]
+---
 
-At the moment, I am feeling a bit overwhelmed, and think it is probably wise
-to write out what I need to be doing right now. To this end, I am making a few
-tables that I can use to mark off my progress and plan.
+```{=html}
+<style>
+  p code:not(.sourceCode), li code:not(.sourceCode), td code:not(.sourceCode)
+  {
+    background: var(--bs-body-bg);
+  }
+</style>
+```
 
 ::: { .callout-note }
 
@@ -16,25 +27,7 @@ highlighting.
 
 :::
 
-## `acederberg.io`
-
-The main focus of my work on this website right now is to finish out the resume
-and projects. I think my previous resume really needed some work, and I need to
-continue working on it so I can send in more effective applications.
-
-### Before Next Release
-
-This items are urgent and must be completed to move the big changes into the
-production (not `preview`) website.
-
-::: { .callout-warning }
-
-#### Do the Bare Minimum
-
-I should do the minimal amount of work to get the release out.
-Anything that looks off topic/involved should be pushed into the next release.
-
-:::
+::: { #tbl-2024-q4 }
 
 | Item                                | Completed  | Description                                                             |
 | ----------------------------------- | ---------- | ----------------------------------------------------------------------- |
@@ -46,42 +39,47 @@ Anything that looks off topic/involved should be pushed into the next release.
 | Finish HTML Resume Skills           | 11/8/2024  | Just need to finish filling out the overlay.                            |
 | Overlay exit icon                   | 11/9/2024  | Might not be boomer proof. Bonus: Navigation and urlparams.             |
 | Finish TeX Resume                   | 11/27/2024 | The resume should be able to render as TeX.                             |
-| Finalize Resume Content             |            | Watch the videos Elen showed me, have a few people review if possible.  |
+| Finalize Resume Content             | 1/14/2025  | Watch the videos Elen showed me, have a few people review if possible.  |
 | Improve `projects/blog/index.qmd`   | 11/11/2024 | Finish overlays, round out content, make it look pretty for geusts.     |
 | Improve `projects/index.qmd`        | 11/10/2024 | I want a better commit graph                                            |
 | Added preview site banner           | 11/11/2024 | Ensure that users on the preview site know they're on the preview site. |
 | Add quarto options to configuration | 11/25/2024 | Because sometimes I only want to render TeX.                            |
 
-### After Next Release
+: Objectives for Quarter 4 of 2024 before October release and Amazon interview {.todo-table }
 
-These plans are for the future, and are not of utmost importance.
+| Item                                  | Completed   | Description                                                                                                                                                                     |
+| ------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Develop a testing strategy            | Delayed     | Need to test backwards compatibility of links, changes in pages, etc.                                                                                                           |
+| `CSS` for mobile                      | 1/14/2025   | Should probably move to using grids on resume                                                                                                                                   |
+| Cool icons for skills                 | 1/14/2025   |                                                                                                                                                                                 |
+| Kubernetes icons                      | Delayed     | Need pipeline to work.                                                                                                                                                          |
+| Improve the initial landing page      | Delayed     | The initial landing page feels very incomplete, there are listings, but the content is lacking. Generally the landing page does not draw me in - bio should be moved elsewhere. |
+| Build checks -> Commit checks         | Delayed     | Huge pain in the ass.                                                                                                                                                           |
+| Project: Captura                      | Delayed     |                                                                                                                                                                                 |
+| Skills should be collapsable          | Canceled    |                                                                                                                                                                                 |
+| Finish Overlay Slidey.                | 1/14/2025   |                                                                                                                                                                                 |
+| Project: Automation                   | 11/11/2024  | Partial completion, there is more to be done.                                                                                                                                   |
+| Project: Nvim Gallery                 | 1/14/2025   |                                                                                                                                                                                 |
+| Add a better commit graph             | Delayed     | I do not know where to put it.                                                                                                                                                  |
+| Add built in twitter cards            | 1/14/2025   | https://quarto.org/docs/websites/website-tools.html                                                                                                                             |
+| Add error reporting page              | 1/1/2025    |                                                                                                                                                                                 |
+| Scripts need testing                  | In Progress |                                                                                                                                                                                 |
+| Generic cover letter                  | Delayed     | I would like to use AI to generate cover letters more specific to some postings too.                                                                                            |
+| Logs to socket.                       | 1/14/2025   | I would like to have logs in the browser and to not have to keep the dev server open in the terminal.                                                                           |
+| Renders and Logs API                  | 1/14/2025   | Extra but great. Includes HTTP and websocket.                                                                                                                                   |
+| Renders and Logs Dashboard            | 1/14/2025   | Makes it so much easier to handle.                                                                                                                                              |
+| Components Demos                      | 1/14/2025   | This will help with tests later. It will ensure that `pandoc` filters, `scss`, and `js` integrate.                                                                              |
+| Re-render banner and hot reloads      | 1/14/2025   | `live` filter.                                                                                                                                                                  |
+| Resume Content                        | 1/14/2025   | Had GPT give me some pointers. It did well.                                                                                                                                     |
+| IFrame Filter                         | 1/14/2025   | IFrames should be easy to generate.                                                                                                                                             |
+| Overlay Filter                        | 1/14/2025   | Overlay should have filter to minimize divs and incline configuration.                                                                                                          |
+| Floaty Filter Improvements            | 1/14/2025   | Skills, contacts, links, and under-construction filters should all extend floaty in a nice way. Should support bootstrap and tex.                                               |
+| Floaty javascript improvements        | 1/14/2025   | Resizing, responsiveness, mobile safe tooltips, etc.                                                                                                                            |
+| `SCSS` cleanup for floaty and overlay | 1/14/2024   | Use `SCSS` properly.                                                                                                                                                            |
 
-::: { .callout-warning }
-
-I should hold off on doing this until I have completed my Amazon interviews.
-I will need to return to studying data structures and algorithms for a bit.
+: Objectives for Quarter 4 of 2024 after October release { .todo-table }
 
 :::
-
-| Item                             | Completed  | Description                                                                                                                                                                     |
-| -------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Develop a testing strategy       |            | Need to test backwards compatibility of links, changes in pages, etc.                                                                                                           |
-| `CSS` for mobile                 |            | Should probably move to using grids on resume                                                                                                                                   |
-| Cool icons for skills            |            |                                                                                                                                                                                 |
-| Kubernetes icons                 |            | Need pipeline to work.                                                                                                                                                          |
-| Improve the initial landing page |            | The initial landing page feels very incomplete, there are listings, but the content is lacking. Generally the landing page does not draw me in - bio should be moved elsewhere. |
-| Build checks -> Commit checks    |            | Huge pain in the ass.                                                                                                                                                           |
-| Project: Captura                 |            |                                                                                                                                                                                 |
-| Skills should be collapsable     |            |                                                                                                                                                                                 |
-| Finish Overlay Slidey.           |            |                                                                                                                                                                                 |
-| Project: Automation              | 11/11/2024 | Partial completion, there is more to be done.                                                                                                                                   |
-| Project: Nvim Gallery            |            |                                                                                                                                                                                 |
-| Add a better commit graph        |            | I do not know where to put it.                                                                                                                                                  |
-| Add built in twitter cards       |            | https://quarto.org/docs/websites/website-tools.html                                                                                                                             |
-| Add error reporting page         |            |                                                                                                                                                                                 |
-| Scripts need testing             |            |                                                                                                                                                                                 |
-| Generic cover letter             |            | I would like to use AI to generate cover letters more specific to some postings too.                                                                                            |
-| Logs to socket.                  |            | I would like to have logs in the browser and to not have to keep the dev server open in the terminal.                                                                           |
 
 ### Testing
 
@@ -89,17 +87,23 @@ Testing will be a pipeline of commands dispatchable via the `acederbergio` comma
 I would like to add the database since I would like to later use a database to
 allow user error reports and inquiries.
 
+::: { #tbl-testing-2024-q4 }
+
 | Item                      | Completed  | Description                                                                                     |
 | ------------------------- | ---------- | ----------------------------------------------------------------------------------------------- |
-| Setup mongoDB             | 11/13/2024 |                                                                                                 |
+| Setup mongoDB             | 11/13/2024 | k                                                                                               |
 | Pull sitemap and listings | 11/13/2024 |                                                                                                 |
 | Spellcheck                |            | Need aspell output to be readable                                                               |
 | Metadata Checks           | 11/13/2024 |                                                                                                 |
 | Tests for metadata checks | 11/18/2024 | Because if it is not consisten why bother having it at all                                      |
 | Fuzzy hashing checks      |            | Need a good fuzzy hashing library first.                                                        |
 | Selenium                  |            | Use it to check the functionality of custom componants.                                         |
-| Beutiful soup.            |            | Make sure that links are valid.                                                                 |
+| Beutiful soup.            | 1/14/2025  | Make sure that links are valid.                                                                 |
 | Resume Testing            |            | I would like to run the resume through applicant trashing systems, AI suggestions, and parsers. |
+
+: Testing Objectives { .todo-table }
+
+:::
 
 ### The Resume AI and Parsing Project
 
@@ -130,14 +134,37 @@ There are some things that must be handled in general.
 | include-code-files       |           | Need to add code files. |
 | Add zsh to dev container |           | Gotta go fast.          |
 
-<script>
-  Array
-    .from(document.getElementsByTagName("tr"))
-    .map(item => {
-      let completed = Array.from(item.getElementsByTagName("td"))[1]
-      if ( !completed?.innerHTML ) return
+## Quarter 1, 2025
 
-      console.log(completed)
-      completed.closest("tr").classList.add("bg-green")
-    })
+::: { #tbl-testing-2025-q1 }
+
+| Item                                          | Completed | Description                                                                                                                       |
+| --------------------------------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `post_render` websocket                       |           | Should stream process logs and completion statuses                                                                                |
+| Document render progress in overlay           |           | Use the websocket above.                                                                                                          |
+| Simplify `live.js` using closures             |           | Will make docs more simple, encapsulate otherwise not so useful functions.                                                        |
+| Content                                       |           | Get back to writing articles.                                                                                                     |
+| Live page as an app using captura?            |           | Would be a cool project.                                                                                                          |
+| Job applications and todo in mongodb?         |           | This would enable some cool visualizations that could also be done in quaarto.                                                    |
+| Unit and integration testing                  |           | If it is not tested, it is probably broken.                                                                                       |
+| Collapse `QuartoRenderResult` pandoc metadata |           | Turn metadata into an actual structure that can be queried against, get it out of logs shown in the overlay and put it elsewhere. |
+| Rendering event                               |           | Should push an event that can viewed in the dashboard.                                                                            |
+
+: Objectives Quarter 1, 2025 { .todo-table }
+
+:::
+
+### Quarto Platform?
+
+It looks pretty reasonable to allow users to spin up a container to execute
+their quarto code. Chat GPT said my assuptions are correct (in regard to
+security) and recommended some additional measures:
+
+1. Use a sandbox runtime like `gVisor` or `firecracker`.
+2. Limit system calls and execution permissions (seccomp and `securityContext.capabilities.drop`).
+3. Audit and monitor with a tool like `Falco`.
+
+<script type="module">
+  import {hydrate} from '/js/todo.js'
+  hydrate()
 </script>

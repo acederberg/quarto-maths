@@ -1,4 +1,4 @@
-
+// @ts-nocheck
 
 const NO_ERROR_FOUND = "No Error Found."
 

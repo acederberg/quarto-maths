@@ -187,6 +187,7 @@ def create_logging_config() -> dict[str, Any]:
             # ROOT. Do not propogate to this. Logging propagation is stupid and
             # can cause
             "root": config_api,
+            "watchfiles.main": {"level": "WARNING"},
         },
     }
     return out
@@ -242,6 +243,7 @@ def show_environ():
             "icon_sets": str(ICONS_SETS),
             "configs": str(CONFIGS),
             "templates": str(TEMPLATES),
+            "verbose": str(VERBOSE),
         },
         name="variables",
     )

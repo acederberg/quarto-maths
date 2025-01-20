@@ -104,6 +104,8 @@ QuartoRenderFrom = Annotated[
 
 
 class LogItem(pydantic.BaseModel):
+    """Server log item schema."""
+
     created: util.FieldTimestamp
     filename: str
     funcName: str

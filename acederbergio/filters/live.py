@@ -1,14 +1,167 @@
 import json
+from typing import Annotated
 
 import panflute as pf
+import pydantic
 
 from acederbergio import env
-from acederbergio.filters import util
+from acederbergio.filters import overlay, util
 
 logger = env.create_logger(__name__)
 
+FieldCount = Annotated[
+    int,
+    pydantic.Field(1, description="Initial number of logs to recieve from websocket."),
+]
 
-class FilterLive(util.BaseFilter):
+
+class LiveQuartoConfig(util.BaseConfig):
+    renders: Annotated[
+        overlay.ConfigOverlay,
+        pydantic.Field(
+            description="Overlay to put the render results into.",
+            default_factory=lambda: {"identifier": "quarto-live-renders"},
+            validate_default=True,
+        ),
+    ]
+    responses: Annotated[
+        overlay.ConfigOverlay,
+        pydantic.Field(
+            description="Overlay to put results from API calls into.",
+            default_factory=lambda: {"identifier": "quarto-live-responses"},
+            validate_default=True,
+        ),
+    ]
+    inputs: Annotated[
+        overlay.ConfigOverlay,
+        pydantic.Field(
+            description="Overlay for API request inputs.",
+            default_factory=lambda: {"identifier": "quarto-live-responses"},
+            validate_default=True,
+        ),
+    ]
+
+    targets: Annotated[
+        list[str],
+        pydantic.Field(
+            default=list(),
+            description="Files to listen for changes in through the websocket (in addition to the page on which the filter is run.",
+        ),
+    ]
+    # NOTE: When using a single listener for logs,
+    reload: Annotated[bool, pydantic.Field(True)]
+
+    count: FieldCount
+
+    table: Annotated[
+        util.BaseElemConfig,
+        pydantic.Field(
+            default_factory=lambda: dict(
+                identifier="live-quarto-renders-table",
+                classes=["table", "table-borderless", "quarto", "p-2"],
+            ),
+            validate_default=True,
+            description="Table details. Table is where new logs are added as rows.",
+        ),
+    ]
+    container: Annotated[
+        util.BaseElemConfig,
+        pydantic.Field(
+            default_factory=lambda: dict(
+                identifier="live-quarto-renders-container",
+                classes=["tab-pane", "fade"],
+            ),
+            validate_default=True,
+            description="Container details. Container is the element in which the table scroll is set to keep up with logs.",
+        ),
+    ]
+    include_logs: Annotated[bool, pydantic.Field(False)]
+
+    @pydantic.computed_field
+    @property
+    def overlays(self) -> dict[str, overlay.ConfigOverlay]:
+        return {
+            overlay.identifier: overlay
+            for overlay in (self.renders, self.responses, self.inputs)
+        }
+
+    def hydrate(self, element: pf.Div):
+        template = util.JINJA_ENV.get_template("live_quarto_renders.js.j2")
+        innerHTML = pf.RawBlock(template.render(quarto=self, element=element))
+
+        return innerHTML
+
+
+class LiveServerConfig(pydantic.BaseModel):
+    """Configuration for the server logs page."""
+
+    count: FieldCount
+    table: Annotated[
+        util.BaseElemConfig,
+        pydantic.Field(
+            default_factory=lambda: dict(
+                identifier="live-server-log-table",
+                classes=["table", "table-borderless", "terminal", "p-2"],
+            ),
+            validate_default=True,
+        ),
+    ]
+    container: Annotated[
+        util.BaseElemConfig,
+        pydantic.Field(
+            default_factory=lambda: dict(
+                identifier="live-server-log-container",
+                classes=["tab-pane", "fade"],
+            ),
+            validate_default=True,
+        ),
+    ]
+
+    def hydrate(self, element: pf.Div):
+        template = util.JINJA_ENV.get_template("live_server_log.js.j2")
+        innerHTML = pf.RawBlock(template.render(server=self, element=element))
+
+        return innerHTML
+
+
+class LiveConfig(pydantic.BaseModel):
+    quarto: Annotated[
+        LiveQuartoConfig | None,
+        pydantic.Field(default_factory=dict, validate_default=True),
+        util.ValidatorIgnoreFalsy,
+    ]
+    server: Annotated[
+        LiveServerConfig | None,
+        pydantic.Field(
+            default_factory=dict,
+            validate_default=True,
+        ),
+        util.ValidatorIgnoreFalsy,
+    ]
+
+    include_quarto: Annotated[bool, pydantic.Field(True)]
+    include_server: Annotated[bool, pydantic.Field(False)]
+
+
+class Config(pydantic.BaseModel):
+    live: Annotated[
+        LiveConfig | None,
+        pydantic.Field(
+            default_factory=dict,
+            validate_default=True,
+            description="Set to ``null`` to exclude this filter.",
+        ),
+    ]
+
+    # # =self.doc.get_metadata("live_id_quarto_logs"),  # type: ignore
+    # # quarto_logs_parent=self.doc.get_metadata("live_id_quarto_logs_parent"),  # type: ignore
+    # quarto_banner_include = (self.doc.get_metadata("live_quarto_banner_include"),)  # type: ignore
+    # last = (self.doc.get_metadata("live_quarto_logs_last"),)  # type: ignore
+    # reload = (self.doc.get_metadata("live_reload"),)  # type: ignore
+    # filters = ({"targets": targets},)
+
+
+class FilterLive(util.BaseFilterHasConfig):
     """Since intercepting ``main`` an modifying its content is not really
     possible (its parent does not contain the body, and it will be tricky
     to hunt that down), this filter looks for a div with `id=quarto-overlay`
@@ -43,66 +196,88 @@ class FilterLive(util.BaseFilter):
     """
 
     filter_name = "live"
+    filter_config_cls = Config
 
     def __call__(self, element: pf.Element) -> pf.Element:
+        if (
+            self.doc.format != "html"
+            or not isinstance(element, pf.Div)
+            or self.config is None
+            or (live := self.config.live) is None
+        ):
+            return element
+
+        # NOTE: Hydrate overlays for the banner.
+        if (
+            quarto := live.quarto
+        ) is not None and element.identifier in quarto.overlays:
+            logger.warning("Matched live overlay `%s`.", element.identifier)
+            config = quarto.overlays[element.identifier]
+            element = config.hydrate_html(element)
+
+            return element
+
+        # NOTE: Hydrate server log / quarto render container with table.
+        for item in (live.server, live.quarto):
+            if item is not None and element.identifier == item.container.identifier:
+                return item.hydrate(element)
+
         return element
 
     def prepare(self, doc: pf.Doc) -> None:
         super().prepare(doc)
+        if (config := self.config) is None:
+            raise ValueError("Config not yet set.")
 
-        logger.info(
-            "This is a test to ensure that filter logs do not show up in stdout."
-        )
-        # data = doc.get_metadata("live")
-
-        include_raw = doc.get_metadata("live_include")  # type: ignore
-        include = include_raw if include_raw is not None else True
-        if not env.ENV_IS_DEV or self.doc.format != "html" or not include:
-            return
-
-        if self.doc.get_metadata("live_disable"):  # type: ignore
-            return
-
+        # NOTE: This is the only setting that does not go in the live config.
         file_path = self.doc.get_metadata("live_file_path")  # type:ignore
         if not file_path:
-            logger.warning("Could not find file path.")
+            logger.warning("Live could not find file path.")
             return
 
-        # NOTE: Depends on should be a list of paths relative to the project root.
-        targets = [file_path]
-        depends_on = self.doc.get_metadata("live_depends_on")  # type: ignore
-        if depends_on and isinstance(depends_on, list):
-            targets += depends_on
+        if (live := config.live) is None:
+            logger.warning("Live filter disabled for `%s`.")
+            return
+        elif not env.ENV_IS_DEV or self.doc.format != "html":
+            logger.debug("Live filter ignoring `%s` for .")
+            return
 
         # NOTE: Look for names of additional elements to populate.
-        options = dict(
-            quarto_logs=self.doc.get_metadata("live_id_quarto_logs"),  # type: ignore
-            quarto_logs_parent=self.doc.get_metadata("live_id_quarto_logs_parent"),  # type: ignore
-            quarto_banner_include=self.doc.get_metadata("live_quarto_banner_include"),  # type: ignore
-            last=self.doc.get_metadata("live_quarto_logs_last"),  # type: ignore
-            reload=self.doc.get_metadata("live_reload"),  # type: ignore
-            filters={"targets": targets},
+        js = util.JINJA_ENV.get_template("live.js.j2").render(
+            filters=(
+                (
+                    {"targets": [file_path, *live.quarto.targets]}
+                    if "*" not in live.quarto.targets
+                    else {}
+                )
+                if live.quarto is not None
+                else None
+            ),
+            live=live,
         )
 
-        js = util.JINJA_ENV.get_template("live.j2").render(options=options)
-        script = pf.RawBlock(
-            f"<script id='quarto-hydrate' type='module'>{ js }</script> ",
-            format="html",
+        out = pf.Div(
+            pf.RawBlock(
+                f"<script id='quarto-hydrate' type='module'>{ js }</script>",
+                format="html",
+            ),
+            identifier="live",
         )
+
+        if live.quarto:
+            out.content.insert(
+                -1,
+                pf.Div(
+                    pf.Div(identifier=live.quarto.renders.identifier),
+                    pf.Div(identifier=live.quarto.responses.identifier),
+                    pf.Div(identifier=live.quarto.inputs.identifier),
+                    identifier="live-overlay",
+                ),
+            )
 
         # TODO: Simplify this JS, make this configurable using this live filter.
-        overlay_and_script = pf.Div(
-            pf.Div(
-                pf.Div(
-                    pf.Div(classes=["overlay-content-items"]),
-                    classes=["overlay-content"],
-                ),
-                classes=["overlay", "when-navbar"],
-                identifier="quarto-overlay",
-            ),
-            script,
-        )
-        doc.content.insert(0, overlay_and_script)
+        # NOTE: Overlays will be hydrated by the overlay filter.
+        doc.content.insert(-1, out)
 
 
 filter = util.create_run_filter(FilterLive)

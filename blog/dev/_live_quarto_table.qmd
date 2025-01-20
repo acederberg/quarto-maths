@@ -1,5 +1,5 @@
 ```{=html}
-<table class="table table-borderless quarto p-2" id="quarto-live-logs">
+<table class="table table-borderless quarto p-2" id="live-server-logs-table">
   <thead style="display: none;">
     <tr class="quarto-row">
       <th class="quarto-log-kind">Kind</th>
