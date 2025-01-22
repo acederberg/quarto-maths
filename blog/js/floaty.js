@@ -1,11 +1,34 @@
-// @ts-nocheck
+// @ts-check
 import { Overlay } from "./overlay.js"
 import { getBreakpoint, BREAKPOINTS } from "./util.js"
 
-// NOTE: Should persist over imports.
 export const FloatyInstances = new Map()
-const BREAKPOINTS_RESIZE = { xs: 1, sm: 1, md: 2, lg: 3, xl: 5, xxl: 5 }
+
+/** @typedef {import("./util.js").BSBreakpoint} BSBreakpoint */
+/** @typedef {import("./overlay.js").Overlay} TOverlay */
+/** @typedef {Map<BSBreakpoint, number>} MapBreakpointsColumns */
+
+/** @type {MapBreakpointsColumns} */
+const BREAKPOINTS_RESIZE = new Map()
+BREAKPOINTS_RESIZE.set('xs', 1)
+BREAKPOINTS_RESIZE.set('sm', 1)
+BREAKPOINTS_RESIZE.set('md', 2)
+BREAKPOINTS_RESIZE.set('lg', 3)
+BREAKPOINTS_RESIZE.set('xl', 5)
+BREAKPOINTS_RESIZE.set('xxl', 5)
+
+/** @type {BSBreakpoint} */
 const BREAKPOINT_TOOLTIPS_TRANSFORM = 'xl'
+
+/** @typedef FloatyOptions 
+ *
+ * @property {TOverlay|null} [overlayControls] - Output of ``Overlay`` *(from ``overlay.js``)*.
+ * @property {object} [resize] - Enable resizing.
+ * @property {MapBreakpointsColumns} [resizeBreakpoints] - Breakpoint names mapping to the number of columns for the range. By default `BREAKPOINTS_RESIZE`.
+ * @property {boolean} [tooltipsToggle] - Toggle tooltips.
+ * @property {BSBreakpoint} [tooltipsToggleBreakpoint] - Breakpoint for toggleing tooltips into card descriptions. By default, ``BREAKPOINT_TOOLTIPS_TRANSFORM``.
+ */
+
 
 /** Add responsiveness to a `floaty` element.
  *
@@ -16,19 +39,10 @@ const BREAKPOINT_TOOLTIPS_TRANSFORM = 'xl'
  * - opening overlays and links when clicking on ``floaty-items``,
  * - moving tooltips to descriptions and vice versa at certain breakpoints,
  * - resizing the grid while keeping cards of equal width using fillers,
- * - 
  *
  * @param {HTMLElement} elem - The target to add responsiveness to.
- * @param {object} options - Configuration options.
- * @param {object} options.overlayControls - Output of ``Overlay`` *(from ``overlay.js``)*.
- * @param {object} options.resize - Enable resizing.
- * @param {object} options.resizeBreakpoints - Breakpoint names mapping to the number
- *   of columns for the range. By default `BREAKPOINTS_RESIZE`.
- * @param {option} options.tooltipsToggle - Toggle tooltips.
- * @param {string} options.tooltipsToggleBreakpoint - Breakpoint for toggleing
- *   tooltips into card descriptions. By default, ``BREAKPOINT_TOOLTIPS_TRANSFORM``.
- * @throws {Error} if ``element`` is not passed, or when the floaty does not
- *   contain a `floaty-container` element.
+ * @param {FloatyOptions} options - Configuration options.
+ * @throws {Error} if ``element`` is not passed, or when the floaty does not contain a `floaty-container` element.
  *
  * */
 export function Floaty(elem, { overlayControls, resize, tooltipsToggle, resizeBreakpoints, tooltipsToggleBreakpoint }) {
@@ -42,9 +56,9 @@ export function Floaty(elem, { overlayControls, resize, tooltipsToggle, resizeBr
 
   const floatyItemContainers = Array.from(container.querySelectorAll("floaty-item-container"))
   const cards = Array.from(container.getElementsByClassName("card"))
-  const tooltips = [...elem.querySelectorAll(".floaty-item .card[data-bs-toggle='tooltip']")].map(
-    card => new bootstrap.Tooltip(card)
-  )
+
+  // @ts-ignore
+  const tooltips = [...elem.querySelectorAll(".floaty-item .card[data-bs-toggle='tooltip']")].map(card => new bootstrap.Tooltip(card))
 
   /** Make an empty (invisible) floaty item.
    *
@@ -67,12 +81,14 @@ export function Floaty(elem, { overlayControls, resize, tooltipsToggle, resizeBr
     if (!floatyItemFirstCard) throw Error(`No \`card\` found in \`elem\` with \`id=${elem.id}\`.`)
 
     const floatyItemEmpty = document.createElement("div")
+    // @ts-ignore
     floatyItemEmpty.classList.add("floaty-item", ...floatyItemFirst.classList)
 
     const floatyItemEmptyCard = document.createElement("div")
+
+    // @ts-ignore
     floatyItemEmptyCard.classList.add("card", "hidden", ...floatyItemFirstCard.classList)
     floatyItemEmptyCard.ariaLabel = "empty"
-    floatyItemEmptyCard.ariaTitle = "empty"
     floatyItemEmptyCard.ariaDescription = "This is a placeholder."
     floatyItemEmptyCard.innerHTML = `
           <div class="card-img-top">
@@ -98,6 +114,8 @@ export function Floaty(elem, { overlayControls, resize, tooltipsToggle, resizeBr
     if (!floatyRowFirst) throw Error("No row.")
 
     const floatyRow = document.createElement("div")
+
+    // @ts-ignore
     floatyRow.classList.add("floaty-row", ...floatyRowFirst.classList)
     return floatyRow
   }
@@ -111,7 +129,7 @@ export function Floaty(elem, { overlayControls, resize, tooltipsToggle, resizeBr
    * new rows and their corresponding items.
    *
    * @param {object} options - Options for resizing.
-   * @param {number} options.countColumns - The number of columns to devide the
+   * @param {number} [options.countColumns] - The number of columns to devide the
    *   floaty into.
    * @throws {Error} when no items are found and when `options.countColumns` is
    *   not negative or indeterminable.
@@ -153,9 +171,13 @@ export function Floaty(elem, { overlayControls, resize, tooltipsToggle, resizeBr
     if (countIncomplete) countRows++
 
     const emptyItem = createEmptyItem()
+    if (!emptyItem) return
+
     const empty = Array.from(Array(countEmptyRequired).keys()).map(
       (index) => {
         const emptyItemCurrent = emptyItem.cloneNode(true)
+
+        // @ts-ignore
         emptyItemCurrent.dataset.key = `empty-from-js-${index}`
         return emptyItemCurrent
       }
@@ -163,9 +185,12 @@ export function Floaty(elem, { overlayControls, resize, tooltipsToggle, resizeBr
 
     // NOTE: Replace Old Content, make template row.
     const row = createRow()
+
+    // @ts-ignore
     container.innerHTML = ''
 
     // NOTE: Make and Add Rows
+    // @ts-ignore
     const allItems = [...items, ...empty]
     Array.from(Array(countRows).keys()).map(rowIndex => {
       const rowCurrent = row.cloneNode(true)
@@ -174,6 +199,7 @@ export function Floaty(elem, { overlayControls, resize, tooltipsToggle, resizeBr
         countColumns * (rowIndex + 1),
       ).map(card => rowCurrent.appendChild(card))
 
+      // @ts-ignore
       container.append(rowCurrent)
     })
   }
@@ -183,11 +209,13 @@ export function Floaty(elem, { overlayControls, resize, tooltipsToggle, resizeBr
    *
    * Resizing is determined by `resizeBreakpoints` provided to the closure or `BREAKPOINTS_RESIZE`.
    *
-   * @param {number|null} width - Number of pixels that the resize is for.
+   * @param {number|null} [width] - Number of pixels that the resize is for.
   */
   function resizeForWidth(width) {
+    if (!resizeBreakpoints) throw Error()
+
     const breakpoint = getBreakpoint(width)
-    const countColumns = resizeBreakpoints[breakpoint]
+    const countColumns = resizeBreakpoints.get(breakpoint)
     if (!countColumns) {
       console.error(`No specification for breakpoint \`${breakpoint}\`.`)
       return
@@ -201,7 +229,7 @@ export function Floaty(elem, { overlayControls, resize, tooltipsToggle, resizeBr
    *
    * Additionally, this will disable the bootstrap tool tip.
    *
-   * @param {HTMLElement} item - Ideally ``floaty-item``.
+   * @param {any} item - Ideally ``floaty-item``.
    */
   function toggleTooltipToCardDescription(item) {
     const elem = item._element
@@ -225,14 +253,14 @@ export function Floaty(elem, { overlayControls, resize, tooltipsToggle, resizeBr
     const description = document.createElement("div")
     description.classList.add("card-text")
     description.innerText = elem.dataset.bsTitle
-    description.dataset.cardTextFromResize = true
+    description.dataset.cardTextFromResize = 'true'
 
     body.appendChild(description)
   }
 
   /** Toggle card description into a bootstrap tooltip.
    *
-   * @param {HTMLElement} item - Ideally a ``floaty-item``.
+   * @param {any} item - Ideally a ``floaty-item``.
    */
   function toggleCardDescriptionToTooltip(item) {
     const elem = item._element
@@ -251,10 +279,12 @@ export function Floaty(elem, { overlayControls, resize, tooltipsToggle, resizeBr
   /** Toggle tooltips into card descriptions and vice versa around some
    * breakpoint.
    *
-   * @param {number|null} width - width at which to toggle.
+   * @param {number|null} [width] - width at which to toggle.
    */
   function toggleTooltip(width) {
-    width = width || BREAKPOINTS[tooltipsToggleBreakpoint].start
+    width = width || BREAKPOINTS.get(tooltipsToggleBreakpoint || BREAKPOINT_TOOLTIPS_TRANSFORM)?.start || null
+    if (!width) throw Error("Failed to determine `width`.")
+
     tooltips.map(item => (
       window.innerWidth < width
         ? toggleTooltipToCardDescription(item)
@@ -281,12 +311,11 @@ export function Floaty(elem, { overlayControls, resize, tooltipsToggle, resizeBr
 
     // Add links.
     cards.map(card => {
+      // @ts-ignore
       if (!card.dataset.floatyUrl) return
       card.addEventListener("click", () => {
-        window.open(
-          card.dataset.floatyUrl,
-          "_blank"
-        ).focus()
+        // @ts-ignore
+        window.open(card.dataset.floatyUrl, "_blank").focus()
       })
     })
 
@@ -294,6 +323,7 @@ export function Floaty(elem, { overlayControls, resize, tooltipsToggle, resizeBr
     if (overlayControls) cards.map(card => {
       card.addEventListener("click", () => {
         overlayControls.showOverlay()
+        // @ts-ignore
         overlayControls.showOverlayContentItem(card.dataset.key)
       })
     })
@@ -327,7 +357,7 @@ export function Floaty(elem, { overlayControls, resize, tooltipsToggle, resizeBr
  * @param {string} elemId - The target element to add `Floaty` functionality to.
  * @param {object} options - Configuration options.
  * @param {string} options.overlayId - Identifier for the associated overlay.
- * @param {string} options.overlayControls - Pass already existing ``overlayControls``
+ * @param {TOverlay|null} options.overlayControls - Pass already existing ``overlayControls``
  *   to ``Floaty`` *(instead of creating them from ``overlayId``)*.
  * @throws {Error} when an element with identifier ``elemId`` or ``options.overlayId``
  *   cannot be found.

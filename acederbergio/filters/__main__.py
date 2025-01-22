@@ -155,6 +155,7 @@ def parse_config(
     *,
     names: Annotated[list[str], typer.Option("--filter")] = list(),
     json_path: str | None = None,
+    as_json: Annotated[bool, typer.Option("--json/--yaml")] = False,
     lazy: bool = True,
     validate: Annotated[bool, typer.Option("--validate/--raw")] = True,
     silent: Annotated[bool, typer.Option("--silent/--print")] = True,
@@ -189,6 +190,6 @@ def parse_config(
             parsed = parsed[0]
 
     if not silent:
-        u.print_yaml(parsed)
+        u.print_yaml(parsed, as_json=as_json)
     else:
         rich.print("[green]Configuration valid.")

@@ -1,5 +1,4 @@
-import json
-from typing import Annotated
+from typing import Annotated, Literal
 
 import panflute as pf
 import pydantic
@@ -20,7 +19,10 @@ class LiveQuartoConfig(util.BaseConfig):
         overlay.ConfigOverlay,
         pydantic.Field(
             description="Overlay to put the render results into.",
-            default_factory=lambda: {"identifier": "quarto-live-renders"},
+            default_factory=lambda: {
+                "identifier": "quarto-live-renders",
+                "classes": ["live-overlay"],
+            },
             validate_default=True,
         ),
     ]
@@ -28,7 +30,15 @@ class LiveQuartoConfig(util.BaseConfig):
         overlay.ConfigOverlay,
         pydantic.Field(
             description="Overlay to put results from API calls into.",
-            default_factory=lambda: {"identifier": "quarto-live-responses"},
+            default_factory=lambda: {
+                "identifier": "quarto-live-responses",
+                "classes": ["live-overlay"],
+                "colorize": {
+                    "color": "primary",
+                    "color_text": "black",
+                    "color_text_hover": "white",
+                },
+            },
             validate_default=True,
         ),
     ]
@@ -36,7 +46,10 @@ class LiveQuartoConfig(util.BaseConfig):
         overlay.ConfigOverlay,
         pydantic.Field(
             description="Overlay for API request inputs.",
-            default_factory=lambda: {"identifier": "quarto-live-responses"},
+            default_factory=lambda: {
+                "identifier": "quarto-live-inputs",
+                "classes": ["live-overlay"],
+            },
             validate_default=True,
         ),
     ]
@@ -76,6 +89,7 @@ class LiveQuartoConfig(util.BaseConfig):
         ),
     ]
     include_logs: Annotated[bool, pydantic.Field(False)]
+    js: Annotated[list[str] | None, pydantic.Field(None)]
 
     @pydantic.computed_field
     @property
@@ -86,7 +100,8 @@ class LiveQuartoConfig(util.BaseConfig):
         }
 
     def hydrate(self, element: pf.Div):
-        template = util.JINJA_ENV.get_template("live_quarto_renders.js.j2")
+        logger.warning("%s", self.js)
+        template = util.JINJA_ENV.get_template("live_quarto_renders.html.j2")
         innerHTML = pf.RawBlock(template.render(quarto=self, element=element))
 
         return innerHTML
@@ -118,7 +133,7 @@ class LiveServerConfig(pydantic.BaseModel):
     ]
 
     def hydrate(self, element: pf.Div):
-        template = util.JINJA_ENV.get_template("live_server_log.js.j2")
+        template = util.JINJA_ENV.get_template("live_server_log.html.j2")
         innerHTML = pf.RawBlock(template.render(server=self, element=element))
 
         return innerHTML
@@ -145,13 +160,20 @@ class LiveConfig(pydantic.BaseModel):
 
 class Config(pydantic.BaseModel):
     live: Annotated[
-        LiveConfig | None,
+        LiveConfig | Literal[False],
         pydantic.Field(
             default_factory=dict,
             validate_default=True,
-            description="Set to ``null`` to exclude this filter.",
+            description="Set to ``false`` to exclude this filter.",
         ),
     ]
+
+    # @pydantic.field_validator("live", mode="before")
+    # def validate_live(cls, v):
+    #     logger.warning(v)
+    #     if v == "":
+    #         return dict()
+    #     return v
 
     # # =self.doc.get_metadata("live_id_quarto_logs"),  # type: ignore
     # # quarto_logs_parent=self.doc.get_metadata("live_id_quarto_logs_parent"),  # type: ignore
@@ -197,6 +219,7 @@ class FilterLive(util.BaseFilterHasConfig):
 
     filter_name = "live"
     filter_config_cls = Config
+    filter_config_default = dict()
 
     def __call__(self, element: pf.Element) -> pf.Element:
         if (
@@ -211,7 +234,6 @@ class FilterLive(util.BaseFilterHasConfig):
         if (
             quarto := live.quarto
         ) is not None and element.identifier in quarto.overlays:
-            logger.warning("Matched live overlay `%s`.", element.identifier)
             config = quarto.overlays[element.identifier]
             element = config.hydrate_html(element)
 
@@ -227,7 +249,13 @@ class FilterLive(util.BaseFilterHasConfig):
     def prepare(self, doc: pf.Doc) -> None:
         super().prepare(doc)
         if (config := self.config) is None:
-            raise ValueError("Config not yet set.")
+            raise ValueError()
+
+        if config.live is False:
+            logger.warning(
+                "Ignoring `live` filter for `%s`.", doc.get_metadata("live_file_path")
+            )
+            return
 
         # NOTE: This is the only setting that does not go in the live config.
         file_path = self.doc.get_metadata("live_file_path")  # type:ignore

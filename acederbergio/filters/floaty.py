@@ -564,7 +564,7 @@ class ConfigFloatyContainer(util.BaseConfig):
         options["resizeBreakpoints"] = (
             self.resize
             if options["resize"] and not isinstance(self.resize, bool)
-            else "null"
+            else None
         )
         options["tooltipsToggleBreakpoint"] = (
             self.tooltips_toggle

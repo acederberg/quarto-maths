@@ -8,7 +8,9 @@ const {{ owner.js_name }} = lazyFloaty(
   {
     overlayControls: OverlayInstances.get('{{ overlay.identifier }}'),
     resize: {{ options.resize | lower | default('null') }},
-    resizeBreakpoints: {{ options.resizeBreakpoints | default('null') }},
+    {% if options.resizeBreakpoints %}
+      resizeBreakpoints: new Map(Object.entries({{ options.resizeBreakpoints | tojson }})),
+    {% endif %}
     tooltipsToggle: {{ options.tooltipsToggle | lower | default('null') }},
     tooltipsToggleBreakpoint: {{ options.tooltipsToggleBreakpoint | default('null' ) }},
   }

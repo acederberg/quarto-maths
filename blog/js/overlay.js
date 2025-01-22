@@ -3,6 +3,7 @@
 
 /** @type {Map<string, Overlay>} */
 export const OverlayInstances = new Map()
+const COLORIZE_VERBOSE = false
 const OVERLAY_VERBOSE = false
 const OVERLAY_ITEM_TRANSFORMATION_DELAY = 10
 const OVERLAY_ITEM_TRANSFORMATION_TIME = 500
@@ -19,6 +20,9 @@ const OVERLAY_ITEM_TRANSFORMATION_TIME = 500
  * @property {Element} overlayContent - Overlay content element, should contain content items and navbar.
  * @property {Element} overlayContentItems - Container for content.
  * @property {HTMLElement} controls -
+ *
+ * @property {Map<string, number>} keysToIndices
+ * @property {Map<number, string>} indicesToKeys
  *
  * @property {HideOverlay} hideOverlay - Hide the overlay, its content, and all of the content items.
  * @property {HideOverlayContentItems} hideOverlayContentItems - Hide all overlay content items.
@@ -170,7 +174,7 @@ const OVERLAY_ITEM_TRANSFORMATION_TIME = 500
  * @returns void
  */
 
-/** 
+/**
  * @namespace colorize
  * @callback UpdateElement
  *
@@ -208,6 +212,8 @@ const OVERLAY_ITEM_TRANSFORMATION_TIME = 500
  * @returns {Colorize}
  */
 export function Colorize(overlay, { color, colorText, colorTextHover }) {
+
+  COLORIZE_VERBOSE && console.log(`Creating colorize for overlay with id \`${overlay.elem.id}\`.`)
 
   /** @type {ColorizeState} */
   const state = {
@@ -254,13 +260,23 @@ export function Colorize(overlay, { color, colorText, colorTextHover }) {
   }
 
   function down() {
-    navIcons.map(item => state.classTextPrev && state.classBackgroundPrev && item.classList.remove(state.classBackgroundPrev, state.classTextPrev))
+    COLORIZE_VERBOSE && console.log(`Removing colorize classes for \`${overlay.elem.id}\`.`)
+
+    navIcons.map(item => {
+      state.classBackgroundPrev && item.classList.remove(state.classBackgroundPrev)
+      state.classTextPrev && item.classList.remove(state.classTextPrev)
+    })
     state.classBackgroundPrev && overlay.controls.classList.remove(state.classBackgroundPrev)
     state.classBorderPrev && overlay.overlayContent.classList.remove(state.classBorderPrev)
   }
 
   function up() {
-    navIcons.map(item => state.classBackground && state.classText && item.classList.add(state.classBackground, state.classText))
+    COLORIZE_VERBOSE && console.log(`Setting colorize classes for \`${overlay.elem.id}\`.`)
+
+    navIcons.map(item => {
+      state.classBackground && item.classList.add(state.classBackground)
+      state.classText && item.classList.add(state.classText)
+    })
     state.classBackground && overlay.controls.classList.add(state.classBackground)
     state.classBorder && overlay.overlayContent.classList.add(state.classBorder, "border", "border-5")
   }
@@ -414,7 +430,7 @@ export function Overlay(overlay, { colorizeOptions } = { colorizeOptions: {} }) 
     state.currentIndex = null
 
     if (!keepLocalStorage) {
-      OVERLAY_VERBOSE && console.log("`hideOverlay` Removing")
+      OVERLAY_VERBOSE && console.log("`hideOverlay` removing `overlayId`.")
       window.localStorage.removeItem("overlayId")
     }
   }
@@ -457,9 +473,11 @@ export function Overlay(overlay, { colorizeOptions } = { colorizeOptions: {} }) 
 
   /** @type {HideOverlayContentItems} */
   function hideOverlayContentItems({ keepLocalStorage } = { keepLocalStorage: false }) {
-    OVERLAY_VERBOSE && console.log(`Hiding overlay \`${overlay.id}\` content items.`)
-    // @ts-ignore
-    Object.values(overlayContentChildren).map(child => { child.classList.add("hidden") })
+
+    Array.from(overlayContentChildren.values()).map(child => {
+      child.classList.add("hidden")
+    })
+
 
 
     if (!keepLocalStorage) {
@@ -487,11 +505,15 @@ export function Overlay(overlay, { colorizeOptions } = { colorizeOptions: {} }) 
     if (!key) throw Error("Could not determine key.")
 
     const oldKey = state.currentKey
-    if (key == oldKey) return null
-
     const content = overlayContentChildren.get(key)
+
     if (!content) {
       console.error(`Could not find content for \`key=${key}\` and \`id=${overlay.id}\`.`)
+      return null
+    }
+
+    if (key == oldKey) {
+      state.colorize && colorizeContentItem(content)
       return null
     }
 
@@ -570,13 +592,12 @@ export function Overlay(overlay, { colorizeOptions } = { colorizeOptions: {} }) 
 
   /** @param {HTMLElement} contentItem */
   function colorizeContentItem(contentItem) {
-    OVERLAY_VERBOSE && console.log("Colorize overlay from contentitem dataet.")
+    COLORIZE_VERBOSE && console.log("Colorize overlay from contentitem dataet.")
     const colorizeParams = {
       color: contentItem.dataset.colorizeColor,
       colorText: contentItem.dataset.colorizeColorText,
       colorTextHover: contentItem.dataset.colorizeColorTextHover,
     }
-    // console.log("colorizeParams", colorizeParams)
 
     colorize(colorizeParams)
   }
@@ -619,8 +640,9 @@ export function Overlay(overlay, { colorizeOptions } = { colorizeOptions: {} }) 
     elem: overlay, overlayContent: overlayContent, overlayContentItems,
     controls: controls, colorize, hideOverlay, hideOverlayContentItems, showOverlay,
     colorizeContentItem,
-    showOverlayContentItem, addContent, state, restoreOverlay,
-    nextOverlayContentItem
+    showOverlayContentItem, addContent, state, restoreOverlay, nextOverlayContentItem,
+    keysToIndices, indicesToKeys,
+
   }
 
 
@@ -630,3 +652,5 @@ export function Overlay(overlay, { colorizeOptions } = { colorizeOptions: {} }) 
   OverlayInstances.set(overlay.id, overlayClosure)
   return overlayClosure
 }
+
+

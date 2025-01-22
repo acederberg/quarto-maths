@@ -4,11 +4,12 @@ format:
   pdf:
     template: ../../resume/templates/template.tex
     keep-tex: true
-floaty: null
-under_construction: null
 filters:
   - ../../filters/contacts.py
   - ../../filters/links.py
+floaty: null
+under_construction: null
+live: {}
 ---
 
 ## Links - `sep=newline`

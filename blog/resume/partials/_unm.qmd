@@ -1,4 +1,4 @@
-<!-- Start UNM ---------> :::: { #unm .education education-item=unm }
+<!-- Start UNM ---------> :::: { #resume-education-unm .education education-item=unm }
 
 - Ensured consistent, actionable feedback and organization itegrity as a tutor
   and exam proctor in remedial algebra at UNMs math learning lab.

@@ -129,6 +129,7 @@ class BaseFilterHasConfig(BaseFilter, BaseFilterHasConfigProto[T_BaseMapFilter])
         module: Required[str]
 
     filter_config_infos: ClassVar[dict[str, FilterConfigInfo]] = dict()
+    filter_config_default: ClassVar[Any] = None
 
     def __init__(self, doc: pf.Doc | None = None):
         super().__init__(doc)
@@ -161,8 +162,8 @@ class BaseFilterHasConfig(BaseFilter, BaseFilterHasConfigProto[T_BaseMapFilter])
             return self._config
 
         logger.debug("Getting metadata for filter `%s`.", self.filter_name)
-        data = self.doc.get_metadata(self.filter_name)  # type: ignore
-        if data is None or not data:  # Because panflute can get '' instead of null.
+        data = self.doc.get_metadata(self.filter_name, self.filter_config_default)  # type: ignore
+        if data is None or data == "":  # Because panflute can get '' instead of null.
             logger.debug("Metadata was empty, `%s`.", data)
             self._config = None
             return None

@@ -38,7 +38,7 @@ export function isBreakpoint(width, specifier) {
 }
 
 /**
-* @param {number} [width] - Width in pixels.
+* @param {number|null} [width] - Width in pixels.
 * @returns {BSBreakpoint} Breakpoint range in which the width falls.
 *
 * If start is not defined, then ``width`` only needs to be checked against upper bound.
@@ -61,5 +61,98 @@ export function FullPage() {
   document.getElementById("quarto-document-content")?.classList.add("px-1")
   document.getElementById("quarto-content")?.classList.remove("page-columns")
 }
+
+
+/** 
+ * @returns {HTMLDivElement}
+ */
+export function Spinner() {
+
+  const spinner = document.createElement("div")
+  spinner.classList.add("spinner-border", "spinner-border-sm", "hidden")
+  return spinner
+}
+
+
+/** 
+ * @typedef {object} Button
+ *
+ * @property {HTMLButtonElement} elem
+ * @property {HTMLElement} icon
+ * @property {HTMLDivElement} spinner
+ * @property {() => void} toggleSpinner - Turn the spinner on and off.
+ * @property {ButtonState} state
+ *
+ */
+
+/**
+ * @typedef {object} ButtonOptions
+ *
+ * @property {string} id -
+ * @property {string} tooltip -
+ * @property {Array<string>} [classesButton] -
+ * @property {string} [dataKey] -
+ * @property {string} [icon] -
+ * @property {string} [text] -
+ */
+
+/**
+ * @typedef {object} ButtonState
+ *
+ * @property {boolean} spinner - When ``true``, spinner is visible.
+ */
+
+/**
+ * @param {ButtonOptions} options
+ * @returns {Button}
+ */
+export function Button({ id, classesButton, dataKey, tooltip, icon, text }) {
+
+  if (!icon) throw Error("An icon is required.")
+
+  const button = document.createElement('button');
+  if (id) button.id = id;
+  button.type = 'button';
+  button.classList.add("btn", ...(classesButton || []))
+
+  if (dataKey) button.dataset.key = dataKey;
+  if (tooltip) {
+    button.setAttribute('data-bs-toggle', 'tooltip');
+    button.setAttribute('data-bs-placement', 'top');
+    button.setAttribute('title', tooltip);
+    button.setAttribute('data-bs-custom-class', 'banner-tooltip')
+  }
+
+
+
+  if (text) {
+    const textNode = document.createElement('text');
+    textNode.textContent = text;
+    button.appendChild(textNode);
+  }
+
+
+  const buttonIcon = document.createElement('i');
+  buttonIcon.classList.add("bi", `bi-${icon}`);
+  button.appendChild(buttonIcon);
+
+  const buttonSpinner = Spinner()
+  button.appendChild(buttonSpinner)
+
+  /** @type {ButtonState} */
+  const state = { spinner: false }
+
+  function toggleSpinner() {
+    const [visible, hidden] = state.spinner ? [buttonSpinner, buttonIcon] : [buttonIcon, buttonSpinner]
+
+    hidden.classList.remove("hidden")
+    visible.classList.add("hidden")
+    state.spinner = !state.spinner
+  }
+
+
+  return { elem: button, icon: buttonIcon, spinner: buttonSpinner, toggleSpinner, state };
+}
+
 
 

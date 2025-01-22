@@ -8,7 +8,7 @@ live:
     count: 32
     include_logs: true
     targets: ["*"]
-    reload: true
+    reload: false
 ---
 
 ```{=html}

@@ -1,21 +1,18 @@
-// vi: set ft=django:
-// peepee poopopo
+{# vi: set ft=django : #}
 
-import { Overlay } from "/js/overlay.js"
-import { Quarto, Server, LIVE_SERVER_VERBOSE, LIVE_QUARTO_VERBOSE } from "/js/live.js"
-import { OverlayInstances } from "/js/overlay.js"
-
+import * as overlay from "/js/overlay.js"
+import * as live from "/js/live.js"
 
 function hydrateLive(event) {
 
   {% if live.quarto and live.include_quarto %}
-    if ( LIVE_QUARTO_VERBOSE ) {
+    if ( live.LIVE_QUARTO_VERBOSE ) {
       console.log("Quarto Renders Table ID: {{ live.quarto.table.identifier }}")
       console.log("Quarto Renders Container ID: {{ live.quarto.container.identifier}}")
     }
 
-    const overlayRenders = OverlayInstances.get('{{ live.quarto.renders.identifier }}')
-    const quarto = Quarto({
+    const overlayRenders = overlay.OverlayInstances.get('{{ live.quarto.renders.identifier }}')
+    const quarto = live.Quarto({
       filters: {{ filters | tojson }},
       last: {{ live.quarto.count }},
       rendersTable: document.getElementById('{{ live.quarto.table.identifier }}'),
@@ -24,15 +21,17 @@ function hydrateLive(event) {
 
       overlayRenders: overlayRenders,
       bannerOptions: {
-        overlayInputs: OverlayInstances.get('{{ live.quarto.inputs.identifier }}'),
-        overlayResponses: OverlayInstances.get('{{ live.quarto.responses.identifier }}'),
+        overlayInputs: overlay.OverlayInstances.get('{{ live.quarto.inputs.identifier }}'),
+        overlayResponses: overlay.OverlayInstances.get('{{ live.quarto.responses.identifier }}'),
         overlayRenders: overlayRenders,
       },
     })
 
-    {% if live.quarto.banner %}
-
+    {% if live.quarto.js %}
+      console.log("Running additional js.")
+      {{ live.quarto.js | join("\n") }}
     {% endif %}
+
   {% else %}
     console.log("Live quarto not included.")
   {% endif %}
@@ -43,12 +42,12 @@ function hydrateLive(event) {
     #}
 
   {% if live.server and live.include_server %}
-    if ( LIVE_SERVER_VERBOSE ) {
+    if ( live.LIVE_SERVER_VERBOSE ) {
       console.log("Server Logs Table ID: {{ live.server.table.identifier }}")
       console.log("Server Logs Container ID: {{ live.server.container.identifier}}")
     }
 
-    const server = Server({
+    const server = live.Server({
       last: {{ live.server.count }},
       logTable: document.getElementById("{{ live.server.table.identifier }}"),
       logContainer: document.getElementById("{{ live.server.container.identifier }}"),
@@ -57,12 +56,6 @@ function hydrateLive(event) {
     console.log("Live server not included.")
   {% endif %}
 }
-
-
-
-{% if live.server %}
-
-{% endif %}
 
 window.addEventListener("load", hydrateLive)
 

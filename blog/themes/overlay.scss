@@ -50,7 +50,7 @@ $overlayItemTranformTime : 500ms;
 
       .overlay-controls-item {
         font-size: 1rem;
-        color: var(--bs-black);
+        /* color: var(--bs-black); */
         cursor: pointer;
         transition: color 0.2s ease;
         z-index: 9001;

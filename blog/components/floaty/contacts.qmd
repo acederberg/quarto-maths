@@ -1,14 +1,15 @@
 ---
 title: Storybook Contacts
-iframes:
-  - identifier: contacts-pdf-iframe
-    target: blog/components/floaty/resume-contacts.qmd
 filters:
   - ../../filters/iframe.py
   - ../../filters/contacts.py
-live_reload: true
-live_depends_on:
-  - blog/components/floaty/resume-links.qmd
+iframes:
+  - identifier: contacts-pdf-iframe
+    target: blog/components/floaty/resume-contacts.qmd
+live:
+  quarto: {}
+  depends_on:
+    - blog/components/floaty/resume-links.qmd
 ---
 
 This the same as [the links filter](./links.qmd) above, except contacts should not contain any links.

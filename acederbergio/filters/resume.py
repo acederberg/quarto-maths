@@ -145,6 +145,7 @@ class ConfigResume(pydantic.BaseModel):
             default=None,
             description="Education experience configuration.",
         ),
+        pydantic.BeforeValidator(util.content_from_list_identifier),
     ]
 
     def hydrate_profile(self, doc: pf.Doc, element: pf.Element) -> pf.Element:

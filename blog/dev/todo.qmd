@@ -149,6 +149,11 @@ There are some things that must be handled in general.
 | Unit and integration testing                  |           | If it is not tested, it is probably broken.                                                                                       |
 | Collapse `QuartoRenderResult` pandoc metadata |           | Turn metadata into an actual structure that can be queried against, get it out of logs shown in the overlay and put it elsewhere. |
 | Rendering event                               |           | Should push an event that can viewed in the dashboard.                                                                            |
+| Typescript checks for javascript in ./blog/js |           | Because this will no scale unless this is done. Add action                                                                        |
+| JSDoc rendering                               |           |                                                                                                                                   |
+| Tests for JS Modules                          |           | Using something like `JSDom`, which can remove the requirement for the browser. This will make integration tests much easier.     |
+| PDF Output Validation                         |           | Distributing a resume with broken links is not a good idea, for instance. `pdf-lib`, `pdf.js`, etc.                               |
+| Paralax scroll for landing page and overlay   |           |                                                                                                                                   |
 
 : Objectives Quarter 1, 2025 { .todo-table }
 
@@ -168,3 +173,11 @@ security) and recommended some additional measures:
   import {hydrate} from '/js/todo.js'
   hydrate()
 </script>
+
+### Landing Page Improvements
+
+Brainstorm:
+
+- https://www.okalpha.co/
+- https://plink-rebuild.webflow.io/
+- https://keejo-bake003.webflow.io/

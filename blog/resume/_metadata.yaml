@@ -277,7 +277,7 @@ resume:
   # ----------------------------------------------------------------------- #
   # Education
   education:
-    unm:
+    - identifier: resume-education-unm
       organization: University of New Mexico
       degree: Bachelors of Science
       concentration: Applied Mathematics
@@ -286,224 +286,16 @@ resume:
   # ----------------------------------------------------------------------- #
   # Experience
   experience:
-    mve:
+    - identifier: resume-experience-mve
       organization: Mountain Vector Energy
       title: Senior Software Engineer
       start: January 2022
       stop: December 2023
-      # NOTE: THESE SHOULD GO INTO OVERLAY!
-      # tools:
-      #   overlay:
-      #     include: true
-      #     size_icon: 256
-      #   container:
-      #     size_item: 48
-      #     size_item_margin: 8
-      #     kind: list
-      #     classes: ["floaty-container-macos", "pt-3", "px-3"]
-      #   tooltip:
-      #     include: false
-      #   content:
-      #     - image:
-      #         iconify:
-      #           name: fastapi
-      #           set: devicon
-      #       key: fastapi
-      #       title: FastAPI
-      #     - image:
-      #         iconify:
-      #           name: terraform
-      #           set: devicon
-      #       key: terraform
-      #       title: Terraform
-      #     - image:
-      #         iconify:
-      #           name: bitbucket
-      #           set: devicon
-      #       key: bitbucket
-      #       title: Bitbucket
-      #     - image:
-      #         iconify:
-      #           name: kubernetes
-      #           set: devicon
-      #       key: kubernetes
-      #       title: Kubernetes
-      #     - image:
-      #         iconify:
-      #           name: helm
-      #           set: devicon
-      #       key: helm
-      #       title: Helm
-      #     - image:
-      #         iconify:
-      #           name: docker
-      #           set: devicon
-      #       key: docker
-      #       title: Docker
-      #     - image:
-      #         iconify:
-      #           name: python
-      #           set: devicon
-      #       key: python
-      #       title: Python
-      #     - image:
-      #         iconify:
-      #           name: nodejs
-      #           set: devicon
-      #       key: nodejs
-      #       title: NodeJS
-      #     - image:
-      #         iconify:
-      #           name: react
-      #           set: devicon
-      #       key: react
-      #       title: React
-      #     - image:
-      #         iconify:
-      #           name: auth0-icon
-      #           set: logos
-      #       key: auth0
-      #       title: Auth0
-      #     - image:
-      #         iconify:
-      #           name: sqlalchemy
-      #           set: devicon
-      #       key: sqlalchemy
-      #       title: SQLAlchemy
-      #     - image:
-      #         iconify:
-      #           name: mysql
-      #           set: devicon
-      #       key: mysql
-      #       title: MySQL
-      #     - image:
-      #         iconify:
-      #           name: mongodb
-      #           set: devicon
-      #       key: mongodb
-      #       title: MongoDB
-      #     - image:
-      #         iconify:
-      #           name: azure
-      #           set: devicon
-      #       key: azure
-      #       title: Azure
-      #     - image:
-      #         iconify:
-      #           name: github-actions
-      #           set: logos
-      #       key: cicd
-      #       title: Bitbucket Pipelines
-      #     - image:
-      #         iconify:
-      #           name: traefikproxy
-      #           set: devicon
-      #       key: traefik
-      #       title: Traefik
-
-    consulting:
+    - identifier: resume-experience-consulting
       organization: acederberg.io
       title: Sole Proprietor
       start: January 2024
       stop: Now
-      # NOTE: THESE SHOULD GO INTO OVERLAY!
-      # tools:
-      #   overlay:
-      #     include: false
-      #     size_icon: 256
-      #   container:
-      #     size_item: 48
-      #     size_item_margin: 8
-      #     kind: list
-      #     classes: ["floaty-container-macos", "pt-3", "px-3"]
-      #   tooltip:
-      #     include: false
-      #   content:
-      #     - image:
-      #         iconify:
-      #           set: misc
-      #           name: quarto
-      #       key: quarto
-      #       title: Quarto
-      #     - image:
-      #         iconify:
-      #           set: devicon
-      #           name: latex
-      #       key: latex
-      #       title: Latex
-      #     - image:
-      #         iconify:
-      #           set: devicon
-      #           name: pulumi
-      #       key: pulumi
-      #       title: Pulumi
-      #     - image:
-      #         iconify:
-      #           set: logos
-      #           name: github-icon
-      #       key: github
-      #       title: Github
-      #     - image:
-      #         iconify:
-      #           set: devicon
-      #           name: git
-      #       key: git
-      #       title: Git
-      #     - image:
-      #         iconify:
-      #           set: devicon
-      #           name: neovim
-      #       key: neovim
-      #       title: Neovim
-      #     - image:
-      #         iconify:
-      #           set: devicon
-      #           name: python-wordmark
-      #       key: python
-      #       title: Python
-      #     - image:
-      #         iconify:
-      #           set: devicon
-      #           name: nodejs-wordmark
-      #       key: nodejs
-      #       title: Nodejs
-      #     - image:
-      #         iconify:
-      #           set: misc
-      #           name: mermaid
-      #       key: mermaid
-      #       title: Mermaidjs
-      #     - image:
-      #         iconify:
-      #           set: logos
-      #           name: linode
-      #       key: linode
-      #       title: Linode
-      #     - image:
-      #         iconify:
-      #           set: logos
-      #           name: kubernetes
-      #       key: kubernetes
-      #       title: Kubernetes
-      #     - image:
-      #         iconify:
-      #           set: devicon
-      #           name: pandas-wordmark
-      #       key: pandas
-      #       title: Pandas
-      #     - image:
-      #         iconify:
-      #           set: devicon
-      #           name: kaggle-wordmark
-      #       key: kaggle
-      #       title: Kaggle
-      #     - image:
-      #         iconify:
-      #           set: devicon
-      #           name: docker-wordmark
-      #       key: docker
-      #       title: Docker
-
   headshot:
     url: https://avatars.githubusercontent.com/u/77076023?v=4
     title: Headshot
@@ -770,6 +562,194 @@ skills:
             set: devicon
             name: pulumi
 floaty:
+  # NOTE: I don't know if I want these but hesitate to delete them.
+  - identifier: consulting-skills
+    content:
+      - image:
+          iconify:
+            set: misc
+            name: quarto
+        key: quarto
+        title: Quarto
+      - image:
+          iconify:
+            set: devicon
+            name: latex
+        key: latex
+        title: Latex
+      - image:
+          iconify:
+            set: devicon
+            name: pulumi
+        key: pulumi
+        title: Pulumi
+      - image:
+          iconify:
+            set: logos
+            name: github-icon
+        key: github
+        title: Github
+      - image:
+          iconify:
+            set: devicon
+            name: git
+        key: git
+        title: Git
+      - image:
+          iconify:
+            set: devicon
+            name: neovim
+        key: neovim
+        title: Neovim
+      - image:
+          iconify:
+            set: devicon
+            name: python-wordmark
+        key: python
+        title: Python
+      - image:
+          iconify:
+            set: devicon
+            name: nodejs-wordmark
+        key: nodejs
+        title: Nodejs
+      - image:
+          iconify:
+            set: misc
+            name: mermaid
+        key: mermaid
+        title: Mermaidjs
+      - image:
+          iconify:
+            set: logos
+            name: linode
+        key: linode
+        title: Linode
+      - image:
+          iconify:
+            set: logos
+            name: kubernetes
+        key: kubernetes
+        title: Kubernetes
+      - image:
+          iconify:
+            set: devicon
+            name: pandas-wordmark
+        key: pandas
+        title: Pandas
+      - image:
+          iconify:
+            set: devicon
+            name: kaggle-wordmark
+        key: kaggle
+        title: Kaggle
+      - image:
+          iconify:
+            set: devicon
+            name: docker-wordmark
+        key: docker
+        title: Docker
+
+  # NOTE: I don't know if I want these but hesitate to delete them.
+  - identifier: mve-skills
+    content:
+      - image:
+          iconify:
+            name: fastapi
+            set: devicon
+        key: fastapi
+        title: FastAPI
+      - image:
+          iconify:
+            name: terraform
+            set: devicon
+        key: terraform
+        title: Terraform
+      - image:
+          iconify:
+            name: bitbucket
+            set: devicon
+        key: bitbucket
+        title: Bitbucket
+      - image:
+          iconify:
+            name: kubernetes
+            set: devicon
+        key: kubernetes
+        title: Kubernetes
+      - image:
+          iconify:
+            name: helm
+            set: devicon
+        key: helm
+        title: Helm
+      - image:
+          iconify:
+            name: docker
+            set: devicon
+        key: docker
+        title: Docker
+      - image:
+          iconify:
+            name: python
+            set: devicon
+        key: python
+        title: Python
+      - image:
+          iconify:
+            name: nodejs
+            set: devicon
+        key: nodejs
+        title: NodeJS
+      - image:
+          iconify:
+            name: react
+            set: devicon
+        key: react
+        title: React
+      - image:
+          iconify:
+            name: auth0-icon
+            set: logos
+        key: auth0
+        title: Auth0
+      - image:
+          iconify:
+            name: sqlalchemy
+            set: devicon
+        key: sqlalchemy
+        title: SQLAlchemy
+      - image:
+          iconify:
+            name: mysql
+            set: devicon
+        key: mysql
+        title: MySQL
+      - image:
+          iconify:
+            name: mongodb
+            set: devicon
+        key: mongodb
+        title: MongoDB
+      - image:
+          iconify:
+            name: azure
+            set: devicon
+        key: azure
+        title: Azure
+      - image:
+          iconify:
+            name: github-actions
+            set: logos
+        key: cicd
+        title: Bitbucket Pipelines
+      - image:
+          iconify:
+            name: traefikproxy
+            set: devicon
+        key: traefik
+        title: Traefik
+
   - identifier: resume-skills-impl-etc
     container:
       size: 6

@@ -37,8 +37,6 @@ definitions:
 format:
   html:
     page-layout: full
-    include-in-header:
-      - ../../includes/tooltip.html
     theme:
       light:
         - themes/extras.scss
