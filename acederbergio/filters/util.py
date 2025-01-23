@@ -2,17 +2,8 @@ import abc
 import os
 import pathlib
 import secrets
-from typing import (
-    Annotated,
-    Any,
-    ClassVar,
-    Literal,
-    Protocol,
-    Required,
-    Type,
-    TypedDict,
-    TypeVar,
-)
+from typing import (Annotated, Any, ClassVar, Literal, Protocol, Required,
+                    Type, TypedDict, TypeVar)
 
 import jinja2
 import panflute as pf
@@ -295,4 +286,3 @@ def create_run_filter(Filter: type[BaseFilter]):
 
 
 JINJA_ENV = jinja2.Environment(loader=jinja2.FileSystemLoader(env.TEMPLATES))
-JINJA_ENV.get_template("./floaty.j2")
