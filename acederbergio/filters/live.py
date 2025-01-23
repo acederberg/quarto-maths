@@ -100,7 +100,6 @@ class LiveQuartoConfig(util.BaseConfig):
         }
 
     def hydrate(self, element: pf.Div):
-        logger.warning("%s", self.js)
         template = util.JINJA_ENV.get_template("live_quarto_renders.html.j2")
         innerHTML = pf.RawBlock(template.render(quarto=self, element=element))
 

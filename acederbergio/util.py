@@ -7,8 +7,11 @@ from typing import Annotated, Any, Mapping
 
 import pydantic
 import rich
+import rich.console
 import rich.syntax
 import yaml
+
+CONSOLE = rich.console.Console()
 
 
 def print_yaml(
@@ -18,6 +21,8 @@ def print_yaml(
     items: bool = False,
     name: str | None = None,
     pretty: bool = True,
+    rule_title: str = "",
+    rule_kwargs: dict[str, Any] = dict(),
     **kwargs_model_dump,
 ):
     if items:
@@ -42,7 +47,11 @@ def print_yaml(
         theme="fruity",
         background_color="default",
     )
-    rich.print(s)
+
+    if rule_title or rule_kwargs:
+        CONSOLE.rule(rule_title, **rule_kwargs)
+
+    CONSOLE.print(s)
 
 
 # class Field(FieldInfo):

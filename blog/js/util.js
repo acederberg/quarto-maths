@@ -56,6 +56,8 @@ export function getBreakpoint(width) {
 }
 
 
+
+/** Make quarto page fullpage. */
 export function FullPage() {
   document.getElementById("title-block-header")?.remove()
   document.getElementById("quarto-document-content")?.classList.add("px-1")
@@ -75,21 +77,22 @@ export function Spinner() {
 
 
 /** 
- * @typedef {object} Button
+ * @typedef {object} TButton
  *
  * @property {HTMLButtonElement} elem
  * @property {HTMLElement} icon
  * @property {HTMLDivElement} spinner
  * @property {() => void} toggleSpinner - Turn the spinner on and off.
- * @property {ButtonState} state
+ * @property {TButtonState} state
  *
  */
 
 /**
- * @typedef {object} ButtonOptions
+ * @typedef {object} TButtonOptions
  *
  * @property {string} id -
  * @property {string} tooltip -
+ * @property {string[]} [iconClasses] -
  * @property {Array<string>} [classesButton] -
  * @property {string} [dataKey] -
  * @property {string} [icon] -
@@ -97,16 +100,16 @@ export function Spinner() {
  */
 
 /**
- * @typedef {object} ButtonState
+ * @typedef {object} TButtonState
  *
  * @property {boolean} spinner - When ``true``, spinner is visible.
  */
 
 /**
- * @param {ButtonOptions} options
- * @returns {Button}
+ * @param {TButtonOptions} options
+ * @returns {TButton}
  */
-export function Button({ id, classesButton, dataKey, tooltip, icon, text }) {
+export function Button({ id, classesButton, dataKey, tooltip, icon, iconClasses, text }) {
 
   if (!icon) throw Error("An icon is required.")
 
@@ -123,7 +126,13 @@ export function Button({ id, classesButton, dataKey, tooltip, icon, text }) {
     button.setAttribute('data-bs-custom-class', 'banner-tooltip')
   }
 
+  const buttonSpinner = Spinner()
+  button.appendChild(buttonSpinner)
 
+  const buttonIcon = document.createElement('i');
+  buttonIcon.classList.add("bi", `bi-${icon}`);
+  iconClasses && buttonIcon.classList.add(...iconClasses)
+  button.appendChild(buttonIcon);
 
   if (text) {
     const textNode = document.createElement('text');
@@ -131,25 +140,24 @@ export function Button({ id, classesButton, dataKey, tooltip, icon, text }) {
     button.appendChild(textNode);
   }
 
-
-  const buttonIcon = document.createElement('i');
-  buttonIcon.classList.add("bi", `bi-${icon}`);
-  button.appendChild(buttonIcon);
-
-  const buttonSpinner = Spinner()
-  button.appendChild(buttonSpinner)
-
-  /** @type {ButtonState} */
+  /** @type {TButtonState} */
   const state = { spinner: false }
 
   function toggleSpinner() {
-    const [visible, hidden] = state.spinner ? [buttonSpinner, buttonIcon] : [buttonIcon, buttonSpinner]
 
-    hidden.classList.remove("hidden")
-    visible.classList.add("hidden")
+    if (!state.spinner) {
+      buttonSpinner.classList.remove("hidden")
+      buttonIcon.classList.add("hidden")
+      button.classList.add("disabled")
+    }
+    else {
+      buttonSpinner.classList.add("hidden")
+      buttonIcon.classList.remove("hidden")
+      button.classList.remove("disabled")
+    }
+
     state.spinner = !state.spinner
   }
-
 
   return { elem: button, icon: buttonIcon, spinner: buttonSpinner, toggleSpinner, state };
 }

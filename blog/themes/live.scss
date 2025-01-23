@@ -292,33 +292,25 @@
   &.success {
     border-color: $teal;
 
-    i.banner-control {
+    i {
       color: $teal
     }
 
     &.new {
       border-color: $blue;
 
-      i.banner-control {
-        color: $blue;
-      }
     }
   }
 
   &.failure {
     border-color: $orange;
 
-    i.banner-control {
+    i {
       color: $orange
     }
 
     &.new {
       border-color: $red;
-
-      i.banner-control {
-        color: $red;
-      }
-
     }
 
   }
@@ -343,7 +335,6 @@
           transition: 0.1s border-color;
 
           i {
-            color: var(--bs-primary);
             transition: 1s color;
           }
 

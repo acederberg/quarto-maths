@@ -383,10 +383,6 @@ class QuartoHistory(BaseLog, Generic[T_QuartoRender]):
 
         latest.insert(2, {"$match": {"items": {"$exists": True}}})
 
-        print("====================================================")
-        print("Aggregation (aggr_last_rendered).")
-        util.print_yaml(latest, name="From `aggr_last_rendered`.", as_json=True)
-
         return latest
 
     @classmethod
@@ -399,10 +395,6 @@ class QuartoHistory(BaseLog, Generic[T_QuartoRender]):
         aggr = cls.aggr_last_rendered(filters)
         res = db[cls._collection].aggregate(aggr)
         async for item in res:
-            print("============================================================")
-            print("item")
-            util.print_yaml(item, as_json=True)
-            print()
             item["items"] = [item["items"]]
 
             return cls.model_validate(item)

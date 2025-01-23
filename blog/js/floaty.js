@@ -29,7 +29,6 @@ const BREAKPOINT_TOOLTIPS_TRANSFORM = 'xl'
  * @property {BSBreakpoint} [tooltipsToggleBreakpoint] - Breakpoint for toggleing tooltips into card descriptions. By default, ``BREAKPOINT_TOOLTIPS_TRANSFORM``.
  */
 
-
 /** Add responsiveness to a `floaty` element.
  *
  * Ideally, these are styled with `floaty` as in `floaty.scss`.
@@ -54,7 +53,6 @@ export function Floaty(elem, { overlayControls, resize, tooltipsToggle, resizeBr
   const container = elem.querySelector(".floaty-container")
   if (!container) throw Error("Missing container.")
 
-  const floatyItemContainers = Array.from(container.querySelectorAll("floaty-item-container"))
   const cards = Array.from(container.getElementsByClassName("card"))
 
   // @ts-ignore
@@ -81,9 +79,9 @@ export function Floaty(elem, { overlayControls, resize, tooltipsToggle, resizeBr
     if (!floatyItemFirstCard) throw Error(`No \`card\` found in \`elem\` with \`id=${elem.id}\`.`)
 
     const floatyItemEmpty = document.createElement("div")
+
     // @ts-ignore
     floatyItemEmpty.classList.add("floaty-item", ...floatyItemFirst.classList)
-
     const floatyItemEmptyCard = document.createElement("div")
 
     // @ts-ignore
@@ -335,7 +333,6 @@ export function Floaty(elem, { overlayControls, resize, tooltipsToggle, resizeBr
   }
 
   initialize()
-
 
   return {
     elem, container, cards, overlayControls,

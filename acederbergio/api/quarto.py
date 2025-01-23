@@ -525,7 +525,14 @@ class Handler:
         )
 
         if env.VERBOSE or self.context.render_verbose:
-            util.print_yaml(data)
+            color = "red" if data.status_code else "blue"
+            util.print_yaml(
+                data,
+                name="Render Result",
+                as_json=True,
+                rule_title=f"Render of `{data.target}` at `{data.time}` from changes in `{data.origin}`",
+                rule_kwargs=dict(characters="=", align="center", style=f"bold {color}"),
+            )
 
         await schemas.QuartoHistory.push(
             self.context.db,
@@ -553,21 +560,11 @@ class Handler:
             self.context.db, filters=filters
         )
 
-        if env.VERBOSE:
-            print("====================================================")
-            print("Filters (do_defered).")
-            util.print_yaml(filters, name="From `do_defered`.", as_json=True)
-
         if history is None:
             logger.info("No render to dispatch from changes in `%s`.", path)
             return
 
         last = history.items[0]
-        if env.VERBOSE:
-            print("====================================================")
-            print("Last rendered (do_defered).")
-            util.print_yaml(last, name="Last Rendered.", as_json=True)
-
         logger.info(
             "Dispatching render of `%s` from changes in `%s`.", last.target, path
         )
