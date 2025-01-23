@@ -2,13 +2,14 @@
 import { Overlay } from "./overlay.js"
 import { getBreakpoint, BREAKPOINTS } from "./util.js"
 
+/** @type {Map<string, TFloaty>} */
 export const FloatyInstances = new Map()
 
-/** @typedef {import("./util.js").BSBreakpoint} BSBreakpoint */
-/** @typedef {import("./overlay.js").Overlay} TOverlay */
-/** @typedef {Map<BSBreakpoint, number>} MapBreakpointsColumns */
+/** @typedef {import("./util.js").EnumBSBreakpoint} EnumBSBreakpoint */
+/** @typedef {import("./overlay.js").TOverlay} TOverlay */
+/** @typedef {Map<EnumBSBreakpoint, number>} TBreakpointColumns */
 
-/** @type {MapBreakpointsColumns} */
+/** @type {TBreakpointColumns} */
 const BREAKPOINTS_RESIZE = new Map()
 BREAKPOINTS_RESIZE.set('xs', 1)
 BREAKPOINTS_RESIZE.set('sm', 1)
@@ -17,16 +18,31 @@ BREAKPOINTS_RESIZE.set('lg', 3)
 BREAKPOINTS_RESIZE.set('xl', 5)
 BREAKPOINTS_RESIZE.set('xxl', 5)
 
-/** @type {BSBreakpoint} */
+/** @type {EnumBSBreakpoint} */
 const BREAKPOINT_TOOLTIPS_TRANSFORM = 'xl'
 
-/** @typedef FloatyOptions 
+/** @typedef {object} TFloatyOptions 
  *
  * @property {TOverlay|null} [overlayControls] - Output of ``Overlay`` *(from ``overlay.js``)*.
  * @property {object} [resize] - Enable resizing.
- * @property {MapBreakpointsColumns} [resizeBreakpoints] - Breakpoint names mapping to the number of columns for the range. By default `BREAKPOINTS_RESIZE`.
+ * @property {TBreakpointColumns} [resizeBreakpoints] - Breakpoint names mapping to the number of columns for the range. By default `BREAKPOINTS_RESIZE`.
  * @property {boolean} [tooltipsToggle] - Toggle tooltips.
- * @property {BSBreakpoint} [tooltipsToggleBreakpoint] - Breakpoint for toggleing tooltips into card descriptions. By default, ``BREAKPOINT_TOOLTIPS_TRANSFORM``.
+ * @property {EnumBSBreakpoint} [tooltipsToggleBreakpoint] - Breakpoint for toggleing tooltips into card descriptions. By default, ``BREAKPOINT_TOOLTIPS_TRANSFORM``.
+ */
+
+/**
+ * @typedef {object} TFloaty
+ *
+ * @property {HTMLElement} elem
+ * @property {Element} container
+ * @property {Element[]} cards
+ * @property {TOverlay|null} overlayControls - Controls for the included overlay.
+ * @property {(countColumns: number) => void} resizeForColumns - Resize to a specified number of columns.
+ * @property {(width?: number) => void} resizeForWidth - Resize the columns for the current window width or specified width.
+ * @property {(width?: number) => void} toggleTooltip - Toggle tooltips into card descriptions and
+ *   vice versa around some breakpoint.
+ * @property {() => void} initialize
+ *
  */
 
 /** Add responsiveness to a `floaty` element.
@@ -40,8 +56,9 @@ const BREAKPOINT_TOOLTIPS_TRANSFORM = 'xl'
  * - resizing the grid while keeping cards of equal width using fillers,
  *
  * @param {HTMLElement} elem - The target to add responsiveness to.
- * @param {FloatyOptions} options - Configuration options.
+ * @param {TFloatyOptions} options - Configuration options.
  * @throws {Error} if ``element`` is not passed, or when the floaty does not contain a `floaty-container` element.
+ * @returns {TFloaty}
  *
  * */
 export function Floaty(elem, { overlayControls, resize, tooltipsToggle, resizeBreakpoints, tooltipsToggleBreakpoint }) {
@@ -126,9 +143,7 @@ export function Floaty(elem, { overlayControls, resize, tooltipsToggle, resizeBr
    * if needed to ensure all rows are balanced. The container is updated with
    * new rows and their corresponding items.
    *
-   * @param {object} options - Options for resizing.
-   * @param {number} [options.countColumns] - The number of columns to devide the
-   *   floaty into.
+   * @param {number} [countColumns] - The number of columns to devide the floaty into.
    * @throws {Error} when no items are found and when `options.countColumns` is
    *   not negative or indeterminable.
    *
@@ -143,7 +158,7 @@ export function Floaty(elem, { overlayControls, resize, tooltipsToggle, resizeBr
    * resizeForColumns({ countColumns: 5 });
    *
    * */
-  function resizeForColumns({ countColumns }) {
+  function resizeForColumns(countColumns) {
     if (!cards.length) {
       console.log("No cards.")
       return
@@ -207,7 +222,7 @@ export function Floaty(elem, { overlayControls, resize, tooltipsToggle, resizeBr
    *
    * Resizing is determined by `resizeBreakpoints` provided to the closure or `BREAKPOINTS_RESIZE`.
    *
-   * @param {number|null} [width] - Number of pixels that the resize is for.
+   * @param {number} [width] - Number of pixels that the resize is for.
   */
   function resizeForWidth(width) {
     if (!resizeBreakpoints) throw Error()
@@ -219,7 +234,7 @@ export function Floaty(elem, { overlayControls, resize, tooltipsToggle, resizeBr
       return
     }
 
-    return resizeForColumns({ countColumns })
+    return resizeForColumns(countColumns)
   }
 
   /** Toggle the boostrap tooltip into a card description (on the card, this
@@ -274,13 +289,9 @@ export function Floaty(elem, { overlayControls, resize, tooltipsToggle, resizeBr
     bodyFromResize.map(item => item.remove())
   }
 
-  /** Toggle tooltips into card descriptions and vice versa around some
-   * breakpoint.
-   *
-   * @param {number|null} [width] - width at which to toggle.
-   */
+  /** @param {number} [width] - width at which to toggle. */
   function toggleTooltip(width) {
-    width = width || BREAKPOINTS.get(tooltipsToggleBreakpoint || BREAKPOINT_TOOLTIPS_TRANSFORM)?.start || null
+    width = width || BREAKPOINTS.get(tooltipsToggleBreakpoint || BREAKPOINT_TOOLTIPS_TRANSFORM)?.start || undefined
     if (!width) throw Error("Failed to determine `width`.")
 
     tooltips.map(item => (
@@ -328,23 +339,27 @@ export function Floaty(elem, { overlayControls, resize, tooltipsToggle, resizeBr
 
 
     // NOTE: Add fillers.
-    resizeForColumns({})
+    resizeForColumns()
 
   }
 
   initialize()
 
+  /** @type {TFloaty} */
   return {
-    elem, container, cards, overlayControls,
+    elem,
+    container,
+    cards,
+    overlayControls: (overlayControls || null),
     resizeForColumns,
     resizeForWidth,
     toggleTooltip,
     initialize,
-    _tooltips: tooltips,
-    _toggleTooltipToCardDescription: toggleTooltipToCardDescription,
-    _toggleCardDescriptionToTooltip: toggleCardDescriptionToTooltip,
-    _createRow: createRow,
-    _createEmptyItem: createEmptyItem,
+    // _tooltips: tooltips,
+    // _toggleTooltipToCardDescription: toggleTooltipToCardDescription,
+    // _toggleCardDescriptionToTooltip: toggleCardDescriptionToTooltip,
+    // _createRow: createRow,
+    // _createEmptyItem: createEmptyItem,
   }
 }
 

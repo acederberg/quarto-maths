@@ -1,7 +1,7 @@
-//@ts-check
+// @ts-check
 /** @module overlay */
 
-/** @type {Map<string, Overlay>} */
+/** @type {Map<string, TOverlay>} */
 export const OverlayInstances = new Map()
 const COLORIZE_VERBOSE = false
 const OVERLAY_VERBOSE = false
@@ -13,8 +13,7 @@ const OVERLAY_ITEM_TRANSFORMATION_TIME = 500
 
 /** @namespace overlay */
 /** 
- * @memberof overlay
- * @typedef {object} Overlay
+ * @typedef {object} TOverlay
  *
  * @property {HTMLElement} elem - Outmost overlay element.
  * @property {Element} overlayContent - Overlay content element, should contain content items and navbar.
@@ -24,55 +23,50 @@ const OVERLAY_ITEM_TRANSFORMATION_TIME = 500
  * @property {Map<string, number>} keysToIndices
  * @property {Map<number, string>} indicesToKeys
  *
- * @property {HideOverlay} hideOverlay - Hide the overlay, its content, and all of the content items.
- * @property {HideOverlayContentItems} hideOverlayContentItems - Hide all overlay content items.
- * @property {ShowOverlay} showOverlay - Show the overlay (but not a content item).
- * @property {ShowOverlayContentItem} showOverlayContentItem - Show a content item by key.
- * @property {AddContent} addContent - Add a page to the overlay.
- * @property {RestoreOverlay} restoreOverlay - When the page has been refreshed, use session storage to show the overlay again. 
- * @property {NextOverlayContentItem} nextOverlayContentItem - Show overlay content items.
+ * @property {THideOverlay} hideOverlay - Hide the overlay, its content, and all of the content items.
+ * @property {THideOverlayContentItems} hideOverlayContentItems - Hide all overlay content items.
+ * @property {TShowOverlay} showOverlay - Show the overlay (but not a content item).
+ * @property {TShowOverlayContentItem} showOverlayContentItem - Show a content item by key.
+ * @property {TAddContent} addContent - Add a page to the overlay.
+ * @property {TRestoreOverlay} restoreOverlay - When the page has been refreshed, use session storage to show the overlay again. 
+ * @property {TNextOverlayContentItem} nextOverlayContentItem - Show overlay content items.
  * @property {(contentItem: HTMLElement) => void} colorizeContentItem
- * @property {(colorize: Partial<ColorizeOptions>) => void} colorize
+ * @property {(colorize: Partial<TColorizeOptions>) => void} colorize
  *
- * @property {OverlayState} state
+ * @property {TOverlayState} state
  */
 
 /**
- * @memberof overlay
- * @callback ShowOverlayContentItem
+ * @callback TShowOverlayContentItem
  *
  * @param {string} key - `data-key` for the content item.
- * @param {Partial<ShowOverlayContentItemOptions>} [options]
+ * @param {Partial<TShowOverlayContentItemOptions>} [options]
  *
  * @returns {HTMLElement|null}
  *
  */
 /**
- * @memberof overlay
- * @typedef {object} ShowOverlayContentItemOptions
+ * @typedef {object} TShowOverlayContentItemOptions
  *
- * @property {boolean|null} keepLocalStorage
- * @property {boolean|null} isAnimated
- * @property {boolean|null} animationToRight
+ * @property {boolean} [keepLocalStorage]
+ * @property {boolean} [isAnimated]
+ * @property {boolean} [animationToRight]
  */
 
 /**
- * @memberof overlay
- * @callback HideOverlayContentItems
+ * @callback THideOverlayContentItems
  *
- * @param {Partial<HideOverlayContentItemsOptions>} [options]
+ * @param {Partial<THideOverlayContentItemsOptions>} [options]
  * @returns {void}
  */
 /**
- * @memberof overlay
- * @typedef HideOverlayContentItemsOptions
+ * @typedef THideOverlayContentItemsOptions
  *
- * @property {boolean|null} keepLocalStorage
+ * @property {boolean} [keepLocalStorage]
  */
 
 /**
- * @memberof overlay
- * @callback AddContent
+ * @callback TAddContent
  *
  * @param {HTMLElement} elem - Element to add to overlay.
  * @returns {void}
@@ -81,40 +75,35 @@ const OVERLAY_ITEM_TRANSFORMATION_TIME = 500
 
 /**
  *
- * @memberof overlay
- * @callback HideOverlay
+ * @callback THideOverlay
  *
- * @param {Partial<HideOverlayOptions>} [options]
+ * @param {Partial<THideOverlayOptions>} [options]
  * @returns {void}
  */
 /**
- * @typedef HideOverlayOptions
+ * @typedef THideOverlayOptions
  *
- * @property {boolean|null} isNotAnimated
- * @property {boolean|null} keepLocalStorage
+ * @property {boolean} [isNotAnimated]
+ * @property {boolean} [keepLocalStorage]
  *
  */
 
 /**
  *
- * @memberof overlay
- * @callback RestoreOverlay
+ * @callback TRestoreOverlay
  *
  * @returns {void}
  */
 
 /**
- * @description Show the overlay.
- * @memberof overlay
- * @callback ShowOverlay
+ * @callback TShowOverlay
  *
  * @returns {void}
  */
 
 /** 
  *
- * @memberof overlay
- * @callback NextOverlayContentItem
+ * @callback TNextOverlayContentItem
  *
  * @param {number} incr - Number of pages to move over.
  * @returns {void}
@@ -123,22 +112,20 @@ const OVERLAY_ITEM_TRANSFORMATION_TIME = 500
 
 /** State for the `Overlay` closure.
  *
- * @memberof overlay
- * @typedef OverlayState
+ * @typedef TOverlayState
  *
  * @property {number} length - The total number of content items.
  * @property {number|null} currentIndex - The current index of the item displayed in the overlay.
  * @property {string|null} currentKey - The current key of the item display in the overlay.
  * @property {boolean|null} overlayIsOpen - Is the overlay open or not.
- * @property {Colorize|null} colorize - Colorize tool.
+ * @property {TColorize|null} colorize - Colorize tool.
  */
 
 
 /** @namespace colorize */
 
 /**
- * @memberof colorize
- * @typedef ColorizeState
+ * @typedef TColorizeState
  *
  * @property {string|null} color
  * @property {string|null} colorPrev
@@ -157,8 +144,7 @@ const OVERLAY_ITEM_TRANSFORMATION_TIME = 500
 */
 
 /**
- * @memberof colorize
- * @typedef ColorizeOptions
+ * @typedef TColorizeOptions
  *
  * @property {string|null} color
  * @property {string|null} colorText
@@ -167,8 +153,7 @@ const OVERLAY_ITEM_TRANSFORMATION_TIME = 500
  */
 
 /**
- * @memberof colorize
- * @callback ColorizeSetter
+ * @callback TColorizeSetter
  *
  * @param {string} color
  * @returns void
@@ -176,7 +161,7 @@ const OVERLAY_ITEM_TRANSFORMATION_TIME = 500
 
 /**
  * @namespace colorize
- * @callback UpdateElement
+ * @callback TUpdateElement
  *
  * @param {HTMLElement} elem
  * @param {(color: string|null) => string[]} mkClasses
@@ -184,21 +169,20 @@ const OVERLAY_ITEM_TRANSFORMATION_TIME = 500
  */
 
 /**
- * @memberof colorize
- * @typedef Colorize
+ * @typedef TColorize
  *
- * @property {ColorizeSetter} setColorText - Update text classes for a new color.
- * @property {ColorizeSetter} setColor - Update background and border classes for a new color.
- * @property {ColorizeSetter} setColorTextHover - Update the color of text when hovered.
- * @property {(options: Partial<ColorizeOptions>) => void} restart - Start again with provided options.
+ * @property {TColorizeSetter} setColorText - Update text classes for a new color.
+ * @property {TColorizeSetter} setColor - Update background and border classes for a new color.
+ * @property {TColorizeSetter} setColorTextHover - Update the color of text when hovered.
+ * @property {(options: Partial<TColorizeOptions>) => void} restart - Start again with provided options.
  * @property {() => void} initialize
  * @property {() => void} down - Remove previous classes.
  * @property {() => void} up - Add current classes.
  * @property {() => void} revert
- * @property {UpdateElement} updateElem
+ * @property {TUpdateElement} updateElem
  * @property {(event: Event) => void} mouseOut
  * @property {(event: Event) => void} mouseOver
- * @property {ColorizeState} state
+ * @property {TColorizeState} state
  */
 
 
@@ -206,16 +190,16 @@ const OVERLAY_ITEM_TRANSFORMATION_TIME = 500
  * Tool for setting overlay color.
  * This should be simplified later using ``scss``.
  *
- * @param {Overlay} overlay - Overlay instance on which colorization will take effect.
- * @param {Partial<ColorizeOptions>} options - Options for colorize.
+ * @param {TOverlay} overlay - Overlay instance on which colorization will take effect.
+ * @param {Partial<TColorizeOptions>} options - Options for colorize.
  *
- * @returns {Colorize}
+ * @returns {TColorize}
  */
 export function Colorize(overlay, { color, colorText, colorTextHover }) {
 
   COLORIZE_VERBOSE && console.log(`Creating colorize for overlay with id \`${overlay.elem.id}\`.`)
 
-  /** @type {ColorizeState} */
+  /** @type {TColorizeState} */
   const state = {
     // Colors
     color: null, colorPrev: null,
@@ -230,7 +214,7 @@ export function Colorize(overlay, { color, colorText, colorTextHover }) {
   }
 
 
-  /** @type {ColorizeSetter} */
+  /** @type {TColorizeSetter} */
   function setColor(color) {
     state.colorPrev = state.color
     state.classBackgroundPrev = state.classBackground
@@ -241,7 +225,7 @@ export function Colorize(overlay, { color, colorText, colorTextHover }) {
     state.classBorder = `border-${color}`
   }
 
-  /** @type {ColorizeSetter} */
+  /** @type {TColorizeSetter} */
   function setColorText(color) {
     state.colorTextPrev = state.colorText
     state.classTextPrev = state.classText
@@ -250,7 +234,7 @@ export function Colorize(overlay, { color, colorText, colorTextHover }) {
     state.classText = `text-${color}`
   }
 
-  /** @type {ColorizeSetter} */
+  /** @type {TColorizeSetter} */
   function setColorTextHover(color) {
     state.colorTextHoverPrev = state.colorTextHover
     state.classTextHover = state.classTextHoverPrev
@@ -288,7 +272,7 @@ export function Colorize(overlay, { color, colorText, colorTextHover }) {
     })
   }
 
-  /** @type {(options: Partial<ColorizeOptions>) => void} */
+  /** @type {(options: Partial<TColorizeOptions>) => void} */
   function restart({ color, colorText, colorTextHover }) {
     if (color) setColor(color)
     if (colorText) setColorText(colorText)
@@ -318,7 +302,7 @@ export function Colorize(overlay, { color, colorText, colorTextHover }) {
     }
   */
 
-  /** @type UpdateElement */
+  /** @type TUpdateElement */
   function updateElem(elem, mkClasses) {
     return () => {
       const classes = mkClasses(state.color)
@@ -369,8 +353,8 @@ export function Colorize(overlay, { color, colorText, colorTextHover }) {
 /**
  * @param {HTMLElement} overlay
  * @param {object} options
- * @param {Partial<ColorizeOptions>} options.colorizeOptions
- * @returns {Overlay}
+ * @param {Partial<TColorizeOptions>} options.colorizeOptions
+ * @returns {TOverlay}
  */
 export function Overlay(overlay, { colorizeOptions } = { colorizeOptions: {} }) {
   if (!overlay.id) throw Error("Overlay missing required `id`.")
@@ -383,7 +367,7 @@ export function Overlay(overlay, { colorizeOptions } = { colorizeOptions: {} }) 
 
   // NOTE: Create ordered keys and map to keys.
 
-  /** @type {OverlayState} */
+  /** @type {TOverlayState} */
   const state = { length: 0, currentIndex: null, currentKey: null, overlayIsOpen: null, colorize: null }
 
   /** @type {Map<string, number>} */
@@ -399,7 +383,7 @@ export function Overlay(overlay, { colorizeOptions } = { colorizeOptions: {} }) 
   Array.from(overlayContent.getElementsByClassName("overlay-content-item")).map(addContent)
 
 
-  /** @type {AddContent} */
+  /** @type {TAddContent} */
   function addContent(elem) {
     const key = elem.dataset.key
     if (!key) throw Error(`No key for \`${elem}\`.`)
@@ -412,8 +396,8 @@ export function Overlay(overlay, { colorizeOptions } = { colorizeOptions: {} }) 
   }
 
 
-  /** @type {HideOverlay} */
-  function hideOverlay({ isNotAnimated, keepLocalStorage } = { isNotAnimated: null, keepLocalStorage: null }) {
+  /** @type {THideOverlay} */
+  function hideOverlay({ isNotAnimated, keepLocalStorage } = {}) {
     OVERLAY_VERBOSE && console.log(`Hiding overlay \`${overlay.id}\`.`)
     overlay.style.opacity = '0'
     setTimeout(() => {
@@ -422,7 +406,7 @@ export function Overlay(overlay, { colorizeOptions } = { colorizeOptions: {} }) 
       overlayContent.classList.add("hidden")
     }, isNotAnimated ? 0 : 300)
 
-    hideOverlayContentItems({ keepLocalStorage: keepLocalStorage })
+    hideOverlayContentItems({ keepLocalStorage })
 
     // Update state.
     state.overlayIsOpen = false
@@ -436,7 +420,7 @@ export function Overlay(overlay, { colorizeOptions } = { colorizeOptions: {} }) 
   }
 
 
-  /** @type {ShowOverlay} */
+  /** @type {TShowOverlay} */
   function showOverlay() {
     OVERLAY_VERBOSE && console.log(`Showing overlay \`${overlay.id}\`.`)
 
@@ -453,7 +437,7 @@ export function Overlay(overlay, { colorizeOptions } = { colorizeOptions: {} }) 
   }
 
 
-  /** @type {RestoreOverlay} */
+  /** @type {TRestoreOverlay} */
   function restoreOverlay() {
     if (!window.localStorage.getItem("overlayKey") || (window.localStorage.getItem("overlayId") != overlay.id)) { return }
 
@@ -471,7 +455,7 @@ export function Overlay(overlay, { colorizeOptions } = { colorizeOptions: {} }) 
   }
 
 
-  /** @type {HideOverlayContentItems} */
+  /** @type {THideOverlayContentItems} */
   function hideOverlayContentItems({ keepLocalStorage } = { keepLocalStorage: false }) {
 
     Array.from(overlayContentChildren.values()).map(child => {
@@ -487,9 +471,8 @@ export function Overlay(overlay, { colorizeOptions } = { colorizeOptions: {} }) 
   }
 
 
-  /** @type {ShowOverlayContentItem} */
+  /** @type {TShowOverlayContentItem} */
   function showOverlayContentItem(key, { keepLocalStorage, isAnimated, animationToRight } = {
-    keepLocalStorage: null,
     isAnimated: true,
     animationToRight: true,
   }) {
@@ -573,7 +556,7 @@ export function Overlay(overlay, { colorizeOptions } = { colorizeOptions: {} }) 
 
   }
 
-  /** @type {NextOverlayContentItem} */
+  /** @type {TNextOverlayContentItem} */
   function nextOverlayContentItem(incr) {
     const currentIndex = state.currentIndex || 0
     let nextIndex = (currentIndex + incr) % state.length
@@ -583,7 +566,7 @@ export function Overlay(overlay, { colorizeOptions } = { colorizeOptions: {} }) 
     if (nextKey && currentIndex != nextIndex) showOverlayContentItem(nextKey, { isAnimated: true, animationToRight: incr > 0 })
   }
 
-  /** @param {Partial<ColorizeOptions>} options */
+  /** @param {Partial<TColorizeOptions>} options */
   function colorize({ color, colorText, colorTextHover } = {}) {
     if (!state.colorize) state.colorize = Colorize(overlayClosure, { color, colorText, colorTextHover })
     else state.colorize.restart({ color, colorText, colorTextHover })
@@ -635,7 +618,7 @@ export function Overlay(overlay, { colorizeOptions } = { colorizeOptions: {} }) 
     })
   }
 
-  /** @type {Overlay} */
+  /** @type {TOverlay} */
   const overlayClosure = {
     elem: overlay, overlayContent: overlayContent, overlayContentItems,
     controls: controls, colorize, hideOverlay, hideOverlayContentItems, showOverlay,

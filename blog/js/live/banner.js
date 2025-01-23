@@ -1,12 +1,12 @@
 // @ts-check
 
-/** @typedef {import("../overlay.js").Overlay} TOverlay */
+/** @typedef {import("../overlay.js").TOverlay} TOverlay */
 /** @typedef {import("./quarto.js").TQuartoRender} TQuartoRender */
 /** @typedef {import("./input.js").TForm} TForm */
 /** @typedef {import("../util.js").TButton} TButton */
 
 /**
- * @typedef {object} TLiveControlsOptions
+ * @typedef {object} TControlsOptions
  *
  * @property {TOverlay} overlayInputs - TOverlay to put api request inputs into.
  * @property {TOverlay} overlayResponses - Overlay to display api responses in.
@@ -23,42 +23,46 @@
  */
 
 /**
- * @typedef TLiveBannerButton
+ * @typedef TBannerButton
  *
  * @property {TButton} button
  * @property {() => void} action
  */
 
 /**
- * @typedef {object} TLiveBannerButtonForm
+ * @typedef {object} TBannerButtonForm
  *
  * @property {TButton} button
  * @property {() => void} action
  * @property {TForm} form
  */
 
-/** @typedef {object} TLiveBannerControls
+/** @typedef {object} TBannerControls
  *
  * @property {HTMLElement} elem
- * @property {Map<string, TLiveBannerButton|TLiveBannerButtonForm>} buttons
+ * @property {Map<string, TBannerButton|TBannerButtonForm>} buttons
  * @property {any[]} tooltips
  */
 
 /**
- * @callback TLiveBannerShow
+ * @callback TBannerShow
  *
- * @param {TQuartoRender} logItem -
- * @param {object} options -
- * @param {boolean} options.newItem -
+ * @param {TQuartoRender} logItem
+ * @param {TBannerShowOptions} options
  * @returns void
  */
 
+/**
+ * @typedef {object} TBannerShowOptions
+ * @property {boolean} newItem
+ */
 
-/** @typedef {object} TLiveBanner
+
+/** @typedef {object} TBanner
  *
  * @property {HTMLElement} elem
- * @property {TLiveBannerControls} bannerControls
- * @property {TLiveBannerShow} show
+ * @property {TBannerControls} bannerControls
+ * @property {TBannerShow} show
  * @property {() => void} initialize
  *
  */
@@ -73,8 +77,8 @@ import { Button } from "../util.js"
 import * as util from "./util.js"
 import * as input from "./input.js"
 
-/** @type {Map<string, TLiveBanner>} */
-export const LiveBannerInstances = new Map()
+/** @type {Map<string, TBanner>} */
+export const BannerInstances = new Map()
 
 /* ------------------------------------------------------------------------- */
 /* RESPONSES */
@@ -159,7 +163,7 @@ export async function ServerResponse(response, { overlayResponses, show }) {
  *
  * @param {object} options
  * @param {TOverlay} options.overlayRenders
- * @returns {TLiveBannerButton}
+ * @returns {TBannerButton}
  *
  */
 export function ButtonShowLatestRender({ overlayRenders }) {
@@ -183,7 +187,7 @@ export function ButtonShowLatestRender({ overlayRenders }) {
  * @param {object} options
  * @param {TOverlay} options.overlayResponses
  * @param {TOverlay} options.overlayInputs
- * @returns {TLiveBannerButtonForm}
+ * @returns {TBannerButtonForm}
  */
 export function ButtonGetAllRenders({ overlayResponses, overlayInputs }) {
   async function action() {
@@ -223,7 +227,7 @@ export function ButtonGetAllRenders({ overlayResponses, overlayInputs }) {
  * @param {object} options
  * @param {TOverlay} options.overlayResponses
  * @param {TOverlay} options.overlayInputs
- * @returns {TLiveBannerButtonForm}
+ * @returns {TBannerButtonForm}
  */
 export function ButtonRender({ overlayInputs, overlayResponses }) {
   async function action() {
@@ -277,7 +281,7 @@ export function ButtonRender({ overlayInputs, overlayResponses }) {
 /**
  * @param {object} options
  * @param {TOverlay} options.overlayResponses
- * @returns {TLiveBannerButton}
+ * @returns {TBannerButton}
  */
 export function ButtonRenderCurrent({ overlayResponses }) {
 
@@ -298,7 +302,7 @@ export function ButtonRenderCurrent({ overlayResponses }) {
  * @param {object} options
  * @param {TOverlay} options.overlayInputs
  * @param {TOverlay} options.overlayResponses
- * @returns {TLiveBannerButtonForm}
+ * @returns {TBannerButtonForm}
  */
 export function ButtonShowLastRendered({ overlayInputs, overlayResponses }) {
   async function action() {
@@ -335,7 +339,7 @@ export function ButtonShowLastRendered({ overlayInputs, overlayResponses }) {
 /**
  * @param {object} options
  * @param {TOverlay} options.overlayResponses
- * @returns {TLiveBannerButton}
+ * @returns {TBannerButton}
  *
  */
 export function ButtonShowServerResponses({ overlayResponses }) {
@@ -372,7 +376,7 @@ export function ButtonShowServerResponses({ overlayResponses }) {
 /**
  * @param {object} options
  * @param {TOverlay} options.overlayResponses
- * @returns {TLiveBannerButton}
+ * @returns {TBannerButton}
  */
 export function ButtonClearRenders({ overlayResponses }) {
   async function action() {
@@ -390,7 +394,7 @@ export function ButtonClearRenders({ overlayResponses }) {
 /**
  * @param {object} options
  * @param {TOverlay} options.overlayResponses
- * @returns {TLiveBannerButton}
+ * @returns {TBannerButton}
  */
 export function ButtonClearLogs({ overlayResponses }) {
   async function action() {
@@ -416,12 +420,12 @@ export function ButtonClearLogs({ overlayResponses }) {
  * 2. Responses should be be shown in a separate overlay.
  * 3. Errors should be pushed to a separate overlay where they can be observed.
  *
- * @param {TLiveControlsOptions} options
- * @returns {TLiveBannerControls}
+ * @param {TControlsOptions} options
+ * @returns {TBannerControls}
  */
-export function LiveBannerControls(options) {
+export function BannerControls(options) {
 
-  /** @type Map<string, TLiveBannerButton|TLiveBannerButtonForm> */
+  /** @type Map<string, TBannerButton|TBannerButtonForm> */
   const buttons = new Map(Object.entries({
     showLatestRender: ButtonShowLatestRender(options),
     showServerResponses: ButtonShowServerResponses(options),
@@ -456,10 +460,10 @@ export function LiveBannerControls(options) {
  * This should make it so that any module can easily dispatch renders, view
  * render data, etc.
  *
- * @param {TLiveControlsOptions} options -
- * @returns {TLiveBanner} 
+ * @param {TControlsOptions} options -
+ * @returns {TBanner} 
  */
-export function LiveBanner({ overlayInputs, overlayResponses, overlayRenders }) {
+export function Banner({ overlayInputs, overlayResponses, overlayRenders }) {
   /* Re-render this page. */
 
   if (!overlayInputs || !overlayResponses || !overlayRenders) {
@@ -471,7 +475,7 @@ export function LiveBanner({ overlayInputs, overlayResponses, overlayRenders }) 
     document.body.appendChild(banner)
   }
 
-  /** @type {TLiveBannerShow} */
+  /** @type {TBannerShow} */
   function show(logItem, { newItem }) {
     console.log("newItem", newItem, "|")
     bannerTextContainer.innerHTML = `
@@ -526,7 +530,7 @@ export function LiveBanner({ overlayInputs, overlayResponses, overlayRenders }) 
   banner.appendChild(bannerContent)
 
   // NOTE: Create the banner controls.
-  const bannerControls = LiveBannerControls({ overlayInputs, overlayResponses, overlayRenders })
+  const bannerControls = BannerControls({ overlayInputs, overlayResponses, overlayRenders })
   bannerControls.buttons.get('bannerClose')?.button.elem.addEventListener("click", () => banner.remove())
   bannerContent.appendChild(bannerControls.elem)
 
@@ -543,7 +547,7 @@ export function LiveBanner({ overlayInputs, overlayResponses, overlayRenders }) 
   initialize()
 
   const closure = { elem: banner, bannerControls, show, initialize }
-  LiveBannerInstances.set("it", closure)
+  BannerInstances.set("it", closure)
   return closure
 }
 

@@ -1,12 +1,12 @@
 // @ts-check
 //
-/** @type Map<string, TodoTable> */
+/** @type {Map<string, TTodoTable>} */
 export const TodoTableInstances = new Map()
 
 /** 
- * @typedef TodoTable
+ * @typedef TTodoTable
  *
- * @property {HTMLElement} elem - outermost element
+ * @property {HTMLElement|Element} elem - outermost element
  * @property {HTMLElement[]} tables - All tables within `elem`
  * @property {HTMLElement[]} rows - All rows with `elem`.
  * @property {(row: HTMLElement) => void} highlightRow - Highlight a row.
@@ -22,9 +22,10 @@ export const TodoTableInstances = new Map()
  * broken in the version that I am currently using) wrap tables in a div with
  * the id.
  *
- * @param {HTMLElement} elem - The table element wrapped in a table group. This must
+ * @param {HTMLElement|Element} elem - The table element wrapped in a table group. This must
  *   have an ``id`` that starts with ``tbl-``.
  * @throws {Error} if the identifier is malformed or missing.
+ * @returns {TTodoTable}
  *
  */
 export function TodoTable(elem) {
@@ -52,7 +53,7 @@ export function TodoTable(elem) {
 
   initialize()
 
-  /** @type TodoTable */
+  /** @type TTodoTable */
   const closure = { elem, tables, rows, highlightRow, initialize }
   TodoTableInstances.set(elem.id, closure)
 
@@ -62,7 +63,8 @@ export function TodoTable(elem) {
 
 export function hydrate() {
   const figs = Array.from(document.querySelectorAll(".todo-table.quarto-figure"))
-  // @ts-ignore
-  figs.map(TodoTable)
+  /** @type {(elem: Element) => TTodoTable} */
+  const callback = (elem) => TodoTable(elem)
+  figs.map(callback)
 }
 

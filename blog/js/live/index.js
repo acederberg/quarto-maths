@@ -9,9 +9,9 @@
  */
 
 
-export { Quarto, QuartoLogItem, QuartoOverlayItem } from "./quarto.js"
-export { Server } from "./server.js"
-export { LiveBanner, LiveBannerControls } from "./banner.js"
+export { Quarto, QuartoInstances, QuartoLogItem, QuartoOverlayItem } from "./quarto.js"
+export { Server, ServerInstances } from "./server.js"
+export { Banner, BannerInstances, BannerControls } from "./banner.js"
 
 
 

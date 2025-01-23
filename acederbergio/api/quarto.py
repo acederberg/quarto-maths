@@ -15,7 +15,8 @@ import rich
 import rich.table
 import typer
 import watchfiles
-import yaml
+
+# import yaml
 import yaml_settings_pydantic as ysp
 from typing_extensions import Doc, Self
 
@@ -23,10 +24,10 @@ from acederbergio import db, env, util
 from acederbergio.api import schemas
 
 logger = env.create_logger(__name__)
-PATH_BLOG_HANDLER_STATE = env.CONFIGS / ".blog-handler-state"
-if not os.path.exists(PATH_BLOG_HANDLER_STATE):
-    with open(PATH_BLOG_HANDLER_STATE, "w") as file:
-        yaml.dump({}, file)
+# PATH_BLOG_HANDLER_STATE = env.CONFIGS / ".blog-handler-state"
+# if not os.path.exists(PATH_BLOG_HANDLER_STATE):
+#     with open(PATH_BLOG_HANDLER_STATE, "w") as file:
+#         yaml.dump({}, file)
 
 
 # NOTE: This is possible with globs, but I like practicing DSA.

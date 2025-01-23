@@ -1,16 +1,16 @@
+// @ts-check
+
 /**
  * @typedef {object} Range
  *
  * @property {number|null} [start]
  * @property {number|null} [stop]
  *
+ *
+ * @typedef {"xs" | "sm" | "md" | "lg" | "xl" | "xxl" } EnumBSBreakpoint
  */
 
-/**
- * @typedef {"xs" | "sm" | "md" | "lg" | "xl" | "xxl" } BSBreakpoint
- */
-
-/** @type Map<BSBreakpoint, Range> */
+/** @type Map<EnumBSBreakpoint, Range> */
 export const BREAKPOINTS = new Map()
 BREAKPOINTS.set('xs', { stop: 576 })
 BREAKPOINTS.set('sm', { start: 576, stop: 768 })
@@ -21,7 +21,7 @@ BREAKPOINTS.set('xxl', { start: 1400 })
 
 /**
  * @param {number} width
- * @param {BSBreakpoint} specifier 
+ * @param {EnumBSBreakpoint} specifier 
  * @returns {boolean}
  */
 export function isBreakpoint(width, specifier) {
@@ -39,7 +39,7 @@ export function isBreakpoint(width, specifier) {
 
 /**
 * @param {number|null} [width] - Width in pixels.
-* @returns {BSBreakpoint} Breakpoint range in which the width falls.
+* @returns {EnumBSBreakpoint} Breakpoint range in which the width falls.
 *
 * If start is not defined, then ``width`` only needs to be checked against upper bound.
 * If stop is not defined, then ``width`` only needs to be checked against lower bound.

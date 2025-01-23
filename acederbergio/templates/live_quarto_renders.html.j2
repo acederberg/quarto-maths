@@ -1,6 +1,4 @@
 {# vi: set ft=django : #}
-
-
 {% if quarto.include_logs %}
   <div id="{{ quarto.container.identifier }}" class="{{ quarto.container.classes | default([]) | join(" ") }} {{ element.classes | join(" ") }}">
     <table  id="{{ quarto.table.identifier }}" class="{{ quarto.table.classes | default([]) | join(" ") }}">

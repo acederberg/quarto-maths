@@ -578,7 +578,7 @@ class ConfigFloatyContainer(util.BaseConfig):
         # js += f"globalThis.{owner.js_name} = {owner.js_name}\n"
         # js += f'console.log("overlay", {overlay.js_name if overlay is not None else "null"})'
 
-        js = util.JINJA_ENV.get_template("floaty.j2").render(
+        js = util.JINJA_ENV.get_template("floaty.js.j2").render(
             owner=owner,
             overlay=overlay,
             element=element,

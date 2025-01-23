@@ -257,7 +257,9 @@ export function Server({
     ws.addEventListener("open", () => console.log("Websocket connection opened for logs."))
   }
 
-  return { ws, table, container, handleWsMessage }
+  const closure = { ws, table, container, handleWsMessage }
+  ServerInstances.set("it", closure)
+  return closure
 }
 
 

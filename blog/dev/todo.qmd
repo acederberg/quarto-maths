@@ -154,6 +154,9 @@ There are some things that must be handled in general.
 | Tests for JS Modules                          |           | Using something like `JSDom`, which can remove the requirement for the browser. This will make integration tests much easier.     |
 | PDF Output Validation                         |           | Distributing a resume with broken links is not a good idea, for instance. `pdf-lib`, `pdf.js`, etc.                               |
 | Paralax scroll for landing page and overlay   |           |                                                                                                                                   |
+| Leetcode Filter                               |           | Validate leetcode submissions and make the metadata into something useful for the user.                                           |
+| `acederbergio` should be one filter           |           | This will reduce the overhead of serializing/deserializing between pipes, make fewer files in `blog/filters`, etc.                |
+| Template `javascript` tscheck                 |           | JS should be built into modules that the page should include using the network. These modules should be checked by tscheck.       |
 
 : Objectives Quarter 1, 2025 { .todo-table }
 

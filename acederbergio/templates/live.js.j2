@@ -1,4 +1,5 @@
 {# vi: set ft=django : #}
+// @ts-check
 
 import * as overlay from "/js/overlay.js"
 import * as live from "/js/live/index.js"
@@ -20,7 +21,7 @@ function hydrateLive(event) {
       reload: {{ live.quarto.reload | lower }},
 
       overlayRenders: overlayRenders,
-      banner: live.LiveBanner({
+      banner: live.Banner({
         overlayInputs: overlay.OverlayInstances.get('{{ live.quarto.inputs.identifier }}'),
         overlayResponses: overlay.OverlayInstances.get('{{ live.quarto.responses.identifier }}'),
         overlayRenders: overlayRenders,

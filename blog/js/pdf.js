@@ -1,4 +1,5 @@
 // @ts-nocheck
+
 const PDF_VIEW_VERBOSE = true
 
 function QuartoPDFViewer(quarto, { iframeLeft, iframeRight }) {

@@ -1,6 +1,6 @@
 // @ts-check
 
-/** @typedef {import("../overlay.js").Overlay} TOverlay */
+/** @typedef {import("../overlay.js").TOverlay} TOverlay */
 /** @typedef {import("../util.js").TButton} TButton */
 /** @typedef {import("../util.js").TButtonOptions} TButtonOptions */
 
