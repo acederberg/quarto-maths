@@ -7,59 +7,45 @@
 
 /**
  * @typedef {object} TControlsOptions
- *
  * @property {TOverlay} overlayInputs - TOverlay to put api request inputs into.
  * @property {TOverlay} overlayResponses - Overlay to display api responses in.
  * @property {TOverlay} overlayRenders - Overlay to show all renders so far.
  * @property {string|null} [bannerTextInnerHTML] - Banner text message.
  *
- */
-
-
-/** @typedef {object} TServerResponseOptions
  *
+ * @typedef {object} TServerResponseOptions
  * @property {TOverlay} overlayResponses -
  * @property {boolean} [show=true] -
- */
-
-/**
- * @typedef TBannerButton
  *
+ *
+ * @typedef TBannerButton
  * @property {TButton} button
  * @property {() => void} action
- */
-
-/**
- * @typedef {object} TBannerButtonForm
  *
+ *
+ * @typedef {object} TBannerButtonForm
  * @property {TButton} button
  * @property {() => void} action
  * @property {TForm} form
- */
-
-/** @typedef {object} TBannerControls
  *
+ *
+ * @typedef {object} TBannerControls
  * @property {HTMLElement} elem
  * @property {Map<string, TBannerButton|TBannerButtonForm>} buttons
  * @property {any[]} tooltips
- */
-
-/**
- * @callback TBannerShow
  *
+ *
+ * @callback TBannerShow
  * @param {TQuartoRender} logItem
  * @param {TBannerShowOptions} options
  * @returns void
- */
-
-/**
+ *
+ *
  * @typedef {object} TBannerShowOptions
  * @property {boolean} newItem
- */
-
-
-/** @typedef {object} TBanner
  *
+ *
+ * @typedef {object} TBanner
  * @property {HTMLElement} elem
  * @property {TBannerControls} bannerControls
  * @property {TBannerShow} show

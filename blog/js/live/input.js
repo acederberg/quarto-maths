@@ -8,7 +8,6 @@ import { Button } from "../util.js"
 
 /**
  * @typedef {object} TInput
- *
  * @property {HTMLElement} elem
  * @property {HTMLInputElement|HTMLSelectElement} input
  * @property {HTMLElement} errorMsg
@@ -16,11 +15,8 @@ import { Button } from "../util.js"
  * @property {() => void } onInvalid
  * @property {() => void } onValid
  *
- */
-
-/**
- * @typedef TFormOptions
  *
+ * @typedef TFormOptions
  * @property {string} baseId - Identifier prefix for form and form elements.
  * @property {TInput[]} inputs - Inputs to be put into the form.
  * @property {TOverlay} overlayInputs - Overlay into which the form will go.
@@ -28,20 +24,17 @@ import { Button } from "../util.js"
  * @property {string} [title] - Form title.
  * @property {Partial<TButtonOptions>} [buttonOptions={}] - Options for the button.
  *
- */
-
-/**
+ *
  * @typedef TForm
-  *
-  * @property {HTMLDivElement} elem
-  * @property {HTMLDivElement} form
-  * @property {TButton} button
-  * @property {TInput[]} inputs
-  * @property {() => void} updateButtonColor
-  * @property {() => void} onRequestOver - Button is no longer disabled, hide spinner, hide overlay, revert error color.
-  * @property {() => void} onRequestSent - Disable button and make spinner visible.
-  * @property {() => void} onInvalid - Turn overlay orange
-  */
+ * @property {HTMLDivElement} elem
+ * @property {HTMLDivElement} form
+ * @property {TButton} button
+ * @property {TInput[]} inputs
+ * @property {() => void} updateButtonColor
+ * @property {() => void} onRequestOver - Button is no longer disabled, hide spinner, hide overlay, revert error color.
+ * @property {() => void} onRequestSent - Disable button and make spinner visible.
+ * @property {() => void} onInvalid - Turn overlay orange
+ */
 
 
 /* ------------------------------------------------------------------------- */

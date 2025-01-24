@@ -11,18 +11,14 @@ const OVERLAY_ITEM_TRANSFORMATION_TIME = 500
 // ------------------------------------------------------------------------- //
 // TYPES
 
-/** @namespace overlay */
 /** 
  * @typedef {object} TOverlay
- *
  * @property {HTMLElement} elem - Outmost overlay element.
  * @property {Element} overlayContent - Overlay content element, should contain content items and navbar.
  * @property {Element} overlayContentItems - Container for content.
  * @property {HTMLElement} controls -
- *
  * @property {Map<string, number>} keysToIndices
  * @property {Map<number, string>} indicesToKeys
- *
  * @property {THideOverlay} hideOverlay - Hide the overlay, its content, and all of the content items.
  * @property {THideOverlayContentItems} hideOverlayContentItems - Hide all overlay content items.
  * @property {TShowOverlay} showOverlay - Show the overlay (but not a content item).
@@ -32,88 +28,59 @@ const OVERLAY_ITEM_TRANSFORMATION_TIME = 500
  * @property {TNextOverlayContentItem} nextOverlayContentItem - Show overlay content items.
  * @property {(contentItem: HTMLElement) => void} colorizeContentItem
  * @property {(colorize: Partial<TColorizeOptions>) => void} colorize
- *
  * @property {TOverlayState} state
- */
-
-/**
- * @callback TShowOverlayContentItem
  *
+ *
+ * @callback TShowOverlayContentItem
  * @param {string} key - `data-key` for the content item.
  * @param {Partial<TShowOverlayContentItemOptions>} [options]
- *
  * @returns {HTMLElement|null}
  *
- */
-/**
- * @typedef {object} TShowOverlayContentItemOptions
  *
+ * @typedef {object} TShowOverlayContentItemOptions
  * @property {boolean} [keepLocalStorage]
  * @property {boolean} [isAnimated]
  * @property {boolean} [animationToRight]
- */
-
-/**
- * @callback THideOverlayContentItems
  *
+ *
+ * @callback THideOverlayContentItems
  * @param {Partial<THideOverlayContentItemsOptions>} [options]
  * @returns {void}
- */
-/**
+ *
+ *
  * @typedef THideOverlayContentItemsOptions
- *
  * @property {boolean} [keepLocalStorage]
- */
-
-/**
- * @callback TAddContent
  *
+ *
+ * @callback TAddContent
  * @param {HTMLElement} elem - Element to add to overlay.
  * @returns {void}
  *
- */
-
-/**
  *
  * @callback THideOverlay
- *
  * @param {Partial<THideOverlayOptions>} [options]
  * @returns {void}
- */
-/**
- * @typedef THideOverlayOptions
  *
+ *
+ * @typedef THideOverlayOptions
  * @property {boolean} [isNotAnimated]
  * @property {boolean} [keepLocalStorage]
  *
- */
-
-/**
  *
  * @callback TRestoreOverlay
- *
  * @returns {void}
- */
-
-/**
+ *
+ *
  * @callback TShowOverlay
- *
  * @returns {void}
- */
-
-/** 
+ *
  *
  * @callback TNextOverlayContentItem
- *
  * @param {number} incr - Number of pages to move over.
  * @returns {void}
- */
-
-
-/** State for the `Overlay` closure.
+ *
  *
  * @typedef TOverlayState
- *
  * @property {number} length - The total number of content items.
  * @property {number|null} currentIndex - The current index of the item displayed in the overlay.
  * @property {string|null} currentKey - The current key of the item display in the overlay.
@@ -122,11 +89,8 @@ const OVERLAY_ITEM_TRANSFORMATION_TIME = 500
  */
 
 
-/** @namespace colorize */
-
 /**
  * @typedef TColorizeState
- *
  * @property {string|null} color
  * @property {string|null} colorPrev
  * @property {string|null} colorText
@@ -141,36 +105,26 @@ const OVERLAY_ITEM_TRANSFORMATION_TIME = 500
  * @property {string|null} classTextPrev
  * @property {string|null} classTextHover
  * @property {string|null} classTextHoverPrev
-*/
-
-/**
- * @typedef TColorizeOptions
  *
+ *
+ * @typedef TColorizeOptions
  * @property {string|null} color
  * @property {string|null} colorText
  * @property {string|null} colorTextHover
  *
- */
-
-/**
- * @callback TColorizeSetter
  *
+ * @callback TColorizeSetter
  * @param {string} color
  * @returns void
- */
-
-/**
+ *
+ *
  * @namespace colorize
  * @callback TUpdateElement
- *
  * @param {HTMLElement} elem
  * @param {(color: string|null) => string[]} mkClasses
  *
- */
-
-/**
- * @typedef TColorize
  *
+ * @typedef TColorize
  * @property {TColorizeSetter} setColorText - Update text classes for a new color.
  * @property {TColorizeSetter} setColor - Update background and border classes for a new color.
  * @property {TColorizeSetter} setColorTextHover - Update the color of text when hovered.

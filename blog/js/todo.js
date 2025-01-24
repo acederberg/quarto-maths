@@ -3,7 +3,7 @@
 /** @type {Map<string, TTodoTable>} */
 export const TodoTableInstances = new Map()
 
-/** 
+/**
  * @typedef TTodoTable
  *
  * @property {HTMLElement|Element} elem - outermost element

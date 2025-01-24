@@ -21,21 +21,19 @@ BREAKPOINTS_RESIZE.set('xxl', 5)
 /** @type {EnumBSBreakpoint} */
 const BREAKPOINT_TOOLTIPS_TRANSFORM = 'xl'
 
-/** @typedef {object} TFloatyOptions 
- *
+/**
+ * @typedef {object} TFloatyOptions
  * @property {TOverlay|null} [overlayControls] - Output of ``Overlay`` *(from ``overlay.js``)*.
  * @property {object} [resize] - Enable resizing.
  * @property {TBreakpointColumns} [resizeBreakpoints] - Breakpoint names mapping to the number of columns for the range. By default `BREAKPOINTS_RESIZE`.
  * @property {boolean} [tooltipsToggle] - Toggle tooltips.
  * @property {EnumBSBreakpoint} [tooltipsToggleBreakpoint] - Breakpoint for toggleing tooltips into card descriptions. By default, ``BREAKPOINT_TOOLTIPS_TRANSFORM``.
- */
-
-/**
- * @typedef {object} TFloaty
  *
- * @property {HTMLElement} elem
- * @property {Element} container
- * @property {Element[]} cards
+ *
+ * @typedef {object} TFloaty
+ * @property {HTMLElement} elem - The outermost floaty div.
+ * @property {Element} container - The container with all of the cards.
+ * @property {Element[]} cards - All of the cards in the floaty.
  * @property {TOverlay|null} overlayControls - Controls for the included overlay.
  * @property {(countColumns: number) => void} resizeForColumns - Resize to a specified number of columns.
  * @property {(width?: number) => void} resizeForWidth - Resize the columns for the current window width or specified width.
