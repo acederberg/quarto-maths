@@ -242,37 +242,39 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
         render_data: schemas.QuartoRenderRequest,
     ) -> schemas.QuartoRenderResponse:
 
-        items = []
-        ignored = []
+        # items = []
+        # ignored = []
+        #
+        # # NOTE: File items.
+        # for item in render_data.items:
+        #     if item.kind == "file":
+        #         data = await quarto_handler(item.path)
+        #         if data is None:
+        #             ignored.append(item)
+        #             continue
+        #
+        #         items.append(data)
+        #     else:
+        #         # NOTE: When render request items are emitted, then an item
+        #         #       falied to render.
+        #         iter_directory = quarto_handler.do_directory(
+        #             item.path,
+        #             depth_max=item.directory_depth_max,
+        #         )
+        #         async for data in iter_directory:
+        #             if isinstance(data, schemas.QuartoRenderRequestItem):
+        #                 ignored.append(data)
+        #                 continue
+        #
+        #             items.append(data)
+        #
+        # # NOTE: Directory items
+        # return schemas.QuartoRenderResponse(  # type: ignore
+        #     items=items,
+        #     ignored=ignored,
+        # )
 
-        # NOTE: File items.
-        for item in render_data.items:
-            if item.kind == "file":
-                data = await quarto_handler(item.path)
-                if data is None:
-                    ignored.append(item)
-                    continue
-
-                items.append(data)
-            else:
-                # NOTE: When render request items are emitted, then an item
-                #       falied to render.
-                iter_directory = quarto_handler.do_directory(
-                    item.path,
-                    depth_max=item.directory_depth_max,
-                )
-                async for data in iter_directory:
-                    if isinstance(data, schemas.QuartoRenderRequestItem):
-                        ignored.append(data)
-                        continue
-
-                    items.append(data)
-
-        # NOTE: Directory items
-        return schemas.QuartoRenderResponse(  # type: ignore
-            items=items,
-            ignored=ignored,
-        )
+        return await quarto_handler.render(render_data)
 
     @classmethod
     async def get_log_status(cls, database: depends.Db) -> schemas.LogStatus:

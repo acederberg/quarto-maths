@@ -96,7 +96,7 @@ def get_metadata_fr(path):
     Slow. Use ``get_metadata_lazy`` instead.
     """
 
-    temp = env.ROOT / "temp.json"
+    temp = env.WORKDIR / "temp.json"
     os.remove(temp)
 
     # NOTE: Suppresses error where trys to move index. I want to report this bug,

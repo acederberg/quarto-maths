@@ -1,10 +1,12 @@
 """Filters to generate floaty from configuration.
 
-For exact detail on how to use, see `./blog/dev/componants/floaty.qmd`.
+Demo and Usage
+-----------------------------------
+
+See the demo [here](./blog/dev/componants/floaty.qmd).
 """
 
 import itertools
-import json
 import secrets
 from typing import Annotated, Any, ClassVar, Generic, Literal, TypeVar
 
@@ -138,6 +140,8 @@ T_ConfigFloatyContainer = TypeVar(
 
 
 class ConfigFloatyItem(util.BaseConfig, Generic[T_ConfigFloatyContainer]):
+    """Configuration for one item in the floaty."""
+
     key: FieldKey
     container_maybe: Annotated[
         T_ConfigFloatyContainer | None,
@@ -392,7 +396,7 @@ class ConfigFloatyTex(util.BaseConfig):
 
 
 class ConfigFloatyContainer(util.BaseConfig):
-    """Global configuration for floaty items is defined here.
+    """Configuration for floaty grid and common configuration for floaty items.
 
     This is passed to most methods of ``ConfigFloatyItem`` to determine how
     each ``card`` or ``grid`` renders.
@@ -616,6 +620,11 @@ T_ConfigFloatyItem = TypeVar("T_ConfigFloatyItem", bound=ConfigFloatyItem)
 class ConfigFloaty(
     util.BaseHasIdentifier, Generic[T_ConfigFloatyItem, T_ConfigFloatyContainer]
 ):
+    """Configuration for a ``floaty``.
+
+    Specifies exacly one floaty.
+    """
+
     content: Annotated[
         dict[str, T_ConfigFloatyItem],
         pydantic.Field(description=""),
@@ -685,6 +694,8 @@ class BaseFloatyConfig(util.BaseConfig):
 
 
 class Config(BaseFloatyConfig):
+    """Configuration used to validate quarto metadata."""
+
     filter_name = "floaty"
     floaty: Annotated[
         dict[
@@ -700,6 +711,8 @@ class Config(BaseFloatyConfig):
 
 
 class FilterFloaty(util.BaseFilterHasConfig):
+    """Floaty pandoc filter."""
+
     filter_name = "floaty"
     filter_config_cls = Config
 

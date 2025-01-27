@@ -14,6 +14,15 @@ import yaml
 CONSOLE = rich.console.Console()
 
 
+def print_error(err: pydantic.ValidationError, **kwargs):
+    print_yaml(
+        json.loads(err.json()),
+        rule_title="Error Detail",
+        rule_kwargs=dict(characters="=", style="bold red"),
+        **kwargs,
+    )
+
+
 def print_yaml(
     data,
     *,

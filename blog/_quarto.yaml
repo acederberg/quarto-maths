@@ -13,6 +13,46 @@ project:
     port: 3000
     browser: false
 jupyter: python3
+# NOTE: This is currently half baked, and documentation will not be completed
+#       for quite a while. This is being added for the sake of completeness of
+#       the components demos/docs since js docs already exist.
+quartodoc:
+  title: acederberg.io
+  package: acederbergio
+  dir: ../blog/projects/blog/quartodoc
+  parser: sphinx
+  rewrite_all_pages: true
+  options: {}
+  sections:
+    - title: Quarato Filters
+      desc: Custom filters utilitized by quarto.
+      contents:
+        - name: overlay
+          package: acederbergio.filters
+        - name: floaty
+          package: acederbergio.filters
+        - name: live
+          package: acederbergio.filters
+        - name: resume
+          package: acederbergio.filters
+        - name: iframe
+          package: acederbergio.filters
+    - title: Utilities
+      desc: Utilities for building and writing filters and API endpoints.
+      options:
+        exclude: [cli_show_environ, cli_show_logging, cli_find, cli]
+      contents:
+        - name: env
+        - name: util
+        - name: iconify
+
+
+  # - title: API Documentation
+  #   desc: API Documentation Beyond that Provided by Swagger.
+  #   contents:
+  #     - name: api.schemas
+
+
 website:
   favicon: ./icons/favicon.svg
   twitter-card:
@@ -31,32 +71,40 @@ website:
       contents:
         - section: IFrames
           contents:
-            - text: Filter
+            - text: Demo
               href: ./components/iframe/index.qmd
+            - text: "Docs: Pandoc Filter"
+              href: "./projects/blog/quartodoc/iframe.qmd"
         - section: Overlay
           contents:
-            - text: Component and Filter
+            - text: Demo
               href: ./components/overlay/index.qmd
-            - text: "Documentation: Javascript"
+            - text: "Docs: Pandoc Filter"
+              href: "./projects/blog/quartodoc/overlay.qmd"
+            - text: "Docs: Javascript"
               href: "./projects/blog/typedoc/overlay.qmd"
         - section: Floaty
           contents:
-            - text: Component and Filter
+            - text: "Demo: Overview"
               href: ./components/floaty/index.qmd
-            - text: Skills
+            - text: "Demo: Skills"
               href: ./components/floaty/skills.qmd
-            - text: Contacts
+            - text: "Demo: Contacts"
               href: ./components/floaty/contacts.qmd
-            - text: Links
+            - text: "Demo: Links"
               href: ./components/floaty/links.qmd
-            - text: Under Construction
+            - text: "Demo: Under Construction"
               href: ./components/floaty/under-construction.qmd
-            - text: "Documentation: Javascript"
+            - text: "Docs: Pandoc Filter"
+              href: "./projects/blog/quartodoc/floaty.qmd"
+            - text: "Docs: Javascript"
               href: "./projects/blog/typedoc/floaty.qmd"
         - section: Resume
           contents:
-            - text: Filter
+            - text: Demo
               href: ./components/resume/index.qmd
+            - text: "Docs: Pandoc Filter"
+              href: "./projects/blog/quartodoc/resume.qmd"
     - id: projects
       title: Projects
       style: "docked"
@@ -83,8 +131,6 @@ website:
                       href: ./projects/blog/instructions.qmd
                     - text: 'Docker and Quarto'
                       href: ./projects/blog/build.qmd
-                    # - text: 'Quality Assurence'
-                    #   href: ./projects/blog/qa.qmd
                     - text: 'How is the Blog Deployed?'
                       href: ./projects/blog/deploy.qmd
                     - text: Static Quarto Websites in Kubernetes
@@ -96,10 +142,6 @@ website:
                   href: ./projects/nvim-config/index.qmd
                 - title: Gallery
                   href: ./projects/nvim-config/gallery.qmd
-                  # - title: Configuration ReadMe
-                  #   href: ./projects/nvim-config/instructions.qmd
-
-
 
             - section: Blog and Demo Automation
               contents:
@@ -147,15 +189,9 @@ theme:
     - themes/index.scss
     - themes/overlay.scss
     - themes/resume.scss
-    # dark:
-    #   - cyborg
-    #   - themes/terminal.scss
-    #   - themes/floaty.scss
-    #   - themes/index.scss
-    #   - themes/overlay.scss
-    #   - themes/resume.scss
 format:
   html:
+    layout: full-page
     code-fold: false
     embed-resources: false
     # template-partials:

@@ -1,3 +1,18 @@
+"""Pandoc filter for the live dashboard only available in development mode.
+
+Demo
+-------------------------------------------------------------------------------
+
+Currently there is no demo avaiable.
+
+
+Use
+-------------------------------------------------------------------------------
+
+For now, all pages in development mode will atleast have the toolbar available.
+To run in development mode, just use ``acederbergio serve dev``.
+"""
+
 from typing import Annotated, Literal
 
 import panflute as pf

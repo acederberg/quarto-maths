@@ -27,7 +27,7 @@ def parse_path(v: str, *, directory: bool = False) -> pathlib.Path:
         out = pathlib.Path("./blog" + v).resolve()
     else:
         # out = pathlib.Path(v).resolve()
-        out = env.ROOT / v
+        out = env.WORKDIR / v
 
     if directory:
         return out
@@ -54,11 +54,11 @@ def create_check_items(
         if dne := tuple(filter(lambda item: not check_exists(item), items)):
             raise ValueError(f"The following paths are not files: `{dne}`.")
 
-        if bad := tuple(item for item in items if not item.is_relative_to(env.ROOT)):
+        if bad := tuple(item for item in items if not item.is_relative_to(env.WORKDIR)):
             raise ValueError(f"The following paths are not valid: `{bad}`.")
 
         if relative:
-            items = list(item.relative_to(env.ROOT) for item in items)
+            items = list(item.relative_to(env.WORKDIR) for item in items)
 
         return list(str(item) for item in items)
 
@@ -79,7 +79,7 @@ def path_to_url(path: str, ext: str = "html"):
     """
 
     if path.startswith("/"):
-        path = str(pathlib.Path(path).relative_to(env.ROOT))
+        path = str(pathlib.Path(path).relative_to(env.WORKDIR))
         # raise ValueError("Not going to handle an absolute path.")
 
     parts = path.replace("./", "").split("/")
@@ -157,8 +157,8 @@ class QuartoRenderMinimal(util.HasTime):
         stdout, stderr = await process.communicate()
         return cls.model_validate(
             {
-                "target": str(os.path.relpath(target, env.ROOT)),
-                "origin": str(os.path.relpath(origin, env.ROOT)),
+                "target": str(os.path.relpath(target, env.WORKDIR)),
+                "origin": str(os.path.relpath(origin, env.WORKDIR)),
                 "command": command,
                 "stderr": cls.removeANSIEscape(stdout.decode()).split("\n"),
                 "stdout": cls.removeANSIEscape(stderr.decode()).split("\n"),
@@ -454,9 +454,12 @@ class QuartoRenderRequestItem(pydantic.BaseModel):
     def validate_path(cls, v):
         is_directory = v.get("kind") == "directory"
         path = parse_path(v["path"], directory=is_directory)
-        v["path"] = str(path.relative_to(env.ROOT))
+        v["path"] = str(path.relative_to(env.WORKDIR))
 
-        tpl, msg = f"`{v['path']}` is not a {{}} or does not exist.", None
+        tpl, msg = (
+            f"`{v['path']}` is not a {{}} or does not exist (resolved to {path}).",
+            None,
+        )
         if is_directory and not os.path.isdir(path):
             msg = tpl.format("directory")
         elif not is_directory and not os.path.isfile(path):

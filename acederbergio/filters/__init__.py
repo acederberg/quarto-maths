@@ -1,4 +1,7 @@
 """Quarto JSON filters written using ``panflute``.
+
+See the [components demo](/components/index.qmd) to learn more about how to
+use these filters.
 """
 
 from .contacts import FilterContacts

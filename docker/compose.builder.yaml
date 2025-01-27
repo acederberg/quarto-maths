@@ -1,0 +1,9 @@
+services:
+  server:
+    build:
+      context: ..
+      dockerfile: ./docker/dockerfile
+      target: builder-typedoc
+    image: acederberg/blog-typedoc-builder
+    tty: true
+    command: ["bash"]

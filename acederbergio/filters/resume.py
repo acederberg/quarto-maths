@@ -1,3 +1,18 @@
+"""Pandoc filters for the resume.
+
+Much of the functionality in the resume is acheived through 
+[the overlay filter](/components/overlay/index.html) and [the floaty filter 
+and its variations](/components/floaty/index.html).
+
+This code is responsible for turning experience items item ``list-groups``
+for the ``html`` document, and makes nice headers for both ``html`` and ``pdf``
+outputs.
+
+For a demo, see [the component demo](/components/resume/index.html).
+For the final result, see [my resume](/resume/index.html) for a demonstation of 
+the ``HTML`` result or [my resume as a ``PDF``](/resume/resume.pdf).
+"""
+
 from typing import Annotated, Callable
 
 import panflute as pf
@@ -6,26 +21,7 @@ import pydantic
 from acederbergio import env
 from acederbergio.filters import util
 
-ELEMENTS = {
-    "resume-profile",
-    "resume-headshot",
-    "resume-experience",
-    "resume-education",
-}
-
 logger = env.create_logger(__name__)
-
-
-def get_hydrate(
-    instance, element: pf.Element, elements: set[str] = ELEMENTS
-) -> Callable[[pf.Doc, pf.Element], pf.Element] | None:
-    """For an element with an identifier, find the corresponding hydrator."""
-    if element.identifier not in elements:
-        return None
-
-    meth_name = element.identifier.replace("resume-", "hydrate_")
-    hydrator = getattr(instance, meth_name)
-    return hydrator
 
 
 class BaseExperienceItem(util.BaseHasIdentifier):
@@ -35,6 +31,7 @@ class BaseExperienceItem(util.BaseHasIdentifier):
     level: Annotated[int, pydantic.Field(4, ge=1, le=6)]
 
     def create_start_stop(self):
+        """Create start and stop range."""
         return (
             pf.Str(self.start),
             pf.Space(),
@@ -44,6 +41,7 @@ class BaseExperienceItem(util.BaseHasIdentifier):
         )
 
     def create_header_html(self) -> tuple[pf.Element, ...]:
+        """Create the ``HTML`` header."""
         return (
             pf.Header(
                 pf.RawInline(
@@ -62,6 +60,7 @@ class BaseExperienceItem(util.BaseHasIdentifier):
         )
 
     def create_header_tex(self) -> tuple[pf.Element, pf.Element]:
+        """Create the ``TeX`` or ``PDF`` header."""
         header_textbar = (
             pf.Space(),
             pf.RawInline("\\hfill", format="latex"),
@@ -81,6 +80,7 @@ class BaseExperienceItem(util.BaseHasIdentifier):
         )
 
     def hydrate_html(self, element: pf.Element) -> pf.Element:
+        """Tranform an ``HTML`` list into a bootstrap listgroup and add a nice header."""
 
         def handle_list_group(element: pf.Element, doc: pf.Doc):
             if not isinstance(element, pf.BulletList):
@@ -103,6 +103,8 @@ class BaseExperienceItem(util.BaseHasIdentifier):
         return element
 
     def hydrate_tex(self, element: pf.Element) -> pf.Element:
+        """Transform the header into a fancy header."""
+
         head_elements = self.create_header_tex()
         element.content = (*head_elements, *element.content)
         return element
@@ -129,6 +131,12 @@ class ConfigHeadshot(pydantic.BaseModel):
 
 
 class ConfigResume(pydantic.BaseModel):
+    """Resume configuration.
+
+    :ivar headshot: Specifies the headshot.
+    :ivar experience: Specifies a work experience to transform.
+    :ivar education: Specifies an education experience to transform.
+    """
 
     headshot: Annotated[ConfigHeadshot | None, pydantic.Field(default=None)]
     experience: Annotated[
@@ -148,16 +156,16 @@ class ConfigResume(pydantic.BaseModel):
         pydantic.BeforeValidator(util.content_from_list_identifier),
     ]
 
-    def hydrate_profile(self, doc: pf.Doc, element: pf.Element) -> pf.Element:
-        element.content = (
-            pf.Header(pf.Str("Career Profile"), level=2),
-            *element.content,
-        )
-
-        return element
+    # def hydrate_profile(self, doc: pf.Doc, element: pf.Element) -> pf.Element:
+    #     element.content = (
+    #         pf.Header(pf.Str("Career Profile"), level=2),
+    #         *element.content,
+    #     )
+    #
+    #     return element
 
     def hydrate_headshot(self, doc: pf.Doc, element: pf.Element) -> pf.Element:
-        """Sidebar headshot."""
+        """Hydrate the headshot."""
 
         if self.headshot is None:
             return element
@@ -179,6 +187,8 @@ class ConfigResume(pydantic.BaseModel):
 
 
 class Config(pydantic.BaseModel):
+    """Schema used to validate quarto metadata."""
+
     resume: ConfigResume
 
 
@@ -186,6 +196,8 @@ class Config(pydantic.BaseModel):
 
 
 class FilterResume(util.BaseFilterHasConfig):
+    """Resume filter."""
+
     filter_config_cls = Config
     filter_name = "resume"
 

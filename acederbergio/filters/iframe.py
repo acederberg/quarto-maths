@@ -1,3 +1,15 @@
+"""Pandoc filter to add ``iframe`` elements to quarto documents.
+
+This is helpful for showing other pages, especially in demos.
+
+
+Demo and Usage
+-------------------------------
+
+See the demo [here](./components/iframe/index.qmd).
+
+"""
+
 from typing import Annotated, Literal
 
 import panflute as pf
@@ -14,6 +26,15 @@ FieldKind = Annotated[Literal["pdf", "html"], pydantic.Field("pdf")]
 
 
 class IFrameConfig(util.BaseHasIdentifier):
+    """IFrame filter configuration.
+
+    Specifies exactly one ``iframe``.
+
+    :ivar target: URL or path to the target.
+    :ivar height: Height of the ``iframe``.
+    :ivar kind: Document type.
+    """
+
     target: Annotated[
         str,
         pydantic.Field(),
@@ -27,6 +48,11 @@ class IFrameConfig(util.BaseHasIdentifier):
         return schemas.path_to_url(self.target, self.kind)
 
     def hydrate(self, element: pf.Element) -> pf.Element:
+        """Turn :param:`element` into an ``iframe``.
+
+        :param element: Element to inject the iframe into.
+        :returns: :param:``element`` with iframe content injected.
+        """
 
         element.classes.append("embed-responsive")
         element.attributes.update({"height": "100%", "width": "100%"})
@@ -42,6 +68,12 @@ class IFrameConfig(util.BaseHasIdentifier):
 
 
 class Config(util.BaseConfig):
+    """Schema used to validate quarto metadata.
+
+    Specifies many iframes.
+
+    :ivar iframes: An optional list of iframe configurations.
+    """
 
     iframes: Annotated[
         dict[str, IFrameConfig] | None,
@@ -51,6 +83,7 @@ class Config(util.BaseConfig):
 
 
 class FilterIFrame(util.BaseFilterHasConfig):
+    "Iframe filter."
 
     filter_name = "iframes"
     filter_config_cls = Config

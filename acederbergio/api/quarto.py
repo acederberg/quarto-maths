@@ -5,7 +5,8 @@ import os
 import pathlib
 import subprocess
 import time
-from typing import Annotated, AsyncGenerator, ClassVar, Iterable, Iterator
+from typing import (Annotated, AsyncGenerator, Awaitable, Callable, ClassVar,
+                    Iterable, Iterator, Optional)
 
 import bson
 import motor
@@ -15,8 +16,8 @@ import rich
 import rich.table
 import typer
 import watchfiles
-
 # import yaml
+import yaml
 import yaml_settings_pydantic as ysp
 from typing_extensions import Doc, Self
 
@@ -175,9 +176,9 @@ class ConfigWatch(pydantic.BaseModel):
                 env.BLOG / ".quarto",
                 env.BLOG / "_freeze",
                 env.BLOG / "site_libs",
-                env.ROOT / ".git",
-                env.ROOT / ".venv",
-                env.ROOT / "docker",
+                env.WORKDIR / ".git",
+                env.WORKDIR / ".venv",
+                env.WORKDIR / "docker",
                 env.BLOG / "resume/test.tex",
                 env.BLOG / "resume/index.tex",
                 env.SCRIPTS / "api",
@@ -500,7 +501,7 @@ class Handler:
             "render",
             str(path),
             "--metadata",
-            f"live_file_path={path.relative_to(env.ROOT)}",
+            f"live_file_path={path.relative_to(env.WORKDIR)}",
             *self.context.config.render.flags,
         ]
         process = await asyncio.create_subprocess_shell(
@@ -621,7 +622,7 @@ class Handler:
         for item in self.walk(directory, depth_max=depth_max):
             if (res := await self(item)) is None:
                 yield schemas.QuartoRenderRequestItem(  # type: ignore
-                    path=str(item.relative_to(env.ROOT)),
+                    path=str(item.relative_to(env.WORKDIR)),
                     kind="file",
                 )
                 continue
@@ -653,6 +654,65 @@ class Handler:
 
         return
 
+    # TODO: It would make more sense for this to be under ``__call__``.
+    async def render(
+        self,
+        render_data: schemas.QuartoRenderRequest,
+        *,
+        callback: (
+            Callable[
+                [schemas.QuartoRender, schemas.QuartoRenderRequestItem],
+                Awaitable[None],
+            ]
+            | None
+        ) = None,
+    ) -> schemas.QuartoRenderResponse:
+        """
+        Process :param:`render_data` and execute the callback.
+
+        While the callback is not a pattern I like in python, it would be a
+        mess to do this using async generators.
+
+        :param render_data: Render request data.
+        :param callback: Optional callback.
+        """
+
+        items = []
+        ignored = []
+
+        # NOTE: File items.
+        for item in render_data.items:
+            if item.kind == "file":
+                data = await self(item.path)
+                if data is None:
+                    ignored.append(item)
+                    continue
+
+                items.append(data)
+                if callback:
+                    await callback(data, item)
+            else:
+                # NOTE: When render request items are emitted, then an item
+                #       falied to render.
+                iter_directory = self.do_directory(
+                    item.path,
+                    depth_max=item.directory_depth_max,
+                )
+                async for data in iter_directory:
+                    if isinstance(data, schemas.QuartoRenderRequestItem):
+                        ignored.append(data)
+                        continue
+
+                    items.append(data)
+                    if callback:
+                        await callback(data, item)
+
+        # NOTE: Directory items
+        return schemas.QuartoRenderResponse(  # type: ignore
+            items=items,
+            ignored=ignored,
+        )
+
 
 class Watch:
 
@@ -665,24 +725,34 @@ class Watch:
         self.filter = Filter(self.context)
         self.handler = None
 
+    async def get_handler(self) -> Handler:
+        if self.handler is None:
+            res = await schemas.QuartoHistory.spawn(self.context.db)
+            self.handler = Handler(
+                self.context, self.filter, mongo_id=res.inserted_id, _from="lifespan"
+            )
+
+        return self.handler
+
     async def __call__(self, stop_event: asyncio.Event):
         """Watch for changes to quarto files and thier helpers."""
 
-        res = await schemas.QuartoHistory.spawn(self.context.db)
-        self.handler = Handler(
-            self.context, self.filter, mongo_id=res.inserted_id, _from="lifespan"
-        )
+        handler = await self.get_handler()
 
         # NOTE: Shutting this down requires writing to a qmd after reload.
         #       `stop_event` has made this less of a problem.
         async for changes in watchfiles.awatch(
-            env.ROOT,
+            env.WORKDIR,
             watch_filter=self.filter,
             step=1000,
             stop_event=stop_event,
         ):
             for _, path_raw in changes:
-                await self.handler(path_raw)
+                path = pathlib.Path(path_raw)
+                if path.parts[-1] == "_quarto.yaml":
+                    await handler.do_defered(path)
+                else:
+                    await handler(path_raw)
 
 
 # =========================================================================== #
@@ -785,6 +855,73 @@ def cmd_context_test(
 
     add_paths(paths)
     rich.print(t)
+
+
+@cli.command("render")
+def cmd_render(
+    _context: typer.Context,
+    *,
+    path: Annotated[str, typer.Argument()],
+    is_directory: Annotated[bool, typer.Option("--directory/--file")] = False,
+    max_depth: int = 1,
+    include_success: Annotated[
+        bool, typer.Option("--success-include/--errors-only")
+    ] = False,
+    output: Annotated[Optional[pathlib.Path], typer.Option("--output")] = None,
+):
+    try:
+        data = schemas.QuartoRenderRequest(
+            items=[
+                schemas.QuartoRenderRequestItem(
+                    path=path,
+                    kind="directory" if is_directory else "file",  
+                    directory_depth_max=max_depth,
+                )
+            ]
+        )
+    except pydantic.ValidationError as err:
+        util.print_error(err)
+        rich.print("[red]Invalid configuration.")
+
+        raise typer.Exit(1)
+
+    context: Context = _context.obj["quarto_context"]
+    watch = Watch(context)
+
+    async def callback(
+        result: schemas.QuartoRender,
+        _: schemas.QuartoRenderRequestItem,
+    ):
+        if not result.status_code or not include_success:
+            rich.print(f"[green]Successfully rendered `{result.target}`!")
+            return
+
+        util.print_yaml(
+            result,
+            rule_title="Render Result",
+            rule_kwargs=dict(characters="=", align="center", style="bold blue"),
+        )
+
+    async def do_render():
+        handler = await watch.get_handler()
+        result = await handler.render(data, callback=callback)
+
+        if output is None:
+            return
+
+        rich.print(f"[green]Writing responses to `{output}`.")
+        dumped = [item for item in result.items if item.status_code or include_success]
+        with open(str(output), "r") as file:
+            yaml.dump(dumped, file)
+
+    util.print_yaml(
+        data,
+        rule_title="Request Data",
+        rule_kwargs=dict(characters="#", align="center", style="bold cyan"),
+    )
+    asyncio.run(do_render())
+
+
 
 
 if __name__ == "__main__":

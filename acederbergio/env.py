@@ -1,3 +1,9 @@
+"""
+This module contains all of the tools used to get information from the environment.
+It also contains command line tools to inspect the the environment, which are a 
+great aid in debugging.
+"""
+
 import logging
 import logging.config
 import logging.handlers
@@ -9,6 +15,7 @@ from typing import Annotated, Any, Literal
 import pydantic
 import rich.logging
 import typer
+from typing_extensions import Doc
 
 from acederbergio import util
 
@@ -20,16 +27,34 @@ FieldEnv = Annotated[
     Literal["development", "ci", "production"],
     pydantic.Field(default="development"),
 ]
+RUN_UUID: Annotated[
+    str, Doc("Used to keep track of the current ``docker`` container lifetime.")
+]
 RUN_UUID = secrets.token_urlsafe()
 
 
 def name(varname: str) -> str:
+    """Calculate the evironment variable name for a variable.
+
+    For example, if we have a variable called ``thing`` then we should expect
+    that it has the environment variable name ``ACEDERBERG_IO_THING``.
+
+    :param varname: The variable name. For clarity, this should match the name the value is assigned to.
+    :returns: The environment variable name for the variable.
+    """
     return f"{ENV_PREFIX}_{varname.upper()}"
 
 
 def get(
     varname: str, default: str | None = None, *, required: bool = False
 ) -> str | None:
+    """Get an environment variable value for variable name.
+
+    :param default: The default value to use if nothing is found.
+    :param required: Raise an error to make the command line tool exit if
+        no value is ascertained.
+    :returns: The environment variable value or the default if provided.
+    """
 
     logger.debug("Getting variable `%s`.", varname)
     out = environ.get(name(varname), default)
@@ -41,28 +66,40 @@ def get(
 
 
 def require(varname: str, default: str | None = None) -> str:
-    """Require a setting from the environment."""
+    """Require a setting from the environment using its short name.
+
+    :param varname: (Short) variable name.
+    :param default: Optional default value.
+    :raises ValueError: When no value is ascertained.
+    :returns: The environment variable value or the default provided.
+    """
 
     var = get(varname, default, required=True)  # type: ignore
     if not var:
-        rich.print(f"[red]Value `{var}` for `{varname}` is falsy.")
-        raise typer.Exit(2)
+        raise ValueError(f"Value `{var}` for `{varname}` is falsy.")
 
     return var
 
 
 def require_path(varname: str, default: pathlib.Path | None = None) -> pathlib.Path:
-    """Require a setting  from environment that is an actual path."""
+    """Require a setting  from environment that is an existing path.
+
+    Resolves path to be absolute and ensures existance.
+
+    :param varname: (Short) variable name.
+    :param default: Default pathlib`
+    :raises ValueError: When no value can be ascertained.
+    :returns: Path from env (as specified by :param:`varname` or :param:`default`.
+    """
 
     var = get(varname)
     if var is not None:
         return pathlib.Path(var).resolve(strict=True)
 
     if default is None:
-        rich.print(f"[red]Value `{var}` for `{varname}` is falsy.")
-        raise typer.Exit(3)
+        raise ValueError(f"Value `{var}` for `{varname}` is falsy.")
 
-    return default
+    return default.resolve(strict=True)
 
 
 def create_validator(varname: str, default: str | None = None):
@@ -78,12 +115,47 @@ def create_validator(varname: str, default: str | None = None):
     return pydantic.AfterValidator(validator)
 
 
+WORKDIR: Annotated[
+    pathlib.Path,
+    Doc(
+        """
+        When in development mode this should be the project root.
+        Otherwise (e.g. in docker) this should be set the docker workdir.
+        Ideally the workdir looks like the project root minus the ``acederbergio``
+        folder.
+        This setting is very important for features like
+
+        - the quarto watcher (in `api.quarto`),
+        - quarto api endpoints (in `api.routes`),
+        - and filters that specify files.
+
+        """
+    ),
+]
+
+ROOT: Annotated[
+    pathlib.Path,
+    Doc(
+        """ 
+        For most cases just use ``WORKDIR``.
+
+        In the development mode this should be the root directory of the git repository.
+        However when installed as a package (e.g. in docker builds) this should be
+        the directory in which the package is installed.
+        """
+    ),
+]
+BLOG: Annotated[pathlib.Path, Doc("Path to blog source code.")]
+SCRIPTS: Annotated[pathlib.Path, Doc("Path to the ``acederbergio`` module.")]
+
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SCRIPTS = require_path("scripts", ROOT / "acederbergio")
 
-# If installed directly.
+# If installed in editable mode.
 if ROOT.parts[-1] != "site-packages":
     BLOG = ROOT / "blog"
+    WORKDIR = ROOT
     PYPROJECT_TOML = ROOT / "pyproject.toml"
     CONFIGS = require_path("config_dir", ROOT / "config")
 
@@ -91,10 +163,10 @@ if ROOT.parts[-1] != "site-packages":
     ICONS = BLOG / "icons"
 
 else:
-    # NOTE: When fully installed, must export ACEDERBERGIO_BLOG and ACEDERBERGIO_BUILD
-    #       since they will not be included.
-    BLOG = require_path("blog")
-    PYPROJECT_TOML = require_path("pyproject_toml")
+    # NOTE:
+    WORKDIR = require_path("workdir")
+    BLOG = require_path("blog", WORKDIR / "blog")
+    PYPROJECT_TOML = require_path("pyproject_toml", WORKDIR / "pyproject.toml")
     CONFIGS = require_path("config_dir", pathlib.Path.home() / "config")
 
     BUILD = require_path("build", BLOG / "build")
@@ -118,9 +190,9 @@ ENV_IS_DEV = ENV == "development"
 def create_logging_config() -> dict[str, Any]:
     """Create the uvicorn logging config.
 
-    This could be kept in a file. But if I decide to package this it can be a
-    real pain to keep such files in the package. Furhter I do not want to
-    maintain two configs.
+    .. This could be kept in a file. But if I decide to package this it can be a
+       real pain to keep such files in the package. Further I do not want to
+       maintain two configs.
     """
 
     # NOTE: Some handlers are underscored so that the alphetical order requirement of
@@ -197,8 +269,12 @@ LOGGING_CONFIG = create_logging_config()
 logging.config.dictConfig(LOGGING_CONFIG)
 
 
-def create_logger(name: str):
-    """Create a logger."""
+def create_logger(name: str) -> logging.Logger:
+    """Create a logger.
+
+    :param name: Name of the logger.
+    :returns: A configured logger.
+    """
 
     level = require("log_level", "INFO").upper()
     logger = logging.getLogger(name)
@@ -212,8 +288,10 @@ cli = typer.Typer(help="Environment variables tools.")
 
 
 @cli.command("find")
-def find(varnames: list[str]):
-    """Show environment name for a variable."""
+def cli_find(varnames: list[str]):
+    """
+    Show environment name for a variable.
+    """
 
     util.print_yaml(
         [
@@ -229,8 +307,9 @@ def find(varnames: list[str]):
 
 
 @cli.command("show")
-def show_environ():
-    """Show the current environment as interpretted by ``env.py``. Note that
+def cli_show_environ():
+    """
+    Show the current environment as interpretted by ``env.py``. Note that
     not all of these are able to be set directly.
     """
     util.print_yaml(
@@ -250,5 +329,5 @@ def show_environ():
 
 
 @cli.command("logging")
-def show_logging():
+def cli_show_logging():
     util.print_yaml(LOGGING_CONFIG, name="Logging Configuration")

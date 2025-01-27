@@ -92,7 +92,7 @@ class App:
             async for data in reader:
                 await schemas.Log.push(db, mongo_id, [json.loads(data)])
 
-        socket_path = (env.ROOT / "blog.socket").resolve()
+        socket_path = (env.WORKDIR / "blog.socket").resolve()
         if os.path.exists(socket_path):
             os.remove(socket_path)
 
@@ -182,7 +182,11 @@ def serve(context: Context, **kwargs):
     """
 
     kwargs["reload_dirs"] = [str(env.SCRIPTS / "api")]
-    kwargs["reload_excludes"] = [env.BLOG, env.ROOT / "docker", env.SCRIPTS / "filters"]
+    kwargs["reload_excludes"] = [
+        env.BLOG,
+        env.WORKDIR / "docker",
+        env.SCRIPTS / "filters",
+    ]
 
     if not kwargs.get("host"):
         kwargs["host"] = "0.0.0.0"

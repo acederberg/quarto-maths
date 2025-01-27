@@ -1,9 +1,9 @@
 ---
 title: Resume Filter Storybook
-live_depends_on:
-  - blog/components/resume/_example_experience.qmd
-  - blog/components/resume/education.qmd
-  - blog/components/resume/experience.qmd
+# live_depends_on:
+#   - blog/components/resume/_example_experience.qmd
+#   - blog/components/resume/education.qmd
+#   - blog/components/resume/experience.qmd
 iframes:
   - identifier: experience-pdf
     target: blog/components/resume/experience.qmd

@@ -9,16 +9,9 @@ format:
 filters:
   - ../../filters/floaty.py
 floaty:
-  thank-you-tools:
-    tooltip:
-      include: true
+  - identifier: thank-you-tools
     container:
-      size_item: 128 # px
-      size_item_margin: 32
-      kind: list
-    overlay:
-      include: true
-      size_icon: 256
+      size: 1
     content:
       - image:
           iconify:
