@@ -1,12 +1,34 @@
-"""Quarto development utility."""
+"""
+Quarto development utility.
+
+This is used by the ``fastapi`` app to watch for changes in quarto website
+assets and dispatch renders using the ``quarto render`` command.
+It also adds metadata to the dispatched renders for the `live` filter.
+
+:seealso: `LiveFilter`
+
+It is also used to dispatch renders in docker builds so that a detailed report
+of failed and successful renders can be had.
+This module includes that ``acederbergio quarto`` command utility used directly
+in ``docker`` builds.
+"""
 
 import asyncio
 import os
 import pathlib
 import subprocess
 import time
-from typing import (Annotated, AsyncGenerator, Awaitable, Callable, ClassVar,
-                    Iterable, Iterator, Optional)
+from typing import (
+    Annotated,
+    AsyncGenerator,
+    Awaitable,
+    Callable,
+    ClassVar,
+    Iterable,
+    Iterator,
+    Optional,
+    Type,
+)
 
 import bson
 import motor
@@ -16,7 +38,6 @@ import rich
 import rich.table
 import typer
 import watchfiles
-# import yaml
 import yaml
 import yaml_settings_pydantic as ysp
 from typing_extensions import Doc, Self
@@ -25,16 +46,10 @@ from acederbergio import db, env, util
 from acederbergio.api import schemas
 
 logger = env.create_logger(__name__)
-# PATH_BLOG_HANDLER_STATE = env.CONFIGS / ".blog-handler-state"
-# if not os.path.exists(PATH_BLOG_HANDLER_STATE):
-#     with open(PATH_BLOG_HANDLER_STATE, "w") as file:
-#         yaml.dump({}, file)
 
 
 # NOTE: This is possible with globs, but I like practicing DSA.
 class Node:
-    """Trie for deciding what to ignore."""
-
     children: dict[str, Self]
     is_end: bool
 
@@ -188,6 +203,12 @@ class ConfigWatch(pydantic.BaseModel):
 
 
 class Config(ysp.BaseYamlSettings):
+    """File configuration for :class:`Filter`, :class:`Handler`, and :class:`Watch`.
+
+    Used by wrapping in :class:`Context` to include configuration for the database
+    connection, verbosity, and renders..
+    """
+
     model_config = ysp.YamlSettingsConfigDict(
         yaml_files={env.CONFIGS / "dev.yaml": ysp.YamlFileConfigDict(required=False)}
     )
@@ -209,6 +230,10 @@ class Config(ysp.BaseYamlSettings):
 
 
 class Context:
+    """
+    Configuration for :class:`Filter`, :class:`Handler`, and :class:`Watch`.
+    """
+
     database: db.Config
     config: Config
     render: bool
@@ -363,11 +388,17 @@ class Filter:
         self.tt_tolerance = tt_tolerance
         self.tt_last = dict()
 
+    # TODO: Methods are often called twice - once to determine if the event is
+    #       ignored, and again when ``Handler`` needs to determine what to do
+    #       with the changes.
     def __call__(self, _: watchfiles.Change, path: str) -> bool:
         """
-        Returns:
-            ``True`` if the file should be included in changes, ``False`` if it
-            should be ignored.
+        Determine if a change is to be noticed or not.
+
+        :param _:
+        :param path: Path to the event.
+        :returns: ``True`` if the file should be included in changes, ``False``
+            if it should be ignored.
         """
         return not self.is_ignored(pathlib.Path(path))
 
@@ -426,20 +457,31 @@ class Filter:
 
 
 class Handler:
-    """Handles events from ``watchfiles.awatch``."""
+    """Handles events from ``watchfiles.awatch``.
+
+    :ivar _from: From where did the handler originate? This field is used for
+        render metadata.
+    :ivar filter: :class:`Filter` instance used to determine how events are to
+        be processed.
+    :ivar context: :class:`Context` instance to configure the handler. Provides
+        settings like `extra_flags` for the render command, ``dry_runs``, and a
+        database configuration.
+    :ivar mongo_id: Document to push render metadatas to. When noting is
+        provided, no database opporations are required.
+    """
 
     _from: schemas.QuartoRenderFrom
-    filter: Annotated[Filter, Doc("")]
-    context: Annotated[Context, Doc("")]
+    filter: Filter
+    context: Context
 
-    mongo_id: bson.ObjectId
+    mongo_id: bson.ObjectId | None
 
     def __init__(
         self,
         context: Context,
         filter: Filter,
         *,
-        mongo_id: bson.ObjectId,
+        mongo_id: bson.ObjectId | None,
         _from: schemas.QuartoRenderFrom,
     ):
         self.filter = filter
@@ -447,8 +489,19 @@ class Handler:
         self.mongo_id = mongo_id
         self._from = _from
 
-    async def __call__(self, v: str | pathlib.Path) -> schemas.QuartoRender | None:
-        """Entrypoint."""
+    async def __call__(
+        self, v: str | pathlib.Path, *, exclude_defered: bool = False
+    ) -> schemas.QuartoRender | None:
+        """Entrypoint for dispatching file renders.
+
+        For rendering of directories, see :meth:`do_directory`.
+
+        :param v: Path to render target.
+        :param exclude_defered: Do not preform any defered renders. This setting
+            is important for directory renders.
+        :throws ValueError: If :param:`path` is to a directory.
+        :returns: A ``QuartoRender`` object with logs and render metadata.
+        """
 
         path = pathlib.Path(v).resolve() if isinstance(v, str) else v
         if os.path.isdir(path):
@@ -463,13 +516,13 @@ class Handler:
         is_partial = path.parent.name == "partials" and path.name.startswith("_")
         if path.suffix == ".qmd" and not is_partial:
             return await self.do_qmd(path)
-        elif (
+        elif not exclude_defered and (
             self.filter.filters.has_prefix(path)
             or self.filter.assets.has_prefix(path)
             or is_partial
         ):
             return await self.do_defered(path)
-        elif self.filter.static.has_prefix(path):
+        elif not self.filter.static.has_prefix(path):
             return await self.do_static(path)
 
     # TODO: Should echo stdout when rendering. This will be helpful in for
@@ -486,9 +539,20 @@ class Handler:
         *,
         origin: pathlib.Path | None = None,
     ) -> schemas.QuartoRender | None:
-        """Render ``qmd`` and add this to the document.
+        """Render ``qmd`` by spinning up a subprocess for ``quarto render``.
 
-        If it fails, put the error content in the page."""
+        When ``env.VERBOSE`` is set ``true`` (by setting the environment
+        variable ``"ACEDERBERG_IO_VERBOSE`` to any value besides ``0``, this
+        will pretty print the render metadata to the terminal.
+
+
+        :param path: Target of ``quarto render``.
+        :param origin: Source of the render - e.g. changing a ``scss`` file
+            will result in rendering again the last file rendered.
+        :returns: A ``QuartoRender`` object containing render output and
+            metadata *(besides when :ivar:`context.dry_run` is ``True``,
+            this will return ``None``)*.
+        """
 
         if not self.context.render:
             logger.info("Not rendering `%s` because dry run.", path)
@@ -536,16 +600,21 @@ class Handler:
                 rule_kwargs=dict(characters="=", align="center", style=f"bold {color}"),
             )
 
-        await schemas.QuartoHistory.push(
-            self.context.db,
-            self.mongo_id,
-            [data.model_dump(mode="json")],
-        )
+        if self.mongo_id:
+            await schemas.QuartoHistory.push(
+                self.context.db,
+                self.mongo_id,
+                [data.model_dump(mode="json")],
+            )
 
         return data
 
     async def do_qmd(self, path: pathlib.Path) -> schemas.QuartoRender | None:
-        """Render a ``qmd`` document in non-defered fasion."""
+        """Render a ``qmd`` document from changes in itself.
+
+        :param path:
+        :returns:
+        """
 
         data = await self.render_qmd(path, origin=path)
 
@@ -555,7 +624,15 @@ class Handler:
         """Filters, assets, and partials will have defered changes.
 
         In other words, the last modified qmd should be rerendered.
+
+        :seealso: :meth:`render_qmd`.
+
+        :param path:
+        :returns:
         """
+
+        if self.mongo_id is None:
+            raise ValueError("Mongo ID is required to do defered renders.")
 
         filters = schemas.QuartoHistoryFilters(kind=["direct"])  # type: ignore
         history = await schemas.QuartoHistory.last_rendered(
@@ -579,6 +656,9 @@ class Handler:
 
         This is what ``quarto render`` would do too. However, ``quarto watch``
         is insufficient in this regard.
+
+        :param path:
+        :returns:
         """
 
         path_dest = env.BUILD / os.path.relpath(path, env.BLOG)
@@ -600,11 +680,12 @@ class Handler:
             _from=self._from,
         )
 
-        await schemas.QuartoHistory.push(
-            self.context.db,
-            self.mongo_id,
-            [data.model_dump(mode="json")],
-        )
+        if self.mongo_id is not None:
+            await schemas.QuartoHistory.push(
+                self.context.db,
+                self.mongo_id,
+                [data.model_dump(mode="json")],
+            )
 
         return data
 
@@ -614,13 +695,19 @@ class Handler:
         *,
         depth_max: int = 5,
     ) -> AsyncGenerator[schemas.QuartoRender | schemas.QuartoRenderRequestItem, None]:
+        """Render a directory using quarto.
+
+        :param directory:
+        :param depth_max:
+        :returns: An async generator yielding render results for each target rendered.
+        """
         directory = pathlib.Path(directory) if isinstance(directory, str) else directory
         directory = directory.resolve()
         if not os.path.isdir(directory):
             raise ValueError(f"No such directory `{directory}`.")
 
         for item in self.walk(directory, depth_max=depth_max):
-            if (res := await self(item)) is None:
+            if (res := await self(item, exclude_defered=True)) is None:
                 yield schemas.QuartoRenderRequestItem(  # type: ignore
                     path=str(item.relative_to(env.WORKDIR)),
                     kind="file",
@@ -666,7 +753,8 @@ class Handler:
             ]
             | None
         ) = None,
-    ) -> schemas.QuartoRenderResponse:
+        T: Type[schemas.T_QuartoRenderResponseItem] = schemas.QuartoRender,
+    ) -> schemas.QuartoRenderResponse[schemas.T_QuartoRenderResponseItem]:
         """
         Process :param:`render_data` and execute the callback.
 
@@ -680,7 +768,7 @@ class Handler:
         items = []
         ignored = []
 
-        # NOTE: File items.
+        # TODO: Could be dryer.
         for item in render_data.items:
             if item.kind == "file":
                 data = await self(item.path)
@@ -691,6 +779,9 @@ class Handler:
                 items.append(data)
                 if callback:
                     await callback(data, item)
+
+                if data.status_code and render_data.exit_on_failure:
+                    break
             else:
                 # NOTE: When render request items are emitted, then an item
                 #       falied to render.
@@ -707,35 +798,59 @@ class Handler:
                     if callback:
                         await callback(data, item)
 
+                    if data.status_code and render_data.exit_on_failure:
+                        break
+
         # NOTE: Directory items
-        return schemas.QuartoRenderResponse(  # type: ignore
+        return schemas.QuartoRenderResponse[T](
+            uuid_uvicorn=env.RUN_UUID,
             items=items,
             ignored=ignored,
         )
 
 
 class Watch:
+    """Watch for changes to quarto documents and their dependencies using
+    :class:`Filter` - dispatch renders for these changes using
+    :class:`Handler`.
+
+    :ivar context: Shared configuration for :ivar:`handler` and ivar:`filter`.
+    :ivar filter: Filter instance configured by :ivar:`context`.
+    :ivar handler: Handler configured by :ivar:`context`.
+    :ivar include_mongo: Enable or disable pushing render metadata to mongodb.
+    """
 
     context: Context
     filter: Filter
     handler: Handler | None
+    include_mongo: bool
 
-    def __init__(self, context: Context | None = None):
+    def __init__(self, context: Context | None = None, include_mongo: bool = True):
         self.context = context or Context()
         self.filter = Filter(self.context)
         self.handler = None
+        self.include_mongo = include_mongo
 
     async def get_handler(self) -> Handler:
         if self.handler is None:
-            res = await schemas.QuartoHistory.spawn(self.context.db)
+            mongo_id = None
+            if self.include_mongo:
+                mongo_id = (
+                    await schemas.QuartoHistory.spawn(self.context.db)
+                ).inserted_id
+
             self.handler = Handler(
-                self.context, self.filter, mongo_id=res.inserted_id, _from="lifespan"
+                self.context, self.filter, mongo_id=mongo_id, _from="lifespan"
             )
 
         return self.handler
 
     async def __call__(self, stop_event: asyncio.Event):
-        """Watch for changes to quarto files and thier helpers."""
+        """Watch for changes to quarto files and thier helpers.
+
+        :param stop_event: An `asyncio.Event` that tells ``watchfiles`` to
+            terminate.
+        """
 
         handler = await self.get_handler()
 
@@ -794,20 +909,25 @@ FlagIgnore = Annotated[
     typer.Option("--ignore", help="Additional files too ignore."),
 ]
 
-cli = typer.Typer(
+cli_context = typer.Typer(
     help="Watcher context debugging help.",
     callback=Context.forTyper,
 )
+cli = typer.Typer(
+    help="Quarto commands.",
+    callback=Context.forTyper,
+)
+cli.add_typer(cli_context, name="context")
 
 
-@cli.command("show")
+@cli_context.command("show")
 def cmd_context_show(_context: typer.Context):
     """Show the current watcher context. Use for watcher debugging."""
     context: Context = _context.obj["quarto_context"]
     util.print_yaml(context.dict())
 
 
-@cli.command("test")
+@cli_context.command("test")
 def cmd_context_test(
     _context: typer.Context,
     paths: Annotated[list[pathlib.Path], typer.Argument()],
@@ -823,8 +943,10 @@ def cmd_context_test(
     t.add_column("Ignored by ``filter.is_ignored``")
 
     def add_paths(paths: Iterable[pathlib.Path], depth=0, rows=0) -> int:
-        """Returns the numver of rows encountered so far so that the table
-        is of unreasonable size, e.g. listing something stupid."""
+        """
+        Returns the numver of rows encountered so far so that the table
+        is not of unreasonable size, e.g. listing something stupid.
+        """
 
         if depth > max_depth:
             return rows
@@ -857,27 +979,129 @@ def cmd_context_test(
     rich.print(t)
 
 
+FlagIsDirectory = Annotated[
+    bool,
+    typer.Option(
+        "--directory/--file",
+        help="""
+            What is the render target kind? When a directory a specified in
+            the positional argument but ``--file`` is provided, then the target
+            will be ``index.qmd`` in that directory.",
+            """,
+    ),
+]
+FlagSuccessesInclude = Annotated[
+    bool,
+    typer.Option(
+        "--successes-include/--successes-exclude",
+        help=" Include or exclude successful renders from terminal and fileoutput.",
+    ),
+]
+FlagOutput = Annotated[
+    Optional[pathlib.Path],
+    typer.Option("--output", help="File to output render report into."),
+]
+FlagMongoInclude = Annotated[
+    bool,
+    typer.Option(
+        "--mongo-include/--mongo-exclude",
+        help="""
+            Push data to the database. When ``--mongo-exclude`` is used
+            database configuration environment variables/configuration should
+            not be required. This is used to not need a database connection or
+            configuration in docker builds.
+        """,
+    ),
+]
+FlagSilent = Annotated[bool, typer.Option("--silent/--not-silent")]
+FlagExitOnFailure = Annotated[
+    bool,
+    typer.Option(
+        "--on-failure-exit/--on-failure-continue",
+        help="When a render fails, should the failure cause this command to exit?",
+    ),
+]
+
+
 @cli.command("render")
 def cmd_render(
     _context: typer.Context,
+    path: Annotated[
+        str,
+        typer.Argument(
+            help="Directory or file to render. When rendering a directory, add ``--directory``."
+        ),
+    ],
     *,
-    path: Annotated[str, typer.Argument()],
-    is_directory: Annotated[bool, typer.Option("--directory/--file")] = False,
-    max_depth: int = 1,
-    include_success: Annotated[
-        bool, typer.Option("--success-include/--errors-only")
-    ] = False,
-    output: Annotated[Optional[pathlib.Path], typer.Option("--output")] = None,
+    max_depth: int = 5,
+    is_directory: FlagIsDirectory = False,
+    include_success: FlagSuccessesInclude = False,
+    include_mongo: FlagMongoInclude = True,
+    output: FlagOutput = None,
+    silent: FlagSilent = True,
+    exit_on_failure: FlagExitOnFailure = False,
 ):
+    """Render quarto content in the same way that the API would."""
+
+    async def callback(
+        result: schemas.QuartoRender,
+        _: schemas.QuartoRenderRequestItem,
+    ):
+        if not result.status_code and not include_success:
+            rich.print(f"[green]Successfully rendered `{result.target}`!")
+            return
+
+        if not silent:
+            util.print_yaml(
+                result,
+                rule_title="Render Result",
+                rule_kwargs=dict(characters="=", align="center", style="bold blue"),
+            )
+
+    async def do_render():
+        handler = await watch.get_handler()
+        # if dry_run:
+        #     result = list(map(str, handler.walk(data.items[0].path)))
+        #     util.print_yaml(
+        #         result,
+        #         rule_title="Items to be Rendered.",
+        #     )
+        #
+        #     return
+        # else:
+        result = await handler.render(
+            data,
+            callback=callback,
+            T=schemas.QuartoRender,
+        )
+        has_failed_renders = result.any_failed()
+
+        if output is not None:
+            rich.print(f"[green]Writing responses to `{output}`.")
+            dumped = result if include_success else result.get_failed()
+            with open(str(output), "w") as file:
+                yaml.safe_dump(dumped.model_dump(mode="json"), file)
+
+        if has_failed_renders and exit_on_failure:
+            failed = result.get_failed()
+            util.print_yaml(
+                failed,
+                rule_title="Failed Renders",
+                rule_kwargs=dict(characters="=", style="bold red"),
+            )
+            rich.print("[bold red]Failed for some renders.")
+            raise typer.Exit(2)
+
     try:
         data = schemas.QuartoRenderRequest(
+            exit_on_failure=exit_on_failure,
             items=[
                 schemas.QuartoRenderRequestItem(
                     path=path,
-                    kind="directory" if is_directory else "file",  
+                    kind="directory" if is_directory else "file",
                     directory_depth_max=max_depth,
                 )
-            ]
+            ],
         )
     except pydantic.ValidationError as err:
         util.print_error(err)
@@ -886,42 +1110,16 @@ def cmd_render(
         raise typer.Exit(1)
 
     context: Context = _context.obj["quarto_context"]
-    watch = Watch(context)
+    watch = Watch(context, include_mongo=include_mongo)
 
-    async def callback(
-        result: schemas.QuartoRender,
-        _: schemas.QuartoRenderRequestItem,
-    ):
-        if not result.status_code or not include_success:
-            rich.print(f"[green]Successfully rendered `{result.target}`!")
-            return
-
+    if not silent:
         util.print_yaml(
-            result,
-            rule_title="Render Result",
-            rule_kwargs=dict(characters="=", align="center", style="bold blue"),
+            data,
+            rule_title="Request Data",
+            rule_kwargs=dict(characters="#", align="center", style="bold cyan"),
         )
 
-    async def do_render():
-        handler = await watch.get_handler()
-        result = await handler.render(data, callback=callback)
-
-        if output is None:
-            return
-
-        rich.print(f"[green]Writing responses to `{output}`.")
-        dumped = [item for item in result.items if item.status_code or include_success]
-        with open(str(output), "r") as file:
-            yaml.dump(dumped, file)
-
-    util.print_yaml(
-        data,
-        rule_title="Request Data",
-        rule_kwargs=dict(characters="#", align="center", style="bold cyan"),
-    )
     asyncio.run(do_render())
-
-
 
 
 if __name__ == "__main__":

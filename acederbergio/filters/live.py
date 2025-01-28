@@ -234,10 +234,41 @@ class FilterLive(util.BaseFilterHasConfig):
     filter_name = "live"
     filter_config_cls = Config
     filter_config_default = dict()
+    filter_matches = dict(
+        is_dev=True,
+        elems=pf.Div,
+        filter_config=None,
+    )
+
+    def match(
+        self, element: pf.Element | None = None
+    ) -> None | LiveQuartoConfig | LiveServerConfig | overlay.ConfigOverlay:
+        if (
+            self.doc.format != "html"
+            or not env.ENV_IS_DEV
+            or self.config is None
+            or (live := self.config.live) is None
+        ):
+            return
+
+        if element is None:
+            return live
+
+        if (quarto := live.quarto) is not None:
+            if element.identifier in quarto.overlays:
+                return quarto.overlays[element.identifier]
+            if element.identifier == quarto.container.identifier:
+                return quarto
+
+        if (
+            server := live.server
+        ) is not None and element.identifier == server.container.identifier:
+            return server
 
     def __call__(self, element: pf.Element) -> pf.Element:
         if (
             self.doc.format != "html"
+            or not env.ENV_IS_DEV
             or not isinstance(element, pf.Div)
             or self.config is None
             or (live := self.config.live) is None
@@ -262,27 +293,13 @@ class FilterLive(util.BaseFilterHasConfig):
 
     def prepare(self, doc: pf.Doc) -> None:
         super().prepare(doc)
-        if (config := self.config) is None:
-            raise ValueError()
-
-        if config.live is False:
-            logger.warning(
-                "Ignoring `live` filter for `%s`.", doc.get_metadata("live_file_path")
-            )
-            return
-
         # NOTE: This is the only setting that does not go in the live config.
         file_path = self.doc.get_metadata("live_file_path")  # type:ignore
-        if not file_path:
-            logger.warning("Live could not find file path.")
-            return
-
-        if (live := config.live) is None:
+        if (live := self.match(None)) is None:
             logger.warning("Live filter disabled for `%s`.")
             return
-        elif not env.ENV_IS_DEV or self.doc.format != "html":
-            logger.debug("Live filter ignoring `%s` for .")
-            return
+
+        assert isinstance(live, LiveConfig)
 
         # NOTE: Look for names of additional elements to populate.
         js = util.JINJA_ENV.get_template("live.js.j2").render(

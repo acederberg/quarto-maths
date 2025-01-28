@@ -474,6 +474,7 @@ class QuartoRenderRequestItem(pydantic.BaseModel):
 class QuartoRenderRequest(pydantic.BaseModel):
     """Use this to request a render."""
 
+    exit_on_failure: Annotated[bool, pydantic.Field(False)]
     items: Annotated[
         list[QuartoRenderRequestItem],
         pydantic.Field(
@@ -489,12 +490,28 @@ class QuartoRenderRequest(pydantic.BaseModel):
         return [{"path": item} if isinstance(item, str) else item for item in v]
 
 
-class QuartoRenderResponse(pydantic.BaseModel):
+T_QuartoRenderResponseItem = TypeVar(
+    "T_QuartoRenderResponseItem",
+    bound=QuartoRenderMinimal,
+)
+
+
+class QuartoRenderResponse(pydantic.BaseModel, Generic[T_QuartoRenderResponseItem]):
     """Response from rendering."""
 
     uuid_uvicorn: UvicornUUID
     ignored: Annotated[list[QuartoRenderRequestItem], pydantic.Field()]
-    items: Annotated[list[QuartoRenderMinimal], pydantic.Field()]
+    items: Annotated[list[T_QuartoRenderResponseItem], pydantic.Field()]
+
+    def any_failed(self) -> bool:
+        return any(item.status_code > 0 for item in self.items)
+
+    def get_failed(self) -> Self:
+        items = [
+            item.model_dump(mode="json") for item in self.items if item.status_code
+        ]
+
+        return self.__class__(items=items, ignored=self.ignored)  # type: ignore
 
 
 class LogStatus(pydantic.BaseModel):

@@ -81,7 +81,9 @@ def require(varname: str, default: str | None = None) -> str:
     return var
 
 
-def require_path(varname: str, default: pathlib.Path | None = None) -> pathlib.Path:
+def require_path(
+    varname: str, default: pathlib.Path | None = None, *, strict: bool = True
+) -> pathlib.Path:
     """Require a setting  from environment that is an existing path.
 
     Resolves path to be absolute and ensures existance.
@@ -94,12 +96,12 @@ def require_path(varname: str, default: pathlib.Path | None = None) -> pathlib.P
 
     var = get(varname)
     if var is not None:
-        return pathlib.Path(var).resolve(strict=True)
+        return pathlib.Path(var).resolve(strict=strict)
 
     if default is None:
         raise ValueError(f"Value `{var}` for `{varname}` is falsy.")
 
-    return default.resolve(strict=True)
+    return default.resolve(strict=strict)
 
 
 def create_validator(varname: str, default: str | None = None):
@@ -157,7 +159,7 @@ if ROOT.parts[-1] != "site-packages":
     BLOG = ROOT / "blog"
     WORKDIR = ROOT
     PYPROJECT_TOML = ROOT / "pyproject.toml"
-    CONFIGS = require_path("config_dir", ROOT / "config")
+    CONFIGS = require_path("config_dir", ROOT / "config", strict=False)
 
     BUILD = BLOG / "build"
     ICONS = BLOG / "icons"
@@ -167,7 +169,7 @@ else:
     WORKDIR = require_path("workdir")
     BLOG = require_path("blog", WORKDIR / "blog")
     PYPROJECT_TOML = require_path("pyproject_toml", WORKDIR / "pyproject.toml")
-    CONFIGS = require_path("config_dir", pathlib.Path.home() / "config")
+    CONFIGS = require_path("config_dir", pathlib.Path.home() / "config", strict=False)
 
     BUILD = require_path("build", BLOG / "build")
     ICONS = require_path("icons", BLOG / "icons")
@@ -212,10 +214,10 @@ def create_logging_config() -> dict[str, Any]:
         },
     }
 
-    formatters: dict[str, Any] = {}
-    if ENV_IS_DEV:
-        formatters.update({"json": {"class": "acederbergio.util.JSONFormatter"}})
+    formatters: dict[str, Any]
+    formatters = {"json": {"class": "acederbergio.util.JSONFormatter"}}
 
+    if ENV_IS_DEV:
         handlers["queue"]["handlers"].append("cfg://handlers._socket")
         handlers["queue_no_stdout"]["handlers"].append("cfg://handlers._socket")
         handlers.update(
@@ -230,7 +232,21 @@ def create_logging_config() -> dict[str, Any]:
             }
         )
 
-    config_pandoc_filters = {"level": "INFO", "handlers": ["_socket"]}
+        config_pandoc_filters = {"level": "INFO", "handlers": ["_socket"]}
+    else:
+        # NOTE: Add build logs to build in ci mode.
+        handlers.update(
+            {
+                "_file": {
+                    "class": "logging.FileHandler",
+                    "level": "INFO",
+                    "formatter": "json",
+                    "filename": str(BUILD / "build.jsonl"),
+                }
+            }
+        )
+        config_pandoc_filters = {"level": "INFO", "handlers": ["_file"]}
+
     config_api = {"level": "INFO", "handlers": ["queue"]}
     out = {
         "version": 1,

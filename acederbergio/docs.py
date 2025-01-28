@@ -1,7 +1,5 @@
 """Tools for generating site documentation."""
 
-import os
-
 import griffe
 import quartodoc
 import typer
@@ -26,7 +24,6 @@ def cli_create_python_docs():
         "acederbergio",
         extensions=griffe.load_extensions({"griffe_pydantic": {"schema": True}}),
     )
-    griffe.LoadableExtensionType
     with chdir(env.BLOG):
         builder.build()
 

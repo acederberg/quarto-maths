@@ -209,7 +209,6 @@ def serve(context: Context, **kwargs):
 cli = typer.Typer(
     callback=Context.forTyper, help="Blog development server and watcher."
 )
-cli.add_typer(quarto.cli, name="context")
 
 
 @cli.command("dev")

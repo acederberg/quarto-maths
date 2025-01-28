@@ -37,6 +37,7 @@ quartodoc:
           package: acederbergio.filters
         - name: iframe
           package: acederbergio.filters
+
     - title: Utilities
       desc: Utilities for building and writing filters and API endpoints.
       options:
@@ -45,6 +46,14 @@ quartodoc:
         - name: env
         - name: util
         - name: iconify
+
+    - title: Development API
+      desc: Development Mode API
+      options:
+        exclude: []
+      contents:
+        - name: quarto
+          package: acederbergio.api
 
 
   # - title: API Documentation
