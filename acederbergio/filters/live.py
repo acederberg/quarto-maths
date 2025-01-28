@@ -106,7 +106,7 @@ class LiveQuartoConfig(util.BaseConfig):
     include_logs: Annotated[bool, pydantic.Field(False)]
     js: Annotated[list[str] | None, pydantic.Field(None)]
 
-    @pydantic.computed_field
+    @pydantic.computed_field # type: ignore[prop-decorator]
     @property
     def overlays(self) -> dict[str, overlay.ConfigOverlay]:
         return {
@@ -249,7 +249,7 @@ class FilterLive(util.BaseFilterHasConfig):
             or self.config is None
             or (live := self.config.live) is None
         ):
-            return
+            return None
 
         if element is None:
             return live
@@ -264,6 +264,8 @@ class FilterLive(util.BaseFilterHasConfig):
             server := live.server
         ) is not None and element.identifier == server.container.identifier:
             return server
+
+        return None
 
     def __call__(self, element: pf.Element) -> pf.Element:
         if (

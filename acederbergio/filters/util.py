@@ -2,8 +2,17 @@ import abc
 import os
 import pathlib
 import secrets
-from typing import (Annotated, Any, ClassVar, Literal, Protocol, Required,
-                    Type, TypedDict, TypeVar)
+from typing import (
+    Annotated,
+    Any,
+    ClassVar,
+    Literal,
+    Protocol,
+    Required,
+    Type,
+    TypedDict,
+    TypeVar,
+)
 
 import jinja2
 import panflute as pf
@@ -92,8 +101,8 @@ T_BaseMapFilter = TypeVar("T_BaseMapFilter", bound=pydantic.BaseModel)
 # NOTE: Protocol cannot be factored into ``BaseFilterHasConfig`` since subclasses
 #       should inherit from genertic.
 class BaseFilterHasConfigProto(Protocol[T_BaseMapFilter]):
-    filter_name: str
-    filter_config_cls: ClassVar[Type[T_BaseMapFilter]]
+    filter_name: ClassVar[str]
+    filter_config_cls: ClassVar[Type[T_BaseMapFilter]]  # type: ignore[misc]
     _config: T_BaseMapFilter | None
 
     @property
@@ -159,7 +168,7 @@ class BaseFilterHasConfig(BaseFilter, BaseFilterHasConfigProto[T_BaseMapFilter])
             return None
 
         logger.debug("Validating metadata for filter `%s`.", self.filter_name)
-        self._config = self.filter_config_cls.model_validate({self.filter_name: data})
+        self._config = self.filter_config_cls.model_validate({self.filter_name: data})  # type: ignore[assignment]
         return self._config
 
 
@@ -174,7 +183,7 @@ class BaseHasIdentifier(BaseConfig):
 
     identifier: FieldIdentifier
 
-    @pydantic.computed_field
+    @pydantic.computed_field  # type: ignore[prop-decorator]
     @property
     def js_name(self) -> str:
         """Make the name for any javascript variables."""

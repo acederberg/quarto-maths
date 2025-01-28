@@ -27,7 +27,7 @@ class ConfigLinkItem(floaty.ConfigFloatyItem["ConfigLinksContainer"]):
 
 class ConfigLinksContainer(floaty.ConfigFloatyContainer):
 
-    @pydantic.computed_field
+    @pydantic.computed_field  # type: ignore[prop-decorator]
     @property
     def classes_always(self) -> list[str]:
         return [*super().classes_always, "links"]

@@ -100,7 +100,7 @@ class ConfigOverlay(util.BaseHasIdentifier):
     classes_items_wrapper: util.FieldClasses
     classes_items: util.FieldClasses
 
-    @pydantic.computed_field
+    @pydantic.computed_field  # type: ignore[prop-decorator]
     @property
     def js_name(self) -> str:
         name_segments = list(map(str.title, self.identifier.split("-")))
@@ -182,14 +182,19 @@ class FilterOverlay(util.BaseFilter):
         if self.doc.format != "html":
             return element
 
-        if not isinstance(element, pf.Div) or self.config is None:
+        if (
+            not isinstance(element, pf.Div)
+            or self.config is None
+            or (config := self.config.overlay) is None
+        ):
             return element
 
-        if element.identifier not in self.config.overlay or self.doc.format != "html":
+        if (
+            config_overlay := config.get(element.identifier)
+        ) is None or self.doc.format != "html":
             return element
 
-        config = self.config.overlay[element.identifier]
-        element = config.hydrate_html(element)
+        element = config_overlay.hydrate_html(element)
 
         return element
 

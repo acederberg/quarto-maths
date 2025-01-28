@@ -1,5 +1,4 @@
 import asyncio
-import pathlib
 from time import time
 from typing import Any, Awaitable, Callable, ClassVar, TypeVar
 
@@ -94,7 +93,7 @@ class LogRoutesMixins:
                         return
 
                     raise err
-                except fastapi.WebSocketDisconnect as err:
+                except fastapi.WebSocketDisconnect:
                     return
 
                 count += data.count

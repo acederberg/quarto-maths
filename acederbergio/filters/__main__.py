@@ -30,7 +30,7 @@ pipeline steps must run first.
 import os
 import pathlib
 import subprocess
-from typing import Annotated
+from typing import Annotated, Any
 
 import jsonpath_ng
 import panflute as pf
@@ -172,17 +172,17 @@ def parse_config(
     # NOTE: Get the data.
     data = get_metadata_fr(path) if not lazy else get_metadata_lazy(path)
 
-    parsed = {key: data.get(key) for key in names}
+    parsed: Any = {key: data.get(key) for key in names}
     if model is not None:
         try:
-            parsed = model.model_validate(parsed)
+            validated = model.model_validate(parsed)
         except pydantic.ValidationError as err:
             # raise err
             rich.print("[red]Invalid configuration.")
             u.print_yaml(err.errors())
             raise typer.Exit(1) from err
 
-        parsed = parsed.model_dump(mode="json", exclude_none=True)
+        parsed = validated.model_dump(mode="json", exclude_none=True)
 
     if json_filter is not None:
         parsed = list(item.value for item in json_filter.find(data))

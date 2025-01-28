@@ -20,6 +20,7 @@ import subprocess
 import time
 from typing import (
     Annotated,
+    Any,
     AsyncGenerator,
     Awaitable,
     Callable,
@@ -27,7 +28,6 @@ from typing import (
     Iterable,
     Iterator,
     Optional,
-    Type,
 )
 
 import bson
@@ -525,6 +525,8 @@ class Handler:
         elif not self.filter.static.has_prefix(path):
             return await self.do_static(path)
 
+        return None
+
     # TODO: Should echo stdout when rendering. This will be helpful in for
     #       larger projects. What I would like in the end is to have the quarto
     #       overlay display the progress in real time using a websocket (or
@@ -556,7 +558,7 @@ class Handler:
 
         if not self.context.render:
             logger.info("Not rendering `%s` because dry run.", path)
-            return
+            return None
 
         # NOTE: Cannot specify nested data with ``quarto render``.
         logger.info("Starting render of `%s`.", path)
@@ -635,13 +637,13 @@ class Handler:
             raise ValueError("Mongo ID is required to do defered renders.")
 
         filters = schemas.QuartoHistoryFilters(kind=["direct"])  # type: ignore
-        history = await schemas.QuartoHistory.last_rendered(
+        history: Any = await schemas.QuartoHistory.last_rendered(
             self.context.db, filters=filters
         )
 
         if history is None:
             logger.info("No render to dispatch from changes in `%s`.", path)
-            return
+            return None
 
         last = history.items[0]
         logger.info(
@@ -753,8 +755,8 @@ class Handler:
             ]
             | None
         ) = None,
-        T: Type[schemas.T_QuartoRenderResponseItem] = schemas.QuartoRender,
-    ) -> schemas.QuartoRenderResponse[schemas.T_QuartoRenderResponseItem]:
+        # T: Type[schemas.T_QuartoRenderResponseItem] = schemas.QuartoRender,
+    ) -> schemas.QuartoRenderResponse[schemas.QuartoRender]:
         """
         Process :param:`render_data` and execute the callback.
 
@@ -765,10 +767,11 @@ class Handler:
         :param callback: Optional callback.
         """
 
-        items = []
-        ignored = []
+        items: list[schemas.QuartoRender] = []
+        ignored: list[schemas.QuartoRenderRequestItem] = []
 
         # TODO: Could be dryer.
+        data: schemas.QuartoRender | schemas.QuartoRenderRequestItem | None
         for item in render_data.items:
             if item.kind == "file":
                 data = await self(item.path)
@@ -802,7 +805,7 @@ class Handler:
                         break
 
         # NOTE: Directory items
-        return schemas.QuartoRenderResponse[T](
+        return schemas.QuartoRenderResponse[schemas.QuartoRender](
             uuid_uvicorn=env.RUN_UUID,
             items=items,
             ignored=ignored,

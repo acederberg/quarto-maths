@@ -1,16 +1,17 @@
 import datetime
+from typing import Any
 
 import pytest
 
 from acederbergio.filters.skills import (
     TODAY,
-    ConfigProgress,
-    ConfigProgressContainer,
-    ConfigProgressItem,
+    ConfigSkills,
+    ConfigSkillsContainer,
+    ConfigSkillsItem,
 )
 
 # TODAY = datetime.date.fromisoformat("2024-01-01")
-CONTAINER_DATA = dict()
+CONTAINER_DATA: Any = dict()
 ITEM_DATA = [
     {
         "key": f"key-{k}",
@@ -20,30 +21,34 @@ ITEM_DATA = [
     }
     for k in range(10)
 ]
-CONFIG_DATA = {"container": CONTAINER_DATA, "content": ITEM_DATA}
+CONFIG_DATA = {
+    "container": CONTAINER_DATA,
+    "content": ITEM_DATA,
+    "identifier": "pytest-skills-floaty",
+}
 
 
 @pytest.fixture
-def item() -> ConfigProgressItem:
-    return ConfigProgressItem.model_validate(ITEM_DATA[0])
+def item() -> ConfigSkillsItem:
+    return ConfigSkillsItem.model_validate(ITEM_DATA[0])
 
 
 @pytest.fixture
-def container() -> ConfigProgressContainer:
-    return ConfigProgressContainer.model_validate(CONTAINER_DATA)
+def container() -> ConfigSkillsContainer:
+    return ConfigSkillsContainer.model_validate(CONTAINER_DATA)
 
 
 @pytest.fixture
-def config() -> ConfigProgress:
-    return ConfigProgress.model_validate(CONFIG_DATA)
+def config() -> ConfigSkills:
+    return ConfigSkills.model_validate(CONFIG_DATA)
 
 
-class TestConfigProgressContainer: ...
+class TestConfigSkillsContainer: ...
 
 
-class TestConfigProgressItem:
+class TestConfigSkillsItem:
 
-    def test_basic(self, item: ConfigProgressItem, container: ConfigProgressContainer):
+    def test_basic(self, item: ConfigSkillsItem, container: ConfigSkillsContainer):
 
         # NOTE: These should all work.
         assert item.duration == TODAY - item.since
@@ -72,18 +77,18 @@ class TestConfigProgressItem:
         assert item.container == item.container_maybe
 
 
-class TestConfigProgress:
+class TestConfigSkills:
 
-    def test_basic(self, config: ConfigProgress):
-        assert type(config.container) is ConfigProgressContainer
+    def test_basic(self, config: ConfigSkills):
+        assert type(config.container) is ConfigSkillsContainer
         assert all(
-            isinstance(item, ConfigProgressItem)
+            isinstance(item, ConfigSkillsItem)
             and item.container_maybe is not None
             and item.duration_total is not None
             for item in config.content.values()
         )
 
-    def test_duration_total(self, config: ConfigProgress):
+    def test_duration_total(self, config: ConfigSkills):
 
         # NOTE: Total duration should be the same accross all items.
         items = config.content.values()

@@ -1,11 +1,11 @@
 import asyncio
 import datetime
 import http
-import itertools
 import os
 import pathlib
 import re
-from typing import Annotated, Any, ClassVar, Generic, Iterator, Literal, Self, TypeVar
+from typing import (Annotated, Any, ClassVar, Generic, Literal, Self,
+                    TypeVar)
 
 import bson
 import fastapi
@@ -133,7 +133,7 @@ class QuartoRenderMinimal(util.HasTime):
     target: str
     status_code: int
 
-    @pydantic.computed_field
+    @pydantic.computed_field # type: ignore[prop-decorator]
     @property
     def target_url_path(self) -> str | None:
         return path_to_url(self.target)
@@ -429,7 +429,7 @@ class QuartoHistoryFilters(pydantic.BaseModel):
     ]
     kind: Annotated[list[QuartoRenderKind] | None, pydantic.Field(default=None)]
 
-    def create_filter(self):
+    def create_filter(self) -> dict[str, Any]:
         conds: list[dict[str, Any]] = []
         if self.errors is not None:
             conds.append({"$ne" if self.errors else "$eq": ["$$item.status_code", 0]})

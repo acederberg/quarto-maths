@@ -48,7 +48,7 @@ def create_config(v: dict):
     )
 
     defaults = deep_update(defaults, v)
-    defaults["content"] = {defaults["content"]["key"]: defaults["content"]}
+    defaults["content"] = {defaults["content"]["key"]: defaults["content"]}  # type: ignore
 
     return ConfigUnderConstruction.model_validate(defaults)
 
@@ -63,7 +63,7 @@ def validate_configs(v):
 
 class ConfigContainer(floaty.ConfigFloatyContainer):
 
-    @pydantic.computed_field
+    @pydantic.computed_field  # type: ignore[prop-decorator]
     @property
     def classes_always(self) -> list[str]:
         return ["under-construction", f"under-construction-{self.size}", "floaty"]
@@ -126,23 +126,27 @@ class FilterUnderConstruction(util.BaseFilterHasConfig[Config]):
         return None
 
     def __call__(self, element: pf.Element):
-        if self.config is None or not isinstance(element, pf.Div):
+        if (
+            self.config is None
+            or (config := self.config.under_construction) is None
+            or not isinstance(element, pf.Div)
+        ):
             return element
 
         # NOTE: Generally use `#under-construction` for pages and
         #       `#under-construction-{size}` for sections.
-        if element.identifier in self.config.under_construction:
+
+        if config_floaty := config.get(element.identifier):
             logger.debug(
                 "Found target with id ``%s`` for ``under_construction``.",
                 element.identifier,
             )
-            config = self.config.under_construction[element.identifier]
-            return config.hydrate(element)
+            return config_floaty.hydrate(element)
 
         if size := self.is_under_construction(element):
             logger.debug("Found ``under_construction`` div for for `%s`.", size)
-            config = create_config(dict(container=dict(size=size)))
-            element = config.hydrate(element)
+            _config = create_config(dict(container=dict(size=size)))
+            element = _config.hydrate(element)
 
             return element
 

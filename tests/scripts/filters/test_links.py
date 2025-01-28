@@ -1,18 +1,23 @@
 import random
+from typing import Any
 
 import panflute as pf
 import pytest
 
 from acederbergio.filters import floaty
-from acederbergio.filters.links import Config, ConfigLinkItem, ConfigLinks
+from acederbergio.filters.links import (
+    Config,
+    ConfigLinkItem,
+    ConfigLinks,
+    ConfigLinksContainer,
+)
 
-CONTAINER_DATA = dict()
+CONTAINER_DATA: Any = dict()
 ITEM_DATA = [
     {
         "key": f"key-{k}",
         "label": f"test-{k}",
         "title": f"Test `{k}`",
-        "since": f"201{k}-01-02",
         "href": "https://acederberg.io",
     }
     for k in range(10)
@@ -31,12 +36,14 @@ def container() -> floaty.ConfigFloatyContainer:
 
 @pytest.fixture
 def config() -> ConfigLinks:
-    return ConfigLinks.model_validate(dict(container=CONTAINER_DATA, content=ITEM_DATA))
+    return ConfigLinks.model_validate(
+        dict(container=CONTAINER_DATA, content=ITEM_DATA, identifier="1234abcd")
+    )
 
 
 class TestConfigLinkItem:
 
-    def test_basic(self, item: ConfigLinkItem, container: floaty.ConfigFloatyContainer):
+    def test_basic(self, item: ConfigLinkItem, container: ConfigLinksContainer):
         item.container_maybe = container
         element = item.hydrate_tex()
         assert isinstance(element, pf.Link)
@@ -46,13 +53,13 @@ class TestConfigLinkItem:
         assert isinstance(element, pf.RawInline)
 
 
-class TestConfigLink:
-
-    def test_basic(self, config: ConfigLinks): ...
+# class TestConfigLink:
+#
+#     def test_basic(self, config: ConfigLinks): ...
 
 
 class TestConfig:
 
     def test_basic(self, config: ConfigLinks):
 
-        Config(floaty_links=[config])  # type: ignore
+        Config.model_validate(dict(links=[config]))

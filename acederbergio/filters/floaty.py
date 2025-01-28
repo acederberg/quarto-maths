@@ -165,7 +165,7 @@ class ConfigFloatyItem(util.BaseConfig, Generic[T_ConfigFloatyContainer]):
     classes_body: util.FieldClasses
     attributes: Annotated[dict[str, str], pydantic.Field(default_factory=dict)]
 
-    @pydantic.computed_field
+    @pydantic.computed_field # type: ignore[prop-decorator]
     @property
     def container(self) -> T_ConfigFloatyContainer:
         if self.container_maybe is None:
@@ -177,12 +177,12 @@ class ConfigFloatyItem(util.BaseConfig, Generic[T_ConfigFloatyContainer]):
     def serialize_container(self, v) -> bool:
         return v is not None
 
-    @pydantic.computed_field
+    @pydantic.computed_field # type: ignore[prop-decorator] 
     @property
     def is_container(self) -> bool:
         return self.container.columns < 0
 
-    @pydantic.computed_field
+    @pydantic.computed_field# type: ignore[prop-decorator]
     @property
     def class_base_name(self) -> str:
         return "floaty-item" if self.is_container else "card"
@@ -502,7 +502,7 @@ class ConfigFloatyContainer(util.BaseConfig):
 
     attributes_cards: util.FieldAttributes
 
-    @pydantic.computed_field
+    @pydantic.computed_field# type: ignore[prop-decorator]
     @property
     def classes_always(self) -> list[str]:
         return ["floaty", f"floaty-size-{self.size}"]
@@ -668,11 +668,11 @@ class BaseFloatyConfig(util.BaseConfig):
 
     filter_name: ClassVar[str]
 
-    @pydantic.computed_field
+    @pydantic.computed_field# type: ignore[prop-decorator]
     @property
     def overlay_identifiers(self) -> dict[str, str] | None:
         if (attr := getattr(self, self.filter_name, None)) is None:
-            return
+            return None
 
         return {
             item.overlay.identifier: item.identifier

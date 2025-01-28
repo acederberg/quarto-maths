@@ -170,6 +170,7 @@ class QueueHandler(logging.handlers.QueueHandler):
 
     # NOTE: Separate queues are required otherwise handlers are overwritten.
     def __init__(self, handlers: list[logging.Handler]) -> None:
+        q: queue.Queue
         super().__init__(q := queue.Queue())
 
         # NOTE: This next instruction looks stupid, but is really magic. See

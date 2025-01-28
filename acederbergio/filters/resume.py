@@ -13,7 +13,7 @@ For the final result, see [my resume](/resume/index.html) for a demonstation of
 the ``HTML`` result or [my resume as a ``PDF``](/resume/resume.pdf).
 """
 
-from typing import Annotated, Callable
+from typing import Annotated, ClassVar
 
 import panflute as pf
 import pydantic
@@ -118,7 +118,7 @@ class ConfigEducationItem(BaseExperienceItem):
     concentration: str
     degree: str
 
-    @pydantic.computed_field
+    @pydantic.computed_field  # type: ignore[prop-decorator]
     @property
     def title(self) -> str:
         return self.degree
@@ -199,7 +199,7 @@ class FilterResume(util.BaseFilterHasConfig):
     """Resume filter."""
 
     filter_config_cls = Config
-    filter_name = "resume"
+    filter_name: ClassVar[str] = "resume"
 
     def __call__(self, element: pf.Element):
         if not isinstance(element, pf.Div) or self.config is None:

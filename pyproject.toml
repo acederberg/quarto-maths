@@ -125,6 +125,8 @@ title = "Captura PyTest Coverage Report"
 overrides = [
   { module = "kagglehub.*", ignore_missing_imports = true },
   { module = "panflute.*", ignore_missing_imports = true },
+  { module = "quartodoc.*", ignore_missing_imports = true },
+  { module = "jsonpath_ng.*", ignore_missing_imports = true },
 ]
 
 [build-system]

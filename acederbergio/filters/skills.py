@@ -157,15 +157,18 @@ class FilterSkills(util.BaseFilterHasConfig[Config]):
         if self.doc.format != "html":
             return element
 
-        if not isinstance(element, pf.Div) or self.config is None:
+        if (
+            not isinstance(element, pf.Div)
+            or self.config is None
+            or (config := self.config.skills) is None
+        ):
             return element
 
         if self.doc.format != "html":
             return element
 
-        if element.identifier in self.config.skills:
-            config = self.config.skills[element.identifier]
-            element = config.hydrate_html(element)
+        if (config_skills := config.get(element.identifier)) is not None:
+            element = config_skills.hydrate_html(element)
 
         return self.config.hydrate_overlay(element)
 

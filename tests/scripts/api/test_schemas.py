@@ -37,4 +37,4 @@ class TestQuartoRenderRequest:
         with pytest.raises(pydantic.ValidationError) as err:
             QuartoRenderRequest.model_validate({"items": ["foo"]})
 
-        assert "`foo` is not a file or does not exist." in str(err.value)
+        assert "`foo` is not a file or does not exist" in str(err.value)

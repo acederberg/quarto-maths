@@ -58,5 +58,5 @@ under_construction:
 
 
 def test_config():
-    res = ConfigUnderConstruction.model_validate({"content": {}})
+    ConfigUnderConstruction.model_validate({"content": {}, "identifier": "spamspam"})
     Config.model_validate(raw)

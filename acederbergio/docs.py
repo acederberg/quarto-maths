@@ -13,7 +13,7 @@ cli = typer.Typer()
 
 
 @cli.command("python")
-def cli_create_python_docs():
+def cli_create_python_docs() -> None:
     """Build python docs using ``quartodoc``."""
 
     builder: quartodoc.Builder = quartodoc.Builder.from_quarto_config(
@@ -29,7 +29,7 @@ def cli_create_python_docs():
 
 
 @cli.command("javascript")
-def cli_create_javascript_docs():
+def cli_create_javascript_docs() -> None:
     """Build javascript documentation using ``typedoc``."""
 
     util.CONSOLE.print("[red]Not implemented yet.")

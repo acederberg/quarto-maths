@@ -79,7 +79,9 @@ class TestConfigFloaty:
 
     def test_basic(self):
         content = [TestConfigFloatyItem.item_args]
-        floaty = MinimalFloaty.model_validate({"content": content})
+        floaty = MinimalFloaty.model_validate(
+            {"content": content, "identifier": "pytest-floaty"}
+        )
         assert floaty.overlay is None
 
         # NOTE: Check that container is populated.

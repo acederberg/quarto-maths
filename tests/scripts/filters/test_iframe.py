@@ -1,13 +1,11 @@
-import panflute as pf
 import yaml
-from kagglehub.gcs_upload import pathlib
 
-from acederbergio.filters.iframe import Config, FilterIFrame
+from acederbergio.filters.iframe import Config
 
 
 def test_config():
 
-    config = Config.model_validate(
+    Config.model_validate(
         yaml.safe_load(
             """
         iframes:
@@ -22,15 +20,3 @@ def test_config():
         """
         )
     )
-
-
-HERE = pathlib.Path(__file__).resolve().parent
-
-
-def test_filter():
-
-    # with open(HERE / "iframe-example.qmd", "r") as file:
-    #     doc = pf.convert_text(file.read())
-
-    filter = FilterIFrame(doc=doc)
-    pf.run_filter(filter.action, doc=doc)
