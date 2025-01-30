@@ -56,3 +56,13 @@ $extraColors : ("blue": $blue,
 
 $utilities : ();
 $utilities : map-merge($utilities, createExtras($extraColors));
+
+/*-- scss:rules --*/
+
+
+p code:not(.sourceCode),
+li code:not(.sourceCode),
+td code:not(.sourceCode) {
+  background: var(--bs-body-bg);
+  color: var(--bs-pink);
+}

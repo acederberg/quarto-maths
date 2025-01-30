@@ -145,15 +145,27 @@ KindHandlerResult = Annotated[
 
 
 class QuartoRenderJob(util.HasTime):
+    """Schema for scheduled jobs.
+
+    This should provided `scheduled_time` later on.
+    """
+
     kind_handler_result: ClassVar[KindHandlerResult] = "job"
 
-    command: list[str]
     item_from: QuartoRenderFrom
     kind: QuartoRenderKind
     origin: str
     target: str
 
 
+# class QuartoRenderExec(QuartoRenderJob):
+#     """Schema for a job currently being executed."""
+#
+#     kind_handler_result: ClassVar[KindHandlerResult] = "exec"
+#
+
+
+# TODO: Should have scheduled time, exec time, and completed time later.
 class QuartoRenderMinimal(util.HasTime):
     """This should not be used internally, only to serve partial results."""
 
@@ -566,8 +578,8 @@ class QuartoRenderResponse(pydantic.BaseModel, Generic[T_QuartoRenderResponseIte
         callback: Callable[["QuartoHandlerResult"], Awaitable[None]] | None = None,
     ) -> Self:
 
-        items, ignored = [], []
-        raw = dict(items=items, ignored=ignored)
+        items, ignored = [], []  # type: ignore[var-annotated]
+        raw = dict(items=items, ignored=ignored)  # type: ignore[var-annotated]
 
         async for item in stream:
             if item.kind == "request":

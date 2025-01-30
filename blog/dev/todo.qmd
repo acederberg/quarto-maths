@@ -4,7 +4,6 @@ format:
   html:
     page-layout: full
 toc: false
-live_reload: True
 tbl-colwidths: [25, 15, 60]
 ---
 

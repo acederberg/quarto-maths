@@ -107,7 +107,6 @@ class BaseExperienceItem(util.BaseHasIdentifier):
 
         head_elements = self.create_header_tex()
         element.content = (*head_elements, *element.content)
-        logger.critical("%s", element.to_json())
         return element
 
 

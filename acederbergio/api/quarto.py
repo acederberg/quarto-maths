@@ -18,8 +18,15 @@ import os
 import pathlib
 import subprocess
 import time
-from typing import (Annotated, Any, AsyncGenerator, Awaitable, Callable,
-                    ClassVar, Iterable, Iterator, Optional)
+from typing import (
+    Annotated,
+    Any,
+    AsyncGenerator,
+    ClassVar,
+    Iterable,
+    Iterator,
+    Optional,
+)
 
 import bson
 import motor
@@ -565,14 +572,13 @@ class Handler:
             *(config := self.config).flags,
         ]
         if not self.config.render:
-            data = schemas.QuartoRenderJob(
+            job = schemas.QuartoRenderJob(
                 origin=str(origin),  # type: ignore
                 target=str(path),
-                command=command,
                 item_from=self._from,
                 kind="direct" if path == origin else "defered",
             )
-            return schemas.QuartoHandlerResult(data=data)
+            return schemas.QuartoHandlerResult(data=job)
         else:
             process = await asyncio.create_subprocess_shell(
                 " ".join(command),
@@ -677,14 +683,13 @@ class Handler:
         command = ["cp", str(path), str(path_dest)]
 
         if not self.config.render:
-            data = schemas.QuartoRenderJob(  # type: ignore
-                command=command,
+            job = schemas.QuartoRenderJob(  # type: ignore
                 item_from=self._from,
                 kind="static",
                 origin=str(path),
                 target=str(path),
             )
-            return schemas.QuartoHandlerResult(data=data)
+            return schemas.QuartoHandlerResult(data=job)
         else:
             logger.info("Copying `%s` to `%s`.", path, path_dest)
             process = await asyncio.create_subprocess_shell(
@@ -794,11 +799,20 @@ class Handler:
         def resolve(data: schemas.QuartoHandlerAny | None) -> schemas.QuartoHandlerAny:
             return data if data is not None else schemas.QuartoHandlerRequest(data=item)
 
+        def do_break(data: schemas.QuartoHandlerAny):
+            if data.kind == "request":
+                return False
+
+            if data.data.status_code and render_data.exit_on_failure:  # type: ignore
+                return True
+
+            return False
+
         # TODO: Could be dryer.
-        data: schemas.QuartoHandlerAny | None
+        data: schemas.QuartoHandlerAny
         for item in render_data.items:
             if item.kind == "file":
-                yield resolve(await self(item.path))
+                yield (data := resolve(await self(item.path)))
                 # if data is None:
                 #     yield
                 #     ignored.append(item)
@@ -808,8 +822,8 @@ class Handler:
                 # if callback:
                 #     await callback(data, item)
 
-                # if data.status_code and render_data.exit_on_failure:
-                #     break
+                if do_break(data):
+                    break
             else:
                 # NOTE: When render request items are emitted, then an item
                 #       falied to render.
@@ -818,7 +832,7 @@ class Handler:
                     depth_max=item.directory_depth_max,
                 )
                 async for data in iter_directory:
-                    yield resolve(data)
+                    yield (data := resolve(data))
 
                     # if isinstance(data, schemas.QuartoRenderRequestItem):
                     #     ignored.append(data)
@@ -826,9 +840,9 @@ class Handler:
                     # items.append(data)
                     # if callback:
                     #     await callback(data, item)
-                    #
-                    # if data.status_code and render_data.exit_on_failure:
-                    #     break
+
+                    if do_break(data):
+                        break
 
         # NOTE: Directory items
         # return schemas.QuartoRenderResponse[schemas.QuartoRender](
@@ -1082,6 +1096,9 @@ def cmd_render(
         item: schemas.QuartoHandlerResult,
     ):
         data = item.data
+        if data.kind_handler_result == "request":
+            return
+
         if not data.status_code and not include_success:
             rich.print(f"[green]Successfully rendered `{data.target}`!")
             return
