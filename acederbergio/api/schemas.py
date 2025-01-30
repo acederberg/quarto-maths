@@ -4,13 +4,24 @@ import http
 import os
 import pathlib
 import re
-from typing import (Annotated, Any, ClassVar, Generic, Literal, Self,
-                    TypeVar)
+from typing import (
+    Annotated,
+    Any,
+    AsyncGenerator,
+    Awaitable,
+    Callable,
+    ClassVar,
+    Generic,
+    Literal,
+    Self,
+    TypeVar,
+)
 
 import bson
 import fastapi
 import motor.motor_asyncio
 import pydantic
+from typing_extensions import Doc
 
 from acederbergio import db, env, util
 
@@ -124,8 +135,29 @@ class LogItem(pydantic.BaseModel):
         return datetime.datetime.fromtimestamp(self.created)
 
 
+KindHandlerResult = Annotated[
+    Literal["request", "job", "render"],
+    Doc(
+        "This is used in ``quarto.HandlerResult`` to indicate what the "
+        "handler is returning from ``__call__``."
+    ),
+]
+
+
+class QuartoRenderJob(util.HasTime):
+    kind_handler_result: ClassVar[KindHandlerResult] = "job"
+
+    command: list[str]
+    item_from: QuartoRenderFrom
+    kind: QuartoRenderKind
+    origin: str
+    target: str
+
+
 class QuartoRenderMinimal(util.HasTime):
     """This should not be used internally, only to serve partial results."""
+
+    kind_handler_result: ClassVar[KindHandlerResult] = "render"
 
     item_from: QuartoRenderFrom
     kind: QuartoRenderKind
@@ -133,7 +165,7 @@ class QuartoRenderMinimal(util.HasTime):
     target: str
     status_code: int
 
-    @pydantic.computed_field # type: ignore[prop-decorator]
+    @pydantic.computed_field  # type: ignore[prop-decorator]
     @property
     def target_url_path(self) -> str | None:
         return path_to_url(self.target)
@@ -446,6 +478,8 @@ class QuartoHistoryFilters(pydantic.BaseModel):
 
 class QuartoRenderRequestItem(pydantic.BaseModel):
 
+    kind_handler_result: ClassVar[KindHandlerResult] = "request"
+
     kind: Annotated[Literal["file", "directory"], pydantic.Field("file")]
     path: Annotated[str, pydantic.Field()]
     directory_depth_max: Annotated[int, pydantic.Field(100, exclude=True)]
@@ -491,8 +525,7 @@ class QuartoRenderRequest(pydantic.BaseModel):
 
 
 T_QuartoRenderResponseItem = TypeVar(
-    "T_QuartoRenderResponseItem",
-    bound=QuartoRenderMinimal,
+    "T_QuartoRenderResponseItem", QuartoRenderMinimal, QuartoRender, QuartoRenderJob
 )
 
 
@@ -503,15 +536,72 @@ class QuartoRenderResponse(pydantic.BaseModel, Generic[T_QuartoRenderResponseIte
     ignored: Annotated[list[QuartoRenderRequestItem], pydantic.Field()]
     items: Annotated[list[T_QuartoRenderResponseItem], pydantic.Field()]
 
+    @property
+    def kind_handler_result(self) -> KindHandlerResult | None:
+        if not len(self.items):
+            return None
+
+        return self.items[0].kind_handler_result
+
     def any_failed(self) -> bool:
-        return any(item.status_code > 0 for item in self.items)
+        if self.kind_handler_result == "job":
+            return False
+
+        return any(item.status_code != 0 for item in self.items)  # type: ignore
 
     def get_failed(self) -> Self:
+        if self.kind_handler_result == "job":
+            raise ValueError()
+
         items = [
-            item.model_dump(mode="json") for item in self.items if item.status_code
+            item.model_dump(mode="json") for item in self.items if item.status_code  # type: ignore
         ]
 
         return self.__class__(items=items, ignored=self.ignored)  # type: ignore
+
+    @classmethod
+    async def fromHandlerResults(
+        cls,
+        stream: AsyncGenerator["QuartoHandlerResult", None],
+        callback: Callable[["QuartoHandlerResult"], Awaitable[None]] | None = None,
+    ) -> Self:
+
+        items, ignored = [], []
+        raw = dict(items=items, ignored=ignored)
+
+        async for item in stream:
+            if item.kind == "request":
+                ignored.append(item.data)
+            else:
+                items.append(item.data)
+
+            if callback is not None:
+                await callback(item)
+
+        return cls.model_validate(raw)
+
+
+T_QuartoHandlerResult = TypeVar(
+    "T_QuartoHandlerResult",
+    QuartoRender,
+    QuartoRenderJob,
+    QuartoRenderRequestItem,
+)
+
+
+class QuartoHandlerResult(pydantic.BaseModel, Generic[T_QuartoHandlerResult]):
+
+    data: T_QuartoHandlerResult
+
+    @property
+    def kind(self) -> KindHandlerResult:
+        return self.data.kind_handler_result
+
+
+QuartoHandlerRender = QuartoHandlerResult[QuartoRender]
+QuartoHandlerJob = QuartoHandlerResult[QuartoRenderJob]
+QuartoHandlerRequest = QuartoHandlerResult[QuartoRenderRequestItem]
+QuartoHandlerAny = QuartoHandlerRequest | QuartoHandlerJob | QuartoHandlerRender
 
 
 class LogStatus(pydantic.BaseModel):

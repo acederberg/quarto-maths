@@ -239,7 +239,7 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
         cls,
         quarto_handler: depends.QuartoHandler,
         render_data: schemas.QuartoRenderRequest,
-    ) -> schemas.QuartoRenderResponse:
+    ) -> schemas.QuartoRenderResponse[schemas.QuartoRender]:
 
         # items = []
         # ignored = []
@@ -273,7 +273,9 @@ class QuartoRoutes(LogRoutesMixins, base.Router):
         #     ignored=ignored,
         # )
 
-        return await quarto_handler.render(render_data)
+        return await schemas.QuartoRenderResponse[
+            schemas.QuartoRender
+        ].fromHandlerResults(quarto_handler.render(render_data))
 
     @classmethod
     async def get_log_status(cls, database: depends.Db) -> schemas.LogStatus:

@@ -112,7 +112,7 @@ NOTE: This section should contain education, profile, and experience.
 
 ## Experience { .py-3 #resume-experience }
 
-{{< include ./partials/_consulting.qmd >}}
+{{< include ./partials/_blog.qmd >}}
 
 {{< include ./partials/_mve.qmd >}}
 

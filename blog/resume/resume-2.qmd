@@ -7,12 +7,6 @@ format:
     keep-tex: true
     template-partials:
       - ./templates/title.tex
-resume:
-  overwrites:
-    links:
-      sep: pipes
-    contacts:
-      sep: pipes
 filters:
   - ../filters/resume.py
   - ../filters/minipage.py
@@ -24,34 +18,43 @@ filters:
 
 {{< include ./partials/_title.qmd >}}
 
-<!-- START HEAD LEFT ---------------------------> ::: { #head-left .minipage minipage-width=".5" .minipage-first }
+\begin{center}
+\phantomsection\label{resume-contacts}
+\faLocationArrow { Albuquerque, NM } \label{location}
+\faPhone { (505) 589 - 6914 } \label{phone}
+\faEnvelope { adrn.cederberg123@gmail.com } \label{email}
+\end{center}
 
-::: { #resume-latest }
+\begin{center}
+\phantomsection\label{resume-links}
+\href{https://www.linkedin.com/in/adrian-cederberg-b453571b9}{\faLinkedin { Linkedin } \label{linkedin}}
+\href{https://github.com/acederberg}{\faGithub { Github } \label{github}}
+\href{https://acederberg.io/resume.html}{\faCubes { Website } \label{website}}
+\href{https://acederberg.io/resume/resume.pdf}{\faFilePdf { PDF } \label{resume}}
+\end{center}
 
-{{< include ./partials/_resume_latest.qmd >}}
-
-{{< include ./partials/_resume_website.qmd >}}
-
-:::
-
-<!-- STOP HEAD LEFT ----------------------------> :::
-
-<!-- START HEAD MIDDLE -------------------------> ::: { #head-middle .minipage minipage-width=".30" }
-
-...
-
-<!-- STOP HEAD MIDDLE --------------------------> :::
-
-<!-- START HEAD RIGHT --------------------------> ::: { #head-right .minipage minipage-width=".20" .minipage-final }
-
-...
-
-<!-- STOP HEAD RIGHT ---------------------------> :::
+\vspace{16pt}
 
 <!-- STOP HEAD ----------------------------------> :::
 
-{{< include ./partials/_links.qmd >}}
-{{< include ./partials/_contact.qmd >}}
 {{< include ./partials/_profile.qmd >}}
+
+## Experience
+
+{{< include ./partials/_blog.qmd >}}
+
+{{< include ./partials/_mve.qmd >}}
+
+## Education
+
+{{< include ./partials/_unm.qmd >}}
+
+## Skills
+
+{{< include ./partials/_skills.qmd >}}
+
+## Projects
+
+{{< include ./partials/_projects.qmd >}}
 
 <!-- STOP RESUME --------------------------------> :::

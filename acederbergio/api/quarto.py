@@ -18,17 +18,8 @@ import os
 import pathlib
 import subprocess
 import time
-from typing import (
-    Annotated,
-    Any,
-    AsyncGenerator,
-    Awaitable,
-    Callable,
-    ClassVar,
-    Iterable,
-    Iterator,
-    Optional,
-)
+from typing import (Annotated, Any, AsyncGenerator, Awaitable, Callable,
+                    ClassVar, Iterable, Iterator, Optional)
 
 import bson
 import motor
@@ -122,8 +113,9 @@ class Node:
         return out
 
 
-class ConfigRender(pydantic.BaseModel):
+class ConfigHandler(pydantic.BaseModel):
     verbose: Annotated[bool, pydantic.Field(default=False)]
+    render: Annotated[bool, pydantic.Field(default=True)]
     flags: Annotated[
         list[str],
         pydantic.Field(
@@ -144,7 +136,7 @@ def create_set_defaults_validator(defaults: set[pathlib.Path]):
     return pydantic.BeforeValidator(wrapper)
 
 
-class ConfigWatch(pydantic.BaseModel):
+class ConfigFilter(pydantic.BaseModel):
     """Configuration settings for ``Filter``."""
 
     filters: Annotated[
@@ -213,15 +205,15 @@ class Config(ysp.BaseYamlSettings):
         yaml_files={env.CONFIGS / "dev.yaml": ysp.YamlFileConfigDict(required=False)}
     )
 
-    render: Annotated[
-        ConfigRender,
+    handler: Annotated[
+        ConfigHandler,
         pydantic.Field(
             default_factory=dict,
             description="Settings for rendering.",
         ),
     ]
-    watch: Annotated[
-        ConfigWatch,
+    filter: Annotated[
+        ConfigFilter,
         pydantic.Field(
             description="Settings for the watcher.",
             default_factory=dict,
@@ -236,8 +228,6 @@ class Context:
 
     database: db.Config
     config: Config
-    render: bool
-    render_verbose: bool
 
     _client: motor.motor_asyncio.AsyncIOMotorClient | None
     _db: motor.motor_asyncio.AsyncIOMotorDatabase | None
@@ -246,15 +236,16 @@ class Context:
         self,
         config: Config | None = None,
         database: db.Config | None = None,
-        *,
-        render_verbose: bool = False,
-        render: bool = True,
+        # *,
+        # render_verbose: bool = False,
+        # render: bool = True,
     ):
         self.database = database or db.Config()  # type: ignore
         self.config = config or Config()  # type: ignore
 
-        self.render = render
-        self.render_verbose = render_verbose or self.config.render.verbose
+        # self.render = render
+        # self.render_verbose = render_verbose or self.config.render.verbose
+
         self._collection = None
         self._client = None
 
@@ -262,23 +253,18 @@ class Context:
     def forTyper(
         cls,
         _context: typer.Context,
-        render_verbose: "FlagQuartoVerbose" = False,
-        render: "FlagQuartoRender" = True,
-        filters: "FlagFilters" = list(),
-        assets: "FlagAsset" = list(),
-        ignore: "FlagIgnore" = list(),
+        render_verbose: "FlagHandlerVerbose" = False,
+        render: "FlagHandlerRender" = True,
+        # filters: "FlagFilterFilters" = list(),
+        assets: "FlagFilterAsset" = list(),
+        ignore: "FlagFilterIgnore" = list(),
     ):
-        context = Context(
-            Config.model_validate({}),
-            render_verbose=render_verbose,
-            render=render,
-        )
-        filter = Filter(
-            context,
-            filters=filters,
-            assets=assets,
-            ignore=ignore,
-        )
+        config_raw = {
+            "handler": {"verbose": render_verbose, "render": render},
+            "filter": {"assets": assets, "ignore": ignore},
+        }
+        context = Context(Config.model_validate(config_raw))
+        filter = Filter(context)
 
         if _context.obj is None:
             _context.obj = dict()
@@ -303,8 +289,6 @@ class Context:
         out = {
             "config": self.config.model_dump(mode="json"),
             "db": self.database.model_dump(mode="json"),
-            "render": self.render,
-            "render_verbose": self.render_verbose,
         }
         return out
 
@@ -319,22 +303,11 @@ class Context:
 class Filter:
     """Determines which files are ignored and holds file categorization."""
 
-    # format: off
-    suffixes: ClassVar[set[str]] = {
-        ".py",
-        ".lua",
-        ".qmd",
-        ".html",
-        ".yaml",
-        ".html",
-        ".json",
-        ".svg",
-        ".css",
-        ".scss",
-        ".js",
-        ".tex",
-    }
-    # format: on
+    # fmt: off
+    suffixes_deffered: ClassVar[set[str]] = { ".py", ".lua", ".qmd", ".html", ".yaml", ".css", ".scss", ".tex" }
+    suffixes_static: ClassVar[set[str]] = { ".json", ".svg", ".js" }
+    suffixes: ClassVar[set[str]] = suffixes_deffered | suffixes_static
+    # fmt: on
 
     tt_tolerance: Annotated[
         int,
@@ -367,6 +340,7 @@ class Filter:
         Node,
         Doc("Trie for matching ignored paths."),
     ]
+    config: ConfigFilter
 
     def __init__(
         self,
@@ -379,11 +353,12 @@ class Filter:
         ignore: Iterable[pathlib.Path] | None = None,
     ) -> None:
 
-        watch = context.config.watch
-        self.filters = self.__validate_trie(filters or set(), watch.filters)
-        self.assets = self.__validate_trie(assets or set(), watch.assets)
-        self.static = self.__validate_trie(static or set(), watch.static)
-        self.ignore = self.__validate_trie(ignore or set(), watch.ignore)
+        config = context.config.filter
+        self.config = config
+        self.filters = self.__validate_trie(filters or set(), config.filters)
+        self.assets = self.__validate_trie(assets or set(), config.assets)
+        self.static = self.__validate_trie(static or set(), config.static)
+        self.ignore = self.__validate_trie(ignore or set(), config.ignore)
 
         self.tt_tolerance = tt_tolerance
         self.tt_last = dict()
@@ -400,7 +375,7 @@ class Filter:
         :returns: ``True`` if the file should be included in changes, ``False``
             if it should be ignored.
         """
-        return not self.is_ignored(pathlib.Path(path))
+        return not self.is_ignored(pathlib.Path(path))[0]
 
     def __validate_trie(
         self,
@@ -417,28 +392,26 @@ class Filter:
             "static": self.static.dict(),
         }
 
-    def is_ignored(self, path: pathlib.Path) -> bool:
+    def is_ignored(self, path: pathlib.Path) -> tuple[bool, str | None]:
         if self.ignore.has_prefix(path):
             logger.debug("`%s` ignored explicity.", path)
-            return True  # ignored
+            return True, "explicit"
         elif path.is_dir():
-            return True
+            return True, "directory"
         elif path.suffix not in self.suffixes:
-            logger.debug("Ignored event at `%s` because of suffix.", path)
-            return True
+            return True, f"suffix={path.suffix}"
         elif self.is_event_from_conform(path):
-            logger.debug("Event for path `%s` came from `conform.nvim`.", path)
-            return True
+            return True, "too close"
         elif (
             self.filters.has_prefix(path)
             or self.assets.has_prefix(path)
             or self.static.has_prefix(path)
         ):
             logger.debug("Not ignored.")
-            return False
+            return False, None
 
         logger.debug("Not ignoring changes in `%s`.", path)
-        return False
+        return False, None
 
     def is_event_from_conform(self, path: pathlib.Path):
         """Check for sequential write events, e.g. from ``conform.nvim``
@@ -489,9 +462,16 @@ class Handler:
         self.mongo_id = mongo_id
         self._from = _from
 
+    @property
+    def config(self) -> ConfigHandler:
+        return self.context.config.handler
+
     async def __call__(
-        self, v: str | pathlib.Path, *, exclude_defered: bool = False
-    ) -> schemas.QuartoRender | None:
+        self,
+        v: str | pathlib.Path,
+        *,
+        exclude_defered: bool = False,
+    ) -> schemas.QuartoHandlerRender | schemas.QuartoHandlerJob | None:
         """Entrypoint for dispatching file renders.
 
         For rendering of directories, see :meth:`do_directory`.
@@ -504,6 +484,21 @@ class Handler:
         """
 
         path = pathlib.Path(v).resolve() if isinstance(v, str) else v
+        dispatch_kind = self.determine_dispatch_kind(path)
+
+        if dispatch_kind == "static":
+            return await self.do_static(path)
+        elif dispatch_kind == "direct":
+            return await self.do_qmd(path)
+        elif dispatch_kind == "defered" and not exclude_defered:
+            return await self.do_defered(path)
+
+        return None
+
+    def determine_dispatch_kind(
+        self, path: pathlib.Path
+    ) -> schemas.QuartoRenderKind | None:
+
         if os.path.isdir(path):
             raise ValueError("Cannot handle directory.")
 
@@ -515,15 +510,18 @@ class Handler:
         #       ``partials`` folder.
         is_partial = path.parent.name == "partials" and path.name.startswith("_")
         if path.suffix == ".qmd" and not is_partial:
-            return await self.do_qmd(path)
-        elif not exclude_defered and (
+            return "direct"
+        elif (
             self.filter.filters.has_prefix(path)
             or self.filter.assets.has_prefix(path)
             or is_partial
+        ) and path.suffix in self.filter.suffixes_deffered:
+            return "defered"
+        elif (
+            self.filter.static.has_prefix(path)
+            and path.suffix in self.filter.suffixes_static
         ):
-            return await self.do_defered(path)
-        elif not self.filter.static.has_prefix(path):
-            return await self.do_static(path)
+            return "static"
 
         return None
 
@@ -540,7 +538,7 @@ class Handler:
         path: pathlib.Path,
         *,
         origin: pathlib.Path | None = None,
-    ) -> schemas.QuartoRender | None:
+    ) -> schemas.QuartoHandlerRender | schemas.QuartoHandlerJob:
         """Render ``qmd`` by spinning up a subprocess for ``quarto render``.
 
         When ``env.VERBOSE`` is set ``true`` (by setting the environment
@@ -556,10 +554,6 @@ class Handler:
             this will return ``None``)*.
         """
 
-        if not self.context.render:
-            logger.info("Not rendering `%s` because dry run.", path)
-            return None
-
         # NOTE: Cannot specify nested data with ``quarto render``.
         logger.info("Starting render of `%s`.", path)
         command = [
@@ -568,50 +562,64 @@ class Handler:
             str(path),
             "--metadata",
             f"live_file_path={path.relative_to(env.WORKDIR)}",
-            *self.context.config.render.flags,
+            *(config := self.config).flags,
         ]
-        process = await asyncio.create_subprocess_shell(
-            " ".join(command),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        await process.wait()
-
-        if code := process.returncode:
-            logger.warning("Failed to render `%s`. Exit code `%s`.", path, code)
+        if not self.config.render:
+            data = schemas.QuartoRenderJob(
+                origin=str(origin),  # type: ignore
+                target=str(path),
+                command=command,
+                item_from=self._from,
+                kind="direct" if path == origin else "defered",
+            )
+            return schemas.QuartoHandlerResult(data=data)
         else:
-            logger.info("Rendered `%s`.", path)
+            process = await asyncio.create_subprocess_shell(
+                " ".join(command),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            await process.wait()
 
-        logger.debug("Pushing quarto logs document.")
-        data = await schemas.QuartoRender.fromProcess(
-            path,
-            origin or path,
-            process,
-            command=command,
-            kind="direct" if path == origin else "defered",
-            _from=self._from,
-        )
+            if code := process.returncode:
+                logger.warning("Failed to render `%s`. Exit code `%s`.", path, code)
+            else:
+                logger.info("Rendered `%s`.", path)
 
-        if env.VERBOSE or self.context.render_verbose:
-            color = "red" if data.status_code else "blue"
-            util.print_yaml(
-                data,
-                name="Render Result",
-                as_json=True,
-                rule_title=f"Render of `{data.target}` at `{data.time}` from changes in `{data.origin}`",
-                rule_kwargs=dict(characters="=", align="center", style=f"bold {color}"),
+            logger.debug("Pushing quarto logs document.")
+            data = await schemas.QuartoRender.fromProcess(
+                path,
+                origin or path,
+                process,
+                command=command,
+                kind="direct" if path == origin else "defered",
+                _from=self._from,
             )
 
-        if self.mongo_id:
-            await schemas.QuartoHistory.push(
-                self.context.db,
-                self.mongo_id,
-                [data.model_dump(mode="json")],
-            )
+            if env.VERBOSE or config.verbose:
+                color = "red" if data.status_code else "blue"
+                util.print_yaml(
+                    data,
+                    name="Render Result",
+                    as_json=True,
+                    rule_title=f"Render of `{data.target}` at `{data.time}` from changes in `{data.origin}`",
+                    rule_kwargs=dict(
+                        characters="=", align="center", style=f"bold {color}"
+                    ),
+                )
 
-        return data
+            if self.mongo_id:
+                await schemas.QuartoHistory.push(
+                    self.context.db,
+                    self.mongo_id,
+                    [data.model_dump(mode="json")],
+                )
 
-    async def do_qmd(self, path: pathlib.Path) -> schemas.QuartoRender | None:
+            return schemas.QuartoHandlerResult(data=data)
+
+    async def do_qmd(
+        self, path: pathlib.Path
+    ) -> schemas.QuartoHandlerResult | schemas.QuartoHandlerJob:
         """Render a ``qmd`` document from changes in itself.
 
         :param path:
@@ -622,7 +630,9 @@ class Handler:
 
         return data
 
-    async def do_defered(self, path: pathlib.Path) -> schemas.QuartoRender | None:
+    async def do_defered(
+        self, path: pathlib.Path
+    ) -> schemas.QuartoHandlerResult | schemas.QuartoHandlerJob | None:
         """Filters, assets, and partials will have defered changes.
 
         In other words, the last modified qmd should be rerendered.
@@ -652,7 +662,7 @@ class Handler:
         data = await self.render_qmd(pathlib.Path(last.target).resolve(), origin=path)
         return data
 
-    async def do_static(self, path: pathlib.Path) -> schemas.QuartoRender:
+    async def do_static(self, path: pathlib.Path) -> schemas.QuartoHandlerResult | None:
         """Static assets should be coppied to their respective location in
         ``build``.
 
@@ -664,39 +674,49 @@ class Handler:
         """
 
         path_dest = env.BUILD / os.path.relpath(path, env.BLOG)
-        logger.info("Copying `%s` to `%s`.", path, path_dest)
         command = ["cp", str(path), str(path_dest)]
 
-        process = await asyncio.create_subprocess_shell(
-            " ".join(command),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        await process.wait()
-        data = await schemas.QuartoRender.fromProcess(
-            path,
-            path_dest,
-            process,
-            command=command,
-            kind="static",
-            _from=self._from,
-        )
-
-        if self.mongo_id is not None:
-            await schemas.QuartoHistory.push(
-                self.context.db,
-                self.mongo_id,
-                [data.model_dump(mode="json")],
+        if not self.config.render:
+            data = schemas.QuartoRenderJob(  # type: ignore
+                command=command,
+                item_from=self._from,
+                kind="static",
+                origin=str(path),
+                target=str(path),
+            )
+            return schemas.QuartoHandlerResult(data=data)
+        else:
+            logger.info("Copying `%s` to `%s`.", path, path_dest)
+            process = await asyncio.create_subprocess_shell(
+                " ".join(command),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            await process.wait()
+            data = await schemas.QuartoRender.fromProcess(
+                path,
+                path_dest,
+                process,
+                command=command,
+                kind="static",
+                _from=self._from,
             )
 
-        return data
+            if self.mongo_id is not None:
+                await schemas.QuartoHistory.push(
+                    self.context.db,
+                    self.mongo_id,
+                    [data.model_dump(mode="json")],
+                )
+
+            return schemas.QuartoHandlerResult(data=data)
 
     async def do_directory(
         self,
         directory: str | pathlib.Path,
         *,
         depth_max: int = 5,
-    ) -> AsyncGenerator[schemas.QuartoRender | schemas.QuartoRenderRequestItem, None]:
+    ) -> AsyncGenerator[schemas.QuartoHandlerAny, None]:
         """Render a directory using quarto.
 
         :param directory:
@@ -710,10 +730,11 @@ class Handler:
 
         for item in self.walk(directory, depth_max=depth_max):
             if (res := await self(item, exclude_defered=True)) is None:
-                yield schemas.QuartoRenderRequestItem(  # type: ignore
+                _ = schemas.QuartoRenderRequestItem(  # type: ignore
                     path=str(item.relative_to(env.WORKDIR)),
                     kind="file",
                 )
+                yield schemas.QuartoHandlerRequest(data=_)
                 continue
 
             yield res
@@ -735,10 +756,13 @@ class Handler:
             return
 
         path = path.resolve()
+        if path.suffix.startswith("_"):
+            return
+
         if os.path.isdir(path):
             for item in os.listdir(path):
                 yield from self.walk(path / item, depth=depth, depth_max=depth_max + 1)
-        elif os.path.isfile(path) and not self.filter.is_ignored(path):
+        elif os.path.isfile(path) and not self.filter.is_ignored(path)[0]:
             yield path
 
         return
@@ -747,16 +771,16 @@ class Handler:
     async def render(
         self,
         render_data: schemas.QuartoRenderRequest,
-        *,
-        callback: (
-            Callable[
-                [schemas.QuartoRender, schemas.QuartoRenderRequestItem],
-                Awaitable[None],
-            ]
-            | None
-        ) = None,
+        # *,
+        # callback: (
+        #     Callable[
+        #         [schemas.QuartoRender, schemas.QuartoRenderRequestItem],
+        #         Awaitable[None],
+        #     ]
+        #     | None
+        # ) = None,
         # T: Type[schemas.T_QuartoRenderResponseItem] = schemas.QuartoRender,
-    ) -> schemas.QuartoRenderResponse[schemas.QuartoRender]:
+    ) -> AsyncGenerator[schemas.QuartoHandlerAny, None]:
         """
         Process :param:`render_data` and execute the callback.
 
@@ -767,24 +791,25 @@ class Handler:
         :param callback: Optional callback.
         """
 
-        items: list[schemas.QuartoRender] = []
-        ignored: list[schemas.QuartoRenderRequestItem] = []
+        def resolve(data: schemas.QuartoHandlerAny | None) -> schemas.QuartoHandlerAny:
+            return data if data is not None else schemas.QuartoHandlerRequest(data=item)
 
         # TODO: Could be dryer.
-        data: schemas.QuartoRender | schemas.QuartoRenderRequestItem | None
+        data: schemas.QuartoHandlerAny | None
         for item in render_data.items:
             if item.kind == "file":
-                data = await self(item.path)
-                if data is None:
-                    ignored.append(item)
-                    continue
+                yield resolve(await self(item.path))
+                # if data is None:
+                #     yield
+                #     ignored.append(item)
+                #     continue
+                #
+                # items.append(data)
+                # if callback:
+                #     await callback(data, item)
 
-                items.append(data)
-                if callback:
-                    await callback(data, item)
-
-                if data.status_code and render_data.exit_on_failure:
-                    break
+                # if data.status_code and render_data.exit_on_failure:
+                #     break
             else:
                 # NOTE: When render request items are emitted, then an item
                 #       falied to render.
@@ -793,23 +818,24 @@ class Handler:
                     depth_max=item.directory_depth_max,
                 )
                 async for data in iter_directory:
-                    if isinstance(data, schemas.QuartoRenderRequestItem):
-                        ignored.append(data)
-                        continue
+                    yield resolve(data)
 
-                    items.append(data)
-                    if callback:
-                        await callback(data, item)
-
-                    if data.status_code and render_data.exit_on_failure:
-                        break
+                    # if isinstance(data, schemas.QuartoRenderRequestItem):
+                    #     ignored.append(data)
+                    #     continue
+                    # items.append(data)
+                    # if callback:
+                    #     await callback(data, item)
+                    #
+                    # if data.status_code and render_data.exit_on_failure:
+                    #     break
 
         # NOTE: Directory items
-        return schemas.QuartoRenderResponse[schemas.QuartoRender](
-            uuid_uvicorn=env.RUN_UUID,
-            items=items,
-            ignored=ignored,
-        )
+        # return schemas.QuartoRenderResponse[schemas.QuartoRender](
+        #     uuid_uvicorn=env.RUN_UUID,
+        #     items=items,
+        #     ignored=ignored,
+        # )
 
 
 class Watch:
@@ -876,50 +902,89 @@ class Watch:
 # =========================================================================== #
 
 
-FlagQuartoRender = Annotated[
+FlagHandlerRender = Annotated[
     bool,
     typer.Option(
-        "--quarto-render/--dry", help="Render writes or only watch for writes."
+        "--render/--dry-run",
+        help="Render writes or only watch for writes. Sets `config.handler.render`.",
     ),
 ]
-FlagFilters = Annotated[
+FlagHandlerFilters = Annotated[
     list[pathlib.Path],
-    typer.Option("--quarto-filter", help="Additional filters to watch."),
+    typer.Option("--filter", help="Additional filters to watch."),
 ]
-FlagQuartoVerbose = Annotated[
+FlagHandlerVerbose = Annotated[
     bool,
     typer.Option(
-        "--quarto-verbose",
+        "--verbose",
         help=(
             "Print quarto output to the terminal. Note that output is "
             "available in ``error.txt`` in the quarto build directory or by "
-            "the development server."
+            "the development server. Adds to `config.handler.verbose`."
         ),
     ),
 ]
-FlagAsset = Annotated[
+FlagFilterAsset = Annotated[
     list[pathlib.Path],
     typer.Option(
-        "--quarto-asset",
+        "--asset",
         help=(
             "Additional assets to watch. Assets will trigger rerenders of "
-            "the last document when written to."
+            "the last document when written to. Adds to `config.filter.asset`."
         ),
     ),
 ]
-FlagIgnore = Annotated[
+FlagFilterIgnore = Annotated[
     list[pathlib.Path],
     typer.Option("--ignore", help="Additional files too ignore."),
 ]
 
-cli_context = typer.Typer(
-    help="Watcher context debugging help.",
-    callback=Context.forTyper,
-)
-cli = typer.Typer(
-    help="Quarto commands.",
-    callback=Context.forTyper,
-)
+FlagRenderIsDirectory = Annotated[
+    bool,
+    typer.Option(
+        "--directory/--file",
+        help="""
+            What is the render target kind? When a directory a specified in
+            the positional argument but ``--file`` is provided, then the target
+            will be ``index.qmd`` in that directory.",
+            """,
+    ),
+]
+FlagRenderSuccessesInclude = Annotated[
+    bool,
+    typer.Option(
+        "--successes-include/--successes-exclude",
+        help=" Include or exclude successful renders from terminal and fileoutput.",
+    ),
+]
+FlagRenderOutput = Annotated[
+    Optional[pathlib.Path],
+    typer.Option("--output", help="File to output render report into."),
+]
+FlagRenderMongoInclude = Annotated[
+    bool,
+    typer.Option(
+        "--mongo-include/--mongo-exclude",
+        help="""
+            Push data to the database. When ``--mongo-exclude`` is used
+            database configuration environment variables/configuration should
+            not be required. This is used to not need a database connection or
+            configuration in docker builds.
+        """,
+    ),
+]
+FlagRenderSilent = Annotated[bool, typer.Option("--silent/--not-silent")]
+FlagRenderExitOnFailure = Annotated[
+    bool,
+    typer.Option(
+        "--on-failure-exit/--on-failure-continue",
+        help="When a render fails, should the failure cause this command to exit?",
+    ),
+]
+
+
+cli_context = typer.Typer(help="Watcher context debugging help.")
+cli = typer.Typer(help="Quarto commands.", callback=Context.forTyper)
 cli.add_typer(cli_context, name="context")
 
 
@@ -940,10 +1005,17 @@ def cmd_context_test(
     """Given a directory, see what the watcher will ignore. Use for watcher debugging."""
 
     filter = _context.obj["quarto_filter"]
+    context = _context.obj["quarto_context"]
+    if context is None:
+        raise ValueError()
 
-    t = rich.table.Table(title="Ignored Paths")
+    handler = Handler(context, filter, mongo_id=None, _from="client")
+
+    t = rich.table.Table(title="Ignored Paths (``filter.is_ignored``)")
     t.add_column("Path")
-    t.add_column("Ignored by ``filter.is_ignored``")
+    t.add_column("Render Kind")
+    t.add_column("Ignored")
+    t.add_column("Reason")
 
     def add_paths(paths: Iterable[pathlib.Path], depth=0, rows=0) -> int:
         """
@@ -969,9 +1041,13 @@ def cmd_context_test(
                     rows=rows,
                 )
             else:
+                p = path.resolve()
+                ignored, ignored_reason = filter.is_ignored(p)
                 t.add_row(
-                    str(p := path.resolve()),
-                    str(filter.is_ignored(p)),
+                    str(p),
+                    handler.determine_dispatch_kind(p),
+                    str(ignored),
+                    str(ignored_reason),
                     str(depth),
                 )
                 rows += 1
@@ -980,50 +1056,6 @@ def cmd_context_test(
 
     add_paths(paths)
     rich.print(t)
-
-
-FlagIsDirectory = Annotated[
-    bool,
-    typer.Option(
-        "--directory/--file",
-        help="""
-            What is the render target kind? When a directory a specified in
-            the positional argument but ``--file`` is provided, then the target
-            will be ``index.qmd`` in that directory.",
-            """,
-    ),
-]
-FlagSuccessesInclude = Annotated[
-    bool,
-    typer.Option(
-        "--successes-include/--successes-exclude",
-        help=" Include or exclude successful renders from terminal and fileoutput.",
-    ),
-]
-FlagOutput = Annotated[
-    Optional[pathlib.Path],
-    typer.Option("--output", help="File to output render report into."),
-]
-FlagMongoInclude = Annotated[
-    bool,
-    typer.Option(
-        "--mongo-include/--mongo-exclude",
-        help="""
-            Push data to the database. When ``--mongo-exclude`` is used
-            database configuration environment variables/configuration should
-            not be required. This is used to not need a database connection or
-            configuration in docker builds.
-        """,
-    ),
-]
-FlagSilent = Annotated[bool, typer.Option("--silent/--not-silent")]
-FlagExitOnFailure = Annotated[
-    bool,
-    typer.Option(
-        "--on-failure-exit/--on-failure-continue",
-        help="When a render fails, should the failure cause this command to exit?",
-    ),
-]
 
 
 @cli.command("render")
@@ -1037,54 +1069,58 @@ def cmd_render(
     ],
     *,
     max_depth: int = 5,
-    is_directory: FlagIsDirectory = False,
-    include_success: FlagSuccessesInclude = False,
-    include_mongo: FlagMongoInclude = True,
-    output: FlagOutput = None,
-    silent: FlagSilent = True,
-    exit_on_failure: FlagExitOnFailure = False,
+    is_directory: FlagRenderIsDirectory = False,
+    include_success: FlagRenderSuccessesInclude = False,
+    include_mongo: FlagRenderMongoInclude = True,
+    output: FlagRenderOutput = None,
+    silent: FlagRenderSilent = True,
+    exit_on_failure: FlagRenderExitOnFailure = False,
 ):
     """Render quarto content in the same way that the API would."""
 
     async def callback(
-        result: schemas.QuartoRender,
-        _: schemas.QuartoRenderRequestItem,
+        item: schemas.QuartoHandlerResult,
     ):
-        if not result.status_code and not include_success:
-            rich.print(f"[green]Successfully rendered `{result.target}`!")
+        data = item.data
+        if not data.status_code and not include_success:
+            rich.print(f"[green]Successfully rendered `{data.target}`!")
             return
 
         if not silent:
             util.print_yaml(
-                result,
+                data,
                 rule_title="Render Result",
                 rule_kwargs=dict(characters="=", align="center", style="bold blue"),
             )
 
     async def do_render():
         handler = await watch.get_handler()
-        # if dry_run:
-        #     result = list(map(str, handler.walk(data.items[0].path)))
-        #     util.print_yaml(
-        #         result,
-        #         rule_title="Items to be Rendered.",
-        #     )
-        #
-        #     return
-        # else:
-        result = await handler.render(
-            data,
-            callback=callback,
-            T=schemas.QuartoRender,
+        dry_run = not handler.config.render
+
+        TT = schemas.QuartoRender if not dry_run else schemas.QuartoRenderJob
+        SS = schemas.QuartoRenderResponse[TT]  # type: ignore
+        result = await SS.fromHandlerResults(
+            handler.render(data),
+            callback=callback if not dry_run else None,
         )
-        has_failed_renders = result.any_failed()
+
+        if dry_run and not output:
+            util.print_yaml(
+                result,
+                rule_title="Dry Run Results.",
+                rule_kwargs=dict(characters="=", style="bold blue"),
+            )
+            return
 
         if output is not None:
             rich.print(f"[green]Writing responses to `{output}`.")
-            dumped = result if include_success else result.get_failed()
+            dumped = result if include_success or dry_run else result.get_failed()
             with open(str(output), "w") as file:
                 yaml.safe_dump(dumped.model_dump(mode="json"), file)
+            if dry_run:
+                return
 
+        has_failed_renders = result.any_failed()
         if has_failed_renders and exit_on_failure:
             failed = result.get_failed()
             util.print_yaml(
@@ -1112,15 +1148,15 @@ def cmd_render(
 
         raise typer.Exit(1)
 
-    context: Context = _context.obj["quarto_context"]
-    watch = Watch(context, include_mongo=include_mongo)
-
     if not silent:
         util.print_yaml(
             data,
             rule_title="Request Data",
             rule_kwargs=dict(characters="#", align="center", style="bold cyan"),
         )
+
+    context: Context = _context.obj["quarto_context"]
+    watch = Watch(context, include_mongo=include_mongo)
 
     asyncio.run(do_render())
 

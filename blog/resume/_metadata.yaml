@@ -235,8 +235,8 @@ contacts:
         xs: 1
     content:
       - key: location
-        title: Albuquerque, NM
-        description: Location
+        description: Albuquerque, NM
+        title: Location
         tooltip: I current reside in Albuquerque, New Mexico.
         image:
           iconify:
@@ -248,8 +248,8 @@ contacts:
             font_awesome: faLocationArrow
             # end snippet contacts
       - key: phone
-        description: Phone
-        title: (505) 589 - 6914
+        title: Phone
+        description: (505) 589 - 6914
         tooltip: Reach out by phone.
         image:
           iconify:
@@ -260,8 +260,8 @@ contacts:
           tex:
             font_awesome: faPhone
       - key: email
-        title: adrn.cederberg123@gmail.com
-        description: Email
+        description: adrn.cederberg123@gmail.com
+        title: Email
         tooltip: Reach out by email.
         image:
           iconify:
@@ -291,7 +291,7 @@ resume:
       title: Senior Software Engineer
       start: January 2022
       stop: December 2023
-    - identifier: resume-experience-consulting
+    - identifier: resume-experience-blog
       organization: acederberg.io
       title: Sole Proprietor
       start: January 2024
@@ -563,7 +563,7 @@ skills:
             name: pulumi
 floaty:
   # NOTE: I don't know if I want these but hesitate to delete them.
-  - identifier: consulting-skills
+  - identifier: blog-skills
     content:
       - image:
           iconify:

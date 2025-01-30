@@ -1,6 +1,6 @@
-:::: { #resume-experience-consulting .experience experience-item="consulting" }
+:::: { #resume-experience-blog .experience experience-item="blog" }
 
-<!--
+<!---
 
 Without GPT mods
 
@@ -24,7 +24,7 @@ professional portfolio.
 - Contributed to `github` open source community by raising and resolving issues,
   especially through `quarto` and its associated projects.
 
--->
+--->
 
 Started blogging about topics in data science, data structures and algorithms,
 and development operations to share insights, expertise, and progress.

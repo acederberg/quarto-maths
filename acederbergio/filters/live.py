@@ -106,7 +106,7 @@ class LiveQuartoConfig(util.BaseConfig):
     include_logs: Annotated[bool, pydantic.Field(False)]
     js: Annotated[list[str] | None, pydantic.Field(None)]
 
-    @pydantic.computed_field # type: ignore[prop-decorator]
+    @pydantic.computed_field  # type: ignore[prop-decorator]
     @property
     def overlays(self) -> dict[str, overlay.ConfigOverlay]:
         return {
@@ -298,7 +298,7 @@ class FilterLive(util.BaseFilterHasConfig):
         # NOTE: This is the only setting that does not go in the live config.
         file_path = self.doc.get_metadata("live_file_path")  # type:ignore
         if (live := self.match(None)) is None:
-            logger.warning("Live filter disabled for `%s`.")
+            logger.warning("Live filter disabled for `%s`.", file_path)
             return
 
         assert isinstance(live, LiveConfig)

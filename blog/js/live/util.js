@@ -9,6 +9,7 @@ EXT_TO_ICON.set("qmd", ["bi-filetype-md", "text-teal"])
 EXT_TO_ICON.set("html", ["bi-filetype-html", "text-orange"])
 EXT_TO_ICON.set("js", ["bi-filetype-js", "text-green"])
 EXT_TO_ICON.set("scss", ["bi-filetype-scss", "text-pink"])
+EXT_TO_ICON.set("json", ["bi-filetype-json", "text-yellow"])
 EXT_TO_ICON.set("yaml", ["bi-filetype-yml", "text-yellow"])
 EXT_TO_ICON.set("pdf", ["bi-filetype-pdf", "text-red"])
 

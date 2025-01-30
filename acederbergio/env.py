@@ -179,6 +179,10 @@ TEMPLATES = require_path("templates", SCRIPTS / "templates")
 ICONS_SETS = require_path("icon_sets", ICONS / "sets")
 BUILD_JSON = require_path("build_json", BLOG / "build.json")
 
+LEVEL = require("log_level", "INFO").upper()
+LEVEL_FILTERS = require("log_level_filters", LEVEL).upper()
+LEVEL_API = require("log_level_api", LEVEL).upper()
+
 DEV = BUILD / "dev"
 
 
@@ -239,15 +243,15 @@ def create_logging_config() -> dict[str, Any]:
             {
                 "_file": {
                     "class": "logging.FileHandler",
-                    "level": "INFO",
+                    "level": LEVEL_FILTERS,
                     "formatter": "json",
                     "filename": str(BUILD / "build.jsonl"),
                 }
             }
         )
-        config_pandoc_filters = {"level": "INFO", "handlers": ["_file"]}
+        config_pandoc_filters = {"level": LEVEL_FILTERS, "handlers": ["_file"]}
 
-    config_api = {"level": "INFO", "handlers": ["queue"]}
+    config_api = {"level": LEVEL_API, "handlers": ["queue"]}
     out = {
         "version": 1,
         "formatters": formatters,
@@ -292,10 +296,9 @@ def create_logger(name: str) -> logging.Logger:
     :returns: A configured logger.
     """
 
-    level = require("log_level", "INFO").upper()
     logger = logging.getLogger(name)
     logger.propagate = False
-    logger.setLevel(level)
+    logger.setLevel(LEVEL)
 
     return logger
 
@@ -339,6 +342,7 @@ def cli_show_environ():
             "configs": str(CONFIGS),
             "templates": str(TEMPLATES),
             "verbose": str(VERBOSE),
+            "level": LEVEL,
         },
         name="variables",
     )

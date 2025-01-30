@@ -6,6 +6,7 @@ Software implementation (`python`, `javascsript`, `shell`, `git`, `docker`),
 deployment (`terraform`, `pulumi`, `kubernetes`, `actions`),
 back-end (`fastapi`, `mysql`, `mongodb`),
 and front-end (`react`, `nextjs`, `scss`, `jinja`).
+For a more exhaustive coverage of my skills, see [the skills page on my website](https://acederbergio/resume/skills.html).
 
 :::
 

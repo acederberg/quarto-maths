@@ -1,0 +1,24 @@
+---
+title: Long Term Plan for Dev Mode
+---
+
+Ideally renders should be scheduled in a queue.
+
+```{mermaid}
+sequenceDiagram
+    participant Client
+    participant WEBSOCKET
+    participant POST
+    participant Handler
+    participant MongoDB
+
+    Client->>POST: Request Render
+    POST->>MongoDB: Enqueue Job
+    WEBSOCKET-->>MongoDB: Websocket Reads Scheduled Job
+    WEBSOCKET->>Client: Client Sees Scheduled Job
+    MongoDB->>Handler: Render Job is Dequeued
+    Handler->>Handler: Render Job is Processed
+    Handler->>MongoDB: Completed Job Recorded in MongoDB
+    WEBSOCKET->>MongoDB: Websocket Sees Completed Job
+    WEBSOCKET->>Client: Client Sees Completed Job
+```

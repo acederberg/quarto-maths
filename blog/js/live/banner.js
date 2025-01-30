@@ -459,6 +459,7 @@ export function Banner({ overlayInputs, overlayResponses, overlayRenders }) {
 
   function initialize() {
     document.body.appendChild(banner)
+    banner.classList.add("success")
   }
 
   /** @type {TBannerShow} */
@@ -477,11 +478,11 @@ export function Banner({ overlayInputs, overlayResponses, overlayRenders }) {
     // @ts-ignore
     const [target_mt, origin_mt] = bannerTextContainer.getElementsByTagName("span")
 
-    const target = util.handlePathlike(logItem?.target || 'none', { textTag: 'code', wrapperTag: 'span', iconClasses: ["px-1"] })
+    const target = util.handlePathlike(logItem.target || 'none', { textTag: 'code', wrapperTag: 'span', iconClasses: ["px-1"] })
     target.classList.add("bg-black")
     target_mt.replaceWith(target)
 
-    const origin = util.handlePathlike(logItem?.origin || 'none', { textTag: 'code', wrapperTag: 'span', iconClasses: ["px-1"] })
+    const origin = util.handlePathlike(logItem.origin || 'none', { textTag: 'code', wrapperTag: 'span', iconClasses: ["px-1"] })
     origin.classList.add("bg-black")
     origin_mt.replaceWith(origin)
 

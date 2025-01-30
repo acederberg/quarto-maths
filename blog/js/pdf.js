@@ -2,7 +2,7 @@
 
 const PDF_VIEW_VERBOSE = true
 
-function QuartoPDFViewer(quarto, { iframeLeft, iframeRight }) {
+function Viewer(quarto, { iframeLeft, iframeRight }) {
   const ws = quarto.ws
 
   function reload() {

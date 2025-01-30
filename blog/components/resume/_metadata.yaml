@@ -1,9 +1,9 @@
 live_reload: true
 resume:
   experience:
-    - identifier: example-resume-experience
+    - identifier: example-education-resume
       organization: Lorum Ipsum Corporation
-      start: 2017-01-01
+      start: '2017-01-01'
       stop: Current
       title: Dude Who Does Stuff
       level: 5

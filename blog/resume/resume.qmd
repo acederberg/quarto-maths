@@ -16,29 +16,15 @@ filters:
 
 <!-- START RESUME ------------------------------------------------------------> ::: { #resume }
 
-<!-- START LEFT --------------------------------------------------------------> ::: { #top-left .minipage minipage-width=".49" .minipage-first }
+<!-- START LEFT --------------------------------------------------------------> ::: { #bottom-left .minipage minipage-width=".49" minipage-height="0.80" .minipage-first }
 
 {{< include ./partials/_title.qmd >}}
-
-<!-- STOP LEFT ---------------------------------------------------------------> :::
-
-{{< include ./partials/_tex_filler.qmd >}}
-
-<!-- START RIGHT -------------------------------------------------------------> ::: { #top-right .minipage minipage-width=".49" .minipage-final }
-
-{{< include ./partials/_contact.qmd >}}
-
-{{< include ./partials/_links.qmd >}}
-
-<!-- STOP RIGHT --------------------------------------------------------------> :::
-
-<!-- START LEFT --------------------------------------------------------------> ::: { #bottom-left .minipage minipage-width=".49" minipage-height="0.80" .minipage-first }
 
 {{< include ./partials/_profile.qmd >}}
 
 ## Experience
 
-{{< include ./partials/_consulting.qmd >}}
+{{< include ./partials/_blog.qmd >}}
 
 {{< include ./partials/_mve.qmd >}}
 
@@ -48,6 +34,13 @@ filters:
 
 <!-- START RIGHT -------------------------------------------------------------> ::: { #bottom-right .minipage minipage-width=".49"  minipage-height="0.80" .minipage-final }
 
+{{< include ./partials/_contact.qmd >}}
+{{< include ./partials/_links.qmd >}}
+
+## Education
+
+{{< include ./partials/_unm.qmd >}}
+
 ## Skills
 
 {{< include ./partials/_skills.qmd >}}
@@ -55,10 +48,6 @@ filters:
 ## Projects
 
 {{< include ./partials/_projects.qmd >}}
-
-## Education
-
-{{< include ./partials/_unm.qmd >}}
 
 <!-- STOP RIGHT --------------------------------------------------------------> :::
 <!-- STOP RESUME -------------------------------------------------------------> :::
