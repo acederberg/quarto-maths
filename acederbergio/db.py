@@ -10,7 +10,7 @@ import pydantic
 import rich
 import typer
 import yaml_settings_pydantic as ysp
-from motor.motor_asyncio import AsyncIOMotorClient
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 
@@ -84,6 +84,40 @@ class Config(ysp.BaseYamlSettings):
     ):
 
         context.obj = cls()  # type: ignore
+
+
+class BaseDBContext:
+    """
+    Minimal context for typer commands that use the database.
+    """
+
+    database: Config
+    # config: T_Config
+
+    _client: AsyncIOMotorClient | None
+    _db: AsyncIOMotorDatabase | None
+
+    def __init__(
+        self,
+        database: Config | None = None,
+    ):
+        self.database = database or Config.model_validate({})
+        self._collection = None
+        self._client = None
+
+    @property
+    def client(self) -> AsyncIOMotorClient:
+        if self._client is None:
+            self._client = self.database.create_client_async()
+
+        return self._client
+
+    @property
+    def db(self) -> AsyncIOMotorDatabase:
+        if self._collection is None:
+            self._db = self.client[self.database.database]
+
+        return self._db  # type: ignore
 
 
 cli = typer.Typer(callback=Config.typerCallback, help="Mongodb connections.")

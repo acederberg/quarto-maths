@@ -252,6 +252,7 @@ def create_logging_config() -> dict[str, Any]:
         config_pandoc_filters = {"level": LEVEL_FILTERS, "handlers": ["_file"]}
 
     config_api = {"level": LEVEL_API, "handlers": ["queue"]}
+    config_rest = {"level": LEVEL, "handlers": ["_rich"]}
     out = {
         "version": 1,
         "formatters": formatters,
@@ -276,6 +277,8 @@ def create_logging_config() -> dict[str, Any]:
             "acederbergio.api.quarto": config_api,
             "acederbergio.api.routes": config_api,
             "acederbergio.api.schemas": config_api,
+            # ETC
+            "acederbergio.pdf": config_rest,
             # ROOT. Do not propogate to this. Logging propagation is stupid and
             # can cause
             "root": config_api,

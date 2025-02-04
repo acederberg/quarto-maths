@@ -3,12 +3,14 @@ import logging
 import logging.handlers
 import queue
 from datetime import datetime
-from typing import Annotated, Any, Mapping
+from typing import Annotated, Any, Mapping, overload
 
+import pandas
 import pydantic
 import rich
 import rich.console
 import rich.syntax
+import rich.table
 import yaml
 
 CONSOLE = rich.console.Console()
@@ -23,6 +25,52 @@ def print_error(err: pydantic.ValidationError, **kwargs):
     )
 
 
+class MagicEncoder(json.JSONEncoder):
+
+    kwargs_model_dump: dict[str, Any]
+
+    def __init__(self, kwargs_model_dump: dict[str, Any], **kwargs):
+        super().__init__(**kwargs)
+        self.kwargs_model_dump = kwargs_model_dump
+
+    def default(self, o: Any) -> Any:
+        if isinstance(o, pydantic.BaseModel):
+            return o.model_dump(mode="json")
+
+        try:
+            return super().default(o)
+        except json.JSONDecodeError:
+            return str(o)
+
+
+# def _pydantic_representer(dumper, obj):
+#     return dumper.represent_mapping(
+#         f"!{obj.__class__.__name__}", obj.model_dump(mode="json")
+#     )
+#
+#
+#
+# def pydantic_representer(obj):
+#     if isinstance(obj, pydantic.BaseModel):
+#         return obj.model_dump(mode="json")
+#     elif isinstance(obj, list):
+#         return [pydantic_representer(item) for item in obj]  # Process lists
+#     elif isinstance(obj, dict):
+#         return {
+#             key: pydantic_representer(value) for key, value in obj.items()
+#         }  # Process dicts
+#
+#     return obj  # Return unchanged if not Pydantic-related
+#
+#
+# def dict_representer(dumper, obj):
+#     """Handles dictionaries that may contain Pydantic models."""
+#     return dumper.represent_mapping("tag:yaml.org,2002:map", pydantic_representer(obj))
+#
+#
+# yaml.add_multi_representer(pydantic.BaseModel, dict_representer)
+
+
 def print_yaml(
     data,
     *,
@@ -32,19 +80,23 @@ def print_yaml(
     pretty: bool = True,
     rule_title: str = "",
     rule_kwargs: dict[str, Any] = dict(),
+    is_complex: bool = False,
     **kwargs_model_dump,
-):
+) -> rich.syntax.Syntax | None:
     if items:
         data = [item.model_dump(mode="json", **kwargs_model_dump) for item in data]
     elif isinstance(data, pydantic.BaseModel):
         data = data.model_dump(mode="json", **kwargs_model_dump)
 
     if not as_json:
+        if is_complex:
+            encoder = MagicEncoder(kwargs_model_dump, indent=2)
+            data = json.loads(encoder.encode(data))
         code = (
             "---\n" + (f"# {name}\n" if name is not None else "") + yaml.safe_dump(data)
         )
     else:
-        code = json.dumps(data, indent=2, default=str)
+        code = MagicEncoder(kwargs_model_dump, indent=2).encode(data)
 
     if not pretty:
         print(code)
@@ -61,6 +113,37 @@ def print_yaml(
         CONSOLE.rule(rule_title, **rule_kwargs)
 
     CONSOLE.print(s)
+    return s
+
+
+def print_df(
+    df: pandas.DataFrame,
+    *,
+    index_name: str | None = None,
+    colors: tuple[str, ...] = ("bright_blue", "bright_cyan"),
+    **kwargs,
+    # rule_title: str = "",
+    # rule_kwargs: dict[str, Any] = dict(),
+):
+    table = rich.table.Table(**kwargs)
+    if index_name is not None:
+        index_name = str(index_name) if index_name else ""
+        table.add_column(index_name)
+
+    n_colors = len(colors)
+    for index, column in enumerate(df.columns):
+        table.add_column(str(column), justify="center")
+        col = table.columns[index]
+        color = colors[index % n_colors]
+        col.header_style = "bold " + color
+        col.style = color
+
+    for index, value_list in enumerate(df.values.tolist()):
+        row = [str(index)] if index_name is not None else []
+        row += [str(x) for x in value_list]
+        table.add_row(*row)
+
+    CONSOLE.print(table)
 
 
 # class Field(FieldInfo):

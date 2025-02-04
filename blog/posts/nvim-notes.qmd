@@ -1,0 +1,44 @@
+---
+title: Neovim Queries
+---
+
+## Highlighting Quarto Metadata
+
+First and formost, it is much easier to write queries when using the `:Inspect`
+and `:InspectTree` commands. The [documentation on queries](https://neovim.io/doc/user/treesitter.html#_treesitter-syntax-highlighting)
+can tell you more about what the various matchers and directives do.
+
+My objective is highlighting quarto metadata in python documents.
+Initially, I wanted to ensure that the metadata was given `YAML` highlighting,
+however setting injected content for comments is very tricky.
+Instead I decided I would just like to change the color of the metadata
+comments. Metadata comments used in quarto look like
+
+```python
+# | label: my-figure
+# | fig-cap: An empty plot
+
+import matplotlib.pyplot as plt
+
+plt.show()
+```
+
+This is actually very easy - I just needed to match any comment starting with
+`#|` or `# |` and label it with an appropriate capture.
+The following is added to my `~/.config/nvim/queries/python/highlights.scm`
+and and does exactly this:
+
+```default
+;;extends
+; Cannot do injections on comments, since they have no `inner` like strings.
+(
+  (comment) @comment.python.quarto_metadata
+  (#match? @comment.python.quarto_metadata "^# \\|")
+)
+```
+
+After adding this, I added the following to `~/.config/nvim/init.lua`:
+
+```lua
+vim.api.nvim_set_hl(0, "@comment.python.quarto_metadata", { fg = "d3869b" })
+```
