@@ -3,7 +3,7 @@ import logging
 import logging.handlers
 import queue
 from datetime import datetime
-from typing import Annotated, Any, Mapping, overload
+from typing import Annotated, Any, Mapping
 
 import pandas
 import pydantic
@@ -99,8 +99,7 @@ def print_yaml(
         code = MagicEncoder(kwargs_model_dump, indent=2).encode(data)
 
     if not pretty:
-        print(code)
-        return
+        return None
 
     s = rich.syntax.Syntax(
         code,

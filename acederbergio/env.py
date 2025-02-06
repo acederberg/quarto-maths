@@ -7,6 +7,7 @@ great aid in debugging.
 import logging
 import logging.config
 import logging.handlers
+import os
 import pathlib
 import secrets
 from os import environ
@@ -82,7 +83,11 @@ def require(varname: str, default: str | None = None) -> str:
 
 
 def require_path(
-    varname: str, default: pathlib.Path | None = None, *, strict: bool = True
+    varname: str,
+    default: pathlib.Path | None = None,
+    *,
+    strict: bool = True,
+    ensure_dir: bool = False,
 ) -> pathlib.Path:
     """Require a setting  from environment that is an existing path.
 
@@ -96,12 +101,16 @@ def require_path(
 
     var = get(varname)
     if var is not None:
-        return pathlib.Path(var).resolve(strict=strict)
-
-    if default is None:
+        output = pathlib.Path(var)
+    elif default is None:
         raise ValueError(f"Value `{var}` for `{varname}` is falsy.")
+    else:
+        output = default
 
-    return default.resolve(strict=strict)
+    if ensure_dir and not os.path.exists(output := output.resolve()):
+        os.mkdir(output)
+
+    return output.resolve(strict=strict)
 
 
 def create_validator(varname: str, default: str | None = None):
@@ -160,10 +169,6 @@ if ROOT.parts[-1] != "site-packages":
     WORKDIR = ROOT
     PYPROJECT_TOML = ROOT / "pyproject.toml"
     CONFIGS = require_path("config_dir", ROOT / "config", strict=False)
-
-    BUILD = BLOG / "build"
-    ICONS = BLOG / "icons"
-
 else:
     # NOTE:
     WORKDIR = require_path("workdir")
@@ -171,13 +176,12 @@ else:
     PYPROJECT_TOML = require_path("pyproject_toml", WORKDIR / "pyproject.toml")
     CONFIGS = require_path("config_dir", pathlib.Path.home() / "config", strict=False)
 
-    BUILD = require_path("build", BLOG / "build")
-    ICONS = require_path("icons", BLOG / "icons")
-
+BUILD = require_path("build", BLOG / "build", ensure_dir=True)
+ICONS = require_path("icons", BLOG / "icons", ensure_dir=True)
 VERBOSE = require("verbose", "0") != "0"
 TEMPLATES = require_path("templates", SCRIPTS / "templates")
-ICONS_SETS = require_path("icon_sets", ICONS / "sets")
-BUILD_JSON = require_path("build_json", BLOG / "build.json")
+ICONS_SETS = require_path("icon_sets", ICONS / "sets", ensure_dir=True)
+BUILD_JSON = require_path("build_json", BLOG / "build.json", strict=False)
 
 LEVEL = require("log_level", "INFO").upper()
 LEVEL_FILTERS = require("log_level_filters", LEVEL).upper()
@@ -239,13 +243,16 @@ def create_logging_config() -> dict[str, Any]:
         config_pandoc_filters = {"level": "INFO", "handlers": ["_socket"]}
     else:
         # NOTE: Add build logs to build in ci mode.
+        log_file = BUILD / "build.jsonl"
+        log_file.touch()
+
         handlers.update(
             {
                 "_file": {
                     "class": "logging.FileHandler",
                     "level": LEVEL_FILTERS,
                     "formatter": "json",
-                    "filename": str(BUILD / "build.jsonl"),
+                    "filename": str(log_file),
                 }
             }
         )

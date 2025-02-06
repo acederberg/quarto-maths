@@ -45,3 +45,4 @@ blog/dev/_live_quarto_table_files/
 blog/projects/blog/typedoc
 blog/projects/blog/quartodoc
 blog/dsa/leetcode/calendar_2/_oops_files/
+.env.actions

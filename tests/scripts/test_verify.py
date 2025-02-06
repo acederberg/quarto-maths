@@ -8,7 +8,7 @@ import pydantic
 import pytest
 from dsa.bst import secrets
 
-from acederbergio import config, db, env, util, verify
+from acederbergio import config, db, env, verify
 
 logger = env.create_logger(__name__)
 
@@ -327,7 +327,6 @@ class TestHandler:
 
         items: list[bson.ObjectId] = []
         for index in range(POPULATE_COUNT, POPULATE_COUNT + 3):
-            print("===========================================")
             handler._build_info = create_build_info(index)
 
             assert (
@@ -341,10 +340,6 @@ class TestHandler:
                 )
             ) is not None
             history = handler.history()
-            util.print_yaml(
-                [item.model_dump(mode="json") for item in history.items[20:-1]]
-            )
-
             assert handler.top() == res
             verify_items(history, count=index + 1)
 

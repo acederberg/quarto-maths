@@ -1,21 +1,6 @@
-import yaml
-
-yaml.safe_load(
-    """
-    some: yaml
-    it: should
-    be: highlighted
-    """
-)
-
-# | Yes! Thank god.
-# |
-# | some: yaml
-# | it: should
-# | be: highlighted
-
 import asyncio
 import enum
+import hashlib
 import math
 import pathlib
 from typing import Annotated, Any, ClassVar, Generator, Optional, Protocol, Self
@@ -28,7 +13,6 @@ import pydantic
 import pypdf as pdf
 import rake_nltk as rake
 import typer
-from gitdb.util import hashlib
 
 from acederbergio import db, env, util
 
@@ -172,7 +156,7 @@ class Metrics(util.HasTimestamp):
 
         df = df.transpose()  # .rename(columns=[metric.name for metric in rake.])
         df.reset_index(inplace=True)
-        df.columns = MetricsColumns
+        df.columns = MetricsColumns  # type: ignore[assignment]
 
         return df
 
@@ -183,7 +167,7 @@ class Metrics(util.HasTimestamp):
         """Transform a compatible dataframe into this object."""
 
         metrics = {row[0]: MetricsRow.fromDFRow(row) for _, row in df.iterrows()}
-        return cls(metrics=metrics, text=text, metadata=metadata)  # type: ignore[missing-args]
+        return cls(metrics=metrics, text=text, metadata=metadata)  # type: ignore[call-arg,arg-type]
 
     @classmethod
     def match_text(cls, text: str) -> dict:
@@ -253,7 +237,7 @@ class Metrics(util.HasTimestamp):
 
     def trie(self) -> dict[str, Any]:
 
-        root = {}
+        root: dict[str, Any] = {}
 
         for phrase, metrics in self.metrics.items():
             node = root
@@ -274,7 +258,7 @@ class Metrics(util.HasTimestamp):
         tokenized = nltk.tokenize.word_tokenize(self.text)
         k, n = 0, len(tokenized)
 
-        phrase = []
+        phrase: list[str] = []
         while k < n:
             word = tokenized[k]
             word_lower = word.lower()
@@ -585,7 +569,9 @@ def cli_highlight(
         util.CONSOLE.print(res.highlight_html())
         return
 
-    def highlighter(phrase: str, match: str, *, metrics: Metrics | None = None) -> str:
+    def highlighter(
+        phrase: str, match: str, *, metrics: MetricsRow | None = None
+    ) -> str:
         print("metrics", metrics)
         # if match is None:
         #     return phrase
