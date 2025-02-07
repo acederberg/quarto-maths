@@ -42,12 +42,16 @@ FieldId = Annotated[
     pydantic.Field(default=None),
     pydantic.BeforeValidator(check_object_id),
 ]
-FlagURL = Annotated[str, typer.Option("--mongodb-url"), pydantic.Field(URL)]
+FlagURL = Annotated[
+    pydantic.MongoDsn, typer.Option("--mongodb-url"), pydantic.Field(URL)
+]
 FlagDatabase = Annotated[str, pydantic.Field(DATABASE)]
 
 
-def create_client(*, _mongodb_url: str | None = None, cls: Type = MongoClient):
-    mongodb_url = env.require("mongodb_url", _mongodb_url)
+def create_client(
+    *, _mongodb_url: pydantic.MongoDsn | str | None = None, cls: Type = MongoClient
+):
+    mongodb_url = env.require("mongodb_url", str(_mongodb_url))
     return cls(mongodb_url, server_api=ServerApi("1"))
 
 
@@ -64,6 +68,27 @@ class Config(ysp.BaseYamlSettings):
 
     database: FlagDatabase
     url: FlagURL
+    include: Annotated[
+        bool,
+        pydantic.Field(
+            default=env.ENV == "ci",
+            description="""
+            When mongodb is not required (e.g. during builds) use this to
+            run without it. Some documents using this code do not need mongodb
+            for one off renders. To set this, do
+
+            .. code:: python
+
+                ACEDERBERG_IO_MONGODB_INCLUDE=false
+
+            and verify:
+
+            .. code:: shell
+
+                acederbergio db config 
+        """,
+        ),
+    ]
 
     def create_client(self) -> MongoClient:
         return create_client(_mongodb_url=self.url)

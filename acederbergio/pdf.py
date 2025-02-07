@@ -84,7 +84,7 @@ class MetricsComparison(pydantic.BaseModel):
         )
 
 
-class Metrics(util.HasTimestamp):
+class Metrics(util.HasTimestamp, db.HasMongoId):
     """
     **RAKE** metrics for a piece of text.
 
@@ -202,6 +202,9 @@ class Metrics(util.HasTimestamp):
         metadata: dict[str, str] | None = None,
         force: bool = False,
     ) -> Self:
+
+        # if db is None:
+        #     return cls.create(cls.createDF(text), text=text, metadata=metadata)
 
         collection = db[cls._collection]
         res = await collection.find_one(cls.match_text(text)["$match"])
@@ -469,7 +472,7 @@ class MetricsContext(db.BaseDBContext):
     @classmethod
     def resolveText(cls, text: FlagText, _file: FlagFile) -> tuple[str, dict[str, str]]:
         if text is None and _file is None:
-            util.CONSOLE.print("[red]Failed to determine text.")
+            util.CONSOLE.print("[red]One of `--text` or `--file` is required.")
             raise typer.Exit(3)
 
         metadata = dict(origin="cli", origin_file="pdf.py")

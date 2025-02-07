@@ -81,6 +81,7 @@ def print_yaml(
     rule_title: str = "",
     rule_kwargs: dict[str, Any] = dict(),
     is_complex: bool = False,
+    console: rich.console.Console = CONSOLE,
     **kwargs_model_dump,
 ) -> rich.syntax.Syntax | None:
     if items:
@@ -109,9 +110,9 @@ def print_yaml(
     )
 
     if rule_title or rule_kwargs:
-        CONSOLE.rule(rule_title, **rule_kwargs)
+        console.rule(rule_title, **rule_kwargs)
 
-    CONSOLE.print(s)
+    console.print(s)
     return s
 
 

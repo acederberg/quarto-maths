@@ -1,16 +1,128 @@
 ---
-title: NLTK Notes
+title: Basic Natural Language Processing in `Python` {{< iconify devicon python >}}
 live:
   quarto:
     reload: true
-iframes:
-  - identifier: iframe-hitches
-    target: /posts/keywords/hitchens.html
+filters:
+  - ../../filters/floaty.py
+floaty:
+  - identifier: banner
+    container:
+      classes:
+        - py-5
+        - my-5
+        - border-5
+        - border
+        - rounded-5
+        - floaty-shadow-1
+      columns: 1
+      size: 1
+    content:
+      - title: Python
+        description: |
+          <h3 style="
+              color: white;
+              font-family: monospace;
+              text-align: center;
+          ">&gt; pip install NLTK
+          </h3>
+        key: python
+        image:
+          iconify:
+            set: devicon
+            name: python
 ---
+
+```{=html}
+<style>
+  #banner {
+    --bg-gradient-primary: var(--bs-gray-800);
+    --bg-gradient-secondary: var(--bs-gray-900);
+
+    border-color: var(--bs-yellow) !important;
+    background: linear-gradient(
+      45deg,
+      var(--bg-gradient-primary),
+      var(--bg-gradient-secondary) 25%,
+      var(--bg-gradient-primary) 25%,
+      var(--bg-gradient-secondary) 50%,
+      var(--bg-gradient-primary) 50%,
+      var(--bg-gradient-secondary) 75%,
+      var(--bg-gradient-primary) 75%,
+      var(--bg-gradient-secondary)
+    );
+    background-color: var(--bs-gray-300);
+  }
+
+  #banner .card {
+    background: none;
+  }
+
+  #banner-text {
+    background: rgba(255, 255, 255, .15);
+    max-width: 512px;
+    margin: auto;
+    color: var(--bs-white);
+    font-family: monospace;
+    text-align: center;
+  }
+
+</style>
+<script>
+  function hydrateBanner(){
+    const banner = document.getElementById("banner")
+
+    const bannerText = document.createElement("div")
+    bannerText.classList.add("pt-5", "fw-bolder", "fs-3")
+    bannerText.innerHTML = `<p
+      id='banner-text'
+      class='rounded-3'
+    >$ pip install NLTK rake-nltk</p>`
+
+    banner.appendChild(bannerText)
+  }
+
+  window.addEventListener("load", hydrateBanner)
+</script>
+```
+
+::: {#banner}
+
+:::
+
+
+
+To overfimplify, natural lagnuage processing a set of strategies used by
+computers to interpret human language. Of course, this is just a blog post
+where you can follow along with my notes as I learn - this is by no means
+exhaustive.
+
+Natural language processing was done using a symbolic approach in its advent (
+implemented as hand written rules, circa 1960) - eventually statistical methods 
+and neural methods were implemented and performed much better.
+
+To get myself started, I will be using natural language processing in this
+blog post to extract keywords from some excerpts.
+
+Python has an excellent natural language processing library called
+[`NLTK`](https://www.nltk.org/). `NLTK` stands for 'natural language tool kit'.
+`NLTK` includes tools for the following computational linguistics concepts
+covered in this blog post:
+
+stemming
+: The process of reducing a word to its root. For instance 'describe',
+'description', and 'describer' all share 'descri'.
+
+tokenizing
+: Tokenization is the process of turning a sentance into its component phrases,
+words, or subwords. For instance, in the case of subwords 'antigravity' might
+become 'anti' and 'gravity'.
+
+The following figure contains the example text to be processed in todays post:
 
 <!----------------------------------------------------------------------------> ::: { #fig-quotes }
 
-::: { #fig-quotes-salinger .py-3 }
+::: { #fig-quotes-salinger .py-3 collapse=true}
 
 > _I thought what I'd do was, I'd pretend I was one of those deaf-mutes. That
 > way I wouldn't have to have any goddam stupid useless conversations with
@@ -75,24 +187,6 @@ Excerpt from _Why Americans are not Taught History_ by _Christopher Hitchens_.
 
 <!----------------------------------------------------------------------------> :::
 
-`NLTK` stands for 'natural language tool kit'. Natural language processing
-was done using hand written rules in its advent, eventually machine learing
-algorithms were implemented and performed much better. `NLTK` includes tools
-for the following standard computational linguistics concepts:
-
-stemming
-: The process of reducing a word to its root. For instance 'describe',
-'description', and 'describer' all share 'descri'.
-
-tokenizing
-: Tokenization is the process of turning a sentance into its component phrases,
-words, or subwords. For instance, in the case of subwords 'antigravity' might
-become 'anti' and 'gravity'.
-
-tagging :
-
-parsing :
-
 ::: { .callout-note collapse='true' }
 
 ## Setup
@@ -102,6 +196,15 @@ The piece of text I choose to use is from _The Catcher and the Rye_ by
 _J.D. Salinger_.
 
 ```{python}
+import nltk.tokenize
+from acederbergio import db, util
+import pandas as pd
+from nltk.corpus import stopwords
+
+
+nltk.download("punkt_tab")
+nltk.download("stopwords")
+
 
 # NOTE: From `The Catcher and the Rye` by `J.D. Salenger`.
 #       Source: https://www.goodreads.com/quotes/629243-i-thought-what-i-d-do-was-i-d-pretend-i-was
@@ -171,22 +274,30 @@ Since tokenizing might be done at various scales, `nltk` provides a means to
 do both word and sentence tokenization.
 
 ```{python}
-# | label: fig-tokenization
-# | fig-cap: "Word and sentence tokens extracted from `@fig-quotes-salinger` using `nltk`s recommended tokenization."
-import pathlib
-import nltk.tokenize
-import json
+# | output: false
+import rich.console
+import io
 
 tokens_sent = nltk.tokenize.sent_tokenize(text_salinger)
 tokens_word = nltk.tokenize.word_tokenize(text_salinger)
 
-print("**Word tokens**: ", "`%s`." % json.dumps(tokens_word[:10]), sep="")
-print("**Sentence tokens**: ", "%s" % json.dumps(tokens_sent, indent=2), sep="")
+# NOTE: Use ``rich`` to put results into the terminal.
+console = rich.console.Console(record=True, width=100, file=io.StringIO())
+util.print_yaml(tokens_word[:10], rule_title="Word Tokens", console=console)
+util.print_yaml(tokens_sent, rule_title="Sentence Tokens", console=console)
+console.save_svg("./nlp-tokens-salinger.svg")
 ```
 
-Tokenization is pretty obvious in english due to the use of spaces. However,
-in languages like Japanese and Chinese this task is not nearly as straight
-forward.
+![Word and sentence tokens extracted from `@fig-quotes-salinger` using `nltk`s recommended tokenization.](./nlp-tokens-salinger.svg){ #fig-tokenization }
+
+Tokenization is pretty obvious in english due to the use of spaces.
+There are edge cases like abbreviations an elipsis in sentence tokenization
+and apostrophes in word tokenization *(notice that in @fig-quotes-salinger the
+word "I'd" is parsed as "I" and "'d" for instance)*. However,
+in languages like Arabic, Japanese and Chinese word tokenization is not nearly as 
+straight forward due to the lack of spaces.
+
+[![The 'Heart Sutra', written in Japanese Caligraphy. Credit: `TheArtOfCalligraphy.com`](https://www.theartofcalligraphy.com/wp-content/uploads/heartsutra-part1.jpg)](https://www.theartofcalligraphy.com/heart-sutra-in-japanese)
 
 ## Stop Words
 
@@ -198,22 +309,25 @@ Conveniently, `nltk` provides a list of stop words.
 Stop words can be used in the tokenization to enhance keyword finding:
 
 ```{python}
-# | output: asis
-
-from nltk.corpus import stopwords
-
+# | output: false
 stopwords = set(stopwords.words("english"))
-print(
-    "**Filtered Tokens**: ",
-    "`%s`." % list(set(tokens_word) - stopwords)[:25],
+
+console = rich.console.Console(record=True, width=100, file=io.StringIO())
+util.print_yaml(
+    list(set(tokens_word) - stopwords)[:25],
+    rule_title="Filtered Tokens",
+    console=console,
 )
+console.save_svg("./nlp-tokens-salinger-filtered.svg")
 ```
+
+![Filtered token from @fig-tokenization](./nlp-tokens-salinger-filtered.svg){ #fig-tokenization-filtered }
 
 ## RAKE
 
 The **rapid automatic keyword extraction (RAKE) algorithm** is a convenient means
 for extracting keywords from text. I will not go into implementation details
-today as my priority right now is result.
+today as my priority right now is to visualize results.
 
 The [`rake-nltk` library on `PyPI`](https://pypi.org/project/rake-nltk/) is
 a nice implementation based off of [algorithm as mentioned in paper Automatic
@@ -222,8 +336,6 @@ keyword extraction from individual documents](https://www.researchgate.net/profi
 It exposes the `Rake` class to do keyword extraction and can be used to rank
 phrases. Using this method it is easy to throw together a dataframe ranking
 the various phrases found in some text.
-
-::: { .callout-note collapse=false }
 
 ### Extraction Process
 
@@ -252,69 +364,52 @@ graph TD
 
 ```
 
-```{=html}
-<script>
-/*
-function centerDiagram(){
-  const pp = document.getElementById("metric-generation")
-  const container = pp.querySelector("div div")
-  const daiagram = container.querySelector("svg")
-
-  container.style.display = 'flex'
-  daiagram.style.margin = 'auto'
-
-  console.log(container, daiagram)
-}
-*/
-
-window.addEventListener("load", () => setTimeout(centerDiagram, 100))
-</script>
-```
-
-:::
-
 ::: { .callout-note collapse=true }
 
-### `DataFrame` Code
+#### `DataFrame` and `Metrics` Code
 
-```{.python include="../../acederbergio/pdf.py" snippet="metrics"}
+```{.python include="../../../acederbergio/pdf.py" snippet="metrics"}
 
 ```
 
 :::
+
+### Extraction Results
 
 ::: {.callout-warning collapse=false}
 
-### Asynchronous `python` Code in `Jupyter` Notebooks
+#### Asynchronous `python` Code in `Jupyter` Notebooks
 
 Top level `await` is supported in jupyter notebooks.
-To any python user who mostly has experience outside of jupter this looks
-quite strange, but it is supported in jupyter.
+To any python user who mostly has experience outside of `jupyter` this looks
+quite strange, but it is supported in `jupyter`.
 
 :::
 
+The following code puts the metrics (stored in `pydantic` models) into
+`pandas` dataframes. Then `IPython` is used to turn the tables into `HTML`.
+
 ```{python}
-# | output: asis
+# | output: false
 from acederbergio.pdf import (
     Metrics,
-    MetricsComparison,
-    MetricsNamesMap,
     logger,
 )
-from acederbergio import db, util
-import pandas as pd
 
 # NOTE: Tell the logger to quiet down.
 logger.setLevel(50)
 
 
-async def finder(text):
+async def finder(text: str) -> Metrics:
     config = db.Config()  # type: ignore
-    client = config.create_client_async()
-    database = client[config.database]
     metadata = dict(origin="quarto", origin_file="nltk.qmd")
 
-    df = await Metrics.lazy(database, text=text, metadata=metadata)
+    if config.include:
+        client = config.create_client_async()
+        database = client[config.database]
+        df = await Metrics.lazy(database, text=text, metadata=metadata)
+    else:
+        df = Metrics.create(Metrics.createDF(text), text=text, metadata=metadata)
 
     return df
 
@@ -332,10 +427,8 @@ metrics_hitchens_df = metrics_hitchens.to_df()
 ```
 
 ```{python}
-# | fig-cap: |
-# |   Metrics for the most common key phrases extracted from the texts shown in
-# |   @fig-quotes using each of the three separate metrics provided by ``nltk_rake.Metrics``.
-# |   This only includes  the top ten key phrases output from each of the ``Rake`` analysis.
+# | echo: true
+# | fig-cap: Metrics for the most common key phrases extracted from the texts shown in @fig-quotes using each of the three separate metrics provided by ``nltk_rake.Metrics``. This only includes  the top ten key phrases output from each of the ``Rake`` analysis.
 # | fig-subcap:
 # | - Metrics for @fig-quotes-salinger.
 # | - Metrics for @fig-quotes-postman.
@@ -351,9 +444,9 @@ display.display_html(metrics_hitchens_df.head(10))
 Using these tables, it is now possible to highlight the keywords. Highlighting
 is done by building a string trie of keywords and then matching the sentence
 against the trie. For small documents, the trie mostly branches at the root.
-The following blocks are the results of these analysis, and this is the 
-code used to generate the daiagrams:
-
+The following blocks are the results of these analysis, and this is the
+code used to generate the figures to generate figures containing the texts
+with highlighted keywords and metrics charts.
 
 ```{python}
 def display_metrics_analysis(metrics: Metrics, metrics_df: pd.DataFrame):
@@ -369,7 +462,6 @@ def display_metrics_analysis(metrics: Metrics, metrics_df: pd.DataFrame):
     )
 ```
 
-
 ::: { #fig-quotes-hitchens-highlight .border .border-5 .border-yellow .rounded-4 .p-3 .my-5}
 
 ```{python}
@@ -383,7 +475,6 @@ print()
 
 :::
 
-
 ::: { #fig-quotes-postman-highlight .border .border-5 .border-teal .rounded-4 .p-3 .my-5}
 
 ```{python}
@@ -391,10 +482,10 @@ print()
 display_metrics_analysis(metrics_postman, metrics_postman_df)
 ```
 
+Blah blah
 @fig-quotes-postman highlights and metrics visualization.
 
 :::
-
 
 ::: { #fig-quotes-selinger-highlight .border .border-5 .border-pink .rounded-4 .p-3 .my-5}
 
@@ -407,20 +498,13 @@ display_metrics_analysis(metrics_salinger, metrics_salinger_df)
 
 :::
 
-
-
 <!--
-## Comparison
 
-```{python}
 comparison = MetricsComparison.compare(metrics_salinger, metrics_postman)
 print(comparison.model_dump_json(indent=2, exclude={"left", "right"}))
-```
 
-```{python}
 comparison = MetricsComparison.compare(metrics_postman, metrics_hitchens)
 print(comparison.model_dump_json(indent=2, exclude={"left", "right"}))
-```
 -->
 
 ```{=html}
