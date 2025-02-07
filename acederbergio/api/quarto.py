@@ -810,7 +810,9 @@ class Handler:
         :param callback: Optional callback.
         """
 
-        def resolve(data: schemas.QuartoHandlerAny | None, item: schemas.QuartoRenderRequestItem) -> schemas.QuartoHandlerAny:
+        def resolve(
+            data: schemas.QuartoHandlerAny | None, item: schemas.QuartoRenderRequestItem
+        ) -> schemas.QuartoHandlerAny:
             return data if data is not None else schemas.QuartoHandlerRequest(data=item)
 
         def do_break(data: schemas.QuartoHandlerAny):
@@ -1116,7 +1118,6 @@ def cmd_build(
                 dict(
                     verbose=False,
                     render=True,
-                    flags=["--output-dir", "build-prod"],
                 )
             ),
         ),
