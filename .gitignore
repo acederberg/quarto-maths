@@ -47,3 +47,4 @@ blog/projects/blog/quartodoc
 blog/dsa/leetcode/calendar_2/_oops_files/
 .env.actions
 blog/posts/keywords/*.svg
+blog/build-prod

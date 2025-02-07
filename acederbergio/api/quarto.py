@@ -16,17 +16,11 @@ in ``docker`` builds.
 import asyncio
 import os
 import pathlib
+import shutil
 import subprocess
 import time
-from typing import (
-    Annotated,
-    Any,
-    AsyncGenerator,
-    ClassVar,
-    Iterable,
-    Iterator,
-    Optional,
-)
+from typing import (Annotated, Any, AsyncGenerator, ClassVar, Iterable,
+                    Iterator, Optional)
 
 import bson
 import motor
@@ -145,6 +139,17 @@ def create_set_defaults_validator(defaults: set[pathlib.Path]):
 
 class ConfigFilter(pydantic.BaseModel):
     """Configuration settings for ``Filter``."""
+
+    suffixes_included: Annotated[
+        set[str] | None,
+        pydantic.Field(
+            None,
+            description="""
+        Include only certain extension types. 
+        This is most useful durring builds.
+        """,
+        ),
+    ]
 
     filters: Annotated[
         set[pathlib.Path],
@@ -358,6 +363,7 @@ class Filter:
         assets: Iterable[pathlib.Path] | None = None,
         static: Iterable[pathlib.Path] | None = None,
         ignore: Iterable[pathlib.Path] | None = None,
+        # suffixes_included: Iterable[str] | None = None
     ) -> None:
 
         config = context.config.filter
@@ -366,6 +372,7 @@ class Filter:
         self.assets = self.__validate_trie(assets or set(), config.assets)
         self.static = self.__validate_trie(static or set(), config.static)
         self.ignore = self.__validate_trie(ignore or set(), config.ignore)
+        # self.suffixes_included = set(suffixes_included) if suffixes_included is not None else None
 
         self.tt_tolerance = tt_tolerance
         self.tt_last = dict()
@@ -405,7 +412,10 @@ class Filter:
             return True, "explicit"
         elif path.is_dir():
             return True, "directory"
-        elif path.suffix not in self.suffixes:
+        elif path.suffix not in self.suffixes or (
+            self.config.suffixes_included is not None
+            and path.suffix not in self.config.suffixes_included
+        ):
             return True, f"suffix={path.suffix}"
         elif self.is_event_from_conform(path):
             return True, "too close"
@@ -767,7 +777,11 @@ class Handler:
         if os.path.isdir(path):
             for item in os.listdir(path):
                 yield from self.walk(path / item, depth=depth, depth_max=depth_max + 1)
-        elif os.path.isfile(path) and not self.filter.is_ignored(path)[0]:
+
+            return
+
+        is_ignored, _ = self.filter.is_ignored(path)
+        if os.path.isfile(path) and not is_ignored:
             yield path
 
         return
@@ -796,11 +810,11 @@ class Handler:
         :param callback: Optional callback.
         """
 
-        def resolve(data: schemas.QuartoHandlerAny | None) -> schemas.QuartoHandlerAny:
+        def resolve(data: schemas.QuartoHandlerAny | None, item: schemas.QuartoRenderRequestItem) -> schemas.QuartoHandlerAny:
             return data if data is not None else schemas.QuartoHandlerRequest(data=item)
 
         def do_break(data: schemas.QuartoHandlerAny):
-            if data.kind == "request":
+            if data.kind == "request" or data.kind == "job":
                 return False
 
             if data.data.status_code and render_data.exit_on_failure:  # type: ignore
@@ -810,9 +824,10 @@ class Handler:
 
         # TODO: Could be dryer.
         data: schemas.QuartoHandlerAny
+        item: schemas.QuartoRenderRequestItem
         for item in render_data.items:
             if item.kind == "file":
-                yield (data := resolve(await self(item.path)))
+                yield (data := resolve(await self(item.path), item))
                 # if data is None:
                 #     yield
                 #     ignored.append(item)
@@ -832,7 +847,7 @@ class Handler:
                     depth_max=item.directory_depth_max,
                 )
                 async for data in iter_directory:
-                    yield (data := resolve(data))
+                    yield (data := resolve(data, item))
 
                     # if isinstance(data, schemas.QuartoRenderRequestItem):
                     #     ignored.append(data)
@@ -1033,7 +1048,7 @@ def cmd_context_test(
 
     def add_paths(paths: Iterable[pathlib.Path], depth=0, rows=0) -> int:
         """
-        Returns the numver of rows encountered so far so that the table
+        Returns the numer of rows encountered so far so that the table
         is not of unreasonable size, e.g. listing something stupid.
         """
 
@@ -1070,6 +1085,95 @@ def cmd_context_test(
 
     add_paths(paths)
     rich.print(t)
+
+
+@cli.command("build")
+def cmd_build(
+    _context: typer.Context,
+):
+    """Specifically for docker builds.
+
+    Should:
+
+    1. Not require a mongodb connection,
+    2. Not handler configuration (see `acederbergio config`),
+    3. Not output unnecessary assets (e.g. `yaml`, `dev` folder), which are
+        useful in development mode.
+    4. Not generate documentation.
+    4. Just copy over the `javascript` folder.
+    """
+
+    context = Context(
+        config=Config(
+            filter=ConfigFilter.model_validate(
+                dict(
+                    suffixes_included={".qmd", ".svg", ".json"},
+                    # NOTE: These will be ignored during `walk`.
+                    ignore=[env.BLOG / "dev", env.BLOG / "js"],
+                )
+            ),
+            handler=ConfigHandler.model_validate(
+                dict(
+                    verbose=False,
+                    render=True,
+                    flags=["--output-dir", "build-prod"],
+                )
+            ),
+        ),
+        database=db.Config.model_validate(dict(include=False)),
+    )
+    util.print_yaml(context.dict())
+
+    watch = Watch(context, include_mongo=False)
+    data = schemas.QuartoRenderRequest(
+        exit_on_failure=False,
+        items=[
+            schemas.QuartoRenderRequestItem(
+                path="blog",
+                kind="directory",
+                directory_depth_max=10,
+            )
+        ],
+    )
+    TT = schemas.QuartoRender
+    SS = schemas.QuartoRenderResponse[TT]  # type: ignore
+
+    async def callback(item: schemas.QuartoHandlerResult):
+        if item.kind == "render":
+            print(f"Rendering {item.data.target}.")
+        elif item.kind == "request":
+            print(f"Ignored `{item.data.model_dump(mode='json')}`.")
+
+        return
+
+    async def doit():
+
+        # NOTE: Copy over JS.
+        js_raw = env.BLOG / "js"
+        js_build = (env.BUILD / "js").resolve(strict=False)
+        print(js_build)
+        if js_build.exists():
+            rich.print(
+                f"[yellow]Removing existing javascript from build at `{js_build}`."
+            )
+            shutil.rmtree(js_build)
+
+        rich.print(f"[green]Copying javascript at `{js_raw}` to `{js_build}`...")
+        shutil.copytree(js_raw, js_build)
+
+        # NOTE: Render all `qmd`, `json`, and `svg` content.
+        # TODO: Once the handler emits jobs, I would like the jobs to be
+        #       computed first so that a progress bar can be added here.
+        handler = await watch.get_handler()
+        result = await SS.fromHandlerResults(handler.render(data), callback=callback)
+
+        with open(env.BUILD / "quarto_renders.yaml", "w") as file:
+            yaml.dump(result, file)
+
+        # util.print_yaml(result)
+        return result
+
+    asyncio.run(doit())
 
 
 @cli.command("render")

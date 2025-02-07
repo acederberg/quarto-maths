@@ -181,15 +181,19 @@ asyncio.run(main())
 
 ::: { #tbl-todo-handler }
 
-| Item                       | Completed | Description                                                                                                      |
-| -------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------- |
-| `POST /render`             |           | should return scheduled jobs                                                                                     |
-| `WEBSOCKET`                |           | Should have a single database listener so that clients don't have to ping.                                       |
-| `Handler.listen`           |           | Context manager to allow others to listen, e.g. the above. Should emit `HandlerResult`.                          |
-| `Handler.schedule`         |           | Should be used by `POST /render` to schedule a job.                                                              |
-| `Handler.eval`             |           | Evaluate a scheduled job, mark started job.                                                                      |
-| `Handler.idle`             |           | Tell the handler background task to idle or stop go. This means that it would be possible to pause the listener. |
-| `QuartoRender*` time attrs |           | Should contain scheduled time, evaluated time, and completed time.                                               |
+| Item                        | Completed | Description                                                                                                      |
+| --------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------- |
+| `POST /render`              |           | should return scheduled jobs                                                                                     |
+| `WEBSOCKET`                 |           | Should have a single database listener so that clients don't have to ping.                                       |
+| `Handler.listen`            |           | Context manager to allow others to listen, e.g. the above. Should emit `HandlerResult`.                          |
+| `Handler.schedule`          |           | Should be used by `POST /render` to schedule a job.                                                              |
+| `Handler.eval`              |           | Evaluate a scheduled job, mark started job.                                                                      |
+| `Handler.idle`              |           | Tell the handler background task to idle or stop go. This means that it would be possible to pause the listener. |
+| `QuartoRender*` time attrs  |           | Should contain scheduled time, evaluated time, and completed time.                                               |
+| `Ignored` handler data type |           | Should say when handler data is ignored, and it should provide 'reason' of `is_ignored` output.                  |
+| `Handler.walk` -> Jobs      |           | `Handler.walk` should create jobs (instead of paths) and the `Ignored` handler data type (instead of `None`)     |
+| Lazy full builds            |           | Use hashes of `depends_on` and input to determine if rerender is necessary.                                      |
+| Document metadata Stored    |           | Keep live metadata to determine what watch does for some files.                                                  |
 
 : Objectives Handler { .todo-table }
 

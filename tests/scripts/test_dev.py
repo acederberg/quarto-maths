@@ -64,6 +64,9 @@ def filter() -> quarto.Filter:
         # NOTE: These have bad extensions.
         (env.BLOG / "index.ts", (True, "suffix=.ts")),
         (env.ROOT / "foo.go", (True, "suffix=.go")),
+        #
+        # NOTE: SVGS should not be ignored.
+        (env.BLOG / "icons/favicon.svg", (False, None)),
     ),
 )
 def test_context(filter: quarto.Filter, case: pathlib.Path, result: tuple[bool, str]):

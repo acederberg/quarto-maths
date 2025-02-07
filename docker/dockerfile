@@ -165,13 +165,7 @@ RUN \
     && mkdir --parent /quarto/app/config /root/config \
     && poetry run acederbergio config --for-real all \
     && poetry run acederbergio docs python \
-    && poetry run acederbergio quarto render \
-      --directory blog \
-      --mongo-exclude \
-      --output /quarto/app/blog/build/quarto-renders.yaml \
-      --silent \
-      --on-failure-exit \
-      --successes-exclude"
+    && poetry run acederbergio quarto build"
 
 # end snippet builder
 

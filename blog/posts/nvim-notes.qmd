@@ -2,10 +2,6 @@
 title: Neovim Queries
 ---
 
-```default
-delete this later, it is a tes.
-```
-
 ## Highlighting Quarto Metadata
 
 First and formost, it is much easier to write queries when using the `:Inspect`
