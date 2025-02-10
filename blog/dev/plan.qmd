@@ -8,6 +8,8 @@ toc: false
 tbl-colwidths: [25, 15, 60]
 ---
 
+# For Development
+
 ## The Big Picture
 
 A few of the goals I have here are
@@ -177,7 +179,16 @@ asyncio.run(main())
 
 :::
 
-## Todo
+# Build Enhancements
+
+Docker builds are so slow it is painful.
+For instance, it took [this build](https://github.com/acederberg/quarto-maths/actions/runs/13208017187/job/36875687217)
+about 15 minutes to finish building the static site, which is horrific.
+Part of the problem is that builds have to
+I would like to implement some build caching for production that could help
+reduce build time.
+
+# Todo
 
 ::: { #tbl-todo-handler }
 
