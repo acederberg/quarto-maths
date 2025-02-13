@@ -200,6 +200,10 @@ theme:
     - themes/resume.scss
 format:
   html:
+    # NOTE: Mermaid formatting does not play  nice in the container.
+    #       Just use mermaid CLI to make SVGs for thumbnails etc
+    # # https://quarto.org/docs/authoring/diagrams.html#mermaid-formats
+    # mermaid-format: svg
     layout: full-page
     code-fold: false
     embed-resources: false

@@ -1,0 +1,724 @@
+---
+title: How to Write Custom Neovim Queries
+subtitle: A Case-Study using Quarto
+image: https://bucket.acederberg.io/thumbnails/nvim-queries-and-highlights.png
+keywords:
+  - neovim
+  - lua
+  - syntax
+  - syntax highlighting
+  - quarto
+  - pandoc
+  - markdown
+  - neovim injection
+  - treesitter injection
+  - vim
+  - neovim customization
+floaty:
+  - identifier: banner
+    container:
+      classes:
+        - p-3
+        - my-5
+        - border-white
+        - border-5
+        - border
+        - rounded-5
+      classes_cards:
+        - rounded-4
+        - py-1
+      classes_card_images:
+        - rounded-4
+        - p-4
+
+      columns: 1
+      size: 1
+    content:
+      - title: Neovim
+        key: neovim
+        image:
+          iconify:
+            set: devicon
+            name: neovim
+links:
+  - identifier: more
+    container:
+      mode: bootstrap
+      include_titles: true
+      include_descriptions: true
+      classes:
+        - py-5
+        - floaty-hover
+      classes_cards:
+        - rounded-top-3
+        - py-3
+      resize:
+        xxl: 2
+        xl: 2
+        lg: 1
+        md: 1
+        sm: 1
+        xs: 1
+    content:
+      - title: Github Repository
+        description: Repository containing this code.
+        href: https://github.com/acederberg/quarto-maths
+        key: neovim
+        image:
+          bootstrap:
+            name: github
+
+      - title: More
+        description: More About my Neovim Configuration
+        href: /projects/nvim-config
+        key: more
+        image:
+          bootstrap:
+            name: code-square
+
+filters:
+  - ../filters/floaty.py
+  - ../filters/links.py
+---
+
+```{=html}
+<style>
+  @property --angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  @property --offset {
+    syntax: "<percentage>";
+    initial-value: 27%;
+    inherits: true;
+  }
+
+
+  #banner {
+    --bg-gradient-primary: var(--bs-blue);
+    --bg-gradient-secondary: var(--bs-green);
+    --bg-gradient-tertiary: var(--bs-orange);
+    --angle: 0deg;
+
+    overflow: hidden;
+
+    border-color: var(--bs-gray-100);
+    background: conic-gradient(
+      from var(--angle),
+      var(--bg-gradient-primary) 89deg,
+      var(--bg-gradient-secondary) 144deg,
+      var(--bg-gradient-tertiary) 243deg,
+      var(--bg-gradient-primary) 350deg
+    );
+
+    animation: 60s rotate linear infinite;
+  }
+
+  // Looks cool, but tricky to make play nice with page height.
+  /* #banner::after { */
+  /*   content: ""; */
+  /*   position: absolute; */
+  /*   top: 17%; */
+  /*   left: 0%; */
+  /*   width: 100%; */
+  /*   height: 30%; */
+  /*   display: block; */
+  /*   backdrop-filter: blur(25px); */
+  /* } */
+
+  @keyframes rotate {
+    to {
+      --angle: 360deg;
+    }
+  }
+
+  @keyframes breath {
+    0% {
+      --offset: 27%;
+    }
+
+    60% {
+      --offset: 30%;
+    }
+
+    100% {
+      --offset: 27%;
+    }
+  }
+
+
+  #banner .card {
+    --bg-gradient-primary: rgba(255, 255, 255, 0.7);
+    --bg-gradient-secondary: rgba(255, 255, 255, 1);
+    --offset: 27%;
+    --offset-compl: calc(43% + var(--offset));
+
+    z-index: 1;
+    margin: auto;
+    background: linear-gradient(45deg,
+      var(--bg-gradient-primary),
+      var(--bg-gradient-primary) var(--offset),
+      var(--bg-gradient-secondary) var(--offset),
+      var(--bg-gradient-secondary) var(--offset-compl),
+      var(--bg-gradient-primary) var(--offset-compl),
+      var(--bg-gradient-primary)
+    );
+    backdrop-filter: blur(25px);
+    animation: 60s breath linear infinite;
+    border-bottom: 0px !important;
+  }
+
+  #banner .floaty-container {
+    padding: 0;
+  }
+
+  #banner iconify-icon {
+  }
+
+
+</style>
+```
+
+::: { #banner }
+
+:::
+
+In this blog post, I will be discussing how I added a number of highlight and
+injection groups to `neovim` to improve my quality of life while authoring
+`quarto` documents. [`quarto`](https://quarto.org) is a flavor of markdown for
+writing computational notebooks that I use very frequently _(and in fact this
+document is written in quarto)_.
+
+While this pertains to quarto, the principles discussed here are applicable to
+any language and the development of queries and convenient means to do so are
+discussed here.
+
+Much of the code discussed here is shared in the gihub repository for my neovim
+configuration which can be found bellow:
+
+::: { #more }
+
+:::
+
+## Highlighting Quarto Metadata
+
+My first objective was highlighting quarto metadata in python documents.
+Metadata comments used in quarto code blocks for `python` start with
+`#|` or `# |` and should contain valid `YAML`, see for instance @fig-quarto-python-comment-example.
+The end result is like that which is shown in @fig-quarto-python-comment-result.
+
+:::: { layout=[1,1] }
+
+::: { #fig-quarto-python-comment-example }
+
+```python
+# | label: my-figure
+# | fig-cap: An empty plot
+
+# This is a normal comment
+
+import matplotlib.pyplot as plt
+
+plt.show()
+```
+
+Some python code highlighted here in the browser. Notice that the metadata
+comments and the normal comments are highlighted identically.
+
+:::
+
+![Quarto `python` code with metadata comments highlighted for contrast in neovim.](https://bucket.acederberg.io/projects/neovim-gallery/langs-quarto-metadata-highlights.png){ #fig-quarto-python-comment-result }
+
+::::
+
+### A Trick for Writing Queries Easily
+
+First and formost, it is much easier to write queries by using the `:Inspect`
+and `:InspectTree` commands. These allow you to peak into how treesitter sees the
+document and decides how syntax highlighting will work. In @fig-quarto-python-comment-inspect-tree
+we can see just how easy it is:
+
+![Looking at a comment in treesitter tree using `:InspectTree`.
+On the left hand side the `fenced_code_block` contains some `python` code
+which itself contains `comments`. See the derived query in @fig-quarto-python-comment-query.
+](https://bucket.acederberg.io/projects/neovim-quarto-python-inspect-tree-comment.png){ #fig-quarto-python-comment-inspect-tree }
+
+This is not too difficult - all that is required is to match any comment
+starting with `#|` or `# |` and label it with an appropriate capture.
+The following is added to my `~/.config/nvim/queries/python/highlights.scm`
+and and does exactly this:
+
+::: { #fig-quarto-python-comment-query }
+
+```default
+;;extends
+; Cannot do injections on comments, since they have no `inner` like strings.
+(
+  (comment) @comment.python.quarto_metadata
+  (#match? @comment.python.quarto_metadata "^# \\|")
+)
+```
+
+Match comments that start with `#|` or `# |` using the `match#?` directive.
+The [documentation on queries](https://neovim.io/doc/user/treesitter.html#_treesitter-syntax-highlighting)
+can tell you more about what each of the various matchers and directives do.
+
+:::
+
+::: { .callout-note }
+
+The capture name is aribitrary (so long as it does not collide with an existing
+capture). However, I named my capture `@comment.python.quarto_metadata` since
+the `@comment.python` capture group already exists and these metadata comments
+are a subset of that capture group. However, the name is completely up to you,
+the user.
+
+:::
+
+### Using the Query
+
+Writing the query on its own does not tell neovim what to do with the capture
+group - it is necessary to speciy how the highlight group should be used by
+providing coloration, font weight and style, and more using [`nvim_set_hl`](https://neovim.io/doc/user/api.html#nvim_set_hl)
+as in @fig-neovim-quarto-python-comment-hl.
+
+::: { #fig-neovim-quarto-python-comment-hl }
+
+```lua
+vim.api.nvim_set_hl(0, "@comment.python.quarto_metadata", { fg = "d3869b" })
+```
+
+The highlighting rule used to make quarto metadata comments pink.
+In my case, I added the line in to `~/.config/nvim/init.lua`.
+
+:::
+
+Next (after saving all of your changes), restart neovim and move the cursor
+over some code that should match the selector and use `:Inspect`. You should
+see something like @fig-neovim-quarto-python-comment-inspect. After
+highlighting looked like @fig-quarto-python-comment-example.
+
+![Confirming that the treesitter capture group defined about applies to `quarto`
+metadata comments using `:Inspect`. Notice that the highlight group `@comment.python.quarto_metadata`
+as defined in @fig-quarto-python-comment-query is now shown.
+](https://bucket.acederberg.io/projects/neovim-quarto-python-inspect-comment.png){ #fig-neovim-quarto-python-comment-inspect }
+
+## Highlighting Quarto Fenced Divs
+
+![Quarto fenced divs with red highlighting](https://bucket.acederberg.io/projects/neovim-gallery/langs-quarto-in-quarto.png){ #fig-neovim-quarto-fence-result }
+
+Fenced div's are a fundimental piece of `pandoc` flavored markdown and `pandoc`
+filters, and thus `quarto` markdown and `quarto` filters. When not highlighted,
+I find it less convenient to keep track of the fences, for instance in @fig-neovim-quarto-fence-example.
+However, with the fences highlighted in is much easier to make sure that all of
+the fenced divs are closed. If fenced divs are not closed, some frustrating
+and strange errors can arrise in quarto - notice how easy it is to count the
+fenced divs in @fig-neovim-quarto-fence-result.
+
+::: { #fig-neovim-quarto-fence-example }
+
+````markdown
+---
+title: Listing page
+listing:
+  - id: my-listings
+    type: grid
+    image-height: 256px
+    sort:
+      - date desc
+---
+
+The outer div _(below, starting with four colon marks)_ will specify some extra
+padding to add around the listing and the text above it.
+
+:::: { .px-5 }
+
+Page listings will show up in the fenced div bellow:
+
+::: { #my-listings}
+
+:::
+
+::::
+
+```default
+
+```
+````
+
+Quarto fenced divs using to specify where to put a listing and add some
+additional padding.
+
+:::
+
+By default, fenced divs come with no additional highlighting and can be quite
+difficult to manage when many are nested and mixed in with text.
+
+![`:InspectTree` over a quarto fence.](https://bucket.acederberg.io/projects/neovim-quarto-fence-inspect-tree.png){ #fig-neovim-quarto-fence-inspect-tree }
+
+Using `:InspectTree` as in @fig-neovim-quarto-fence-inspect-tree, we can see that treesitter recognizes these fences as
+`paragraph` nodes, so the query (under `~/.config/nvim/queries/markdown/highlights.scm`) will be
+
+::: { #fig-quarto-fence-query }
+
+```default
+(
+  (
+    (paragraph) @_
+    (#match? @_ "^:::+ *(\\{ *.* *\\})?$")
+  )
+  @fence.start
+)
+
+(
+  (
+    (paragraph) @_
+    (#match? @_ "^:::+ *$")
+  )
+  @fence.stop
+)
+```
+
+Query to match three or more colons followed by the attributes list (anything
+enclosed in curly brackets) as `@fence.start` and a line starting a sequence of
+three or more colons and `@fence.stop`. Notice the similarities to the output
+of `:InspectTree` in @fig-neovim-quarto-fence-inspect-tree.
+
+:::
+
+![`:Inspect` over a quarto fence.](https://bucket.acederberg.io/projects/neovim-quarto-fence-inspect.png){ #fig-neovim-quarto-fence-inspect}
+
+Using `:Inspect` will show that the capture was successful like @fig-neovim-quarto-fence-inspect.
+Finally, Adding highlighting can be done using `vim.api.nvim_set_hl`:
+
+```lua
+vim.api.nvim_set_hl(0, "@fence", { fg = "#dc322f", italic = true })
+```
+
+## Highlighting Quarto Raw `HTML`
+
+![Raw `HTML` with nice syntax highlighting in `quarto`. 
+Since `HTML` usually contain injected highlighting for scripts and styling *(using `javascript` and `css` respectively)* the highlighting for those will occur in the `HTML` too.
+Put simply, injections can also contain injections.
+](https://bucket.acederberg.io/projects/neovim-gallery/langs-quarto-html.png){ #fig-quarto-html-result }
+
+When writing normal `HTML` blocks using markdown code blocks in `quarto`
+documents I found that I was getting complete feedback from my `lsp` and
+fantastic highlighting, including highlighting of injected code within the `HTML`, e.g.
+highlighting and `LSP` feedback in `CSS` in `style` tags and `javascript` in `script` tags.
+
+I was not getting this when using raw `HTML` in `quarto` _(`HTML` code that
+should be put directly into the rendered output, where catching errors in
+`neovim` could save me a great deal of time)_ -
+often when authoring with quarto I have found it convenient to use raw HTML
+blocks like that in @fig-quarto-html-example.
+
+::: { #fig-quarto-html-example }
+
+````markdown
+Some `HTML` directly in quarto:
+
+```{=html}
+<p>This is some HTML that should be put directly into the quarto output.</p>
+<script type="module">
+  import * as live from "/js/live/index.js"
+  console.log("Nested highlighting!")
+  console.log("Injections in injections!")
+</script>
+```
+
+```html
+<h1>
+  This <code>HTML</code> will be displayed directly in the quarto document as
+  code and not rendered in the browser.
+</h1>
+```
+````
+
+:::
+
+::: { #fig-quarto-html-inspect-tree }
+
+![Output of `:InspectTree` at an `HTML` code block. On the left hand side, we 
+can see the treesitter tree.](https://bucket.acederberg.io/projects/neovim-gallery/neovim-quarto-html-inspect-tree.png){ #fig-inspect-tree }
+
+:::
+
+To make this happen, I used `:InspectTree` as in @fig-inspect-tree to see which
+pattern I wanted to match, and came up with the the query in @fig-quarto-html-query.
+In this case, it is enough to stop here. Quarto will recognize that the content
+inside of `{=html}` code blocks should be highlighted as `HTML`.
+
+::: { #fig-quarto-html-query }
+
+```default
+;;extends
+
+(
+  fenced_code_block
+  (info_string
+     (language) @_lang
+  )
+  (code_fence_content) @injection.content
+
+  (#eq? @_lang "=html")
+  (#set! injection.language "html" )
+)
+```
+
+Query for matching code fences labeled with `{=html}`.
+In my case, I added this to `~/.config/nvim/queries/markdown/injections.scm`.
+Notice the resemblence to @fig-quarto-html-inspect-tree.
+
+:::
+
+::: { .callout-warning }
+
+### Injection Capture Names
+
+In this case, unlike what was seen in the first section, the capture name must
+be `@injection.content` since this is how `neovim` find injected content.
+
+:::
+
+## Quarto in Quarto
+
+Additionally, I wanted to add a background to all of `quarto` in `quarto`
+blocks _(as in @fig-neovim-quarto-fence-result)_ so that they were easier to
+distinguish from the rest of the markup. This is easily achieved by adding the
+following to the corresponding `highlights.scm`:
+
+```default
+(
+  (
+   fenced_code_block
+    (info_string (language) @_lang)
+    (#eq? @_lang "quarto")
+    (code_fence_content) @quarto_in_quarto
+  )
+)
+```
+
+and then
+
+```lua
+vim.api.nvim_set_hl(0, "@quarto_in_quarto", { bg = "#7c6f64", fg = "#fbf1c7" })
+```
+
+to highlight the background to `~/.config/nvim/init.lua`. This will only put
+a background behind the text not behind the entire code fence, and it would be
+bad practice to follow the text with whitespace _(since many linters will trim it)_
+thus it makes sense to fill in the remaining background using virual text, the
+same text that is used to provide daiagnostics from language server providers
+and other tools.
+
+### Extra Fun: Extending Background Code Block Background Highlighting Using Virtual Text
+
+To ensure that the background highlighting was extended all the way to column
+`80` (even on empty lines) I added the following `lua` to `init.lua`:
+
+```lua
+---@alias CodeFenceHLData {language: string, start: number, stop: number, }
+---@alias CodeFenceHLOptions {hl_group: string, codefence_language: string, include_delim: boolean, hl: table}
+
+---If a node is a fenced code block, then return the language name if it can
+---be determined.
+---
+---@param bufnr number - Buffer number.
+---@param node TSNode -- Treesitter node
+---@param options CodeFenceHLOptions
+---
+---@return CodeFenceHLData?
+---
+local function get_code_fence_data(bufnr, node, options)
+  if node:type() ~= "fenced_code_block" then
+    return
+  end
+
+  local node_info_string = nil
+  local node_code_fence_content = nil
+
+  -- NOTE: Look for the info string.
+  for child in node:iter_children() do
+    local ttt = child:type()
+    if ttt == "info_string" then
+      node_info_string = child
+    end
+
+    if ttt == "code_fence_content" then
+      node_code_fence_content = child
+    end
+  end
+
+  if not node_info_string then
+    -- vim.print("No info string for code block")
+    return
+  end
+
+  if not node_code_fence_content then
+    return
+  end
+
+  local node_language = nil
+  for child in node_info_string:iter_children() do
+    if child:type() == "language" then
+      node_language = child
+    end
+  end
+
+  if node_language == nil then
+    -- print("No language for code block.")
+    return
+  end
+
+  local row_start, col_start, _ = node_language:start()
+  local row_end, col_end, _ = node_language:end_()
+
+  local lines = vim.api.nvim_buf_get_lines(bufnr, row_start, row_end + 1, false)
+  if not lines then
+    return
+  end
+
+  local start, stop
+  if options.include_delim then
+    start, _, stop, _ = node:range()
+  else
+    start, _, stop, _ = node_code_fence_content:range()
+  end
+
+  for _, line in ipairs(lines) do
+    return { language = string.sub(line, col_start + 1, col_end), start = start, stop = stop }
+  end
+end
+
+---Tack on extra characters to reach `80` character of background using
+---some highlight group.
+---
+---This is used to fill out the background of the `@fenced_code_block.quarto` capture.
+---
+---@param ns number - Namespace number.
+---@param bufnr number - Buffer number.
+---@param data CodeFenceHLData
+---@param options CodeFenceHLOptions
+---@return nil
+---
+local function append_code_fence_virtual_text(ns, bufnr, data, options)
+  vim.api.nvim_buf_clear_namespace(bufnr, ns, data.start, data.stop)
+
+  local lines = vim.api.nvim_buf_get_lines(bufnr, data.start, data.stop, false)
+  for index, line in ipairs(lines) do
+    local line_len = string.len(line)
+    local line_remainder = 80 - line_len
+    local spacer = string.rep(" ", line_remainder)
+
+    vim.api.nvim_buf_set_extmark(bufnr, ns, data.start + index - 1, -1, {
+      hl_group = options.hl_group,
+      virt_text = { { spacer, options.hl_group } }, -- Extend bg
+      virt_text_pos = "inline",
+    })
+  end
+end
+
+---Recursively look for code fences.
+---
+---@param ns number - Namespace number.
+---@param bufnr number - Buffer number.
+---@param root TSNode - Node to inspect.
+---@param options CodeFenceHLOptions
+---@return nil
+---
+local function update_code_fence(ns, bufnr, root, options)
+  for node in root:iter_children() do
+    local code_fence_data = get_code_fence_data(bufnr, node, options)
+
+    if code_fence_data ~= nil then
+      vim.print(code_fence_data)
+      if code_fence_data.language ~= options.codefence_language then
+        return
+      end
+
+      append_code_fence_virtual_text(ns, bufnr, code_fence_data, options)
+    else
+      update_code_fence(ns, bufnr, node, options)
+    end
+  end
+end
+
+---Used to make codeblocks look like full pages by adding virual text.
+---Otherwise background only appears behind text.
+---
+---Using `options.include_delim` will require highlighting the entire code fence.
+---
+---@param options CodeFenceHLOptions
+---@return nil
+---
+local function add_codefence_virtual_text(options)
+  local ns = vim.api.nvim_create_namespace("quarto_code_bg")
+  local bufnr = vim.api.nvim_get_current_buf()
+
+  local parser = vim.treesitter.get_parser(bufnr, "markdown")
+  local tree = parser:parse()[1]
+  local root = tree:root()
+
+  vim.print(options)
+  update_code_fence(ns, bufnr, root, options)
+end
+
+---@param options CodeFenceHLOptions
+---@return nil
+local function _codefence(options)
+  vim.api.nvim_set_hl(0, options.hl_group, options.hl)
+  vim.api.nvim_create_autocmd({ "BufEnter", "TextChanged", "TextChangedI" }, {
+    pattern = "*.qmd",
+    callback = function()
+      return add_codefence_virtual_text(options)
+    end,
+  })
+end
+
+---@param options_list CodeFenceHLOptions[]
+local function codefence(options_list)
+  for _, options in ipairs(options_list) do
+    _codefence(options)
+  end
+end
+
+-- NOTE: Colors from solarized pallete: https://en.wikipedia.org/wiki/Solarized
+vim.api.nvim_set_hl(0, "@comment.python.quarto_metadata", { fg = "#d3869b" })
+vim.api.nvim_set_hl(0, "@comment.mermaid.quarto_metadata", { fg = "#d3869b" })
+vim.api.nvim_set_hl(0, "@fence", { fg = "#dc322f", italic = true })
+codefence({
+  {
+    codefence_language = "quarto",
+    hl_group = "@fenced_code_block.quarto",
+    include_delim = true,
+    hl = { bg = "#002b36" },
+  },
+  {
+    codefence_language = "python",
+    hl_group = "@fenced_code_block.python",
+    include_delim = true,
+    hl = { bg = "#073642" },
+  },
+  {
+    codefence_language = "default",
+    hl_group = "@fenced_code_block.default",
+    include_delim = true,
+    hl = { bg = "#002b36", fg = "#268bd2" },
+  },
+  {
+    codefence_language = "=html",
+    hl_group = "@fenced_code_block.html",
+    include_delim = true,
+    hl = { bg = "#002b36", fg = "#268bd2" },
+  },
+  {
+    hl = { bg = "#002b36", fg = "#268bd2" },
+    hl_group = "@fenced_code_block.mermaid",
+    include_delim = true,
+    codefence_language = "mermaid",
+  },
+})
+```

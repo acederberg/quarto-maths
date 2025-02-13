@@ -5,7 +5,7 @@ image: ./cobweb-rr-0.9.gif
 extra:
   url: /posts/logistic
   image: /posts/logistic/cobweb-rr-0.9.gif
-keywords: 
+keywords:
   - logistic map
   - logistic
   - map
@@ -69,7 +69,7 @@ of the logistic sequence:
 
 
 ```{python}
-#| echo: true
+# | echo: true
 import itertools
 import json
 import pathlib
@@ -85,8 +85,8 @@ from matplotlib.animation import FuncAnimation
 
 
 # NOTE: Constants. These will determine how long it will take for this document
-#       to render. Further, changing these documents can result in an error 
-#       from deno with the message ``ERROR: RangeError: Maximum call stack size 
+#       to render. Further, changing these documents can result in an error
+#       from deno with the message ``ERROR: RangeError: Maximum call stack size
 #       exceeded``.
 LOGISTIC_X0_DEFAULT = float(environ.get("LOGISTIC_X0_DEFAULT", "0.9"))
 LOGISTIC_STEP_SIZE = float(environ.get("LOGISTIC_STEP_SIZE", "0.01"))
@@ -95,86 +95,89 @@ LOGISTIC_ITERATIONS = int(environ.get("LOGISTIC_ITERATIONS", "1000 "))
 LOGISTIC_ITERATIONS_KEPT = int(environ.get("LOGISTIC_ITERATIONS_KEPT", "100"))
 
 DIR = pathlib.Path(".").resolve()
-LOGISTIC_DATA_BIFURCATION = DIR / f"logistic-bifurcation-{LOGISTIC_ITERATIONS}-{LOGISTIC_STEP_SIZE}.csv"
-LOGISTIC_DATA_COBWEB_RR = DIR / f"cobweb-{LOGISTIC_STEP_SIZE}-{LOGISTIC_STEP_SIZE_RR}.json"
+LOGISTIC_DATA_BIFURCATION = (
+    DIR / f"logistic-bifurcation-{LOGISTIC_ITERATIONS}-{LOGISTIC_STEP_SIZE}.csv"
+)
+LOGISTIC_DATA_COBWEB_RR = (
+    DIR / f"cobweb-{LOGISTIC_STEP_SIZE}-{LOGISTIC_STEP_SIZE_RR}.json"
+)
 
 
 def logistic_point(
-  rr: float, 
-  xx: float, 
-  *, 
-  power: int = 1,
-  _power: int = 0,
+    rr: float,
+    xx: float,
+    *,
+    power: int = 1,
+    _power: int = 0,
 ) -> float:
-  """Compute the value of the logistic map for some coefficient `rr` and 
-  number `xx`.
-  """
+    """Compute the value of the logistic map for some coefficient `rr` and
+    number `xx`.
+    """
 
-  _power += 1
-  
-  xx_next = rr * xx * (1 - xx) 
-  if _power == power:
-    return xx_next
+    _power += 1
 
-  return logistic_point(rr, xx_next, power=power, _power=_power)
+    xx_next = rr * xx * (1 - xx)
+    if _power == power:
+        return xx_next
+
+    return logistic_point(rr, xx_next, power=power, _power=_power)
 
 
-def _logistic_array(rr: float, xx, *, power = 1):
-  """Helper for ``logistic_array``."""
+def _logistic_array(rr: float, xx, *, power=1):
+    """Helper for ``logistic_array``."""
 
-  # NOTE: Numpy multiplies elements stepwise.
+    # NOTE: Numpy multiplies elements stepwise.
 
-  yy, _power = xx, 0
-  while _power < power:
-    yy = rr * yy * (1 - yy)
-    _power = _power + 1
+    yy, _power = xx, 0
+    while _power < power:
+        yy = rr * yy * (1 - yy)
+        _power = _power + 1
 
-  return yy
+    return yy
 
 
 def logistic_array(
-  rr: float,
-  *,
-  step: float = 0.001,
-  power: int = 1,
+    rr: float,
+    *,
+    step: float = 0.001,
+    power: int = 1,
 ):
-  """Compute the graph of the logistic map on the closed interval $[0, 1]$."""
+    """Compute the graph of the logistic map on the closed interval $[0, 1]$."""
 
-  xx = np.arange(0, 1 + step, step=step)
-  yy = _logistic_array(rr, xx, power=power)
+    xx = np.arange(0, 1 + step, step=step)
+    yy = _logistic_array(rr, xx, power=power)
 
-  return pd.DataFrame(dict(xx=xx, yy=yy))
+    return pd.DataFrame(dict(xx=xx, yy=yy))
 
 
 def logistic_point_sequence(
-  rr: float,
-  xx: float,
-  *,
-  iterations: int = LOGISTIC_ITERATIONS,
+    rr: float,
+    xx: float,
+    *,
+    iterations: int = LOGISTIC_ITERATIONS,
 ) -> Generator[float, None, None]:
-  """Iterate the logistic sequence starting at `xx` for coefficient `rr` for
-  `iterations` number of steps."""
+    """Iterate the logistic sequence starting at `xx` for coefficient `rr` for
+    `iterations` number of steps."""
 
-  yield xx 
+    yield xx
 
-  iteration = 0
-  while (iteration := iteration + 1) < iterations:
-    yield (xx := logistic_point(rr, xx))
+    iteration = 0
+    while (iteration := iteration + 1) < iterations:
+        yield (xx := logistic_point(rr, xx))
 
 
 def logistic_point_attractor(
-  rr: float,
-  xx: float,
-  *,
-  iterations: int = LOGISTIC_ITERATIONS,
-  iterations_kept = LOGISTIC_ITERATIONS_KEPT,
+    rr: float,
+    xx: float,
+    *,
+    iterations: int = LOGISTIC_ITERATIONS,
+    iterations_kept=LOGISTIC_ITERATIONS_KEPT,
 ) -> List[float]:
-  """Calculate the attractors for the logistic sequence at a point."""
+    """Calculate the attractors for the logistic sequence at a point."""
 
-  seq = enumerate(logistic_point_sequence(rr, xx,  iterations=iterations)) 
-  pos_min = iterations - iterations_kept 
-  return [value for pos, value in seq if pos >= pos_min]
-
+    seq = enumerate(logistic_point_sequence(rr, xx, iterations=iterations))
+    pos_min = iterations - iterations_kept
+    return [value for pos, value in seq if pos >= pos_min]
 ```
 
 ## Bifurcation Diagram
@@ -191,64 +194,70 @@ interval `[0, 4]` and completing the following process for each `rr`:
 
 ```{python}
 def create_bifurcation(
-  *,
-  start: float = float(2), 
-  stop: float = float(4),
-  step: float = 0.05,
-  iterations: int = LOGISTIC_ITERATIONS,
-  iterations_kept: int = LOGISTIC_ITERATIONS_KEPT,
+    *,
+    start: float = float(2),
+    stop: float = float(4),
+    step: float = 0.05,
+    iterations: int = LOGISTIC_ITERATIONS,
+    iterations_kept: int = LOGISTIC_ITERATIONS_KEPT,
 ):
-  """Returns a ``DataFrame`` containing coefficients, attractors, and initial
-  conditions.
-  """
+    """Returns a ``DataFrame`` containing coefficients, attractors, and initial
+    conditions.
+    """
 
-  rs = np.arange(start, stop, step)
-  x0s =  list( np.random.rand() for _ in range(len(rs)))
+    rs = np.arange(start, stop, step)
+    x0s = list(np.random.rand() for _ in range(len(rs)))
 
-  return pd.DataFrame(
-    dict(
-      rr=rs,
-      x0=x0s,
-      attractors=list(
-        logistic_point_attractor(
-          rr, 
-          x0,
-          iterations=iterations,
-          iterations_kept=iterations_kept,
+    return pd.DataFrame(
+        dict(
+            rr=rs,
+            x0=x0s,
+            attractors=list(
+                logistic_point_attractor(
+                    rr,
+                    x0,
+                    iterations=iterations,
+                    iterations_kept=iterations_kept,
+                )
+                for rr, x0 in zip(rs, x0s)
+            ),
         )
-        for rr, x0 in zip(rs, x0s)
-      ) 
     )
-  )
 
 
 def load_bifurcation():
-  """Load data if it has already been computed. This is especially useful when
-  developing this document."""
+    """Load data if it has already been computed. This is especially useful when
+    developing this document."""
 
-  if not LOGISTIC_DATA_BIFURCATION.exists():
-    data_raw = create_bifurcation(step=0.0001)
+    if not LOGISTIC_DATA_BIFURCATION.exists():
+        data_raw = create_bifurcation(step=0.0001)
 
-    rr = [rr for rr in data_raw["rr"] for _ in range(LOGISTIC_ITERATIONS_KEPT)] 
-    xx =list(itertools.chain(*data_raw["attractors"]) )
-    data = pd.DataFrame(dict(rr=rr, xx=xx))
-    data.to_csv(LOGISTIC_DATA_BIFURCATION)
-  else:
-    data = pd.read_csv(LOGISTIC_DATA_BIFURCATION)
+        rr = [rr for rr in data_raw["rr"] for _ in range(LOGISTIC_ITERATIONS_KEPT)]
+        xx = list(itertools.chain(*data_raw["attractors"]))
+        data = pd.DataFrame(dict(rr=rr, xx=xx))
+        data.to_csv(LOGISTIC_DATA_BIFURCATION)
+    else:
+        data = pd.read_csv(LOGISTIC_DATA_BIFURCATION)
 
-  return data
+    return data
 
 
 if not (_ := DIR / "./bifurcation.png").exists():
-  plot_bifurcation = sns.scatterplot(data=load_bifurcation(), x="rr", y="xx", s=0.1)
-  plot_bifurcation.figure.savefig(_)
-  plt.close()
+    plot_bifurcation = sns.scatterplot(data=load_bifurcation(), x="rr", y="xx", s=0.1)
+    plot_bifurcation.figure.savefig(_)
+    plt.close()
 ```
 
-![Logistic Bifurcation Diagram](./bifurcation.png)
+![Logistic Bifurcation Diagram](./bifurcation.png){ #fig-bifurcation }
+
+```{python}
+def load_bifurcation_2():
 
 
-A few well known facts about the logistic map are apparent from the figure:
+```
+
+A few well known facts about the logistic map are apparent from the bifurcation 
+daiagram shown in @fig-bifurcation:
 
 - Below a value of three, the logistic sequence actually converges 
 - For $r$ between $3$ and roughly $3.4$, the logistic map will have two distinct
@@ -257,10 +266,8 @@ A few well known facts about the logistic map are apparent from the figure:
   distinct convergent subsequences. 
 - The bifurcation cascade blows up after approximately $r=3.6$.
 
-These facts can be proven by solving the recurrence relation. However doing so
-is not something I want to do in this particular blog post as the algebra is 
-nasty and results in the solving for roots cubic equations or worse (as the 
-result of solving a system of polynomial equations).
+These facts can be proven by solving the recurrence relation but are beyond
+the scope of this article.
 
 
 ## Cobweb Diagram
@@ -308,82 +315,73 @@ visualization can be plotted using the following ``python`` code:
 
 ```{python}
 def iter_cobweb(
-  rr: float,
-  x0: float = LOGISTIC_X0_DEFAULT,
-  *, 
-  iterations: int = LOGISTIC_ITERATIONS,
+    rr: float,
+    x0: float = LOGISTIC_X0_DEFAULT,
+    *,
+    iterations: int = LOGISTIC_ITERATIONS,
 ):
-  """Iterates the elements of the cobweb sequence."""
-  iteration, xx = 0, x0
-  while (iteration := iteration + 1) < iterations:
-    yield (xx, xx)
-    yield (xx, xx := logistic_point(rr, xx))
+    """Iterates the elements of the cobweb sequence."""
+    iteration, xx = 0, x0
+    while (iteration := iteration + 1) < iterations:
+        yield (xx, xx)
+        yield (xx, xx := logistic_point(rr, xx))
 
 
 def iter_cobweb_segments(
-  rr: float,
-  x0: float = LOGISTIC_X0_DEFAULT,
-  *,
-  iterations: int = LOGISTIC_ITERATIONS,
+    rr: float,
+    x0: float = LOGISTIC_X0_DEFAULT,
+    *,
+    iterations: int = LOGISTIC_ITERATIONS,
 ):
-  """Iterates tuples representing the line segments making up the cobweb 
-  diagram"""
+    """Iterates tuples representing the line segments making up the cobweb
+    diagram"""
 
-  points = iter_cobweb(rr, x0, iterations=iterations)
-  xx, yy = zip(*points) 
-  for xx_coords, yy_coords in zip(
-      zip(xx[:-1], xx[1:]),
-      zip(yy[:-1], yy[1:])
-  ):
-    yield (xx_coords, yy_coords)
+    points = iter_cobweb(rr, x0, iterations=iterations)
+    xx, yy = zip(*points)
+    for xx_coords, yy_coords in zip(zip(xx[:-1], xx[1:]), zip(yy[:-1], yy[1:])):
+        yield (xx_coords, yy_coords)
 
 
 def diagram_cobweb(
-  rr: float, 
-  x0: float = LOGISTIC_X0_DEFAULT, 
-  *, 
-  frames: int,
-  interval: int = 200,
+    rr: float,
+    x0: float = LOGISTIC_X0_DEFAULT,
+    *,
+    frames: int,
+    interval: int = 200,
 ):
-  """Creates the cobweb diagram animation."""
+    """Creates the cobweb diagram animation."""
 
-  # Do not fear, this just uses the values from the scope below when called.
-  def update_cobweb(frame):
-    line, = ax.plot(
-      data_cobweb[frame][0],
-      data_cobweb[frame][1],
-      color="red",
+    # Do not fear, this just uses the values from the scope below when called.
+    def update_cobweb(frame):
+        (line,) = ax.plot(
+            data_cobweb[frame][0],
+            data_cobweb[frame][1],
+            color="red",
+        )
+        return line
+
+    data_logistic = logistic_array(rr)
+    data_cobweb = list(iter_cobweb_segments(rr, x0, iterations=frames))
+
+    plt.xlim(0, 1)
+    plt.ylim(0, 1)
+    fig, ax = plt.subplots()
+
+    # Plot the logistic map.
+    ax.plot(
+        xx := data_logistic["xx"],
+        data_logistic["yy"],
+        color="blue",
     )
-    return line
+    ax.plot(xx, xx, color="green")
 
+    # Animate cobweb.
+    animation = FuncAnimation(fig, update_cobweb, frames=frames, interval=interval)
 
-  data_logistic = logistic_array(rr)
-  data_cobweb = list(iter_cobweb_segments(rr, x0, iterations=frames))
-
-  plt.xlim(0, 1)
-  plt.ylim(0, 1)
-  fig, ax = plt.subplots()
-
-  # Plot the logistic map.
-  ax.plot(
-    xx := data_logistic["xx"],
-    data_logistic["yy"],
-    color = "blue",
-  )
-  ax.plot(xx, xx, color="green")
-
-  # Animate cobweb.
-  animation = FuncAnimation(
-    fig, 
-    update_cobweb, 
-    frames=frames,
-    interval=interval
-  )
-
-  # Why do I have to do this twice?
-  plt.close()
-  plt.close()
-  return animation
+    # Why do I have to do this twice?
+    plt.close()
+    plt.close()
+    return animation
 ```
 
 
@@ -392,9 +390,9 @@ converge
 
 
 ```{python}
-if not (_ := DIR / "cobweb-3.8-0.9.gif" ).exists():
-  animation = diagram_cobweb(3.8, 0.9, frames=200, interval=50)
-  animation.save(_, writer="pillow")
+if not (_ := DIR / "cobweb-3.8-0.9.gif").exists():
+    animation = diagram_cobweb(3.8, 0.9, frames=200, interval=50)
+    animation.save(_, writer="pillow")
 ```
 
 
@@ -407,9 +405,9 @@ convergence easy to confirm visually:
 
 
 ```{python}
-if not (_ := DIR / "cobweb-2-0.9.gif" ).exists():
-  animation = diagram_cobweb(2, 0.9, frames=10)
-  animation.save(_, writer="pillow")
+if not (_ := DIR / "cobweb-2-0.9.gif").exists():
+    animation = diagram_cobweb(2, 0.9, frames=10)
+    animation.save(_, writer="pillow")
 ```
 
 
@@ -422,90 +420,79 @@ value of $r$ varies.
 
 ```{python}
 def load_cobweb_rr(x0):
-  """Load the data if it exists already instead of generating it."""
+    """Load the data if it exists already instead of generating it."""
 
-  if LOGISTIC_DATA_COBWEB_RR.exists():
-    with open(LOGISTIC_DATA_COBWEB_RR, "r") as file:
-      raw = json.load(file)
+    if LOGISTIC_DATA_COBWEB_RR.exists():
+        with open(LOGISTIC_DATA_COBWEB_RR, "r") as file:
+            raw = json.load(file)
 
-    return {
-      float(rr): df_raw
-      for rr, df_raw in     raw["data_cobweb"].items()
-    }, {
-      float(rr): pd.DataFrame(json.loads(df_raw))
-      for rr, df_raw in raw["data_logistic"].items()
-    }
-
-  rrs = np.arange(0, 4, LOGISTIC_STEP_SIZE_RR)
-  data_cobweb = {
-    rr: list(zip(*iter_cobweb(rr, x0, iterations=len(rrs))))
-    for rr in rrs
-  }
-  data_logistic = {
-    rr: logistic_array(rr)
-    for rr in rrs
-  }
-
-  with open(LOGISTIC_DATA_COBWEB_RR, "w") as file:
-    json.dump(
-      {
-        "data_cobweb": data_cobweb,
-        "data_logistic": {
-          rr: df.to_json() 
-          for rr, df in data_logistic.items()
+        return {float(rr): df_raw for rr, df_raw in raw["data_cobweb"].items()}, {
+            float(rr): pd.DataFrame(json.loads(df_raw))
+            for rr, df_raw in raw["data_logistic"].items()
         }
-      }, 
-      file
-    )
 
-  return (data_cobweb, data_logistic)
+    rrs = np.arange(0, 4, LOGISTIC_STEP_SIZE_RR)
+    data_cobweb = {
+        rr: list(zip(*iter_cobweb(rr, x0, iterations=len(rrs)))) for rr in rrs
+    }
+    data_logistic = {rr: logistic_array(rr) for rr in rrs}
+
+    with open(LOGISTIC_DATA_COBWEB_RR, "w") as file:
+        json.dump(
+            {
+                "data_cobweb": data_cobweb,
+                "data_logistic": {rr: df.to_json() for rr, df in data_logistic.items()},
+            },
+            file,
+        )
+
+    return (data_cobweb, data_logistic)
 
 
 def diagram_cobweb_rr(interval: int = 200):
-  """Create the cobweb diagram animation for a fixed starting point and a 
-  varied $r$."""
+    """Create the cobweb diagram animation for a fixed starting point and a
+    varied $r$."""
 
-  x0 = LOGISTIC_X0_DEFAULT
-  data_cobweb, data_logistic = load_cobweb_rr(x0)
+    x0 = LOGISTIC_X0_DEFAULT
+    data_cobweb, data_logistic = load_cobweb_rr(x0)
 
-  fig, ax = plt.subplots()
+    fig, ax = plt.subplots()
 
-  rrs = np.array(sorted(data_cobweb))
-  rr0 = min(rrs)
+    rrs = np.array(sorted(data_cobweb))
+    rr0 = min(rrs)
 
+    (line_cobweb,) = ax.plot(
+        data_cobweb[rr0][0],
+        data_cobweb[rr0][1],
+        color="blue",
+    )
+    (line_logistic,) = ax.plot(
+        data_logistic[rr0]["xx"],
+        data_logistic[rr0]["yy"],
+        color="red",
+    )
+    ax.plot(xx := data_logistic[rr0]["xx"], xx, color="green")
+    tx = ax.text(0, 1.1, f"r = {rr0}")
 
-  line_cobweb, = ax.plot(
-    data_cobweb[rr0][0],
-    data_cobweb[rr0][1],
-    color="blue",
-  )
-  line_logistic, = ax.plot(
-    data_logistic[rr0]["xx"],
-    data_logistic[rr0]["yy"],
-    color="red",
-  )
-  ax.plot(xx := data_logistic[rr0]["xx"], xx, color="green")
-  tx = ax.text(0, 1.1, f"r = {rr0}")
+    def update_cobweb_rr(frame_rr):
+        line_cobweb.set_xdata(data_cobweb[frame_rr][0])
+        line_cobweb.set_ydata(data_cobweb[frame_rr][1])
 
-  def update_cobweb_rr(frame_rr):
-    line_cobweb.set_xdata(data_cobweb[frame_rr][0])
-    line_cobweb.set_ydata(data_cobweb[frame_rr][1])
+        line_logistic.set_xdata(data_logistic[frame_rr]["xx"])
+        line_logistic.set_ydata(data_logistic[frame_rr]["yy"])
 
-    line_logistic.set_xdata(data_logistic[frame_rr]["xx"])
-    line_logistic.set_ydata(data_logistic[frame_rr]["yy"])
+        tx.set_text(f"r = {round(frame_rr, 2)}")
 
-    tx.set_text(f"r = {round(frame_rr, 2)}")
+        return (line_cobweb, line_logistic)
 
-    return (line_cobweb, line_logistic)
-
-  animation = FuncAnimation(
-    fig,
-    update_cobweb_rr,
-    frames=rrs,
-    interval=interval,
-  )
-  plt.close()
-  return animation
+    animation = FuncAnimation(
+        fig,
+        update_cobweb_rr,
+        frames=rrs,
+        interval=interval,
+    )
+    plt.close()
+    return animation
 ```
 
 The animation below shows cobweb diagrams with the value of $r$ varied along
@@ -514,8 +501,8 @@ $[0, 4]$.
 
 ```{python}
 if not (_ := DIR / "cobweb-rr-0.9.gif").exists():
-  animation = diagram_cobweb_rr(interval=100)
-  animation.save(_, writer="pillow")
+    animation = diagram_cobweb_rr(interval=100)
+    animation.save(_, writer="pillow")
 ```
 
 
@@ -543,36 +530,33 @@ composition with itself. The following code is used to generate the subsequent
 diagrams:
 
 ```{python}
-#| label: logistic-composition-4
-#| fig-cap: $\lambda_4^k$ for $k \in N$ and $0 < k < 7$. 
+# | label: logistic-composition-4
+# | fig-cap: $\lambda_4^k$ for $k \in N$ and $0 < k < 7$.
+
 
 def diagram_composition(rr: float, frames: int):
-  """Create the composition animation for some ``rr``."""
+    """Create the composition animation for some ``rr``."""
 
-  def update_composition(frame):
-    line.set_ydata(data_composition[frame]["yy"])
+    def update_composition(frame):
+        line.set_ydata(data_composition[frame]["yy"])
 
-    tx.set_text(f"k = {frame}")
-    return (line,)
+        tx.set_text(f"k = {frame}")
+        return (line,)
 
-  data_composition = [logistic_array(rr, power=k + 1) for k in range(frames)]
-  fig, ax = plt.subplots()
+    data_composition = [logistic_array(rr, power=k + 1) for k in range(frames)]
+    fig, ax = plt.subplots()
 
-  tx = ax.text(0, 1.1, "k = 0")
-  line, = ax.plot(
-    xx := data_composition[0]["xx"],
-    data_composition[0]["yy"],
-    color = "blue",
-  )
-  ax.plot(xx, xx, color="red")
-  animation = FuncAnimation(
-    fig, 
-    update_composition, 
-    frames=frames
-  )
+    tx = ax.text(0, 1.1, "k = 0")
+    (line,) = ax.plot(
+        xx := data_composition[0]["xx"],
+        data_composition[0]["yy"],
+        color="blue",
+    )
+    ax.plot(xx, xx, color="red")
+    animation = FuncAnimation(fig, update_composition, frames=frames)
 
-  plt.close()
-  return animation
+    plt.close()
+    return animation
 ```
 
 The plot below shows $\lambda_4^k$ *(the compositions)*:
@@ -581,7 +565,7 @@ The plot below shows $\lambda_4^k$ *(the compositions)*:
 ```{python}
 animation = diagram_composition(4, frames=64)
 if not (output_path := DIR / "composition-4.gif").exists():
-  animation.save(output_path, writer="pillow")
+    animation.save(output_path, writer="pillow")
 ```
 
 
@@ -597,7 +581,7 @@ compositions have maxima and minima that are in a smaller range.
 ```{python}
 animation = diagram_composition(3, frames=9)
 if not (output_path := DIR / "composition-3.gif").exists():
-  animation.save(output_path, writer="pillow")
+    animation.save(output_path, writer="pillow")
 ```
 
 
@@ -611,7 +595,7 @@ the degree of composition:
 ```{python}
 animation = diagram_composition(1, frames=11)
 if not (output_path := DIR / "composition-1.gif").exists():
-  animation.save(output_path, writer="pillow")
+    animation.save(output_path, writer="pillow")
 ```
 
 

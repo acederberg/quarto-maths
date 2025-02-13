@@ -1,10 +1,19 @@
 ---
 title: Basic Natural Language Processing in `Python` {{< iconify devicon python >}}
+image: https://bucket.acederberg.io/thumbnails/keywords.jpg
 live:
   quarto:
     reload: true
 filters:
+  - quarto
   - ../../filters/floaty.py
+  - ../../filters/mermaid.py
+# mermaid_export:
+#   - file: ./blog/posts/keywords/extraction-process.mmd
+#     output: ./extraction-process.svg
+# s3:
+#   - source_url: "https://www.theartofcalligraphy.com/wp-content/uploads/heartsutra-part1.jpg"
+#     path: /thumbnails/keywords.jpg
 floaty:
   - identifier: banner
     container:
@@ -33,7 +42,7 @@ floaty:
             name: python
 ---
 
-```{=html}
+```{html}
 <style>
   #banner {
     --bg-gradient-primary: var(--bs-gray-800);
@@ -343,26 +352,14 @@ For my use-case, the same document will likely show up often.
 For this reason, I would like to save the output dataframe to `MongoDB`
 to save on runtime.
 
-```{mermaid}
+
+```{mermaid }
 %%| fig-align: center
 %%| fig-cap: '**Metric Generation Process**.'
 %%| label: fig-metric-generation
-graph TD
-  InMongoDB[("`
-    Check *MongoDB* for Metrics
-    using **SHA256** of text.
-  `")]
-
-  InputText((Text is Input)) --> InMongoDB
-  InMongoDB -- Yes --> InMongoDBTrue[Return Stored Metrics]
-  InMongoDB -- No --> InMongoDBFalse[Compute New Metrics with Rake]
-
-  InMongoDBFalse -- SHA256 Label --> MongoDBSave[Save to MongoDB]
-  MongoDBSave --> Output{Pydantic Model}
-  InMongoDBTrue --> Output
-  Output --> Dataframe
-
+%%| file: extraction-process.mmd
 ```
+
 
 ::: { .callout-note collapse=true }
 

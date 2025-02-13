@@ -1,6 +1,6 @@
 ---
 title: Building and Using a Custom Iconify Image Set For Mermaid
-image: /icons/kubernetes.svg
+image: https://bucket.acederberg.io/thumbnails/iconify.png
 format:
   html:
     include-in-header:
