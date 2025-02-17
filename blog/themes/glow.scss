@@ -1,0 +1,57 @@
+/*-- scss:rules--*/
+@keyframes glow {
+  0% {
+    background-position: 0 0;
+  }
+
+  50% {
+    background-position: 100% 0;
+  }
+
+  100% {
+    background-position: 0 0;
+  }
+}
+
+/*-- scss:mixins --*/
+
+/** For adding glowing backgrounds to cards. 
+ *
+ * This adds a background using psuedo-elements that should be used will allow
+ * a border like `rotate` that overflows into a glowing backdrop.
+ *
+ * The border is set by adding padding to the inner element.
+ *
+ * Inspired by https://www.letsbuildui.dev/articles/how-to-animate-borders-in-css/.
+ */
+@mixin glow($border-radius, $background: linear-gradient(45deg,
+    #ff595e,
+    #ffca3a,
+    #8ac926,
+    #1982c4,
+    #6a4c93,
+    #ff6700), $background-size: 400%, $background-animation: glow 20s linear infinite) {
+
+  &::after,
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: $background;
+    background-size: $background-size;
+    z-index: 0;
+    animation: $background-animation;
+    width: 100%;
+    border-radius: $border-radius;
+  }
+
+  &::after {
+    filter: blur(25px);
+    transform: translate3d(0, 0, 0);
+    /* For Safari */
+  }
+
+}

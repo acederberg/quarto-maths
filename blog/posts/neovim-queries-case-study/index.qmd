@@ -77,8 +77,8 @@ links:
             name: code-square
 
 filters:
-  - ../filters/floaty.py
-  - ../filters/links.py
+  - ../../filters/floaty.py
+  - ../../filters/links.py
 ---
 
 ```{=html}

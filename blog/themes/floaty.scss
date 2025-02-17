@@ -44,7 +44,11 @@ $progress-heights : (1: 134px,
   6: 13px,
 );
 
-/*-- scss:rules --*/
+/*-- scss:uses --*/
+@use "glow.scss";
+
+/* ------------------------------------------------------------------------- */
+/*-- scss:mixins --*/
 
 @mixin make-floaty-hover($filter-init, $filter-final, $transform) {
 
@@ -290,8 +294,6 @@ $progress-heights : (1: 134px,
 
 }
 
-/* ------------------------------------------------------------------------- */
-
 @mixin make-bg($bg) {
   background: $bg;
   padding: 10px;
@@ -355,8 +357,6 @@ $progress-heights : (1: 134px,
 }
 
 
-/* ------------------------------------------------------------------------- */
-
 @mixin make-card-filter($filter, $filter-final, $transform) {
 
   .card {
@@ -408,8 +408,8 @@ $progress-heights : (1: 134px,
 
 
 /* ------------------------------------------------------------------------- */
+/*-- scss:rules --*/
 
-/* Bare Minimum */
 
 .floaty {
   @include make-floaty();
@@ -452,6 +452,27 @@ $progress-heights : (1: 134px,
     @include make-floaty-card-bg($body-color);
   }
 
+  /* Only for text only cards for now. 
+   * Overwrite `margin` for larger or smaller border.
+   *
+   */
+  &.glow {
+
+    .card {
+      @include glow(10px);
+
+      border: none;
+
+      .card-body {
+        border-radius: 7px;
+        z-index: 1;
+        background-color: var(--bs-white);
+        margin: 5px;
+      }
+    }
+
+  }
+
 }
 
 
@@ -462,5 +483,4 @@ $progress-heights : (1: 134px,
   --bs-tooltip-arrow-height: 1rem;
   --bs-tooltip-margin: 1rem;
 
-  /* map-get($spacers, 3); */
 }

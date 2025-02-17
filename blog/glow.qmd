@@ -1,0 +1,261 @@
+---
+format:
+  html:
+    navbar: false
+    page-layout: custom
+---
+
+````{=html}
+<style>
+  #about .floaty-item {
+    background: var(--bs-gray-100);
+  }
+
+  #about .card {
+    margin: auto;
+    border: none;
+
+    /* Ensures that ``:before`` is actually be centered. */
+    align-items: center;
+    display: flex;
+    justify-content: center;
+  }
+
+  #about .card-body{
+    background: var(--bs-white);
+    color: var(--bs-blue);
+    z-index: 1;
+    margin: 15px;
+
+  }
+
+  .card-body .glow-inner::before {
+    border-radius: 15px;
+  }
+
+  /* #about .card-body { */
+  /*   margin: 0; */
+  /*   pading: 0; */
+  /* } */
+
+  #about .rotate::before {
+    height: 2500px;
+    width: 2500px;
+  }
+
+
+
+  .card-test-container {
+    padding-top: 256px;
+    max-width: 100%;
+    display: flex;
+    align-items: center;
+  }
+
+  .card-test {
+    display: flex;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+    max-width: 400px;
+    border-radius: 7px;
+  }
+
+  .card-test-inner {
+    /* display: flex; */
+    position: relative;
+    background: var(--bs-white);
+    padding: 25px;
+    border-radius: 5px;
+    margin: 10px;
+    width: 100%;
+    margin: 5px;
+  }
+
+
+
+  .rotate {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .rotate .rotate-inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  .rotate::before {
+    content: "";
+    display: block;
+    background: linear-gradient(
+      90deg,
+      hsla(197, 100%, 64%, 1) 0%,
+      hsla(339, 100%, 55%, 1) 100%
+    );
+    height: 500px;
+    width: 500px;
+    position: absolute;
+    animation: 8s linear infinite;
+    z-index: 0;
+  }
+
+
+  @keyframes rotate {
+    0% {
+      background-position: 0 0;
+    }
+
+    50% {
+      background-position: 100% 0;
+    }
+
+    100% {
+      background-position: 0 0;
+    }
+  }
+
+
+
+
+  .glow::before,
+  .glow::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(
+      45deg,
+      #ff595e,
+      #ffca3a,
+      #8ac926,
+      #1982c4,
+      #6a4c93,
+      #ff6700
+    );
+    background-size: 400%;
+    z-index: 0;
+    animation: glow 20s linear infinite;
+    width: 100%;
+    border-radius: var(--border-radius);
+  }
+
+  .glow .card-test-inner {
+    z-index: 1;
+  }
+
+  .glow::after {
+    filter: blur(25px);
+    transform: translate3d(0, 0, 0); /* For Safari */
+  }
+
+
+  @keyframes glow {
+    0% {
+      background-position: 0 0;
+    }
+
+    50% {
+      background-position: 100% 0;
+    }
+
+    100% {
+      background-position: 0 0;
+    }
+  }
+
+
+
+
+
+</style>
+
+<div class="card-test-container">
+  <div class="card-test rotate">
+    <div class="card-test-inner rotate-inner">
+      <h2>This is a test.</h2>
+    </div>
+  </div>
+</div>
+
+
+<div class="card-test-container">
+  <div class="card-test glow">
+    <div class="card-test-inner glow-inner">
+      <h2>This is a test.</h2>
+    </div>
+  </div>
+</div>
+
+<div class="floaty p-5" id="about">
+  <div class="floaty-column">
+    <div class="floaty-item">
+      <div class="card rotate rounded-4">
+        <div class="card-body rotate-inner rounded-3">
+        <div class="card-text">
+          <p>
+            Lorem ipsum odor amet, consectetuer adipiscing elit. Vel bibendum eu nulla
+            montes lacinia. Egestas fusce mollis justo magnis turpis vehicula. Fermentum
+            fusce iaculis rhoncus curabitur elementum nec; fusce sem morbi. Lacinia
+            convallis hac litora est laoreet laoreet viverra. Nam vitae commodo suspendisse
+            volutpat nibh cursus porta mattis. Justo potenti sociosqu erat vitae non.
+          </p>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="floaty p-5" id="about">
+  <div class="floaty-column">
+    <div class="floaty-item">
+      <div class="card glow rounded-4">
+        <div class="card-body glow-inner-rounded-3">
+        <div class="card-text">
+          <p>
+            Lorem ipsum odor amet, consectetuer adipiscing elit. Vel bibendum eu nulla
+            montes lacinia. Egestas fusce mollis justo magnis turpis vehicula. Fermentum
+            fusce iaculis rhoncus curabitur elementum nec; fusce sem morbi. Lacinia
+            convallis hac litora est laoreet laoreet viverra. Nam vitae commodo suspendisse
+            volutpat nibh cursus porta mattis. Justo potenti sociosqu erat vitae non.
+          </p>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+```{=html}
+<div class="floaty glow p-5" id="about">
+  <div class="floaty-column">
+    <div class="floaty-item">
+      <div class="card">
+        <div class="card-body">
+        <div class="card-text">
+          <p>
+            Lorem ipsum odor amet, consectetuer adipiscing elit. Vel bibendum eu nulla
+            montes lacinia. Egestas fusce mollis justo magnis turpis vehicula. Fermentum
+            fusce iaculis rhoncus curabitur elementum nec; fusce sem morbi. Lacinia
+            convallis hac litora est laoreet laoreet viverra. Nam vitae commodo suspendisse
+            volutpat nibh cursus porta mattis. Justo potenti sociosqu erat vitae non.
+          </p>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+````
+
+```
+
+
+
+```

@@ -161,11 +161,11 @@ There are some things that must be handled in general.
 
 | Item                                           | Completed | Description                                                                                                                                         |
 | ---------------------------------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Image assets and s3 bucket                     |           | It is bad practice to keep images in git.                                                                                                           |
+| Image assets and s3 bucket                     | 1/9/2025  | It is bad practice to keep images in git.                                                                                                           |
 | Host site in s3 bucket?                        |           | Considering this idea to save on hosting costs. Could also render quarto documents to markdown and themes separately and that might speed up builds |
 | Pretty landing page                            |           | Currently the landing page design is lacking.                                                                                                       |
-| Resume link on HTML Resume is broken           |           |                                                                                                                                                     |
-| Make readme pretty                             |           |                                                                                                                                                     |
+| Resume link on HTML Resume is broken           | 1/13/2025 |                                                                                                                                                     |
+| Make readme pretty                             | 1/12/2025 |                                                                                                                                                     |
 | Make all projects page pretty or prune.        |           |                                                                                                                                                     |
 | `preview` site should not include `robots.txt` |           | Because it is a preview site an things may or may not work as intended.                                                                             |
 | `NVIM` Coniguration subproject is broken       |           |                                                                                                                                                     |

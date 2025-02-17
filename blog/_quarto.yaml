@@ -198,6 +198,8 @@ theme:
     - themes/index.scss
     - themes/overlay.scss
     - themes/resume.scss
+    - themes/glow.scss
+    - themes/landing-page.scss
 format:
   html:
     # NOTE: Mermaid formatting does not play  nice in the container.

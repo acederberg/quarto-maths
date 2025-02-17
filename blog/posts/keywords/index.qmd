@@ -101,7 +101,7 @@ floaty:
 
 
 
-To overfimplify, natural lagnuage processing a set of strategies used by
+To overfimplify, natural lagnuage processing is a set of strategies used by
 computers to interpret human language. Of course, this is just a blog post
 where you can follow along with my notes as I learn - this is by no means
 exhaustive.

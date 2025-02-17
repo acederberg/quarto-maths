@@ -196,7 +196,7 @@ links:
 
       - key: resume
         title: PDF
-        href: https://acederberg.io/resume
+        href: https://acederberg.io/resume/resume.pdf
         tooltip: Most recent version of my resume in ``PDF`` format.
         label: Resume
         # formats: ["latex"]

@@ -77,6 +77,8 @@ If you find any errors in my blog posts, please make an issue on [the github rep
 :::{#categories}
 :::
 
+See [some other page](./resume/index.qmd#resume).
+
 ## Posts
 
 :::{#posts}
@@ -86,3 +88,5 @@ If you find any errors in my blog posts, please make an issue on [the github rep
 
 This site deprecates my previous blog, for which I made the [captura-text](https://github.com/acederberg/captura-text) plugin.
 The content on the deprecated site can be found in [another repo](https://github.com/acederberg/captura-text-portfolio-assets).
+
+Go to (posts)[#posts].

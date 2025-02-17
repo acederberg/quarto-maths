@@ -1,5 +1,5 @@
 ---
-title: Playing With Molten
+title: On The State NumPY Type Hints
 ---
 
 I wrote this up while initially messing around with [molten-nvim](https://github.com/benlubas/molten-nvim/blob/main/README.md).
@@ -56,119 +56,136 @@ from numpy.typing import NDArray
 FloatArray = NDArray[np.float64]
 FloatArraySequenceHeight = TypeVar("FloatArraySequenceHeight", bound=int)
 FloatArraySequenceWidth = TypeVar("FloatArraySequenceWidth", bound=int)
-FloatArraySequence = np.ndarray[tuple[FloatArraySequenceHeight, FloatArraySequenceWidth], np.dtype[np.float64]]
-Kind =Literal["series", "sequence"]
+FloatArraySequence = np.ndarray[
+    tuple[FloatArraySequenceHeight, FloatArraySequenceWidth], np.dtype[np.float64]
+]
+Kind = Literal["series", "sequence"]
 
 
 class SeriesGenerator(Protocol):
-  def __call__(self, theta: FloatArray, index: int) -> FloatArray:
-    ...
+    def __call__(self, theta: FloatArray, index: int) -> FloatArray: ...
 
 
-T_PlotCallbackAxes = TypeVar("T_PlotCallbackAxes", Axes, PolarAxes, contravariant=True, covariant=False)
+T_PlotCallbackAxes = TypeVar(
+    "T_PlotCallbackAxes", Axes, PolarAxes, contravariant=True, covariant=False
+)
+
 
 class PlotCallback(Protocol, Generic[T_PlotCallbackAxes]):
-  """Used to provide callbacks to animation methods."""
+    """Used to provide callbacks to animation methods."""
 
-  def __call__(self, axs: T_PlotCallbackAxes, line: Line2D, frame: int) -> tuple[Line2D]:
-    ...
+    def __call__(
+        self, axs: T_PlotCallbackAxes, line: Line2D, frame: int
+    ) -> tuple[Line2D]: ...
 
 
 class SeriesPlotter(Generic[FloatArraySequenceHeight, FloatArraySequenceWidth]):
-  """
-
-  :ivar width: Precision of sequence (number of terms). The second parameter of the generic should match this.
-  :ivar height: Number of points in the input space. The first parameter of the generic should match this.
-  """
-
-  height: int
-  width: int
-  func: SeriesGenerator
-  theta: FloatArray
-  sequence: FloatArraySequence[FloatArraySequenceHeight, FloatArraySequenceWidth]
-  series: FloatArraySequence[FloatArraySequenceHeight, FloatArraySequenceWidth]
-
-  def __init__(self, func: SeriesGenerator,
-               *,
-               height: FloatArraySequenceHeight,
-               width: FloatArraySequenceWidth,
-               theta: FloatArray | None = None,
-               ):
-
-    self.func=func
-    self.height=height
-    self.width=width
-
-    self.theta=theta or np.linspace(0, 2 * math.pi, self.height)
-    self.sequence = self.create_series_sequence()
-    self.series = self.create_series()
-
-
-  def create_series_sequence(self)  -> FloatArraySequence[FloatArraySequenceHeight, FloatArraySequenceWidth]:
-    """
-    Given a series whose members are the sequence `a_n`, return
-    `{a_k: where k is positive and less than 'series_length'}`
-
-    `create_series` can be used to sum these elements together.
     """
 
-    return np.array([self.func(self.theta, index) for index in range(self.width) ])
-
-
-  def create_series(self) -> FloatArraySequence[FloatArraySequenceHeight, FloatArraySequenceWidth]:
-    return np.array([sum(self.sequence[:k+1]) for k in range(0, self.width)])
-
-
-  def create_subplots(self, rows: int, cols: int, *, kind: Kind = "series", subplot_kw: dict[str, Any]={"projection": "polar"},):
-    """Put series or sequences into (polar) subplots."""
-
-    coords = self.sequence if kind == "sequence" else self.series
-    fig, axs = plt.subplots(rows, cols, subplot_kw=subplot_kw)
-    positions = ((k, k // cols, k % cols ) for k in range(rows * cols) if k < self.width)
-
-    ax: PolarAxes
-    for k, row, column in positions:
-      ax = axs[row][column]
-      ax.plot(self.theta, coords[k], linewidth=0.8)
-
-    return fig
-
-
-  def frame_animation_rect(self, axes: Axes, line: Line2D, frame: int, *, coords) -> tuple:
-      """Animated a single frame."""
-
-      frame_f = coords[frame]
-      line.set_ydata(frame_f)
-      line.set_label(f"n = {frame + 1}")
-      axes.legend(handles=[line])
-
-      return (line,) #if callback is None else callback(line)
-
-
-  def create_animation_rect(self, kind: Kind = "series"):
-    """
-    Create an animation of the series or sequence in increasing precision
-    in rectilinear coordinates.
+    :ivar width: Precision of sequence (number of terms). The second parameter of the generic should match this.
+    :ivar height: Number of points in the input space. The first parameter of the generic should match this.
     """
 
-    coords = self.series if kind == "series" else self.sequence
-    frames = list(range(self.width))
+    height: int
+    width: int
+    func: SeriesGenerator
+    theta: FloatArray
+    sequence: FloatArraySequence[FloatArraySequenceHeight, FloatArraySequenceWidth]
+    series: FloatArraySequence[FloatArraySequenceHeight, FloatArraySequenceWidth]
 
-    axs: Axes
-    fig, axs = plt.subplots(1, 1)
-    # axs.set_ylim(-1.2, 1.2)
-    axs.set_title("Sawtooth Wave Foureir Series")
+    def __init__(
+        self,
+        func: SeriesGenerator,
+        *,
+        height: FloatArraySequenceHeight,
+        width: FloatArraySequenceWidth,
+        theta: FloatArray | None = None,
+    ):
 
-    line, = axs.plot(self.theta, self.series[0])
-    line.set_label("n = 1")
-    axs.legend(handles=[line])
+        self.func = func
+        self.height = height
+        self.width = width
 
-    fn = functools.partial(self.frame_animation_rect, axs, line, coords=coords)
-    return FuncAnimation(fig, fn, frames=frames, interval=333)
+        self.theta = theta or np.linspace(0, 2 * math.pi, self.height)
+        self.sequence = self.create_series_sequence()
+        self.series = self.create_series()
 
-  def create_animation(self):
-    """Plot seriesi or equence members in polar coordinates."""
-    ...
+    def create_series_sequence(
+        self,
+    ) -> FloatArraySequence[FloatArraySequenceHeight, FloatArraySequenceWidth]:
+        """
+        Given a series whose members are the sequence `a_n`, return
+        `{a_k: where k is positive and less than 'series_length'}`
+
+        `create_series` can be used to sum these elements together.
+        """
+
+        return np.array([self.func(self.theta, index) for index in range(self.width)])
+
+    def create_series(
+        self,
+    ) -> FloatArraySequence[FloatArraySequenceHeight, FloatArraySequenceWidth]:
+        return np.array([sum(self.sequence[: k + 1]) for k in range(0, self.width)])
+
+    def create_subplots(
+        self,
+        rows: int,
+        cols: int,
+        *,
+        kind: Kind = "series",
+        subplot_kw: dict[str, Any] = {"projection": "polar"},
+    ):
+        """Put series or sequences into (polar) subplots."""
+
+        coords = self.sequence if kind == "sequence" else self.series
+        fig, axs = plt.subplots(rows, cols, subplot_kw=subplot_kw)
+        positions = (
+            (k, k // cols, k % cols) for k in range(rows * cols) if k < self.width
+        )
+
+        ax: PolarAxes
+        for k, row, column in positions:
+            ax = axs[row][column]
+            ax.plot(self.theta, coords[k], linewidth=0.8)
+
+        return fig
+
+    def frame_animation_rect(
+        self, axes: Axes, line: Line2D, frame: int, *, coords
+    ) -> tuple:
+        """Animated a single frame."""
+
+        frame_f = coords[frame]
+        line.set_ydata(frame_f)
+        line.set_label(f"n = {frame + 1}")
+        axes.legend(handles=[line])
+
+        return (line,)  # if callback is None else callback(line)
+
+    def create_animation_rect(self, kind: Kind = "series"):
+        """
+        Create an animation of the series or sequence in increasing precision
+        in rectilinear coordinates.
+        """
+
+        coords = self.series if kind == "series" else self.sequence
+        frames = list(range(self.width))
+
+        axs: Axes
+        fig, axs = plt.subplots(1, 1)
+        # axs.set_ylim(-1.2, 1.2)
+        axs.set_title("Sawtooth Wave Foureir Series")
+
+        (line,) = axs.plot(self.theta, self.series[0])
+        line.set_label("n = 1")
+        axs.legend(handles=[line])
+
+        fn = functools.partial(self.frame_animation_rect, axs, line, coords=coords)
+        return FuncAnimation(fig, fn, frames=frames, interval=333)
+
+    def create_animation(self):
+        """Plot seriesi or equence members in polar coordinates."""
+        ...
 ```
 
 :::
@@ -183,21 +200,29 @@ know what to call this one.
 ```{python}
 
 class LeafyPlotter(SeriesPlotter[FloatArraySequenceHeight, FloatArraySequenceWidth]):
-  @staticmethod
-  def fn(theta: FloatArray, index: int) -> FloatArray:
-        return np.cos(theta * (3 ** index)) / (index + 1)
+    @staticmethod
+    def fn(theta: FloatArray, index: int) -> FloatArray:
+        return np.cos(theta * (3**index)) / (index + 1)
 
-  def frame_animation_rect(self, axes: Axes, line: Line2D, frame: int, *, coords) -> tuple:
-    bound = max(
-      abs(min(coords[frame])),
-      abs(max(coords[frame])),
-    )
-    axes.set_ylim(-bound, bound)
+    def frame_animation_rect(
+        self, axes: Axes, line: Line2D, frame: int, *, coords
+    ) -> tuple:
+        bound = max(
+            abs(min(coords[frame])),
+            abs(max(coords[frame])),
+        )
+        axes.set_ylim(-bound, bound)
 
-    return super().frame_animation_rect(axes, line, frame, coords=coords)
+        return super().frame_animation_rect(axes, line, frame, coords=coords)
 
-  def __init__(self, *, height: FloatArraySequenceHeight, width: FloatArraySequenceWidth, theta: FloatArray | None = None):
-    super().__init__(self.fn, height=height, width=width, theta=theta)
+    def __init__(
+        self,
+        *,
+        height: FloatArraySequenceHeight,
+        width: FloatArraySequenceWidth,
+        theta: FloatArray | None = None
+    ):
+        super().__init__(self.fn, height=height, width=width, theta=theta)
 
 
 leafy_plotter = LeafyPlotter[Literal[1000], Literal[8]](height=1000, width=8)
@@ -247,26 +272,33 @@ With this information we can write the following python function:
 ```{python}
 
 class SawtoothPlotter(SeriesPlotter[FloatArraySequenceHeight, FloatArraySequenceWidth]):
-  @staticmethod
-  def fn(theta: FloatArray, index: int) -> FloatArray:
-    """Computes the term `a_{index}` of the Fourier series for the sawtooth wave.
-    """
+    @staticmethod
+    def fn(theta: FloatArray, index: int) -> FloatArray:
+        """Computes the term `a_{index}` of the Fourier series for the sawtooth wave."""
 
-    if index < 0:
-      raise ValueError
+        if index < 0:
+            raise ValueError
 
-    index += 1
-    constant = (1 if index % 2 else -1) / index
-    constant *= 2 / np.pi
+        index += 1
+        constant = (1 if index % 2 else -1) / index
+        constant *= 2 / np.pi
 
-    return constant * np.sin(theta * index)
+        return constant * np.sin(theta * index)
 
-  def frame_animation_rect(self, axes: Axes, line: Line2D, frame: int, *, coords) -> tuple:
-    axes.set_ylim(-1.2, 1.2)
-    return super().frame_animation_rect(axes, line, frame, coords=coords)
+    def frame_animation_rect(
+        self, axes: Axes, line: Line2D, frame: int, *, coords
+    ) -> tuple:
+        axes.set_ylim(-1.2, 1.2)
+        return super().frame_animation_rect(axes, line, frame, coords=coords)
 
-  def __init__(self, *, height: FloatArraySequenceHeight, width: FloatArraySequenceWidth, theta: FloatArray | None = None):
-    super().__init__(self.fn, height=height, width=width, theta=theta)
+    def __init__(
+        self,
+        *,
+        height: FloatArraySequenceHeight,
+        width: FloatArraySequenceWidth,
+        theta: FloatArray | None = None
+    ):
+        super().__init__(self.fn, height=height, width=width, theta=theta)
 
 
 sawtooth_plotter = SawtoothPlotter[Literal[1440], Literal[32]](height=1440, width=32)

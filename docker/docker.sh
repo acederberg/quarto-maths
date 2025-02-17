@@ -4,11 +4,6 @@ if [[ ! $ACEDERBERG_IO_VENV ]]; then export ACEDERBERG_IO_VENV="/home/docker/.ve
 if [[ ! $ACEDERBERG_IO_WORKDIR ]]; then export ACEDERBERG_IO_WORKDIR="/home/docker/app"; fi
 if [[ ! $ACEDERBERG_IO_BUILD_LOG ]]; then export ACEDERBERG_IO_BUILD_LOG="/dev/null"; fi
 
-# if [[ ! -f /home/docker/.run-uuid ]]; then
-#   python -c 'import secrets; print(secrets.token_urlsafe())' > /home/docker/.run-uuid
-# fi
-# export ACEDERBERG_IO_RUN_UUID=$( cat .run_uuid )
-
 export PATH="$PATH:/home/docker/.local/bin"
 
 mkdir --parents $ACEDERBERG_IO_VENV
