@@ -23,9 +23,5 @@ Using `quarto` and some `pandoc` filters, I made an interactive resume viewable 
 
 - Version control.
 - Integration into something I'd be working on frequently.
-- Editting in my favorite tool `nvim` instead of [overleaf](https://overleaf.com).
+- Editing in my favorite tool `nvim` instead of [overleaf](https://overleaf.com).
 - If I do not have my computer on hand, I can just send somebody a link instead of emailing them a `PDF`.
-
-## Demo
-
-![Demonstration](./demo.gif){ fig-align="center" width="70%" }

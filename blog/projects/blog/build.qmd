@@ -33,38 +33,7 @@ This stage does not do much - it just installs the dependencies for `quarto` its
 ```{mermaid}
 %%| fig-cap: Build stage diagram.
 %%| fig-label: build-mermaid
-architecture-beta
-
-  group builder(misc:build)[Build Stage]
-
-  service tex(devicon:tex)[Install TinyTex] in builder
-
-  group python_deps(logos:python)[python dependencies] in builder
-  service blog_content(hugeicons:folder-02)[blog content]
-  service pyproject_toml(devicon:poetry)[pyproject toml] in python_deps
-
-  junction quartoDeps
-  blog_content:T -- B:quartoDeps
-  pyproject_toml{group}:B -- T:quartoDeps
-  tex:L -- R:quartoDeps
-
-  service quarto(misc:quarto)[quarto render] in builder
-  quarto:R <-- L:quartoDeps
-
-  service google_analytics(logos:google-analytics)[Google Analytics] in builder
-  service kaggle_api_key(devicon:kaggle)[Kaggle API Key] in builder
-  junction buildSecrets in builder
-  buildSecrets:R -- L:quartoDeps
-
-  google_analytics:T -- B:buildSecrets
-  kaggle_api_key:B -- T:buildSecrets
-  quarto:R -- L:buildSecrets
-
-
-  quarto:L --> R:build
-
-  group production(devicon:nodejs)[Production]
-  service build(hugeicons:package)[Quarto Render] in production
+%%| file: include build.mmd
 ```
 
 This is where the action happens.

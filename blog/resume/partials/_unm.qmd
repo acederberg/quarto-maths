@@ -1,7 +1,7 @@
 <!-- Start UNM ---------> :::: { #resume-education-unm .education education-item=unm }
 
-- Ensured consistent, actionable feedback and organization itegrity as a tutor
-  and exam proctor in remedial algebra at UNMs math learning lab.
+- Ensured consistent, actionable feedback and organization integrity as a tutor
+  and exam proctor in remedial algebra at UNM's math learning lab.
   Ensured actionable and detailed feedback by grading college algebra (100+
   students), undergraduate linear algebra (20+ students), and ordinary
   differential (20+ students) equations homework.
@@ -11,6 +11,6 @@
 - Documented efficient air plasma production leveraging advanced principals in
   fluid dynamics, electricity, and magnetism. Recorded and analyzed
   large sets of experimental results using `python` by building and
-  programming I2C sensor arrays using rapberry pi and arduino.
+  programming I2C sensor arrays using Raspberry Pi and Arduino.
 
 <!-- Stop UNM -----------> ::::

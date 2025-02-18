@@ -1,17 +1,22 @@
+import contextlib
+import functools
 import json
 import logging
 import logging.handlers
 import queue
 from datetime import datetime
-from typing import Annotated, Any, Mapping
+from typing import Annotated, Any, Awaitable, Mapping, ParamSpec, TypeVar
 
+import httpx
 import pandas
 import pydantic
 import rich
 import rich.console
 import rich.syntax
 import rich.table
+import typer
 import yaml
+from plum import Callable
 
 CONSOLE = rich.console.Console()
 
@@ -23,6 +28,59 @@ def print_error(err: pydantic.ValidationError, **kwargs):
         rule_kwargs=dict(characters="=", style="bold red"),
         **kwargs,
     )
+
+
+def print_httpx(thing: httpx.Request | httpx.Response, **kwargs):
+
+    if isinstance(thing, httpx.Request):
+        print_yaml(
+            {
+                "url": str(thing.url),
+                "method": thing.method,
+                "headers": thing.headers,
+                "data": thing.read().decode(),
+            },
+            **kwargs,
+        )
+    else:
+        try:
+            data = thing.json()
+        except json.JSONDecodeError:
+            data = thing.text
+
+        print(data)
+        print_yaml(
+            {"url": str(thing.url), "data": data, "status": thing.status_code},
+            **kwargs,
+        )
+
+
+@contextlib.contextmanager
+def catch_httpx():
+    try:
+        yield
+    except httpx.HTTPStatusError as err:
+        print_httpx(
+            err.response,
+            rule_title="Bad Response Code",
+            rule_kwargs=dict(style="red", characters="="),
+        )
+        CONSOLE.rule(style="red", characters="-")
+        raise typer.Exit(1)
+
+
+P_CatchesHTTPX = ParamSpec("P_CatchesHTTPX")
+T_CatchesHTTPX = TypeVar("T_CatchesHTTPX")
+
+
+def catches_httpx(method: Callable[P_CatchesHTTPX, Awaitable[T_CatchesHTTPX]]):
+
+    @functools.wraps(method)
+    async def wrapped(*args: P_CatchesHTTPX.args, **kwargs: P_CatchesHTTPX.kwargs):
+        with catch_httpx():
+            return await method(*args, **kwargs)
+
+    return wrapped
 
 
 class MagicEncoder(json.JSONEncoder):

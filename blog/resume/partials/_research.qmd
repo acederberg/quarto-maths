@@ -1,0 +1,16 @@
+::: { #resume-experience-dsi }
+
+Researched air plasma generation for astronautics with Craig Davidson of
+Dark Sea Industries.
+
+- Documented efficient air plasma generation using magneto-fluid-dynamic methods.
+  Built various components for experimental setup including magnetic venturi
+  and power supply array to define electrodynamic environment
+  by passing current through large magnets composing the magnetic venturi.
+- Recorded experimental session IR and magnetic and electric field data using
+  a multiplexed `I2C` array controlled by a raspberry pi with code developed in
+  `python` and `c`.
+- Processed and plotted experimental data using `numpy` and `matplotlib` to
+  document findings.
+
+:::

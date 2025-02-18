@@ -30,7 +30,7 @@ FieldKey = Annotated[
     pydantic.Field(default_factory=lambda: secrets.token_urlsafe(8)),
 ]
 FieldMode = Annotated[
-    Literal["bootstrap", "iconify"],
+    Literal["bootstrap", "iconify", "img"],
     pydantic.Field(default="iconify"),
 ]
 FieldModeOptional = Annotated[FieldMode | None, pydantic.Field(None)]
@@ -104,6 +104,10 @@ class ConfigFloatyItemTex(BaseConfigFloatyItemImageItem):
     font_awesome: str
 
 
+class ConfigFloatyItemImg(BaseConfigFloatyItemImageItem):
+    url: str
+
+
 class ConfigFloatyItemImage(util.BaseConfig):
     tex: Annotated[
         ConfigFloatyItemTex,
@@ -112,6 +116,8 @@ class ConfigFloatyItemImage(util.BaseConfig):
             validate_default=True,
         ),
     ]
+
+    img: Annotated[ConfigFloatyItemImg | None, pydantic.Field(None)]
     iconify: Annotated[
         ConfigFloatyItemIconify,
         pydantic.Field(
@@ -165,7 +171,7 @@ class ConfigFloatyItem(util.BaseConfig, Generic[T_ConfigFloatyContainer]):
     classes_body: util.FieldClasses
     attributes: Annotated[dict[str, str], pydantic.Field(default_factory=dict)]
 
-    @pydantic.computed_field # type: ignore[prop-decorator]
+    @pydantic.computed_field  # type: ignore[prop-decorator]
     @property
     def container(self) -> T_ConfigFloatyContainer:
         if self.container_maybe is None:
@@ -177,12 +183,12 @@ class ConfigFloatyItem(util.BaseConfig, Generic[T_ConfigFloatyContainer]):
     def serialize_container(self, v) -> bool:
         return v is not None
 
-    @pydantic.computed_field # type: ignore[prop-decorator] 
+    @pydantic.computed_field  # type: ignore[prop-decorator]
     @property
     def is_container(self) -> bool:
         return self.container.columns < 0
 
-    @pydantic.computed_field# type: ignore[prop-decorator]
+    @pydantic.computed_field  # type: ignore[prop-decorator]
     @property
     def class_base_name(self) -> str:
         return "floaty-item" if self.is_container else "card"
@@ -216,11 +222,17 @@ class ConfigFloatyItem(util.BaseConfig, Generic[T_ConfigFloatyContainer]):
 
         if mode == "iconify":
             classes = util.update_classes(classes, self.image.iconify.classes)
-        else:
+        elif mode == "bootstrap":
             classes = util.update_classes(
                 classes,
                 ["bi", f"bi-{self.image.bootstrap.name}"],
                 self.image.bootstrap.classes,
+            )
+        elif self.image.img is not None:
+            classes = util.update_classes(
+                classes,
+                ["thumbnail-image", "card-img"],
+                self.image.img.classes,
             )
 
         return classes
@@ -267,11 +279,21 @@ class ConfigFloatyItem(util.BaseConfig, Generic[T_ConfigFloatyContainer]):
         mode = self.resolve_mode(mode)
 
         classes = self.create_classes_image(mode=mode)
-        tag = "iconify-icon" if mode != "bootstrap" else "i"
+        if "mode" == "img":
+            if self.image.img is None:
+                raise ValueError
 
-        attrs = ""
-        if mode == "iconify":
+            tag = "img"
+            attrs = f"loading='lazy' src='{self.image.img.url}'"
+
+            # <img loading="lazy" src="https://bucket.acederberg.io/thumbnails/keywords.jpg" class="thumbnail-image card-img" style="height: 256px;">
+            # return pf.RawBlock(f"<img src={self.url} {classes} loading='lazy' class='thumbbail-image card-img'></img>")
+        elif mode == "iconify":
+            tag = "iconify-icon"
             attrs = f"icon={self.image.iconify.set_}:{self.image.iconify.name}"
+        else:
+            tag = "i"
+            attrs = ""
 
         raw = f"<{tag} {attrs} {classes}></{tag}>"
         el = (pf.RawInline if inline else pf.RawBlock)(raw, format="html")
@@ -502,7 +524,7 @@ class ConfigFloatyContainer(util.BaseConfig):
 
     attributes_cards: util.FieldAttributes
 
-    @pydantic.computed_field# type: ignore[prop-decorator]
+    @pydantic.computed_field  # type: ignore[prop-decorator]
     @property
     def classes_always(self) -> list[str]:
         return ["floaty", f"floaty-size-{self.size}"]
@@ -668,7 +690,7 @@ class BaseFloatyConfig(util.BaseConfig):
 
     filter_name: ClassVar[str]
 
-    @pydantic.computed_field# type: ignore[prop-decorator]
+    @pydantic.computed_field  # type: ignore[prop-decorator]
     @property
     def overlay_identifiers(self) -> dict[str, str] | None:
         if (attr := getattr(self, self.filter_name, None)) is None:

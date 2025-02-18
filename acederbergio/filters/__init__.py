@@ -9,6 +9,7 @@ from .floaty import FilterFloaty
 from .iframe import FilterIFrame
 from .links import FilterLinks
 from .live import FilterLive
+from .mermaid import FilterMermaidExport
 from .minipage import FilterMinipage
 from .overlay import FilterOverlay
 from .resume import FilterResume
@@ -16,6 +17,7 @@ from .skills import FilterSkills
 from .under_construction import FilterUnderConstruction
 
 __all__ = (
+    "FilterMermaidExport",
     "FilterContacts",
     "FilterFloaty",
     "FilterIFrame",

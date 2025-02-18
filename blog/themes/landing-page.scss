@@ -1,0 +1,475 @@
+/*-- scss:mixins --*/
+
+
+@mixin ascii-glow($color, $glow-size: 100px) {
+  color: $color;
+  filter: drop-shadow(0 0 3px $color) drop-shadow(0 0 100px $color);
+  background: url(/grid.svg);
+}
+
+
+@mixin landing-page-section($padding: map-get($spacers, 5),
+  $margin: map-get($spacers, 5),
+  $border-radius: $border-radius-xxl,
+  $glow: false) {
+
+  $padding: $padding;
+
+  color: var(--bs-white);
+  margin-top: $margin;
+  margin-bottom: $margin;
+
+  padding: $padding;
+  border-radius: $border-radius;
+  max-width: 1200px;
+
+  @include media-breakpoint-up(xxl) {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  @include media-breakpoint-between(lg, xxl) {
+    margin-right: $margin;
+    margin-left: $margin;
+  }
+
+  @include media-breakpoint-down(lg) {
+    margin-left: 0.3em;
+    margin-right: 0.3em;
+  }
+
+  h1,
+  h2 {
+    text-align: center
+  }
+
+  @if $glow {
+    display: flex;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+  }
+
+
+}
+
+@mixin landing-page-section-inner($padding: map-get($spacers, 5),
+  $border-radius: $border-radius-xl,
+  $glow: false,
+) {
+  padding: $padding;
+  border-radius: $border-radius;
+
+  @if $glow {
+    z-index: 1;
+    width: 100%;
+  }
+
+}
+
+/*-- scss:rules --*/
+$extraColors : ("blue": $blue,
+  "indigo": $indigo,
+  "purple": $purple,
+  "pink": $pink,
+  "red": $red,
+  "orange": $orange,
+  "yellow": $yellow,
+  "green": $green,
+  "teal": $teal,
+  "cyan": $cyan );
+
+.ascii-art {
+
+  font-family: monospace;
+  font-size: 1em;
+  display: flex;
+  flex-wrap: wrap;
+
+  .ascii-flex,
+  &.ascii-flex {
+    display: flex;
+    flex-wrap: wrap
+  }
+
+  .ascii-art-letter {
+    display: grid;
+    grid-template-columns: repeat(98, 1ch);
+    /* Adjust based on max line length */
+    font-family: monospace;
+    white-space: pre;
+  }
+
+  .ascii-art-blinks {
+    @keyframes ascii-blinks {
+      0% {
+        opacity: 0;
+      }
+
+      49% {
+        opacity: 0;
+      }
+
+      50% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    animation: ascii-blinks 1s infinite;
+  }
+
+  @each $name, $color in $extraColors {
+
+    .ascii-art-#{$name},
+    &.ascii-art-#{$name} {
+      @include ascii-glow($color);
+    }
+
+  }
+}
+
+
+/* Container for the landing page. */
+#landing-page {
+  @include make-container(0px);
+  margin: 0px;
+
+  code {
+    background: var(--bs-black);
+  }
+
+  .landing-page-row {
+    @include make-row(0px);
+
+    .landing-page-left {
+      @include make-col(6);
+    }
+
+    .landing-page-right {
+      @include make-col(6);
+    }
+  }
+
+
+  #acederberg-io {
+    padding: 3em;
+    border: 10px solid var(--bs-gray-900);
+    border-radius: 2em;
+
+    box-shadow: 0 0 20px var(--bs-yellow), 0 0 20px inset var(--bs-yellow);
+  }
+
+
+  #landing-page-banner {
+    @include make-row();
+    @include landing-page-section();
+    margin: 0px;
+
+    $padding: map-get($spacers, 5);
+    padding-left: $padding;
+    padding-right: $padding;
+
+    #landing-page-banner-content {
+      @include make-container(0px);
+      background: radial-gradient(rgba(255, 212, 59, 0.07), transparent 75%);
+
+      #landing-page-banner-title {
+        @include make-row();
+        font-size: 1em;
+        font-family: monospace;
+        font-weight: bolder;
+        margin: 0px;
+
+        h1 {
+          $color: lch(65% 85 35);
+          /* filter: drop-shadow(0 0 3px var(--bs-pink)) drop-shadow(0 0 10px var(--bs-pink)); */
+          color: var(--bs-black);
+          filter: drop-shadow(0 0 1px $color) drop-shadow(0 0 1px $color);
+          text-align: center;
+        }
+
+        h2 {
+          color: var(--bs-orange);
+
+          /* $color: var(--bs-orange); */
+          /* filter: drop-shadow(0 0 1px $color) drop-shadow(0 0 1px $color); */
+          filter: drop-shadow(0 0 10px var(--bs-black)) drop-shadow(0 0 10px var(--bs-black));
+          border: none;
+          text-align: center;
+        }
+
+        #landing-page-links {
+          display: flex;
+          width: 100%;
+
+          .link-item {
+            margin: auto;
+          }
+        }
+
+        /* #landing-page-banner-title-left { */
+        /*   @include make-col(0); */
+        /* } */
+        /**/
+        /* #landing-page-banner-title-right { */
+        /*   @include make-col(12); */
+        /* } */
+      }
+    }
+  }
+
+  /* This should include listings, etc. */
+  #landing-page-navigation {
+    @include make-row(0px);
+
+    /* background: var(--bs-black); */
+    /* border: 2px solid white; */
+
+    #landing-page-navigation-content {
+      width: 100%;
+
+      /* $padding: map-get($spacers, 5); */
+      /* padding-left: $padding; */
+      /* padding-right: $padding; */
+
+      margin: map-get($spacers, 5);
+
+      .navigation-directory {
+        /* background: red; */
+        list-style: none;
+
+        font-size: 0.7em;
+        font-family: monospace;
+
+        /** Will contain ascii art.
+          */
+        .navigation-item {
+          text-align: center;
+
+          /* border: 2px solid var(--bs-teal); */
+          /* border-radius: $border-radius-xl; */
+
+          $margin: map-get($spacers, 3);
+          margin-top: $margin;
+          margin-bottom: $margin;
+
+          $padding: map-get($spacers, 3);
+          padding-top: $padding;
+          padding-bottom: $padding;
+
+          color: var(--bs-teal);
+          filter: drop-shadow(0 0 1px var(--bs-teal)) drop-shadow(0 0 20px var(--bs-teal));
+
+          &.hover,
+          &:hover {
+            color: var(--bs-teal);
+            filter: none;
+            cursor: pointer;
+          }
+        }
+      }
+    }
+  }
+
+  /* This is the about sections */
+  #landing-page-about {
+    @include landing-page-section();
+
+    $color: var(--bs-teal);
+    background: url(daimond.svg), radial-gradient(var(--bs-black), var(--bs-gray-900) 110%);
+    backdrop-filter: blur(5px);
+
+    #landing-page-about-content {
+      @include landing-page-section-inner();
+
+      border: 3px solid $color;
+      box-shadow: 0 0 15px $color, inset 0 0 15px $color;
+
+      #about {
+        max-width: 800px;
+        margin: auto;
+
+        p {
+          color: var(--bs-gray-200);
+        }
+      }
+    }
+
+  }
+
+  #landing-page-posts {
+    $appearent-border-width: 0.3em;
+
+    @include landing-page-section($padding: $appearent-border-width, $glow: true);
+
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: url('https://lightningcss.dev/metal.d330902c.webp');
+      /* filter: blur(25px); */
+      z-index: 0;
+    }
+
+    background: url('https://lightningcss.dev/metal.d330902c.webp');
+    box-shadow: 0 0 10px inset var(--bs-black);
+    /* background: red; */
+    z-index: 1;
+
+    #landing-page-posts-content {
+
+      background: rgba(0, 0, 0, 0.4);
+      $padding: calc(map-get($spacers, 5) - $appearent-border-width);
+      @include landing-page-section-inner($padding: $padding, $border-radius: 2.01rem, $glow: true);
+    }
+
+    .card {
+      --bs-card-bg: rgba(0, 0, 0, 0.5);
+      color: var(--bs-white);
+      border-radius: 1em;
+      padding: 1em;
+    }
+  }
+
+  #landing-page-projects {
+    $appearent-border-width: 0.1em;
+
+    @include landing-page-section($padding: $appearent-border-width, $glow: true);
+    @include glow($border-radius-xxl);
+
+    /* display: flex; */
+    /* position: relative; */
+    /* align-items: center; */
+    /* justify-content: center; */
+
+
+    #landing-page-projects-content {
+      @include landing-page-section-inner($padding: calc(map-get($spacers, 5) - $appearent-border-width),
+        $border-radius: 2.01rem,
+        $glow: true,
+      );
+      /* z-index: 1; */
+      /* width: 100%; */
+
+      @property --landing-page-projects-content-angle {}
+
+      $color-primary: #111;
+      $color-secondary: #181818;
+
+      background: url(grid.svg),
+      conic-gradient($color-secondary,
+        $color-secondary 45deg,
+
+        $color-primary 60deg,
+        $color-primary 105deg,
+
+        $color-secondary 120deg,
+        $color-secondary 165deg,
+
+        $color-primary 180deg,
+        $color-primary 225deg,
+
+        $color-secondary 240deg,
+        $color-secondary 285deg,
+
+        $color-primary 300deg,
+        $color-primary 345deg,
+        $color-secondary 360deg);
+    }
+
+    .card {
+      --bs-card-bg: rgba(0, 0, 0, 0.2);
+      color: var(--bs-white);
+      border-radius: 1em;
+      padding: 1em;
+    }
+
+  }
+
+  #landing-page-resume {
+    @include landing-page-section();
+
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    border: 1px solid var(--bs-white);
+
+    #landing-page-resume-content {
+      @include landing-page-section-inner();
+
+    }
+
+    .card {
+      border-radius: $border-radius-xl;
+      background: rgba(0, 0, 0, 0.5);
+
+      $padding: map-get($spacers, 5);
+      padding-top: $padding;
+      padding-bottom: $padding;
+
+      .card-img-top i {
+        font-size: 4rem;
+      }
+
+      .card-title {
+        font-size: 1em;
+        color: white;
+      }
+
+      &.hover,
+      &:hover {
+        background: rgba(0, 0, 0, 0.8);
+        border: black;
+        cursor: pointer;
+      }
+    }
+  }
+
+  /*
+    @property --landing-page-glow-angle {
+      syntax: "<angle>";
+      initial-value: 0deg;
+      inherits: false;
+    }
+
+    @keyframes landing-page-glow-rotate {
+      to {
+        ---landing-page-glow-angle: 360deg;
+      }
+    }
+
+    padding: map-get($spacers, 5);
+    margin: map-get($spacers, 5);
+
+    .card {
+      --landing-page-glow-gradient-primary: var(--bs-blue);
+      --landing-page-glow-gradient-secondary: var(--bs-green);
+      --landing-page-glow-gradient-tertiary: var(--bs-orange);
+      --landing-page-glow-angle: 0deg;
+
+      $gradient: conic-gradient(from var(--landing-page-glow-angle),
+          var(--landing-page-glow-gradient-primary) 55deg,
+          var(--landing-page-glow-gradient-secondary) 89deg,
+          var(--landing-page-glow-gradient-tertiary) 144deg,
+          var(--landing-page-glow-gradient-primary) 350deg);
+
+      @include glow(10px, $gradient, 100%, );
+
+      border: none;
+
+      .card-body {
+        border-radius: 7px;
+        z-index: 1;
+        background-color: var(--bs-white);
+        margin: 5px;
+      }
+
+    }
+
+  }
+  */
+}

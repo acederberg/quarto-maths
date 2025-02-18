@@ -8,6 +8,8 @@ listing:
   contents:
     - nvim-config/index.qmd
     - blog/index.qmd
+    - /components/floaty.qmd
+    - /components/overlay.qmd
 ---
 
 ## Projects
