@@ -26,8 +26,9 @@ professional portfolio.
 
 --->
 
-Started blogging about topics in data science, data structures and algorithms,
-and development operations to share insights, expertise, and progress.
+Established a technical blog covering topics in data science, data structures
+and algorithms, and development operations to share insights, expertise, and
+progress.
 Built [acederberg.io](https://acederberg.io/projects/blog) using `quarto` and
 `python` to showcase 30+ blog posts, 4 projects, a resume, and a professional
 portfolio.

@@ -5,24 +5,120 @@ format:
   html:
     include-in-header:
       - file: ../../includes/mermaid.html
+keywords:
+  - mermaid
+  - kubernetes
+  - architecture diagram
+  - svg
+  - iconify
+  - icons
+  - icon set
+  - iconify icon set
+  - github
+  - api
+  - python
+  - typer
+categories:
+  - python
+  - devops
+  - front-end
+date: 2-18-2025
+date-modified: 2-18-2025
+floaty:
+  - identifier: banner
+    container:
+      classes:
+        - py-5
+        - my-5
+        - border-5
+        - border
+        - rounded-5
+      columns: 1
+      size: 1
+    content:
+      - title: Mermaid
+        key: mermaid
+        image:
+          iconify:
+            set: misc
+            name: mermaid
+filters:
+  - ../../filters/floaty.py
+  - ../../filters/links.py
+links:
+  - identifier: more
+    container:
+      mode: bootstrap
+      include_titles: true
+      include_descriptions: true
+      classes:
+        - py-5
+        - floaty-hover
+      classes_cards:
+        - rounded-top-3
+        - py-3
+      resize:
+        xxl: 2
+        xl: 2
+        lg: 1
+        md: 1
+        sm: 1
+        xs: 1
+    content:
+      - title: Solution
+        description: Raw Code for the Solution
+        href: https://github.com/acederberg/quarto-maths/blob/main/acederbergio/iconify.py
+        key: solution
+        image:
+          bootstrap:
+            name: github
+
+      - title: The Icon Set
+        description: Get the Icon Set
+        href: /icons/kubernetes.json
+        key: icon-set
+        image:
+          bootstrap:
+            name: filetype-json
 ---
 
-## {{< iconify misc mermaid >}} Use Case
+```{=html}
+<style>
+  #banner {
+    border: none !important;
+    background: var(--bs-gray-100);
+  }
+
+  #banner .card {
+    background: var(--bs-gray-100);
+  }
+</style>
+```
+
+::: { #banner }
+
+:::
+
+::: { #more }
+
+:::
 
 Recently I wanted to use [mermaid.js <span class="iconify" data-icon="misc:mermaid"></span>](https://mermaid.js.org) to make an
 [architecture diagram](https://mermaid.js.org/syntax/architecture.html) to
 describe my infrastructure I am currently using to deploy
 [my blog](https://acederberg.io).
 
-In particular, I wanted to use the `svg` icons defined in the [kubernetes community github repo](https://github.com/kubernetes/community/tree/master/icons/svg)
+In particular, I wanted to use the `SVG` icons defined in the [`kubernetes` community `github` repo](https://github.com/kubernetes/community/tree/master/icons/svg)
 inside of my architecture diagram. However, I could not find a suitable icon set.
 To this end I made my own and would like to showcase the methods that I used.
 
-After figuring out how to wrestle the `svg` icons into a properly formated `JSON` I was able to generate
-awesome diagrams using `kubernetes` icons such as the one below:
+After figuring out how to wrestle the `SVG` icons into a properly formatted `JSON` I was able to generate
+awesome diagrams using `kubernetes` icons such as the one below in @fig-architecture-diagram
+and icons like that seen in the header of this section (the {{< iconify misc mermaid >}} `mermaid.js` symbol).
 
 ```{mermaid}
-%%| fig-cap: Daigram made with mermaid using the custom icon set.
+%%| label: fig-architecture-diagram
+%%| fig-cap: Diagram made with mermaid using the custom icon set.
 architecture-beta
   group kubernetes(logos:kubernetes)
   group ns(k8s:ns)[Blog Namespace] in kubernetes
@@ -58,12 +154,9 @@ architecture-beta
   github_actions:R -- L:blog_gha_sa{group}
 ```
 
-and icons like that seen in the header of this section (the {{< iconify misc mermaid >}} `mermaid.js` symbol).
-
 ## {{< iconify hugeicons question >}} Objective
 
-The goal is to take the svg content and turn it into a string inside of some
-`JSON`. This json should look something like
+::: { #fig-example-json }
 
 ```json
 {
@@ -78,28 +171,33 @@ The goal is to take the svg content and turn it into a string inside of some
 }
 ```
 
-Every value inside of `icons` should at least have a `body` field.
+General shape of the `iconify` icon set `JSON`.
+
+:::
+
+The goal is to take the `SVG` content and turn it into a string inside of some `JSON` like that in @fig-example-json.
+Every value inside of `$.icons` should at least have a `body` field containing `SVG` data.
 The exact `JSON` schema may be found [on iconify.design](https://iconify.design/docs/types/iconify-json.html).
 
 ::: { .callout-note }
 
 As you will see bellow, the only thing this has to with `iconify` is the `JSON` schema used by `mermaid`.
-It would appear that `mermaid` does not use `iconify` under the hood and therefore icon sets that work in `mermaid` may not work with iconify {{< iconify poop >}}.
+It would appear that `mermaid` does not use `iconify` under the hood and therefore icon sets that work in `mermaid` may not work with `iconify` {{< iconify poop >}}.
 
 :::
 
 ### Gotchas
 
-There were quite afew things that I found unintuitive while writing the script
+There were a number of things that I found unintuitive while writing the script
 and getting the icon set to work.
 
 ::: { .callout-warning }
 
-#### `body` Should Not be Wrapped in `svg`
+#### `body` Should Not be Wrapped in `SVG`
 
-It turns out that having the `svg` tag inside of the `body` results in the icons not loading.
+It turns out that having the `SVG` tag inside of the `body` results in the icons not loading.
 My solution was to use `python`s built in `xml` library to parse out the
-content that was only the same. In the case of the kubernetes icons I had to find
+content that was only the same. In the case of the `kubernetes` icons I had to find
 an element `layer1` to extract from the `xml`.
 
 In `python`, this is done like
@@ -119,9 +217,9 @@ of code.
 
 ::: { .callout-warning }
 
-#### Certain SVG Icons will not Be Accepted by Iconify
+#### Certain `SVG` Icons will not Be Accepted by Iconify
 
-Some icons contain svg incompatable with iconify.
+Some icons contain `SVG` incompatible with `iconify`.
 **However, such icons will often work with mermaid**
 Since I only really want these icons for `mermaid` I do not care, however,
 I found that certain icons (in my case `k8s:limits` make `iconify`) unable to use the whole image set.
@@ -141,50 +239,107 @@ Deleting `limits` and its associated alias fix the problem and then the `k8s:nod
 
 ::: { .callout-warning }
 
-#### All that is Necessary is a Properly Formated `JSON` File.
+#### All that is Necessary is a Properly Formatted `JSON` File.
 
-You do not need to build your own `CDN` or use the `iconify` API.
+You do not need to build your own `CDN` or use the `iconify` API unless you
+would like to distribute the icon set to others.
 
 :::
 
 ## {{< iconify logos python >}} The Script
 
 After all of these considerations, I cooked up a `python` script to process all of the
-`svg` icons and turn them into a nice `JSON` file.
+`SVG` icons and turn them into a nice `JSON` file.
 
-The setup is simple:
+First, install the dependencies like:
 
-- A clone of the [kubernetes community repo](https://github.com/kubernetes),
-- Installing `typer` with `pip install typer`.
-- Putting this script into the repo under `icons/tools/iconify.py`,
-
-The first two steps can be done with the script:
-
-```sh
-git clone --depth 1 https://github.com/kubernetes/community
-pip install typer
+```python
+pip install typer requests
 ```
 
-and the final step is as easy as copying and pasting the script below:
+and then choose from one of the two setups described below.
 
-```{.python include="../../../acederbergio/iconify.py"}
+### Build using API Key {#setup-standalone}
 
-```
+My best solution was to copy all of the files using the `pull` command instead
+of cloning the entire repo as in [the alternative setup](#setup-cloned).
 
-::: {.callout-note}
+1. Copy the script in @fig-script and paste it into `iconify.py`.
+2. Read the instructions in the [section on the code snippet](#the-build-script)
+   for removing the small internal dependencies and replace them as specified.
+3. Get an appropriate `github` token. This token should be very minimal as it is
+   included only to bypass API rate limiting by `github`.
+   Export the token like `export GH_TOKEN="<my-gh-token-goes-here>"`.
+4. Pull the raw `SVG`s from `github` using the pull command and then use the
+   4 make command to build the icon set:
 
-The `JSON` output is available [on this website](/icons/kubernetes.json).
+   ```sh
+   python ./iconify.py pull
+   python ./iconify.py make
+   ```
+
+### Building from Cloned Repo { #setup-cloned}
+
+::: { .callout-warning }
+
+No longer recommended. See instead (the standalone setup)[#setup-standalone}
 
 :::
 
-### Running the Script
+1. Clone the [`kubernetes` community repo](https://github.com/kubernetes),
+   For instance
 
-Typer makes it easy to run the script with flags and subcommands.
+   ```bash
+   git clone --depth 1 https://github.com/kubernetes/community
+   ```
 
-1. The `make` subcommand will create the json output.
+2. Copy the build script in @fig-script into the repo under `icons/tools/iconify.py`,
+3. Read the instructions in [the section on the code snippet](#the-build-script) for removing the
+   small internal dependencies and replace them as specified.
+4. Run the build command:
+
+   ```sh
+   python ./icons/tools/iconify.py make
+   ```
+
+### The Build Script {#the-build-script}
+
+```{=html}
+<style>
+  .scrollable pre {
+    height: 720px;
+    overflow: scroll !important;
+  }
+</style>
+```
+
+::: { #fig-script .scrollable }
+
+```{ .python include="../../../acederbergio/iconify.py"}
+
+```
+
+Script for building the `iconify` icon set.
+
+:::
+
+To learn about the dependencies in the `acederbergio` package, see
+[the github repository for this website](https://github.com/acederberg/quarto-maths).
+To replace the two internal dependencies, just replace `env.require` with
+`os.env["GH_TOKEN"]` and `util.print_yaml` with `print` and remove the
+`acederbergio` import statements.
+
+Source code is available [here](https://github.com/acederberg/quarto-maths/blob/main/acederbergio/iconify.py).
+
+#### `typer`
+
+`typer` makes it easy to run the script with flags and subcommands.
+
+1. The `make` subcommand will create the `JSON` output.
    It can limit the number of icons process using `--include` and set the output destination using `--output`.
 
-   For instance, the icon set with only the `svc`, `etcd`, and `limits` icon can be built like
+   For instance, in the [cloned setup](#setup-cloned) the icon set with only
+   the `svc`, `etcd`, and `limits` icon can be built like
 
    ```sh
    #| fig-cap: This assumes that the shell is currently in the root of the cloned community repo.
@@ -200,16 +355,23 @@ Typer makes it easy to run the script with flags and subcommands.
 2. The `names` will print all of the icon names.
 3. The `aliases` command will print `$.aliases` and also has `--include`.
 
-It might seem overkill, but this was extemely convenient while building the iconset.
+It might seem overkill, but this was extremely convenient to pick out some bugs
+while building the `iconset`.
+
+::: {.callout-note}
+
+The `JSON` output is available [on this website](/icons/kubernetes.json).
+
+:::
 
 ## {{< iconify hugeicons checkmark-circle-02 >}} Using the Icon Set in Mermaid
 
 ::: { .callout-note }
 
-It is possible to use the icon set with iconify in pure `HTML`.
+It is possible to use the icon set with `iconify` in pure `HTML`.
 However, for the reasons already state above, I will not be going into the details of this here.
-This is decribed [within the iconify documentation](https://iconify.design/docs/icon-components/svg-framework/).
-For those interested using iconify in quarto, see [the iconify extension for quarto](https://github.com/mcanouil/quarto-iconify).
+This is described [within the `iconify` documentation](https://iconify.design/docs/icon-components/svg-framework/).
+For those interested using `iconify` in quarto, see [the iconify extension for quarto](https://github.com/mcanouil/quarto-iconify).
 
 :::
 
@@ -231,7 +393,7 @@ Then write out the declarative code for your diagram inside of some `pre` tags w
 ### With Mermaid Inside Of Quarto
 
 It is as simple as adding something like the script tags from above to `quarto` `HTML`
-output, e.g. make a file `./includes/mermaid.html` that calles `mermaid.registerIconPacks`:
+output, e.g. make a file `./includes/mermaid.html` that calls `mermaid.registerIconPacks`:
 
 ```{.html include="../../includes/mermaid.html" snippet="script"}
 
@@ -239,7 +401,7 @@ output, e.g. make a file `./includes/mermaid.html` that calles `mermaid.register
 
 and include it in the html output by using `format.html.include-in-header`:
 
-````quarto
+````{quarto}
 ---
 format:
   html:
@@ -261,19 +423,10 @@ architecture-beta
 The diagram rendered should look like
 
 ```{mermaid}
+%%| fig-cap: The final product.
+%%| label: fig-diagram-final
+
 architecture-beta
   group linode(logos:linode)[Linode]
   service blog_deployment(k8s:svc)[Blog Service and Deployment] in linode
 ```
-
-<!--
-With this script in the head, it is also possible to use iconify icons inline
-with [the iconify extension for quarto](https://github.com/mcanouil/quarto-iconify),
-for instance
-
-```
-{{< iconify k8s svc >}}
-```
-
-will render to {{< iconify k8s svc >}}.
--->

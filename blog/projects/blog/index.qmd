@@ -10,8 +10,17 @@ filters:
   - ../../filters/floaty.py
 floaty:
   - identifier: thank-you-tools
+    overlay:
+      identifier: thank-you-overlay
+      classes: [overlay-blur]
+      colorize:
+        color: teal
+        color_text: black
+        color_test_hover: white
     container:
       size: 1
+      classes_cards:
+        - py-5
     content:
       - image:
           iconify:

@@ -1,14 +1,131 @@
 ---
-title: On The State NumPY Type Hints
+title: About NumPY Type Hints
+image: ./leafy-sequence.svg
+keywords:
+  - numpy
+  - python
+  - fourier series
+  - polar coordinates
+  - quarto
+  - neoim
+  - multen
+  - pandas
+  - data science
+categories:
+  - python
+  - quarto
+  - neovim
+floaty:
+  - identifier: banner
+    container:
+      classes:
+        - p-3
+        - my-5
+        - border-white
+        - border-5
+        - border
+        - rounded-5
+      classes_cards:
+        - rounded-4
+        - py-1
+      classes_card_images:
+        - rounded-4
+        - p-4
+      columns: 1
+      size: 1
+    content:
+      - title: numpy
+        key: numpy
+        image:
+          iconify:
+            set: devicon
+            name: numpy
+
+links:
+  - identifier: more-about-neovim
+    container:
+      mode: bootstrap
+      include_titles: true
+      include_descriptions: true
+      # include_href: true
+      classes:
+        - py-5
+        - floaty-hover
+      classes_cards:
+        - rounded-top-3
+        - py-3
+      resize:
+        xxl: 2
+        xl: 2
+        lg: 1
+        md: 1
+        sm: 1
+        xs: 1
+    content:
+      - title: Neovim Configuration Source Code
+        description: Raw Code for my Neovim Configuration
+        href: https://github.com/acederberg/nvim-config
+        key: neovim
+        image:
+          bootstrap:
+            name: github
+
+      - title: Neovim Configuration Gallery
+        description: More About my Neovim Configuration
+        href: /projects/nvim-config
+        key: more
+        image:
+          bootstrap:
+            name: code-square
+filters:
+  - ../../filters/floaty.py
+  - ../../filters/links.py
+date: 2-18-2025
+date-modified: 2-18-2025
 ---
 
-I wrote this up while initially messing around with [molten-nvim](https://github.com/benlubas/molten-nvim/blob/main/README.md).
+```{=html}
+<style>
+  #banner .floaty-container {
+    background: var(--bs-blue);
+  }
 
-::: { .callout-note }
+  #banner .card {
+    --color-primary: rgba(255, 255, 255, 0.96);
+    --color-secondary: rgba(255, 255, 255, 0.98);
+    --band-size: 40px;
 
-## About Type Hints for Numpy N-Dimensional Arrays
+    background: repeating-linear-gradient(
+      45deg,
+      var(--color-primary),
+      var(--color-primary) var(--band-size),
+      var(--color-secondary) var(--band-size),
+      var(--color-secondary) calc(2 * var(--band-size))
+    );
+  }
 
-First, a few notes on @fig-cartioid-script are warrented:
+</style>
+```
+
+::: { #banner }
+
+:::
+
+I wrote this up while learning how to use [molten-nvim](https://github.com/benlubas/molten-nvim/blob/main/README.md).
+I kept on writing and eventually found more that I wanted to write about type
+hints in `numpy` because good type hints make writing code in `python` a
+pleasure and not a chore.
+
+If you are curious about using using `neovim` for data-science and `python`
+notebooks, checkout the `neovim` gallery and repository here on the site:
+
+::: { #more-about-neovim }
+
+:::
+
+## About Type Hints for {{< iconify devicon:numpy >}} `Numpy` Arrays
+
+What I have ascertained so far is:
 
 - [PEP 646](https://typing.readthedocs.io/en/latest/spec/generics.html#typevartuple)
   proposed `TypeVarTuple` and was accepted in `python3.11`. This makes it
@@ -25,20 +142,20 @@ First, a few notes on @fig-cartioid-script are warrented:
 With that out of the way, I would like to say that **the type hints in the
 following code are mostly for my own experimentation and are _possibly incorrect_**.
 The objective is to have `SeriesPlotter` have correct type hints for the
-attributes `sequence` and `series`, which should include the size of the numpy
+attributes `sequence` and `series`, which should include the size of the `numpy`
 arrays.
 
 To do this, `SeriesPlotter` is a generic of two parameters - the first
 specifies the number of points in the input space and the second specifies the
 number of elements in the series.
 
-:::
+## An Example Using The Type Hints
 
-The objective of the code in @fig-cartioid-script is to plot cartioid like
-graphs using [polar coordinates (via `matplotlib`)](https://matplotlib.org/stable/gallery/pie_and_polar_charts/polar_demo.html)
-with **type hints that will hopefully be valid once `mypy` supports PEP 646**.
+The objective of the code in @fig-numpy-hints is to plot some graphs of
+series using normal and [polar coordinates (via `matplotlib`)](https://matplotlib.org/stable/gallery/pie_and_polar_charts/polar_demo.html)
+with type hints.
 
-::: { #fig-cartioid-numpy }
+::: { #fig-numpy-hints }
 
 ```{python}
 
@@ -64,19 +181,6 @@ Kind = Literal["series", "sequence"]
 
 class SeriesGenerator(Protocol):
     def __call__(self, theta: FloatArray, index: int) -> FloatArray: ...
-
-
-T_PlotCallbackAxes = TypeVar(
-    "T_PlotCallbackAxes", Axes, PolarAxes, contravariant=True, covariant=False
-)
-
-
-class PlotCallback(Protocol, Generic[T_PlotCallbackAxes]):
-    """Used to provide callbacks to animation methods."""
-
-    def __call__(
-        self, axs: T_PlotCallbackAxes, line: Line2D, frame: int
-    ) -> tuple[Line2D]: ...
 
 
 class SeriesPlotter(Generic[FloatArraySequenceHeight, FloatArraySequenceWidth]):
@@ -173,7 +277,6 @@ class SeriesPlotter(Generic[FloatArraySequenceHeight, FloatArraySequenceWidth]):
 
         axs: Axes
         fig, axs = plt.subplots(1, 1)
-        # axs.set_ylim(-1.2, 1.2)
         axs.set_title("Sawtooth Wave Foureir Series")
 
         (line,) = axs.plot(self.theta, self.series[0])
@@ -184,18 +287,23 @@ class SeriesPlotter(Generic[FloatArraySequenceHeight, FloatArraySequenceWidth]):
         return FuncAnimation(fig, fn, frames=frames, interval=333)
 
     def create_animation(self):
-        """Plot seriesi or equence members in polar coordinates."""
+        """Plot series or sequence members in polar coordinates."""
         ...
 ```
 
+Type hints here are used to describe the size of the (two dimensional) `numpy`
+array in terms of height and width. This requires that every instance of `SeriesPlotter`
+specifies the height (number of points in the domain) and width (number of
+sequence members computed) to specify the shape of the `numpy` array stored in
+the `series` and `sequence` attributes. For example, the code code in @fig-leafy-script
+will generate a $1000 X 8$ array - the first $8$ sequence members will be
+computed on a $1000$ point domain.
+
 :::
 
-## A Leaf Like Cartioid
+## Maple Leaf Like Cardioid
 
-First, I should say that most cartioids vaguely resemble leafs - I just didn't
-know what to call this one.
-
-::: { #fig-cartioid-leafy-script }
+::: { #fig-leafy-script }
 
 ```{python}
 
@@ -225,25 +333,43 @@ class LeafyPlotter(SeriesPlotter[FloatArraySequenceHeight, FloatArraySequenceWid
         super().__init__(self.fn, height=height, width=width, theta=theta)
 
 
-leafy_plotter = LeafyPlotter[Literal[1000], Literal[8]](height=1000, width=8)
+leafy_plotter = LeafyPlotter[Literal[10000], Literal[8]](height=10000, width=8)
 leafy_figure = leafy_plotter.create_subplots(2, 2, kind="series")
 leafy_figure.savefig("./leafy.svg", format="svg")
 plt.close()
 
+leafy_figure_sequence = leafy_plotter.create_subplots(2, 2, kind="sequence")
+leafy_figure_sequence.savefig("./leafy-sequence.svg")
+plt.close()
+
 leafy_animation = leafy_plotter.create_animation_rect()
-leafy_animation.save("leafy-rectilinear.gif")
+leafy_animation.save("leafy-rectilinear.gif", writer="pillow")
+plt.close()
+
+leafy_animation = leafy_plotter.create_animation_rect(kind="sequence")
+leafy_animation.save("leafy-rectilinear-sequence.gif", writer="pillow")
 plt.close()
 ```
 
 :::
 
-![Leafy cartioid](./leafy.svg){ #fig-cartioid-leafy-polar }
+::: {#fig-leafy layout='[[1,1],[1,1]]'}
 
-![Leafy cartioid animation](./leafy.svg){ #fig-cartioid-leafy-rect }
+![Series plotted in polar coordinates. I think the last one looks vaguely like a maple leaf.](./leafy.svg){ #fig-leafy-polar }
 
-## The Sawtooth Cartioid
+![Series members plotted in polar coordinates.](./leafy-sequence.svg){ #fig-leafy-polar-seq }
 
-Next I wanted to plot a sawtooth wave using a Foreir series on this interval.
+![Series plotted in x-y coordinates.](./leafy-rectilinear.gif){ #fig-leafy-rect }
+
+![Series members plotted in x-y coordinates.](./leafy-rectilinear-sequence.gif){ #fig-leafy-rect-seq }
+
+:::
+
+## The Sawtooth Cardioid
+
+Next I wanted to plot a sawtooth wave using a Fourier series,
+
+<!--
 The Fourier series can be calculated using the `sine` transform of the mapping
 $f: x\mapsto x$ for $x\in (-\pi, \pi)$ like
 
@@ -266,6 +392,7 @@ integral will be zero - $a_n = 0$ for all $n$, so $f$ can be approximated
 \end{equation}
 
 With this information we can write the following python function:
+-->
 
 ::: { #fig-sawtooth-script }
 
@@ -305,19 +432,12 @@ sawtooth_plotter = SawtoothPlotter[Literal[1440], Literal[32]](height=1440, widt
 sawtooth_animation = sawtooth_plotter.create_animation_rect("series")
 sawtooth_animation.save("sawtooth.gif")
 plt.close()
-
-sawtooth_figure = sawtooth_plotter.create_subplots(4, 4)
-sawtooth_figure.savefig("./sawtooth.svg", format="svg")
-plt.close()
 ```
 
 :::
 
-![Sawtooth wave approximated using a forier series](./sawtooth.svg){#fig-sawtooth-polars}
+![This cardioid is generated in @fig-sawtooth-script](./sawtooth.gif){ #fig-sawtooth-gif }
 
-![This cardioid is generated in @fig-cartioid-script](./sawtooth.gif){ #fig-sawtooth-gif }
+## Molten in Action
 
 ![Molten in Action.](~/Pictures/Screenshots/neovim-gallery/molten.gif){#fig-molten}
-
-<!-- For more on generating polar graphs in `matplotlib`, see -->
-<!-- [the documentation on polar projections](https://matplotlib.org/stable/gallery/pie_and_polar_charts/polar_demo.html). -->

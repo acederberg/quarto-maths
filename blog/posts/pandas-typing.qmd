@@ -1,5 +1,6 @@
 ---
 title: About Type Hints in Pandas
+draft: true
 ---
 
 ```{python}

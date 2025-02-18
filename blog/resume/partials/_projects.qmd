@@ -18,7 +18,7 @@ Click on any the content bellow to learn more.
 
 - [Acederberg.io](https://acederberg.io/projects/website) - My blog and portfolio made with `quarto`, `python`, `javascript`, and `docker`.
 - [Captura](https://github.com/acederberg/captura) - Permissions management service using `FastAPI` and `sqlalchemy`.
-- [Automation](https://acederberg.io/projects/automation) - Automation for my blog and captura using `github action`, `pulumi`, and `linode`.
+- [Automation](https://acederberg.io/projects/automation) - Automation for my blog and Captura using `github actions`, `pulumi`, and `linode`.
 - [NeoVim Configuration](https://acederberg.io/projects/nvim) - To make for an excellent development experience in `neovim` written in `lua`.
 
 Check out [my github](https://github.com/acederberg) to learn more.

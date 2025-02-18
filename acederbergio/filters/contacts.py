@@ -33,6 +33,9 @@ class ConfigContacts(
 
 # NOTE: Only expects one config.
 class Config(util.BaseConfig):
+
+    include_descriptions: Annotated[bool, pydantic.Field(default=True)]
+
     contacts: Annotated[
         dict[str, ConfigContacts | None],
         pydantic.Field(None),

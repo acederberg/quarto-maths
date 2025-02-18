@@ -71,7 +71,7 @@ class BucketConfig(ysp.BaseYamlSettings):
 
         return key
 
-    @pydantic.computed_field
+    @pydantic.computed_field # type: ignore[prop-decorator]
     @property
     def headers(self) -> dict[str, str]:
         """Headers for Linode requrests."""
@@ -243,7 +243,7 @@ class BucketHandler(pydantic.BaseModel):
 
     @classmethod
     def fromYaml(cls) -> Self:
-        return cls(state=BucketState(), config=BucketConfig())
+        return cls(state=BucketState(), config=BucketConfig()) # type: ignore[call-arg]
 
     async def ensure_bucket(self, client: httpx.AsyncClient) -> ProvisionInfo[Bucket]:
 

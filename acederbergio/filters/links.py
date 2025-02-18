@@ -26,6 +26,7 @@ class ConfigLinkItem(floaty.ConfigFloatyItem["ConfigLinksContainer"]):
 
 
 class ConfigLinksContainer(floaty.ConfigFloatyContainer):
+    include_href: Annotated[bool, pydantic.Field(default=True)]
 
     @pydantic.computed_field  # type: ignore[prop-decorator]
     @property

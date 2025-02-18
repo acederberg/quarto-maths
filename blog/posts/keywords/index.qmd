@@ -4,6 +4,17 @@ image: https://bucket.acederberg.io/thumbnails/keywords.jpg
 live:
   quarto:
     reload: true
+keywords:
+  - python
+  - natural language processing
+  - keywords
+  - nltk
+  - hitchens
+  - salinger
+  - postman
+categories:
+  - python
+  - data science
 filters:
   - quarto
   - ../../filters/floaty.py
@@ -40,9 +51,11 @@ floaty:
           iconify:
             set: devicon
             name: python
+date: 2-18-2025
+date-modified: 2-18-2025
 ---
 
-```{html}
+```{=html}
 <style>
   #banner {
     --bg-gradient-primary: var(--bs-gray-800);
@@ -101,7 +114,7 @@ floaty:
 
 
 
-To overfimplify, natural lagnuage processing is a set of strategies used by
+To oversimplify, natural language processing is a set of strategies used by
 computers to interpret human language. Of course, this is just a blog post
 where you can follow along with my notes as I learn - this is by no means
 exhaustive.
@@ -123,11 +136,11 @@ stemming
 'description', and 'describer' all share 'descri'.
 
 tokenizing
-: Tokenization is the process of turning a sentance into its component phrases,
+: Tokenisation is the process of turning a sentence into its component phrases,
 words, or subwords. For instance, in the case of subwords 'antigravity' might
 become 'anti' and 'gravity'.
 
-The following figure contains the example text to be processed in todays post:
+The following figure contains the example text to be processed in today's post:
 
 <!----------------------------------------------------------------------------> ::: { #fig-quotes }
 
@@ -277,10 +290,10 @@ text_hitchens = """
 
 :::
 
-## Tokenization
+## Tokenisation
 
 Since tokenizing might be done at various scales, `nltk` provides a means to
-do both word and sentence tokenization.
+do both word and sentence tokenisation.
 
 ```{python}
 # | output: false
@@ -297,25 +310,25 @@ util.print_yaml(tokens_sent, rule_title="Sentence Tokens", console=console)
 console.save_svg("./nlp-tokens-salinger.svg")
 ```
 
-![Word and sentence tokens extracted from `@fig-quotes-salinger` using `nltk`s recommended tokenization.](./nlp-tokens-salinger.svg){ #fig-tokenization }
+![Word and sentence tokens extracted from `@fig-quotes-salinger` using `nltk`s recommended tokenisation.](./nlp-tokens-salinger.svg){ #fig-tokenisation }
 
-Tokenization is pretty obvious in english due to the use of spaces.
-There are edge cases like abbreviations an elipsis in sentence tokenization
-and apostrophes in word tokenization *(notice that in @fig-quotes-salinger the
+Tokenisation is pretty obvious in English due to the use of spaces.
+There are edge cases like abbreviations an ellipsis in sentence tokenisation
+and apostrophes in word tokenisation *(notice that in @fig-quotes-salinger the
 word "I'd" is parsed as "I" and "'d" for instance)*. However,
-in languages like Arabic, Japanese and Chinese word tokenization is not nearly as 
+in languages like Arabic, Japanese and Chinese word tokenisation is not nearly as 
 straight forward due to the lack of spaces.
 
-[![The 'Heart Sutra', written in Japanese Caligraphy. Credit: `TheArtOfCalligraphy.com`](https://www.theartofcalligraphy.com/wp-content/uploads/heartsutra-part1.jpg)](https://www.theartofcalligraphy.com/heart-sutra-in-japanese)
+[![The 'Heart Sutra', written in Japanese Calligraphy. Credit: `TheArtOfCalligraphy.com`](https://www.theartofcalligraphy.com/wp-content/uploads/heartsutra-part1.jpg)](https://www.theartofcalligraphy.com/heart-sutra-in-japanese)
 
 ## Stop Words
 
-Certain words are not worth keeping during tokenization for particular processes.
+Certain words are not worth keeping during tokenisation for particular processes.
 For instance if one is looking for keywords, words like 'is', 'the', 'if' and
-so on should not be considered during tokenization.
+so on should not be considered during tokenisation.
 
 Conveniently, `nltk` provides a list of stop words.
-Stop words can be used in the tokenization to enhance keyword finding:
+Stop words can be used in the tokenisation to enhance keyword finding:
 
 ```{python}
 # | output: false
@@ -330,7 +343,7 @@ util.print_yaml(
 console.save_svg("./nlp-tokens-salinger-filtered.svg")
 ```
 
-![Filtered token from @fig-tokenization](./nlp-tokens-salinger-filtered.svg){ #fig-tokenization-filtered }
+![Filtered token from @fig-tokenisation](./nlp-tokens-salinger-filtered.svg){ #fig-tokenisation-filtered }
 
 ## RAKE
 

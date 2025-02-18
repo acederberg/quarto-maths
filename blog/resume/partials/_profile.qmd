@@ -11,8 +11,8 @@ Background in applied mathematics and engineering.
 --->
 
 Software engineer with expertise in architecting and implementing REST APIs
-with `python`, success in buliding SaaS, and DevOps/Clound engineering to
-support SaaS (with `teraform`) for hunreds of users in a startup environment.
+with `python`, success in building SaaS, and DevOps/Cloud engineering to
+support SaaS (with `teraform`) for hundreds of users in a startup environment.
 Proven track record of enhancing developer productivity and ensuring
 bulletproof deployments through automation (in `bitbucket` pipelines and
 `github actions`) and containerization/reliability (with `kubernetes`).

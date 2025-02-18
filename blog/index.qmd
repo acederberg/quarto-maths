@@ -1,88 +1,188 @@
 ---
+# title: Landing Page.
 image: https://avatars.githubusercontent.com/u/77076023?v=4
-about:
-  template: jolla
-  links:
-    - icon: github
-      text: Github
-      href: https://github.com/acederberg
-    - icon: linkedin
-      text: LinkedIn
-      href: https://www.linkedin.com/in/adrian-cederberg-b453571b9/
-    - icon: twitter
-      text: Twitter
-      href: https://x.com/_acederberg
+format:
+  html:
+    navbar: false
+    page-layout: custom
 aliases:
   - /home
 extra:
   image: https://avatars.githubusercontent.com/u/77076023?v=4
   url: /
+filters:
+  - ./filters/links.py
+links:
+  - identifier: floaty-resume-links
+    container:
+      mode: bootstrap
+      include_tooltips: true
+      include_titles: true
+      resize:
+        xxl: 2
+        xl: 2
+        lg: 2
+        md: 2
+        sm: 2
+        xs: 2
+      classes_cards:
+        - px-5
+    content:
+      - key: resume-pdf
+        title: PDF Resume
+        href: /resume/resume.pdf
+        tooltip: Most recent version of my resume in ``PDF`` format.
+        label: Resume
+        image:
+          bootstrap:
+            name: file-pdf
+            classes:
+              - text-red
+
+      - key: resume-site
+        title: HTML Resume
+        href: /resume/index.html
+        tooltip: Most recent version of my resume in ``PDF`` format.
+        label: Resume
+        image:
+          bootstrap:
+            name: filetype-html
+            classes:
+              - text-blue
+
+#   - identifier: landing-page-posts-listing
+#     container: {}
+#     contents:
+#       - title: On Effectively Writing Neovim Queries
+#         key: neovim-queries-demo
+#         href: /posts/neovim-queries-case-study
+#         listing:
+#           img: ...
 listing:
-  # - id: links
-  #   fields:
-  #     - title
-  #   type: grid
-  #   image-height: 128px;
-  #   contents:
-  #     - ./resume.qmd
-  #     - ./about.qmd
-  #     - ./projects.qmd
-  - id: categories
+  - id: landing-page-posts-listing
+    type: grid
     fields:
       - title
       - date
       - image
-      - author
-    type: grid
-    image-height: 256px
     sort:
       - date desc
+    image-height: 320px;
     contents:
-      - ./posts/index.qmd
+      - ./posts/**/index.qmd
       - ./dsa/leetcode/index.qmd
-      - ./kaggle/index.qmd
-      - ./projects/index.qmd
-  - id: posts
+      - ./kaggle/melbourne-housing-data/index.qmd
+  - id: landing-page-projects-listing
+    type: grid
     fields:
       - title
       - date
       - image
-      - author
-    type: grid
-    image-height: 256px
     sort:
       - date desc
+    image-height: 320px;
     contents:
-      - ./posts/logistic
-      - ./posts/python-animation
-      - ./posts/quarto-kube-static
-      - ./posts/include-code-files
-date-updated: 10-01-2024
+      - ./projects/blog/index.qmd
+      - ./components/floaty/index.qmd
+      - ./components/overlay/index.qmd
+      - ./projects/nvim-config/index.qmd
+      - ./projects/automation/index.qmd
 ---
 
-:::{#jolla}
-I am Adrian Cederberg and this is my blog powered by [quarto](https://quarto.org).
-I have a Bachelors of Science in Applied Mathematics from the University of New Mexico and a wide range of experience including teaching, research, and software development.
-My technical interests include mathematics, physics, and software.
-Lately I am interested in writing software as I have found it to be an indispensable skill in the various topics which interest me.
+```{=html}
+<style>
+  #quarto-content {
+    --primary: #000;
+    --secondary: #040404;
+    --stripe-width: 15px;
 
+    background: repeating-linear-gradient(
+      45deg,
+      var(--primary),
+      var(--primary) var(--stripe-width),
+      var(--secondary) var(--stripe-width),
+      var(--secondary) calc(var(--stripe-width) * 2)
+    );
+    background-attachment: fixed;
+  }
+  body {
+    background: black;
+  }
+
+</style>
+```
+
+:::: { #landing-page }
+
+```{=html}
+<header>
+  <div id=landing-page-banner>
+    <div id=landing-page-banner-content>
+      <div id=landing-page-banner-title>
+        <div id="landing-page-links">
+            <div class="link-item">
+              <a href="https://github.com/acederberg">
+                <i class="bi bi-github"></i>
+                <text>GitHub</text>
+              </a>
+            </div>
+            <div class="link-item">
+              <a href="/resume/index.html">
+                <i class="bi bi-file-pdf"></i>
+                <text>Resume</text>
+              </a>
+            </div>
+            <div class="link-item">
+              <a href="https://www.linkedin.com/in/adrian-cederberg-b453571b9">
+                <i class="bi bi-linkedin"></i>
+                <text>LinkedIn</text>
+              </a>
+            </div>
+        </div>
+    </div>
+  </div>
+</header>
+
+<!--
+<section id=landing-page-navigation>
+  <nav id=landing-page-navigation-content>
+    <div class="navigation-directory">
+      <div class="navigation-item" id="landing-page-navigation-posts">
+        Posts
+      </div>
+      <div class="navigation-item" id="landing-page-navigation-projects">
+        Projects
+      </div>
+      <div class="navigation-item" id="landing-page-navigation-resume">
+        Resume
+      </div>
+    <div>
+  </nav>
+</section>
+-->
+```
+
+::: { #landing-page-about }
+
+::: { #landing-page-about-content }
+
+# About { #about }
+
+This is a blog where I post about my technical interests and contribute articles
+on topics that I find worthwhile.
+I am interested in writing software as I have found it to be an indispensable
+skill in the various topics which interest me.
 Blog posts will vary in subject matter, but invariably pertain to topics in computer science.
-Some things I will write about are `python`, data structures and algorithms, containerization, infrastructure as code, numerical mathematics, and data science.
+
+## My Background
+
+I have a Bachelors of Science in Applied Mathematics from the University of New
+Mexico and a wide range of experience including work in teaching mathematics,
+research in physics, and software development.
+
+Currently I am a part time caretaker.
+
 For inquiries, please reach out to me at `adrn.cederberg123@gmail.com` or `@_acederberg` on twitter.
-If you find any errors in my blog posts, please make an issue on [the github repository for this website](https://github.com/acederberg/quarto-maths).
-:::
-
-## Categories
-
-:::{#categories}
-:::
-
-See [some other page](./resume/index.qmd#resume).
-
-## Posts
-
-:::{#posts}
-:::
 
 ## Where is the Old Blog?
 
@@ -90,3 +190,43 @@ This site deprecates my previous blog, for which I made the [captura-text](https
 The content on the deprecated site can be found in [another repo](https://github.com/acederberg/captura-text-portfolio-assets).
 
 Go to (posts)[#posts].
+
+## Reporting Issues
+
+If you find any errors in my blog posts, please make an issue on [the github repository for this website](https://github.com/acederberg/quarto-maths).
+
+:::
+
+:::
+
+::: { #landing-page-posts }
+
+# Posts { #landing-page-posts-content .pb-5 }
+
+::: {#landing-page-posts-listing}
+
+:::
+
+:::
+
+::: { #landing-page-projects }
+
+# Projects { #landing-page-projects-content .pb-5 }
+
+::: { #landing-page-projects-listing }
+
+:::
+
+:::
+
+::: { #landing-page-resume }
+
+# Resume { #landing-page-resume .pb-5 }
+
+::: { #floaty-resume-links .px-5 }
+
+:::
+
+:::
+
+::::

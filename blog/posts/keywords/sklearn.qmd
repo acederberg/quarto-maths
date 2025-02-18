@@ -1,5 +1,6 @@
 ---
 title: SKLean Text Feature Extraction Notes
+draft: true
 ---
 
 While contemplating how to compare keywords in documents I decided to ask

@@ -73,47 +73,6 @@ website:
   description: acederberg's blog.
   repo-url: https://github.com/acederberg/quarto-maths
   sidebar:
-    - id: components
-      border: true
-      title: Components and Filters
-      style: "docked"
-      contents:
-        - section: IFrames
-          contents:
-            - text: Demo
-              href: ./components/iframe/index.qmd
-            - text: "Docs: Pandoc Filter"
-              href: "./projects/blog/quartodoc/iframe.qmd"
-        - section: Overlay
-          contents:
-            - text: Demo
-              href: ./components/overlay/index.qmd
-            - text: "Docs: Pandoc Filter"
-              href: "./projects/blog/quartodoc/overlay.qmd"
-            - text: "Docs: Javascript"
-              href: "./projects/blog/typedoc/overlay.qmd"
-        - section: Floaty
-          contents:
-            - text: "Demo: Overview"
-              href: ./components/floaty/index.qmd
-            - text: "Demo: Skills"
-              href: ./components/floaty/skills.qmd
-            - text: "Demo: Contacts"
-              href: ./components/floaty/contacts.qmd
-            - text: "Demo: Links"
-              href: ./components/floaty/links.qmd
-            - text: "Demo: Under Construction"
-              href: ./components/floaty/under-construction.qmd
-            - text: "Docs: Pandoc Filter"
-              href: "./projects/blog/quartodoc/floaty.qmd"
-            - text: "Docs: Javascript"
-              href: "./projects/blog/typedoc/floaty.qmd"
-        - section: Resume
-          contents:
-            - text: Demo
-              href: ./components/resume/index.qmd
-            - text: "Docs: Pandoc Filter"
-              href: "./projects/blog/quartodoc/resume.qmd"
     - id: projects
       title: Projects
       style: "docked"
@@ -144,6 +103,45 @@ website:
                       href: ./projects/blog/deploy.qmd
                     - text: Static Quarto Websites in Kubernetes
                       href: ./posts/quarto-kube-static/index.qmd
+
+                - section: Components and Filters
+                  contents:
+                    - section: IFrames
+                      contents:
+                        - text: Demo
+                          href: ./components/iframe/index.qmd
+                        - text: "Docs: Pandoc Filter"
+                          href: "./projects/blog/quartodoc/iframe.qmd"
+                    - section: Overlay
+                      contents:
+                        - text: Demo
+                          href: ./components/overlay/index.qmd
+                        - text: "Docs: Pandoc Filter"
+                          href: "./projects/blog/quartodoc/overlay.qmd"
+                        - text: "Docs: Javascript"
+                          href: "./projects/blog/typedoc/overlay.qmd"
+                    - section: Floaty
+                      contents:
+                        - text: "Demo: Overview"
+                          href: ./components/floaty/index.qmd
+                        - text: "Demo: Skills"
+                          href: ./components/floaty/skills.qmd
+                        - text: "Demo: Contacts"
+                          href: ./components/floaty/contacts.qmd
+                        - text: "Demo: Links"
+                          href: ./components/floaty/links.qmd
+                        - text: "Demo: Under Construction"
+                          href: ./components/floaty/under-construction.qmd
+                        - text: "Docs: Pandoc Filter"
+                          href: "./projects/blog/quartodoc/floaty.qmd"
+                        - text: "Docs: Javascript"
+                          href: "./projects/blog/typedoc/floaty.qmd"
+                    - section: Resume
+                      contents:
+                        - text: Demo
+                          href: ./components/resume/index.qmd
+                        - text: "Docs: Pandoc Filter"
+                          href: "./projects/blog/quartodoc/resume.qmd"
 
             - section: Nvim Configuration
               contents:

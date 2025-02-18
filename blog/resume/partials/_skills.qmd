@@ -2,11 +2,11 @@
 
 ::: { .content-visible when-format="latex" }
 
-Software implementation (`python`, `javascsript`, `shell`, `git`, `docker`),
-deployment (`terraform`, `pulumi`, `kubernetes`, `actions`),
-back-end (`fastapi`, `mysql`, `mongodb`),
-and front-end (`react`, `nextjs`, `scss`, `jinja`).
-For a more exhaustive coverage of my skills, see [the skills page on my website](https://acederbergio/resume/skills.html).
+Software implementation (`Python`, `JavaScsript`, `shell`, `Git`, `Docker`),
+deployment (`Terraform`, `Pulumi`, `Kubernetes`, `actions`),
+back-end (`FastAPI`, `MySQL`, `MongoDB`),
+and front-end (`React`, `NextJS`, `SCSS`, `Jinja`).
+For a more exhaustive coverage of my skills, see [the skills page on my website](https://acederbergio/resume/index.html#skills).
 
 :::
 
@@ -66,8 +66,8 @@ distribution, and programmatic acquisition of data is paramount.
 
 I have plenty of experience developing the tools for this - for instance
 REST APIs for the distribution of data and ETLs for the aggregation of data
-in languages like `python` {{< iconify devicons python >}}, and
-`nodejs` {{< iconify devicons nodejs>}} using database technologies a storage
+in languages like `python` {{< iconify devicon python >}}, and
+`nodejs` {{< iconify devicon nodejs>}} using database technologies a storage
 solutions such as `mysql` {{< iconify devicon mysql >}},
 `mongodb` {{< iconify devicon mongodb >}},
 and `redis` {{< iconify devicon redis >}}.

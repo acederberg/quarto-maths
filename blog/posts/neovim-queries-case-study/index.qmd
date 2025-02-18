@@ -11,7 +11,7 @@ keywords:
   - pandoc
   - markdown
   - neovim injection
-  - treesitter injection
+  - TreeSitter injection
   - vim
   - neovim customization
 floaty:
@@ -30,7 +30,6 @@ floaty:
       classes_card_images:
         - rounded-4
         - p-4
-
       columns: 1
       size: 1
     content:
@@ -79,6 +78,8 @@ links:
 filters:
   - ../../filters/floaty.py
   - ../../filters/links.py
+date: 2-18-2025
+date-modified: 2-18-2025
 ---
 
 ```{=html}
@@ -195,7 +196,7 @@ While this pertains to quarto, the principles discussed here are applicable to
 any language and the development of queries and convenient means to do so are
 discussed here.
 
-Much of the code discussed here is shared in the gihub repository for my neovim
+Much of the code discussed here is shared in the Github repository for my Neovim
 configuration which can be found bellow:
 
 ::: { #more }
@@ -229,18 +230,18 @@ comments and the normal comments are highlighted identically.
 
 :::
 
-![Quarto `python` code with metadata comments highlighted for contrast in neovim.](https://bucket.acederberg.io/projects/neovim-gallery/langs-quarto-metadata-highlights.png){ #fig-quarto-python-comment-result }
+![Quarto `python` code with metadata comments highlighted for contrast in NeoVim.](https://bucket.acederberg.io/projects/neovim-gallery/langs-quarto-metadata-highlights.png){ #fig-quarto-python-comment-result }
 
 ::::
 
 ### A Trick for Writing Queries Easily
 
-First and formost, it is much easier to write queries by using the `:Inspect`
-and `:InspectTree` commands. These allow you to peak into how treesitter sees the
+First and for most, it is much easier to write queries by using the `:Inspect`
+and `:InspectTree` commands. These allow you to peak into how TreeSitter sees the
 document and decides how syntax highlighting will work. In @fig-quarto-python-comment-inspect-tree
 we can see just how easy it is:
 
-![Looking at a comment in treesitter tree using `:InspectTree`.
+![Looking at a comment in TreeSitter tree using `:InspectTree`.
 On the left hand side the `fenced_code_block` contains some `python` code
 which itself contains `comments`. See the derived query in @fig-quarto-python-comment-query.
 ](https://bucket.acederberg.io/projects/neovim-quarto-python-inspect-tree-comment.png){ #fig-quarto-python-comment-inspect-tree }
@@ -248,7 +249,7 @@ which itself contains `comments`. See the derived query in @fig-quarto-python-co
 This is not too difficult - all that is required is to match any comment
 starting with `#|` or `# |` and label it with an appropriate capture.
 The following is added to my `~/.config/nvim/queries/python/highlights.scm`
-and and does exactly this:
+and does exactly this:
 
 ::: { #fig-quarto-python-comment-query }
 
@@ -262,14 +263,14 @@ and and does exactly this:
 ```
 
 Match comments that start with `#|` or `# |` using the `match#?` directive.
-The [documentation on queries](https://neovim.io/doc/user/treesitter.html#_treesitter-syntax-highlighting)
+The [documentation on queries](https://neovim.io/doc/user/TreeSitter.html#_TreeSitter-syntax-highlighting)
 can tell you more about what each of the various matchers and directives do.
 
 :::
 
 ::: { .callout-note }
 
-The capture name is aribitrary (so long as it does not collide with an existing
+The capture name is arbitrary (so long as it does not collide with an existing
 capture). However, I named my capture `@comment.python.quarto_metadata` since
 the `@comment.python` capture group already exists and these metadata comments
 are a subset of that capture group. However, the name is completely up to you,
@@ -279,8 +280,8 @@ the user.
 
 ### Using the Query
 
-Writing the query on its own does not tell neovim what to do with the capture
-group - it is necessary to speciy how the highlight group should be used by
+Writing the query on its own does not tell NeoVim what to do with the capture
+group - it is necessary to specify how the highlight group should be used by
 providing coloration, font weight and style, and more using [`nvim_set_hl`](https://neovim.io/doc/user/api.html#nvim_set_hl)
 as in @fig-neovim-quarto-python-comment-hl.
 
@@ -295,12 +296,12 @@ In my case, I added the line in to `~/.config/nvim/init.lua`.
 
 :::
 
-Next (after saving all of your changes), restart neovim and move the cursor
+Next (after saving all of your changes), restart Neovim and move the cursor
 over some code that should match the selector and use `:Inspect`. You should
 see something like @fig-neovim-quarto-python-comment-inspect. After
 highlighting looked like @fig-quarto-python-comment-example.
 
-![Confirming that the treesitter capture group defined about applies to `quarto`
+![Confirming that the TreeSitter capture group defined about applies to `quarto`
 metadata comments using `:Inspect`. Notice that the highlight group `@comment.python.quarto_metadata`
 as defined in @fig-quarto-python-comment-query is now shown.
 ](https://bucket.acederberg.io/projects/neovim-quarto-python-inspect-comment.png){ #fig-neovim-quarto-python-comment-inspect }
@@ -309,12 +310,12 @@ as defined in @fig-quarto-python-comment-query is now shown.
 
 ![Quarto fenced divs with red highlighting](https://bucket.acederberg.io/projects/neovim-gallery/langs-quarto-in-quarto.png){ #fig-neovim-quarto-fence-result }
 
-Fenced div's are a fundimental piece of `pandoc` flavored markdown and `pandoc`
+Fenced div's are a fundamental piece of `pandoc` flavored markdown and `pandoc`
 filters, and thus `quarto` markdown and `quarto` filters. When not highlighted,
 I find it less convenient to keep track of the fences, for instance in @fig-neovim-quarto-fence-example.
 However, with the fences highlighted in is much easier to make sure that all of
 the fenced divs are closed. If fenced divs are not closed, some frustrating
-and strange errors can arrise in quarto - notice how easy it is to count the
+and strange errors can arise in quarto - notice how easy it is to count the
 fenced divs in @fig-neovim-quarto-fence-result.
 
 ::: { #fig-neovim-quarto-fence-example }
@@ -358,7 +359,7 @@ difficult to manage when many are nested and mixed in with text.
 
 ![`:InspectTree` over a quarto fence.](https://bucket.acederberg.io/projects/neovim-quarto-fence-inspect-tree.png){ #fig-neovim-quarto-fence-inspect-tree }
 
-Using `:InspectTree` as in @fig-neovim-quarto-fence-inspect-tree, we can see that treesitter recognizes these fences as
+Using `:InspectTree` as in @fig-neovim-quarto-fence-inspect-tree, we can see that TreeSitter recognizes these fences as
 `paragraph` nodes, so the query (under `~/.config/nvim/queries/markdown/highlights.scm`) will be
 
 ::: { #fig-quarto-fence-query }
@@ -442,12 +443,12 @@ Some `HTML` directly in quarto:
 ::: { #fig-quarto-html-inspect-tree }
 
 ![Output of `:InspectTree` at an `HTML` code block. On the left hand side, we 
-can see the treesitter tree.](https://bucket.acederberg.io/projects/neovim-gallery/neovim-quarto-html-inspect-tree.png){ #fig-inspect-tree }
+can see the TreeSitter tree.](https://bucket.acederberg.io/projects/neovim-gallery/neovim-quarto-html-inspect-tree.png){ #fig-inspect-tree }
 
 :::
 
 To make this happen, I used `:InspectTree` as in @fig-inspect-tree to see which
-pattern I wanted to match, and came up with the the query in @fig-quarto-html-query.
+pattern I wanted to match, and came up with the query in @fig-quarto-html-query.
 In this case, it is enough to stop here. Quarto will recognize that the content
 inside of `{=html}` code blocks should be highlighted as `HTML`.
 
@@ -470,7 +471,7 @@ inside of `{=html}` code blocks should be highlighted as `HTML`.
 
 Query for matching code fences labeled with `{=html}`.
 In my case, I added this to `~/.config/nvim/queries/markdown/injections.scm`.
-Notice the resemblence to @fig-quarto-html-inspect-tree.
+Notice the resemblance to @fig-quarto-html-inspect-tree.
 
 :::
 
@@ -510,8 +511,8 @@ vim.api.nvim_set_hl(0, "@quarto_in_quarto", { bg = "#7c6f64", fg = "#fbf1c7" })
 to highlight the background to `~/.config/nvim/init.lua`. This will only put
 a background behind the text not behind the entire code fence, and it would be
 bad practice to follow the text with whitespace _(since many linters will trim it)_
-thus it makes sense to fill in the remaining background using virual text, the
-same text that is used to provide daiagnostics from language server providers
+thus it makes sense to fill in the remaining background using virtual text, the
+same text that is used to provide diagnostics from language server providers
 and other tools.
 
 ### Extra Fun: Extending Background Code Block Background Highlighting Using Virtual Text
@@ -658,7 +659,7 @@ local function add_codefence_virtual_text(options)
   local ns = vim.api.nvim_create_namespace("quarto_code_bg")
   local bufnr = vim.api.nvim_get_current_buf()
 
-  local parser = vim.treesitter.get_parser(bufnr, "markdown")
+  local parser = vim.TreeSitter.get_parser(bufnr, "markdown")
   local tree = parser:parse()[1]
   local root = tree:root()
 

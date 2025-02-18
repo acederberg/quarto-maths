@@ -317,6 +317,7 @@ $extraColors : ("blue": $blue,
     }
 
     background: url('https://lightningcss.dev/metal.d330902c.webp');
+    box-shadow: 0 0 10px inset var(--bs-black);
     /* background: red; */
     z-index: 1;
 

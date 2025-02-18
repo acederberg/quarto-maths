@@ -1,24 +1,24 @@
 :::: { #resume-experience-mve .experience }
 
-Lead the architecting and implementation of building management and analytics
-SaaS to empower building management teams and owners to optomize and have clear
-insights into their utility usage and expendurature.
+Lead the design and implementation of building management and analytics
+SaaS to empower building management teams and owners to optimize and have clear
+insights into their utility usage and expenditure.
 Designed, implemented, and tested the Cufflink data API (using `python`),
 SaaS continuous integration and delivery across multiple developers and
 projects, and infrastructure as code projects to reliably power the user
 dashboard and deliver new releases.
 
 - Ensured confidentiality, security, and accuracy of customer data from the
-  Cufflink API using `OAuth` to safegaurd API endpoints, `MySQL` to make secure
+  Cufflink API using `OAuth` to safeguard API endpoints, `MySQL` to make secure
   queries, `traefik` to implement `SSL` termination, and writing robust tests
   with `PyTest` to ensure the effectiveness of these measures.
-- Enhanced developer productivity and ensure software quality with automated
+- Improved developer efficiency and ensured software quality with automated
   tests and `docker` builds in `bitbucket` pipelines.
 - Ensured SaaS platform uptime to above `99%`,
   platform stability and reproducibility using `terraform` infrastructure as
   code on `Azure`, and guaranteed rapid software delivery by designing self
   testing deployments using `helm`.
-- Streamlined internal data opperations and created data pipeline visibility by
+- Streamlined internal data operations and created data pipeline visibility by
   initiating the development of an admin dashboard using using `NextJS`.
 
 ::::
