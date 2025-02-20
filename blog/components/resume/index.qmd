@@ -1,0 +1,75 @@
+---
+title: Resume Filter Storybook
+# live_depends_on:
+#   - blog/components/resume/_example_experience.qmd
+#   - blog/components/resume/education.qmd
+#   - blog/components/resume/experience.qmd
+iframes:
+  - identifier: experience-pdf
+    target: blog/components/resume/experience.qmd
+    kind: pdf
+  - identifier: education-pdf
+    target: blog/components/resume/education.qmd
+    kind: pdf
+---
+
+For `HTML` renders, all listings should be transformed into a `list-group`.
+For instance, the following:
+
+## Experience
+
+<!-- START COLUMNS -----------------------------------------------------------> ::::: { .columns }
+
+<!-- START COLUMN ------------------------------------------------------------> :::: { .column .pe-3 }
+
+### <i class="bi bi-filetype-html text-blue"></i> HTML Output
+
+::: { #example-resume-experience }
+
+{{< include _example_experience.qmd >}}
+
+:::
+
+<!-- STOP COLUMN -------------------------------------------------------------> ::::
+
+<!-- START COLUMN ------------------------------------------------------------> :::: { .column .ps-3 }
+
+### <i class="bi bi-file-pdf text-red"></i> PDF Output
+
+[View full PDF output](./example.qmd).
+
+::: { #experience-pdf }
+
+:::
+
+<!-- stop column -------------------------------------------------------------> ::::
+
+<!-- start columns -----------------------------------------------------------> :::::
+
+## Education
+
+<!-- START COLUMNS -----------------------------------------------------------> ::::: { .columns }
+
+<!-- START COLUMN ------------------------------------------------------------> :::: { .column .pe-3 }
+
+### <i class="bi bi-filetype-html text-blue"></i> HTML Output
+
+::: { #example-resume-education }
+
+{{< include _example_experience.qmd >}}
+
+:::
+
+<!-- stop column -------------------------------------------------------------> ::::
+
+<!-- START COLUMN ------------------------------------------------------------> :::: { .column .ps-3 }
+
+### <i class="bi bi-file-pdf text-red"></i> PDF Output
+
+::: { #education-pdf }
+
+:::
+
+<!-- stop column -------------------------------------------------------------> ::::
+
+<!-- start columns -----------------------------------------------------------> :::::

@@ -1,0 +1,150 @@
+---
+title: Storybook Skills
+floaty: null
+under_construction: null
+filters:
+  - ../../filters/skills.py
+  - ../../filters/contacts.py
+  - ../../filters/links.py
+live_reload: true
+live_depends_on:
+  - blog/components/floaty/progress-bg.html
+  - blog/components/floaty/resume-contacts.qmd
+---
+
+Here some of the componants and filters particular to the resume are discussed.
+These componants are build on top of floaty and include some additional configuration.
+Further, these also have `PDF` equivalents - hoverever this must be
+implemented for each floaty item as the intended rendering differs quite a bit.
+
+## Minimal
+
+The following shows what is possible with minimal configuration and presents
+the various sizes in a carousel.
+
+```{=html}
+<style>
+  #sizes {
+    background: var(--bs-gray-200);
+  }
+
+  #sizes .carousel-item {
+    height: 768px;
+  }
+</style>
+```
+
+<!-- START CAROUSEL ----------------------------------------------------------> ::::: { #sizes .carousel .slide }
+
+```{=html}
+<div class="d-flex align-items-center">
+  <button
+    id="next" class="btn btn-outline-primary"
+    type="button" data-bs-target="#sizes"
+    data-bs-slide="prev"
+  >
+    <i class="bi bi-chevron-left fs-1 text-bold"></i>
+  </button>
+  <button
+    id="prev" class="btn btn-outline-primary"
+    type="button" data-bs-target="#sizes"
+    data-bs-slide="next" style="margin-left: auto;"
+  >
+    <i class="bi bi-chevron-right fs-1 text-bold"></i>
+  </button>
+</div>
+```
+
+<!-- START INNER -------------------------------------------------------------> :::: { .carousel-inner }
+
+<!-- ::: { .carousel-item .p5 .active } -->
+
+::: { #skills-minimal }
+
+:::
+
+<!-- ::: -->
+
+<!-- STOP INNER --------------------------------------------------------------> ::::
+<!-- STOP CAROUSEL -----------------------------------------------------------> :::::
+
+```{=html}
+<script>
+
+  function SizesCarousel(){
+    const sizesElem = document.getElementById("sizes")
+    const sizes = new bootstrap.Carousel(sizesElem)
+    const prev = document.getElementById("prev")
+    const next = document.getElementById("next")
+
+    next.addEventListener("click", () => sizes.next())
+    prev.addEventListener("click", () => sizes.prev())
+
+    const sizesInnerElem = sizesElem.querySelector(".carousel-inner")
+    const skillsOg = sizesInnerElem.querySelector("#skills-minimal")
+    skillsOg.remove()
+
+    const indices = Array.from(Array(6).keys())
+    console.log(indices)
+    indices.map((k) => {
+      k = k + 1
+      const sizeClass =`floaty-size-${k}`
+
+      const content = skillsOg.cloneNode(true)
+      content.classList.remove("floaty-size-2")
+      content.classList.add(sizeClass)
+      content.id = `skills-minimal-${k}`
+
+      const caption = document.createElement("div")
+      caption.classList.add("carousel-caption", "text-black")
+      caption.innerHTML = `
+        <h4 class="noanchor">Size From <code>${sizeClass}</code></h4>
+      `
+      content.appendChild(caption)
+
+      const item = document.createElement("div")
+      item.classList.add("carousel-item", "p5")
+      if ( k === 1 ) item.classList.add("active")
+      item.appendChild(content)
+
+      sizesInnerElem.appendChild(item)
+      console.log(item)
+    })
+  }
+
+  SizesCarousel()
+</script>
+```
+
+::: { .callout-note collapse=true }
+
+#### Filter Config: Minimal Configuration
+
+The elements in the above carousel are modifications of the following configuration.
+
+```{.yaml include="_metadata.yaml" snippet=7}
+
+```
+
+:::
+
+## Rows and Custom Progress Bar Classes
+
+Skills can be put into rows just like the base floaty.
+Each row can be customized to have a different color.
+
+::: {#skills-listed}
+
+:::
+
+::: { .callout-note collapse=true }
+
+#### Filter Config: Extended Styles and Rows.
+
+The Following Shows How Individual Configuration can be Specified.
+
+```{.yaml include="_metadata.yaml" snippet=8}
+
+```
+
+:::

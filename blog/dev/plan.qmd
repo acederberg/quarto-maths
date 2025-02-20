@@ -1,0 +1,216 @@
+---
+title: Long Term Plan for Dev Mode
+format:
+  html:
+    mermaid:
+      theme: dark
+toc: false
+tbl-colwidths: [25, 15, 60]
+---
+
+# For Development
+
+## The Big Picture
+
+A few of the goals I have here are
+
+1. `POST /render` should only schedule the job, clients will see the completed
+   job via the websocket.
+2. `WEBSOCKET /` will inform the user when the job is **scheduled, occuring,
+   or completed** using `QuartoRenderJob`, `QuartoRenderExec`, and
+   `QuartoRender` respectively.
+3. This will be executed using a queue and a stack all stored within `MongoDB`.
+   These should accomplish the following:
+   - The first queue will contain scheduled jobs (`QuartoRenderJob`).
+   - A pointer will hold on to the scheduled job while it is transformed into
+     `QuartoRenderExec`, where the command will be computed and executed.
+     This will be done by transforming the head of the queue in place in `MongoDB`
+     after the command has been determined and run (to avoid injections if this
+     is ever deployed in any capacity).
+   - The websocket will know when the front of the queue has changed so it will
+     send the client a notification that the next render has started.
+   - The stack will have every latest render put on the top once the job is
+     dequeued. It will have the status code, `STDOUT`, and `STERR` output
+     attached at this point.
+   - The websocket will know that the top of the stack has changed and thus
+     send out the new items on the stack to the user.
+
+```{mermaid}
+sequenceDiagram
+    actor Client
+    participant WEBSOCKET
+    participant POST
+    participant Handler
+    participant MongoDB
+
+    Client->>+POST: Request Render
+    POST->>-MongoDB: Enqueue Job
+    POST->>Client: Client Sees Scheduled Job
+    MongoDB-->>+WEBSOCKET: Websocket Reads Scheduled Job
+    WEBSOCKET-->>-Client: Client Sees Scheduled Job
+    MongoDB->>Handler: Render Job is Dequeued
+    Handler->>MongoDB: Render Job Marked as Started
+    MongoDB-->>WEBSOCKET: WebSocket Reads Started Job
+    WEBSOCKET-->>Client: Client Sees that Job Started
+    Handler->>Handler: Render Job is Processed
+    Handler->>MongoDB: Completed Job Recorded in MongoDB
+    MongoDB-->>WEBSOCKET: Websocket Sees Completed Job
+    WEBSOCKET-->>Client: Client Sees Completed Job
+```
+
+One notable problem with the diagram above is that the client needs to ask the
+websocket to send events, as the websocket is lazy. Right now, the javascript
+closure `Quarto` has a timer that pings the websocket on a regular interval
+to prompt it to send about completed jobs. This limitation will be removed
+once the code is written so that there is only a single listener.
+
+## Event Lifetime
+
+```{mermaid}
+flowchart LR
+    POST{"`**POST /render** or write`"}
+    WEBSOCKET{"`**WEBSOCKET /**`"}
+
+    POST -->|Job Enqueued| QuartoRenderJob((QuartoRenderJob))
+    QuartoRenderJob -->|Job Dequeued| QuartoRenderExec((QuartoRenderExec))
+    QuartoRenderExec -->|Job Pushed to Stack| QuartoRender((QuartoRender))
+    QuartoRender -->|Websocket Reads Stack| WEBSOCKET
+
+```
+
+## Handler Lifetime
+
+```{mermaid}
+sequenceDiagram
+  actor Client
+  participant FastAPI
+  participant Handler
+  participant MongoDB
+
+  FastAPI ->> Handler: FastAPI App @lifespan Starts Handler
+  Handler ->> MongoDB: Creates a Document for Queue and Stack
+
+  Handler <<->> MongoDB: Handler Routinly Checks MongoDB for New Jobs.
+  Client -->> FastAPI: Use **POST /render** Adds Document to Queue
+  FastAPI -->> Client: Says event is scheduled, ``HTTP 201``.
+
+  Client -->> FastAPI: **POST /handler?idle=true** Stops Watching
+  FastAPI -->> Handler: Handler Stops Watching, ``HTTP 200``.
+
+  Client -->> FastAPI: **POST /render** Tries to Render
+  FastAPI -->> Client: Says event cannot be scheduled yet, ``HTTP 400``.
+
+  Client -->> FastAPI: **POST /handler?idle=false** Starts Watching Again
+  FastAPI <<->> Handler: Wakes up Handler
+  FastAPI -->> Client: Handler Watching Again, ``HTTP 200``
+
+  Handler <<->> MongoDB: Handler Routinly Checks MongoDB for New Jobs.
+  Client -->> FastAPI: Use **POST /render** Adds Document to Queue
+  FastAPI -->> Client: Says event is scheduled, ``HTTP 201``.
+
+
+  FastAPI ->> Handler: FastAPI Stops Handler when @lifespan Over
+
+```
+
+The handler should start a background task in fastapi using the a context
+manager `Handler.listen`. `asyncio.Event` could also be used to tell the
+listener to suspend on certain occasions.
+
+### Handler Listener Implementation
+
+To do this, I would like `Handler.listen` to spawn an [`asyncio.Event`](https://docs.python.org/3/library/asyncio-sync.html#asyncio.Event) which the
+listener could use to tell the listener to start or stop (using `Handler.idle`).
+Stoping the listener can be convenient at times. When the listener is started
+back up it will begin to accept new jobs.
+
+The `Handler` instance would have to store the `asyncio.Event` instance
+to communicate with a watcher `asyncio.Task` created by `listen`.
+
+When the `Handler` is told not to idle, it could push new events to an
+`asyncio.Queue` on the `Handler` instance so that depencies can tune in.
+
+::: { .callout-note collapse=true }
+
+### Example Code for Using a Listener.
+
+I asked GPT to generate an example of something like this.
+My prompt was
+
+> Using asyncio, how can a function push an event to a listener function to tell it to pause, for instance?
+
+And in the response it included the following code:
+
+```python
+import asyncio
+
+
+async def worker(pause_event: asyncio.Event):
+    """Worker function that pauses when pause_event is cleared."""
+    while True:
+        await pause_event.wait()  # Wait until event is set (i.e., not paused)
+        print("Working...")
+        await asyncio.sleep(1)  # Simulate work
+
+
+async def controller(pause_event: asyncio.Event):
+    """Controller function that toggles the pause state."""
+    await asyncio.sleep(3)  # Let the worker run for a while
+    print("Pausing worker...")
+    pause_event.clear()  # Signal worker to pause
+
+    await asyncio.sleep(3)  # Keep it paused for a while
+    print("Resuming worker...")
+    pause_event.set()  # Signal worker to resume
+
+
+async def main():
+    pause_event = asyncio.Event()
+    pause_event.set()  # Initially, allow the worker to run
+
+    worker_task = asyncio.create_task(worker(pause_event))
+    controller_task = asyncio.create_task(controller(pause_event))
+
+    await asyncio.gather(worker_task, controller_task)
+
+
+asyncio.run(main())
+```
+
+:::
+
+# Build Enhancements
+
+Docker builds are so slow it is painful.
+For instance, it took [this build](https://github.com/acederberg/quarto-maths/actions/runs/13208017187/job/36875687217)
+about 15 minutes to finish building the static site, which is horrific.
+Part of the problem is that builds have to
+I would like to implement some build caching for production that could help
+reduce build time.
+
+# Todo
+
+::: { #tbl-todo-handler }
+
+| Item                        | Completed | Description                                                                                                      |
+| --------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------- |
+| `POST /render`              |           | should return scheduled jobs                                                                                     |
+| `WEBSOCKET`                 |           | Should have a single database listener so that clients don't have to ping.                                       |
+| `Handler.listen`            |           | Context manager to allow others to listen, e.g. the above. Should emit `HandlerResult`.                          |
+| `Handler.schedule`          |           | Should be used by `POST /render` to schedule a job.                                                              |
+| `Handler.eval`              |           | Evaluate a scheduled job, mark started job.                                                                      |
+| `Handler.idle`              |           | Tell the handler background task to idle or stop go. This means that it would be possible to pause the listener. |
+| `QuartoRender*` time attrs  |           | Should contain scheduled time, evaluated time, and completed time.                                               |
+| `Ignored` handler data type |           | Should say when handler data is ignored, and it should provide 'reason' of `is_ignored` output.                  |
+| `Handler.walk` -> Jobs      |           | `Handler.walk` should create jobs (instead of paths) and the `Ignored` handler data type (instead of `None`)     |
+| Lazy full builds            |           | Use hashes of `depends_on` and input to determine if rerender is necessary.                                      |
+| Document metadata Stored    |           | Keep live metadata to determine what watch does for some files.                                                  |
+
+: Objectives Handler { .todo-table }
+
+:::
+
+<script type="module">
+  import {hydrate} from '/js/todo.js'
+  hydrate()
+</script>

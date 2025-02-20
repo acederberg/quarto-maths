@@ -1,0 +1,31 @@
+---
+title: "Development Tools"
+format:
+  html:
+    include-in-header:
+      - ./landing-style.html
+navbar: false
+live_reload: true
+---
+
+::: { #landing-listing .fs-2 .py-5 }
+
+- [<i class="bi bi-list-check"></i> Todo List](./todo.qmd)
+- [<i class="bi bi-server"></i> Development Live View](./live.qmd)
+- [<i class="bi bi-file-earmark-pdf"></i> PDF Document Development View](./pdf.qmd)
+- [<i class="bi bi-filetype-md"></i> HTML Document Development View](./quarto.qmd)
+- [<i class="bi bi-filetype-scss"></i> SCSS Development View](./scss.qmd)
+
+:::
+
+```{=html}
+<script type="module">
+  const listingWrapper = document.getElementById("landing-listing")
+  const listing = Array.from(listingWrapper.getElementsByTagName("ul"))
+
+  listing.map(item => {
+    console.log(item)
+    item.classList.add("list-unstyled")
+  })
+</script>
+```

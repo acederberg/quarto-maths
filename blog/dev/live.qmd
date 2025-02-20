@@ -1,0 +1,77 @@
+---
+title: "Live View"
+navbar: false
+live:
+  include_server: true
+  include_quarto: true
+  quarto:
+    count: 32
+    include_logs: true
+    targets: ["*"]
+    reload: false
+---
+
+```{=html}
+<style>
+  .quarto-title > h1.title {
+    opacity: 0 !important;
+  }
+</style>
+```
+
+<!--- Tab controls. -->
+
+```{=html}
+<nav id="dev-nav">
+  <div class="nav nav-tabs" id="nav-tab" role="tablist">
+    <button
+      class="nav-link"
+      id="tab-1"
+      data-bs-toggle="tab"
+      data-bs-target="#live-server-log-container"
+      type="button"
+      role="tab"
+      aria-controls="live-server-log-container"
+      aria-selected="true"
+    >
+      <i class="bi bi-server"></i>
+      <text>Server</text>
+    </button>
+    <button
+      class="nav-link active"
+      id="tab-2"
+      data-bs-toggle="tab"
+      data-bs-target="#live-quarto-renders-container"
+      type="button"
+      role="tab"
+      aria-controls="live-quarto-renders-container"
+      aria-selected="true"
+    >
+      <i class="bi bi-journal-code"></i>
+      <text>Quarto</text>
+    </button>
+  </div>
+</nav>
+```
+
+:::: { #tab-content .tab-content }
+
+::: { #live-server-log-container }
+
+:::
+
+::: { #live-quarto-renders-container .active .show }
+
+:::
+
+::::
+
+```{=html}
+<script>
+  document.getElementById("title-block-header").remove()
+  document.getElementById("quarto-document-content").classList.add("px-1")
+
+  const quartoContent = document.getElementById("quarto-content")
+  quartoContent.classList.remove("page-columns")
+</script>
+```

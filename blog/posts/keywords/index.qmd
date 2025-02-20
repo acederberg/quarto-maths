@@ -1,0 +1,525 @@
+---
+title: Basic Natural Language Processing in `Python` {{< iconify devicon python >}}
+image: https://bucket.acederberg.io/thumbnails/keywords.jpg
+live:
+  quarto:
+    reload: true
+keywords:
+  - python
+  - natural language processing
+  - keywords
+  - nltk
+  - hitchens
+  - salinger
+  - postman
+categories:
+  - python
+  - data science
+filters:
+  - quarto
+  - ../../filters/floaty.py
+  - ../../filters/mermaid.py
+# mermaid_export:
+#   - file: ./blog/posts/keywords/extraction-process.mmd
+#     output: ./extraction-process.svg
+# s3:
+#   - source_url: "https://www.theartofcalligraphy.com/wp-content/uploads/heartsutra-part1.jpg"
+#     path: /thumbnails/keywords.jpg
+floaty:
+  - identifier: banner
+    container:
+      classes:
+        - py-5
+        - my-5
+        - border-5
+        - border
+        - rounded-5
+        - floaty-shadow-1
+      columns: 1
+      size: 1
+    content:
+      - title: Python
+        description: |
+          <h3 style="
+              color: white;
+              font-family: monospace;
+              text-align: center;
+          ">&gt; pip install NLTK
+          </h3>
+        key: python
+        image:
+          iconify:
+            set: devicon
+            name: python
+date: 2-18-2025
+date-modified: 2-18-2025
+---
+
+```{=html}
+<style>
+  #banner {
+    --bg-gradient-primary: var(--bs-gray-800);
+    --bg-gradient-secondary: var(--bs-gray-900);
+
+    border-color: var(--bs-yellow) !important;
+    background: linear-gradient(
+      45deg,
+      var(--bg-gradient-primary),
+      var(--bg-gradient-secondary) 25%,
+      var(--bg-gradient-primary) 25%,
+      var(--bg-gradient-secondary) 50%,
+      var(--bg-gradient-primary) 50%,
+      var(--bg-gradient-secondary) 75%,
+      var(--bg-gradient-primary) 75%,
+      var(--bg-gradient-secondary)
+    );
+    background-color: var(--bs-gray-300);
+  }
+
+  #banner .card {
+    background: none;
+  }
+
+  #banner-text {
+    background: rgba(255, 255, 255, .15);
+    max-width: 512px;
+    margin: auto;
+    color: var(--bs-white);
+    font-family: monospace;
+    text-align: center;
+  }
+
+</style>
+<script>
+  function hydrateBanner(){
+    const banner = document.getElementById("banner")
+
+    const bannerText = document.createElement("div")
+    bannerText.classList.add("pt-5", "fw-bolder", "fs-3")
+    bannerText.innerHTML = `<p
+      id='banner-text'
+      class='rounded-3'
+    >$ pip install NLTK rake-nltk</p>`
+
+    banner.appendChild(bannerText)
+  }
+
+  window.addEventListener("load", hydrateBanner)
+</script>
+```
+
+::: {#banner}
+
+:::
+
+
+
+To oversimplify, natural language processing is a set of strategies used by
+computers to interpret human language. Of course, this is just a blog post
+where you can follow along with my notes as I learn - this is by no means
+exhaustive.
+
+Natural language processing was done using a symbolic approach in its advent (
+implemented as hand written rules, circa 1960) - eventually statistical methods 
+and neural methods were implemented and performed much better.
+
+To get myself started, I will be using natural language processing in this
+blog post to extract keywords from some excerpts.
+
+Python has an excellent natural language processing library called
+[`NLTK`](https://www.nltk.org/). `NLTK` stands for 'natural language tool kit'.
+`NLTK` includes tools for the following computational linguistics concepts
+covered in this blog post:
+
+stemming
+: The process of reducing a word to its root. For instance 'describe',
+'description', and 'describer' all share 'descri'.
+
+tokenizing
+: Tokenisation is the process of turning a sentence into its component phrases,
+words, or subwords. For instance, in the case of subwords 'antigravity' might
+become 'anti' and 'gravity'.
+
+The following figure contains the example text to be processed in today's post:
+
+<!----------------------------------------------------------------------------> ::: { #fig-quotes }
+
+::: { #fig-quotes-salinger .py-3 collapse=true}
+
+> _I thought what I'd do was, I'd pretend I was one of those deaf-mutes. That
+> way I wouldn't have to have any goddam stupid useless conversations with
+> anybody. If anybody wanted to tell me something, they'd have to write it on a
+> piece of paper and shove it over to me. They'd get bored as hell doing that
+> after a while, and then I'd be through with having conversations for the rest
+> of my life. Everybody'd think I was just a poor deaf-mute bastard and they'd
+> leave me alone. I'd cook all my own food, and later on, if I wanted to get
+> married or something, I'd meet this beautiful girl that was also a deaf-mute
+> and we'd get married. She'd come and live in my cabin with me, and if she
+> wanted to say anything to me, she'd have to write it on a piece of paper,
+> like everybody else._
+
+Exercpt from _The Catcher and the Rye_, by _J.D. Salinger_ used in the examples in these notes.
+
+:::
+
+::: { #fig-quotes-postman .py-3 }
+
+> _What Orwell feared were those who would ban books. What Huxley feared was
+> that there would be no reason to ban a book, for there would be no one who
+> wanted to read one. Orwell feared those who would deprive us of information.
+> Huxley feared those who would give us so much that we would be reduced to
+> passivity and egoism. Orwell feared that the truth would be concealed from
+> us. Huxley feared the truth would be drowned in a sea of irrelevance. Orwell
+> feared we would become a captive culture. Huxley feared we would become a
+> trivial culture, preoccupied with some equivalent of the feelies, the orgy
+> porgy, and the centrifugal bumblepuppy. As Huxley remarked in Brave New World
+> Revisited, the civil libertarians and rationalists who are ever on the alert
+> to oppose tyranny "failed to take into account man's almost infinite appetite
+> for distractions." In 1984, Huxley added, people are controlled by inflicting
+> pain. In Brave New World, they are controlled by inflicting pleasure. In
+> short, Orwell feared that what we hate will ruin us. Huxley feared that what
+> we love will ruin us._
+
+Exerpt from _Amusing Ourselves to Death_, by _Niel Postman_ used in the examples in these notes.
+
+:::
+
+::: { #fig-quotes-hitchens .py-3 }
+
+> _We dwell in a present-tense culture that somehow, significantly, decided to
+> employ the telling expression "You're history" as a choice reprobation or
+> insult, and thus elected to speak forgotten volumes about itself. By that
+> standard, the forbidding dystopia of George Orwell's Nineteen Eighty-Four
+> already belongs, both as a text and as a date, with Ur and Mycenae, while the
+> hedonist nihilism of Huxley still beckons toward a painless,
+> amusement-sodden, and stress-free consensus. Orwell's was a house of horrors.
+> He seemed to strain credulity because he posited a regime that would go to
+> any lengths to own and possess history, to rewrite and construct it, and to
+> inculcate it by means of coercion. Whereas Huxley ... rightly foresaw that
+> any such regime could break because it could not bend. In 1988, four years
+> after 1984, the Soviet Union scrapped its official history curriculum and
+> announced that a newly authorized version was somewhere in the works. This
+> was the precise moment when the regime conceded its own extinction. For true
+> blissed-out and vacant servitude, though, you need an otherwise sophisticated
+> society where no serious history is taught._
+
+Excerpt from _Why Americans are not Taught History_ by _Christopher Hitchens_.
+
+:::
+
+<!----------------------------------------------------------------------------> :::
+
+::: { .callout-note collapse='true' }
+
+## Setup
+
+First we will need to import `nltk` and get some text to process.
+The piece of text I choose to use is from _The Catcher and the Rye_ by
+_J.D. Salinger_.
+
+```{python}
+import nltk.tokenize
+from acederbergio import db, util
+import pandas as pd
+from nltk.corpus import stopwords
+
+
+nltk.download("punkt_tab")
+nltk.download("stopwords")
+
+
+# NOTE: From `The Catcher and the Rye` by `J.D. Salenger`.
+#       Source: https://www.goodreads.com/quotes/629243-i-thought-what-i-d-do-was-i-d-pretend-i-was
+text_salinger = """
+I thought what I'd do was, I'd pretend I was one of those deaf-mutes. That way I
+wouldn't have to have any goddam stupid useless conversations with anybody. If
+anybody wanted to tell me something, they'd have to write it on a piece of paper
+and shove it over to me. They'd get bored as hell doing that after a while, and
+then I'd be through with having conversations for the rest of my life.
+Everybody'd think I was just a poor deaf-mute bastard and they'd leave me alone.
+I'd cook all my own food, and later on, if I wanted to get married or
+something, I'd meet this beautiful girl that was also a deaf-mute and we'd get
+married. She'd come and live in my cabin with me, and if she wanted to say
+anything to me, she'd have to write it on a piece of paper, like everybody else
+""".strip().replace(
+    "\n", " "
+)
+
+# NOTE: From `Amusing Ourselves to Death`
+#       Source: https://en.wikipedia.org/wiki/Amusing_Ourselves_to_Death
+text_postman = """
+What Orwell feared were those who would ban books. What Huxley feared was that
+there would be no reason to ban a book, for there would be no one who wanted to
+read one. Orwell feared those who would deprive us of information. Huxley
+feared those who would give us so much that we would be reduced to passivity
+and egoism. Orwell feared that the truth would be concealed from us. Huxley
+feared the truth would be drowned in a sea of irrelevance. Orwell feared we
+would become a captive culture. Huxley feared we would become a trivial
+culture, preoccupied with some equivalent of the feelies, the orgy porgy, and
+the centrifugal bumblepuppy. As Huxley remarked in Brave New World Revisited,
+the civil libertarians and rationalists who are ever on the alert to oppose
+tyranny "failed to take into account man's almost infinite appetite for
+distractions." In 1984, Huxley added, people are controlled by inflicting pain.
+In Brave New World, they are controlled by inflicting pleasure. In short,
+Orwell feared that what we hate will ruin us. Huxley feared that what we love
+will ruin us.
+""".strip().replace(
+    "\n", " "
+)
+
+text_hitchens = """
+  We dwell in a present-tense culture that somehow, significantly, decided to
+  employ the telling expression "You're history" as a choice reprobation or
+  insult, and thus elected to speak forgotten volumes about itself. By that
+  standard, the forbidding dystopia of George Orwell's Nineteen Eighty-Four
+  already belongs, both as a text and as a date, with Ur and Mycenae, while the
+  hedonist nihilism of Huxley still beckons toward a painless, amusement-sodden,
+  and stress-free consensus. Orwell's was a house of horrors. He seemed to strain
+  credulity because he posited a regime that would go to any lengths to own and
+  possess history, to rewrite and construct it, and to inculcate it by means of
+  coercion. Whereas Huxley ... rightly foresaw that any such regime could break
+  because it could not bend. In 1988, four years after 1984, the Soviet Union
+  scrapped its official history curriculum and announced that a newly authorized
+  version was somewhere in the works. This was the precise moment when the regime
+  conceded its own extinction. For true blissed-out and vacant servitude, though,
+  you need an otherwise sophisticated society where no serious history is taught.
+""".strip().replace(
+    "\n", " "
+)
+```
+
+:::
+
+## Tokenisation
+
+Since tokenizing might be done at various scales, `nltk` provides a means to
+do both word and sentence tokenisation.
+
+```{python}
+# | output: false
+import rich.console
+import io
+
+tokens_sent = nltk.tokenize.sent_tokenize(text_salinger)
+tokens_word = nltk.tokenize.word_tokenize(text_salinger)
+
+# NOTE: Use ``rich`` to put results into the terminal.
+console = rich.console.Console(record=True, width=100, file=io.StringIO())
+util.print_yaml(tokens_word[:10], rule_title="Word Tokens", console=console)
+util.print_yaml(tokens_sent, rule_title="Sentence Tokens", console=console)
+console.save_svg("./nlp-tokens-salinger.svg")
+```
+
+![Word and sentence tokens extracted from `@fig-quotes-salinger` using `nltk`s recommended tokenisation.](./nlp-tokens-salinger.svg){ #fig-tokenisation }
+
+Tokenisation is pretty obvious in English due to the use of spaces.
+There are edge cases like abbreviations an ellipsis in sentence tokenisation
+and apostrophes in word tokenisation *(notice that in @fig-quotes-salinger the
+word "I'd" is parsed as "I" and "'d" for instance)*. However,
+in languages like Arabic, Japanese and Chinese word tokenisation is not nearly as 
+straight forward due to the lack of spaces.
+
+[![The 'Heart Sutra', written in Japanese Calligraphy. Credit: `TheArtOfCalligraphy.com`](https://www.theartofcalligraphy.com/wp-content/uploads/heartsutra-part1.jpg)](https://www.theartofcalligraphy.com/heart-sutra-in-japanese)
+
+## Stop Words
+
+Certain words are not worth keeping during tokenisation for particular processes.
+For instance if one is looking for keywords, words like 'is', 'the', 'if' and
+so on should not be considered during tokenisation.
+
+Conveniently, `nltk` provides a list of stop words.
+Stop words can be used in the tokenisation to enhance keyword finding:
+
+```{python}
+# | output: false
+stopwords = set(stopwords.words("english"))
+
+console = rich.console.Console(record=True, width=100, file=io.StringIO())
+util.print_yaml(
+    list(set(tokens_word) - stopwords)[:25],
+    rule_title="Filtered Tokens",
+    console=console,
+)
+console.save_svg("./nlp-tokens-salinger-filtered.svg")
+```
+
+![Filtered token from @fig-tokenisation](./nlp-tokens-salinger-filtered.svg){ #fig-tokenisation-filtered }
+
+## RAKE
+
+The **rapid automatic keyword extraction (RAKE) algorithm** is a convenient means
+for extracting keywords from text. I will not go into implementation details
+today as my priority right now is to visualize results.
+
+The [`rake-nltk` library on `PyPI`](https://pypi.org/project/rake-nltk/) is
+a nice implementation based off of [algorithm as mentioned in paper Automatic
+keyword extraction from individual documents](https://www.researchgate.net/profile/Stuart_Rose/publication/227988510_Automatic_Keyword_Extraction_from_Individual_Documents/links/55071c570cf27e990e04c8bb.pdf).
+
+It exposes the `Rake` class to do keyword extraction and can be used to rank
+phrases. Using this method it is easy to throw together a dataframe ranking
+the various phrases found in some text.
+
+### Extraction Process
+
+For my use-case, the same document will likely show up often.
+For this reason, I would like to save the output dataframe to `MongoDB`
+to save on runtime.
+
+
+```{mermaid }
+%%| fig-align: center
+%%| fig-cap: '**Metric Generation Process**.'
+%%| label: fig-metric-generation
+%%| file: extraction-process.mmd
+```
+
+
+::: { .callout-note collapse=true }
+
+#### `DataFrame` and `Metrics` Code
+
+```{.python include="../../../acederbergio/pdf.py" snippet="metrics"}
+
+```
+
+:::
+
+### Extraction Results
+
+::: {.callout-warning collapse=false}
+
+#### Asynchronous `python` Code in `Jupyter` Notebooks
+
+Top level `await` is supported in jupyter notebooks.
+To any python user who mostly has experience outside of `jupyter` this looks
+quite strange, but it is supported in `jupyter`.
+
+:::
+
+The following code puts the metrics (stored in `pydantic` models) into
+`pandas` dataframes. Then `IPython` is used to turn the tables into `HTML`.
+
+```{python}
+# | output: false
+from acederbergio.pdf import (
+    Metrics,
+    logger,
+)
+
+# NOTE: Tell the logger to quiet down.
+logger.setLevel(50)
+
+
+async def finder(text: str) -> Metrics:
+    config = db.Config()  # type: ignore
+    metadata = dict(origin="quarto", origin_file="nltk.qmd")
+
+    if config.include:
+        client = config.create_client_async()
+        database = client[config.database]
+        df = await Metrics.lazy(database, text=text, metadata=metadata)
+    else:
+        df = Metrics.create(Metrics.createDF(text), text=text, metadata=metadata)
+
+    return df
+
+
+# NOTE: Yucky top level await.
+metrics_postman, metrics_salinger, metrics_hitchens = (
+    await finder(text_postman),  # type: ignore
+    await finder(text_salinger),  # type: ignore
+    await finder(text_hitchens),  # type: ignore
+)
+
+metrics_postman_df = metrics_postman.to_df()
+metrics_salinger_df = metrics_salinger.to_df()
+metrics_hitchens_df = metrics_hitchens.to_df()
+```
+
+```{python}
+# | echo: true
+# | fig-cap: Metrics for the most common key phrases extracted from the texts shown in @fig-quotes using each of the three separate metrics provided by ``nltk_rake.Metrics``. This only includes  the top ten key phrases output from each of the ``Rake`` analysis.
+# | fig-subcap:
+# | - Metrics for @fig-quotes-salinger.
+# | - Metrics for @fig-quotes-postman.
+# | - Metrics for @fig-quotes-hitchens.
+# | label: fig-metrics
+from IPython import display
+
+display.display_html(metrics_salinger_df.head(10))
+display.display_html(metrics_postman_df.head(10))
+display.display_html(metrics_hitchens_df.head(10))
+```
+
+Using these tables, it is now possible to highlight the keywords. Highlighting
+is done by building a string trie of keywords and then matching the sentence
+against the trie. For small documents, the trie mostly branches at the root.
+The following blocks are the results of these analysis, and this is the
+code used to generate the figures to generate figures containing the texts
+with highlighted keywords and metrics charts.
+
+```{python}
+def display_metrics_analysis(metrics: Metrics, metrics_df: pd.DataFrame):
+    return display.display_html(
+        display.HTML(metrics.highlight_html()),
+        metrics_df.query("ratio > 1 and degree > 1 and frequency > 1")
+        .set_index("phrase")
+        .plot.bar(
+            column=["ratio", "frequency", "degree"],
+            subplots=True,
+            title=[None, None, None],
+        ),
+    )
+```
+
+::: { #fig-quotes-hitchens-highlight .border .border-5 .border-yellow .rounded-4 .p-3 .my-5}
+
+```{python}
+# | echo: false
+print()
+display_metrics_analysis(metrics_hitchens, metrics_hitchens_df)
+print()
+```
+
+@fig-quotes-hitchens highlights and metrics visualization.
+
+:::
+
+::: { #fig-quotes-postman-highlight .border .border-5 .border-teal .rounded-4 .p-3 .my-5}
+
+```{python}
+# | echo: false
+display_metrics_analysis(metrics_postman, metrics_postman_df)
+```
+
+Blah blah
+@fig-quotes-postman highlights and metrics visualization.
+
+:::
+
+::: { #fig-quotes-selinger-highlight .border .border-5 .border-pink .rounded-4 .p-3 .my-5}
+
+```{python}
+# | echo: false
+display_metrics_analysis(metrics_salinger, metrics_salinger_df)
+```
+
+@fig-quotes-salinger highlights and metrics visualization.
+
+:::
+
+<!--
+
+comparison = MetricsComparison.compare(metrics_salinger, metrics_postman)
+print(comparison.model_dump_json(indent=2, exclude={"left", "right"}))
+
+comparison = MetricsComparison.compare(metrics_postman, metrics_hitchens)
+print(comparison.model_dump_json(indent=2, exclude={"left", "right"}))
+-->
+
+```{=html}
+<script>
+  const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+  const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+</script>
+```

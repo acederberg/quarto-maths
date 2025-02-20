@@ -1,4 +1,5 @@
 .venv
+
 build
 
 .quarto
@@ -32,3 +33,19 @@ _quarto_internal_scss_error.scss
 dist
 .data
 config
+blog/resume/resume.tex
+blog/resume/resume*.tex
+blog/components/floaty/resume-contacts.tex
+blog/components/floaty/resume-links.tex
+blog/components/resume/experience.tex
+blog/components/floaty/links-and-contents.tex
+blog/components/resume/_example_experience_files/
+blog/components/resume/education.tex
+blog/dev/_live_quarto_table_files/
+blog/projects/blog/typedoc
+blog/projects/blog/quartodoc
+blog/dsa/leetcode/calendar_2/_oops_files/
+.env.actions
+blog/posts/keywords/*.svg
+blog/build-prod
+blog/posts/**/*.svg

@@ -1,0 +1,222 @@
+---
+live_depends_on:
+  - blog/components/floaty/floaty-pure.html
+---
+
+The motivation was to have listings that could open overlays, be wrapped in links,
+or just look pretty and take up some space and provide some information.
+
+Floaties are based on [the bootstrap grid](https://getbootstrap.com/docs/5.3/layout/grid/),
+implemented by reusing some `scss` mixins. This should provide the option to
+put items in bootstrap cards or `floaty-item-container`s.
+
+::: { .callout-note collapse=true }
+
+#### {{< iconify devicon sass >}} `SCSS` Snippets
+
+For brevity, only the following mixin is provided.
+
+```{ .scss include=../../themes/floaty.scss snippet="make-floaty" }
+
+```
+
+:::
+
+## Pure {{< iconify devicon html5 >}} `HTML` and {{< iconify devicon css3 >}}`CSS` Floaty
+
+To start, the following is a `Floaty` implemented using pure `HTML` and
+no pandoc filters. This is to demonstrate what the output of the filters should
+look like.
+
+The following should:
+
+- have icons layed out in a nice `2 X 2` grid,
+- have no hover effects or backgrounds/shadows behind icons or cards,
+- set the cursor to a pointer to suggest clicking.
+
+```{=html}
+{{< include ./floaty-pure.html >}}
+```
+
+::: { .callout-note collapse=true }
+
+### {{< iconify devicon html5 >}} HTML Code
+
+```{.html include=floaty-pure.html snippet="html"}
+
+```
+
+:::
+
+## Floaties from Pandoc Filters {{< iconify devicon python >}}
+
+Pandoc filters make it easy to configure floaties.
+
+### Plain Floaty
+
+With minimal configuration, the following is possible:
+
+::: { #floaty-plain }
+:::
+
+::: { .callout-note collapse=true }
+
+#### Filter Configuration: Minimal Configuration
+
+```{ .yaml include="_metadata.yaml" snippet="0" }
+
+```
+
+:::
+
+### Images With Background and Hover Effect
+
+The following should have icons with
+
+1. a background with rounded corners,
+2. shadows on icons,
+3. and grow on hover - when hovered, there should be no background.
+
+and cards that
+
+1. Have content that do not transform when hovered,
+2. Have no shadows.
+
+::: { #floaty-bg-grow-shadow }
+
+:::
+
+::: { .callout-note collapse=true }
+
+#### Filter Configuration: Null Blocks and Custom Classes
+
+Component wide custom classes are controlled through the `container` block
+of the metadata, for instance `$.container.classes` will tell the `floaty-container`
+to implement some classes.
+
+**Null blocks** are invisible, and to specify these use _unique_ strings as
+items in `$.content`. While `null` list items will work, they do not work
+in `metadata.yaml` _(which is likely a bug of quarto)_.
+
+```{.yaml include="_metadata.yaml" snippet="1"}
+
+```
+
+:::
+
+### Cards With Background and Hover Effect
+
+The following should have cards with
+
+1. a background with rounded corners,
+2. and shadows on background,
+3. no hover effects.
+
+::: { #floaty-bg-card-grow-shadow }
+
+:::
+
+Equal spacing and size of cards may be achieved by adding `null` list items
+to pandoc metadata, e.g. the following should create a diagonal in a `3 X 3`
+grid
+
+::: { .callout-note collapse=true }
+
+#### Filter Configuration: Adding Full Cards.
+
+To add full cards, just add `floaty-card-bg-light` to `$.container.classes`.
+
+```{ .yaml include="_metadata.yaml" snippet=2 }
+
+```
+
+:::
+
+### Bootstrap Icons in a Single Row
+
+The following content:
+
+1. should appear in a single row,
+2. should not have an titles,
+3. use bootstrap icons, shown in red,
+4. include an overlay that opens when cards are clicked.
+
+<!----------------------------------------------------------------------------> ::: { #floaty-bootstrap-overlay }
+
+::: { .overlay-content-item .p-5 data-key=py}
+
+#### Python
+
+:::
+
+::: { .overlay-content-item .p-5 data-key=js}
+
+#### Javascript
+
+:::
+
+::: { .overlay-content-item .p-5 data-key=html}
+
+#### HTML
+
+:::
+
+::: { .overlay-content-item .p-5 data-key=yaml}
+
+#### YAML
+
+:::
+
+::: { .overlay-content-item .p-5 data-key=pdf}
+
+#### PDF
+
+:::
+
+::: { .overlay-content-item .p-5 data-key=alarm}
+
+#### Alarm
+
+:::
+
+<!----------------------------------------------------------------------------> :::
+
+::: { #floaty-bootstrap }
+
+:::
+
+::: { .callout-note collapse=true }
+
+#### Filter Configuration: Bootstrap Mode, Overlays, Disabling Titles and Descriptions, and Single Rows.
+
+- To enable **bootstrap mode**, use `bootstrap` as the value of `$.mode`.
+- Settings columns to `0` should put everything into a **single row** unless more than `1000` icons are specified.
+- To **disable titles**, set `$.containers.include_titles` to `false`.
+- To **disable descriptions**, set `$.containers.include_descriptions` to `false`.
+- To add an **overlay**, put an [overlay object](../overlay/index.qmd) into `$.overlay`.
+
+```{.yaml include="_metadata.yaml" snippet=3}
+
+```
+
+:::
+
+### Bootstrap Icons in Rows
+
+Items in their own rows using [a bootstrap grid](https://getbootstrap.com/docs/5.3/layout/grid/).
+
+::: { #floaty-rows .py-5 }
+
+:::
+
+This can be enabled by setting `columns` to a negative value.
+
+::: { .callout-note collapse=true }
+
+#### Filter Configuration: Table Like Layout using Grids.
+
+```{ .yaml include="_metadata.yaml" snippet=4 }
+
+```
+
+:::

@@ -1,0 +1,63 @@
+---
+title: Storybook Contacts
+filters:
+  - ../../filters/iframe.py
+  - ../../filters/contacts.py
+iframes:
+  - identifier: contacts-pdf-iframe
+    target: blog/components/floaty/resume-contacts.qmd
+live:
+  quarto: {}
+  depends_on:
+    - blog/components/floaty/resume-links.qmd
+---
+
+This the same as [the links filter](./links.qmd) above, except contacts should not contain any links.
+It is possible to change how items are separated using `$.container.tex.sep`.
+Both types are labeled in the pdf view below.
+
+<!-- START COLUMNS -----------------------------------------------------------> ::::: { .columns }
+
+<!-- START COLUMN ------------------------------------------------------------> :::: { .column .pe-3 }
+
+## <i class="bi bi-filetype-html text-blue"></i> HTML Output
+
+::: { #contacts-newline }
+
+:::
+
+<!-- STOP COLUMN -------------------------------------------------------------> ::::
+
+<!-- START COLUMN ------------------------------------------------------------> :::: { .column .ps-3 }
+
+## <i class="bi bi-file-pdf text-red"></i> PDF Output
+
+[View full PDF output](/components/floaty/resume-contacts.pdf).
+
+::: { #contacts-pdf-iframe }
+
+:::
+
+<!-- STOP COLUMN -------------------------------------------------------------> ::::
+
+<!-- END COLUMNS -------------------------------------------------------------> :::::
+
+::: { .callout-note collapse=true }
+
+### Filter Configuration: Contacts
+
+There are no additional configurations for this filter.
+Both of the following are rendered from the same filter configuration.
+The `PDF` output is rendered from the following quarto document:
+
+```{ .qmd include="resume-contacts.qmd" }
+
+```
+
+and the following metadata under `$.floaty-contacts`:
+
+```{ .yaml include="_metadata.yaml" snippet="contacts" }
+
+```
+
+:::

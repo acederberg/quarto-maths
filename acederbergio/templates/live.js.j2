@@ -1,0 +1,63 @@
+{# vi: set ft=django : #}
+// @ts-check
+
+import * as overlay from "/js/overlay.js"
+import * as live from "/js/live/index.js"
+
+function hydrateLive(event) {
+
+  {% if live.quarto and live.include_quarto %}
+    if ( live.LIVE_QUARTO_VERBOSE ) {
+      console.log("Quarto Renders Table ID: {{ live.quarto.table.identifier }}")
+      console.log("Quarto Renders Container ID: {{ live.quarto.container.identifier}}")
+    }
+
+    const overlayRenders = overlay.OverlayInstances.get('{{ live.quarto.renders.identifier }}')
+    const quarto = live.Quarto({
+      filters: {{ filters | tojson }},
+      last: {{ live.quarto.count }},
+      table: document.getElementById('{{ live.quarto.table.identifier }}'),
+      container: document.getElementById('{{ live.quarto.container.identifier }}'),
+      reload: {{ live.quarto.reload | lower }},
+
+      overlayRenders: overlayRenders,
+      banner: live.Banner({
+        overlayInputs: overlay.OverlayInstances.get('{{ live.quarto.inputs.identifier }}'),
+        overlayResponses: overlay.OverlayInstances.get('{{ live.quarto.responses.identifier }}'),
+        overlayRenders: overlayRenders,
+      }),
+    })
+
+    {% if live.quarto.js %}
+      console.log("Running additional js.")
+      {{ live.quarto.js | join("\n") }}
+    {% endif %}
+
+  {% else %}
+    console.log("Live quarto not included.")
+  {% endif %}
+  {#
+      last: 32,
+    serverLogContainer: document.querySelector("#live-logs-server tbody"),
+    serverLogParent: document.querySelector("#tab-content-1"),
+    #}
+
+  {% if live.server and live.include_server %}
+    if ( live.LIVE_SERVER_VERBOSE ) {
+      console.log("Server Logs Table ID: {{ live.server.table.identifier }}")
+      console.log("Server Logs Container ID: {{ live.server.container.identifier}}")
+    }
+
+    const server = live.Server({
+      last: {{ live.server.count }},
+      table: document.getElementById("{{ live.server.table.identifier }}"),
+      container: document.getElementById("{{ live.server.container.identifier }}"),
+    })
+  {% else %}
+    console.log("Live server not included.")
+  {% endif %}
+}
+
+window.addEventListener("load", hydrateLive)
+
+

@@ -1,0 +1,125 @@
+/*-- scss:rules --*/
+
+
+#jolla,
+#links,
+#categories,
+#posts,
+#where-is-the-old-blog,
+#github-statistics {
+  padding-bottom: 256px;
+}
+
+#listing-links .quarto-grid-item {
+  border: none !important;
+}
+
+#listing-links .quarto-grid-item:hover {
+  background: var(--bs-success);
+}
+
+
+
+/* ------------------------------------------------------------------------- */
+/* NOTE: The following is included so that dataframes/tables are easier to 
+*        distinguish from the surrounding text. 
+*/
+
+.no-filter {
+  filter: none !important;
+}
+
+
+.cell {
+  margin-top: 64px;
+  margin-bottom: 64px;
+
+  color: var(--bs-indigo);
+}
+
+.cell * {
+  border-color: var(--bs-indigo);
+}
+
+.cell-output-stdout,
+.dataframe {
+  max-height: 512px !important;
+  overflow-y: scroll;
+}
+
+.cell-output-display,
+.cell-output {
+  .dataframe {
+
+    background: var(--bs-gray-200);
+    border: none;
+
+    tr {
+      border: none;
+
+      &.odd {
+        background: var(--bs-gray-200);
+      }
+
+      td {
+        border: none;
+      }
+    }
+
+  }
+
+  div>p,
+  figcaption,
+  &>p {
+    font-size: medium;
+    font-style: italic;
+    font-weight: lighter;
+
+    padding-left: map-get($spacers, 1);
+    padding-bottom: map-get($spacers, 1);
+    padding-top: map-get($spacers, 1);
+
+    border-left: map-get($border-widths, 5) solid var(--bs-indigo);
+    border-right: 1px solid var(--bs-gray-200);
+    border-bottom: 1px solid var(--bs-gray-200);
+    border-top: 1px solid var(--bs-gray-200);
+    border-radius: 3px;
+  }
+}
+
+
+
+
+.apple-logo {
+  width: calc(0.84 * 512px);
+  height: 512px;
+  filter: invert(1) !important;
+  opacity: 0.1;
+}
+
+
+.quarto-grid-item p.card-img-top>img {
+  object-fit: fill !important;
+  padding: 10px;
+}
+
+
+.quarto-title-banner {
+  filter: opacity(0.7) hue-rotate(1deg);
+}
+
+
+.quarto-title-meta,
+.keywords {
+  display: none !important;
+}
+
+.table {
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+/* .card-img-top img, */
+/* .card-img-top { */
+/*   height: 256px; */
+/* } */

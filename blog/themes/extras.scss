@@ -1,0 +1,68 @@
+/*-- scss:functions --*/
+
+@function createBorderColor($name, $color) {
+
+  @return ((property: border-color,
+      class: border,
+      values: ($name: $color)))
+}
+
+/*
+@function createBackgroundColor($name, $color) {
+  @return ((property: background-color,
+      class: bg,
+      values: ($name: $color)))
+}
+
+
+@function createTextColor($name, $color) {
+  @return ((property: text-color,
+      class: text,
+      values: ($name: $color)))
+}
+*/
+
+
+@function createExtras($colors) {
+
+  $overwrites : ();
+
+  @each $name, $color in $colors {
+    $overwrites: map-merge($overwrites, ("border-#{$name}": createBorderColor($name, $color)));
+  }
+
+  @return $overwrites;
+}
+
+/*--- scss:variables --*/
+$progress-height: 2rem;
+$progress-bar-animation-timing: 1s linear infinite;
+
+/*-- scss:defaults --*/
+$yellow: #FFD43B;
+$green: #c0f700;
+$red: #f10;
+$pink: #f83eec;
+$extraColors : ("blue": $blue,
+  "indigo": $indigo,
+  "purple": $purple,
+  "pink": $pink,
+  "red": $red,
+  "orange": $orange,
+  "yellow": $yellow,
+  "green": $green,
+  "teal": $teal,
+  "cyan": $cyan );
+
+$utilities : ();
+$utilities : map-merge($utilities, createExtras($extraColors));
+
+/*-- scss:rules --*/
+
+
+p code:not(.sourceCode),
+li code:not(.sourceCode),
+td code:not(.sourceCode) {
+  background: var(--bs-body-bg);
+  color: var(--bs-pink);
+}

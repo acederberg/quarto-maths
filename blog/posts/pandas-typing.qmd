@@ -1,0 +1,13 @@
+---
+title: About Type Hints in Pandas
+draft: true
+---
+
+```{python}
+import pandas as pd
+from typing import Annotated
+
+pd.DataFrame[Annotated[pd.Series, float, float]]
+```
+
+see [pandera](https://github.com/unionai-oss/pandera).

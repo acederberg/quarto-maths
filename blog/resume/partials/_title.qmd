@@ -1,0 +1,9 @@
+::: { #resume-title .content-visble when-format="latex"}
+
+```{=latex}
+\begin{center}
+  {\Large \textbf{Adrian Cederberg} \\ Software Engineer} \\
+\end{center}
+```
+
+:::

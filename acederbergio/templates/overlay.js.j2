@@ -1,0 +1,10 @@
+{# vi: set ft=django : #}
+// @ts-check
+
+import { Overlay } from '/js/overlay.js'
+
+Overlay(
+  document.getElementById('{{ overlay.identifier }}'),
+  { {% if overlay.colorize %} colorizeOptions: {{ overlay.colorize.model_dump(mode="json") | tojson }} {% endif %} }
+)
+

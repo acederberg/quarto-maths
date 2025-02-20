@@ -1,0 +1,16 @@
+graph TD
+  InMongoDB[("`
+    Check *MongoDB* for Metrics
+    using **SHA256** of text.
+  `")]
+
+  InputText((Text is Input)) --> InMongoDB
+  InMongoDB -- Yes --> InMongoDBTrue[Return Stored Metrics]
+  InMongoDB -- No --> InMongoDBFalse[Compute New Metrics with Rake]
+
+  InMongoDBFalse -- SHA256 Label --> MongoDBSave[Save to MongoDB]
+  MongoDBSave --> Output{Pydantic Model}
+  InMongoDBTrue --> Output
+  Output --> Dataframe
+
+

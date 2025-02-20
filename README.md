@@ -5,8 +5,12 @@ To see coverage reports, got see [the artifacts on github pages](https://acederb
 
 # Running
 
-For all set ups, make the configuration dir ``config`` and provide your kaggle 
-configuration in ``config/kaggle/kaggle.json``. 
+For all set ups, make the configuration dir ``config`` and provide the kaggle
+configuration in ``config/kaggle/kaggle.json``:
+
+```bash
+mkdir config/kaggle -p
+```
 
 
 ## With Docker Compose
@@ -23,15 +27,51 @@ This will provide access to ``quarto``, ``python``, and ``r``.
 
 ## The Hard Way
 
-First, ensure that ``quarto`` is installed. Then setup a virtual environment and 
-add install the dependencies using ``poetry``:
+First, ensure that ``quarto>=1.6`` is installed. Then set up a virtual 
+environment using `pyenv` and add install the dependencies using ``poetry``:
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install poetry
+# Add python 3.11
+pyenv install 3.11
+
+# Create a virual environment
+pyenv virtualenv 3.11 blog
+
+# Make sure that the executables are seen
+export PATH=$PATH:$VIRTUAL_ENV/bin
+
+# Verify python version. Should be under ``~/.pyenv``
+which python
+which pip
+
+# Install poetry
+pip install poetry
+
+# Install with poetry
 poetry install
+
+# Run the development server
+acederbergio serve dev
 ```
+
+
+# Editing
+
+In theory this should work but I am yet to do this myself. So be aware this is 
+only roughly the process of setting up neovim to play nice with the project
+and virtual environment.
+
+```bash
+# Create an ipython kernel. This is necessary to use `molten.nvim` inside of
+# neovim. It neads `pynvim` to be setup correctly.
+poetry run pip install pynvim
+poetry run python -m ipykernal install --user --name blog
+
+git clone https://github.com/acederberg/nvim-ez --output=~/.config/nvim
+```
+
+Next, open `neovim` and run `:Lazy` in normal and then install the dependencies 
+by hitting `I`.
 
 
 # Building

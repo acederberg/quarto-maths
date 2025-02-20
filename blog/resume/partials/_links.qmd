@@ -1,0 +1,9 @@
+::: { #resume-links }
+
+:::
+
+::: { .fw-light .text-center .fst-italic .content-visible when-format="html" .py-5 .text-muted }
+
+All links will open in a new tab.
+
+:::

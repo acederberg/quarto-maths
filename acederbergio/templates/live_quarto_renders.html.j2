@@ -1,0 +1,17 @@
+{# vi: set ft=django : #}
+{% if quarto.include_logs %}
+  <div id="{{ quarto.container.identifier }}" class="{{ quarto.container.classes | default([]) | join(" ") }} {{ element.classes | join(" ") }}">
+    <table  id="{{ quarto.table.identifier }}" class="{{ quarto.table.classes | default([]) | join(" ") }}">
+      <thead style="display: none;">
+        <tr class="quarto-row">
+          <th class="quarto-log-kind">Kind</th>
+          <th class="quarto-log-time">Time</th>
+          <th class="quarto-log-target">Level</th>
+          <th class="quarto-log-origin">Message</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+{% endif %}

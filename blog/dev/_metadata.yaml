@@ -1,0 +1,13 @@
+format:
+  html:
+    page-layout: full
+    theme:
+      light:
+        - themes/extras.scss
+        - cyborg
+        - themes/live.scss
+        - themes/floaty.scss
+        - themes/index.scss
+        - themes/overlay.scss
+        - themes/resume.scss
+

@@ -1,0 +1,22 @@
+::: { #resume-profile .py-5 }
+
+<!---
+Version 1
+
+Software engineer with development operations engineering experience with success in
+building software as a service from scratch, developing APIs, quality assurance,
+containerization, enhancing and automating developer workflows and
+productivity, and architecting highly reliable deployments and infrastructure.
+Background in applied mathematics and engineering.
+--->
+
+Software engineer with expertise in architecting and implementing REST APIs
+with `python`, success in building SaaS, and DevOps/Cloud engineering to
+support SaaS (with `teraform`) for hundreds of users in a startup environment.
+Proven track record of enhancing developer productivity and ensuring
+bulletproof deployments through automation (in `bitbucket` pipelines and
+`github actions`) and containerization/reliability (with `kubernetes`).
+Background in applied mathematics and engineering with a long term obsession
+in software and technology.
+
+:::

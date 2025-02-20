@@ -1,0 +1,154 @@
+---
+title: "Pandoc Filter: Under Construction"
+filters:
+  - ../../filters/under_construction.py
+floaty: {}
+---
+
+The under construction filter is used to inject some content indicating to the
+user that a section is not quite ready.
+
+## Whole Page
+
+Using a fenced `div` with id `under-construction-1` should result in the
+following:
+
+::: { #under-construction }
+
+:::
+
+## Available Sizes
+
+Aside from the whole page, the `under-construction` filter can be used for
+individual sections and is available in the same sizes as floaty. Just use
+`under-construction-{size}`.
+
+<!-- START CAROUSEL ----------------------------------------------------------> ::::: { #sizes .carousel .slide }
+
+```{=html}
+<div class="d-flex align-items-center">
+  <button
+    id="next" class="btn btn-outline-primary"
+    type="button" data-bs-target="#sizes"
+    data-bs-slide="prev"
+  >
+    <i class="bi bi-chevron-left fs-1 text-bold"></i>
+  </button>
+  <button
+    id="prev" class="btn btn-outline-primary"
+    type="button" data-bs-target="#sizes"
+    data-bs-slide="next" style="margin-left: auto;"
+  >
+    <i class="bi bi-chevron-right fs-1 text-bold"></i>
+  </button>
+</div>
+```
+
+<!-- START INNER -------------------------------------------------------------> :::: { .carousel-inner }
+
+```{=html}
+<style>
+  #sizes {
+    background: var(--bs-gray-200);
+  }
+
+  #sizes .carousel-item {
+    height: 512px;
+  }
+</style>
+```
+
+```{python}
+# | echo: false
+# | output: asis
+
+# fmt: off
+tmp = (
+"""::: {{ .carousel-item {rest} .p-5 }}
+
+::: {{ .carousel-caption .text-black }}
+
+### ``{scss}``
+
+This ``under-construction`` is styled using ``{scss}``.
+
+:::
+
+::: {{ #{scss} .{scss} }}
+
+:::
+
+:::
+
+""")
+# fmt: on
+
+for size in range(1, 7):
+    scss = f"under-construction-{size}"
+    print(tmp.format(scss=scss, rest="" if size != 1 else ".active"))
+```
+
+<!-- STOP INNER --------------------------------------------------------------> ::::
+<!-- STOP CAROUSEL -----------------------------------------------------------> :::::
+
+```{=html}
+<script>
+  const sizes = new bootstrap.Carousel(document.getElementById("sizes"))
+  const prev = document.getElementById("prev")
+  const next = document.getElementById("next")
+
+  next.addEventListener("click", () => sizes.next())
+  prev.addEventListener("click", () => sizes.prev())
+</script>
+```
+
+## Customization
+
+Since this is derivative of floaty, many of the options for `floaty` are
+available.
+
+### Using Bootstrap Icons
+
+The following uses the default bootstrap icons.
+
+::: { #uses-bootstrap }
+
+:::
+
+::: { .callout-note collapse=true }
+
+#### Filter Configuration: Boostrap Icons, Custom Classes and Content.
+
+Bootstrap icons are enabled the same as in `floaty` - by setting `$.container.mode` to `boostrap`.
+Custom classes and content are the same as in `floaty`, `$.content`
+should just be a partial `ConfigFloatyItem` and not a map from strings to
+`ConfigFloatyItem`. It is not necessary to specify all fields, just to
+specify an overwrites on the defaults.
+
+```{ .yaml include="_metadata.yaml" snippet=5 }
+
+```
+
+:::
+
+### Floaty Features
+
+All of the properties of floaty should hold true, any floaty classes should be
+added.
+
+::: { #custom }
+
+:::
+
+::: { .callout-note collapse=true }
+
+#### Filter Configuration: Floaty Classes
+
+This should work exactly like in `floaty`, just use all of the `classes_`
+prefixed options in `container` to specify any additional classes.
+
+```{ .yaml include="_metadata.yaml" snippet=6 }
+
+```
+
+:::

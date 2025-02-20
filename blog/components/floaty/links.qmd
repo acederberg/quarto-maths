@@ -1,0 +1,62 @@
+---
+iframes:
+  - identifier: links-pdf-iframe
+    target: blog/components/floaty/resume-links.qmd
+    kind: pdf
+    height: "256"
+title: Storybook Links
+filters:
+  - ../../filters/links.py
+  - ../../filters/iframe.py
+live_reload: true
+live_depends_on:
+  - blog/components/floaty/resume-links.qmd
+---
+
+This should render some tex links as [font awesome]() icons.
+In this case, `$.container.tex.sep` is `hfill` which will cause them to appear all on the same line.
+
+<!-- START COLUMNS -----------------------------------------------------------> ::::: { .columns }
+
+<!-- START COLUMN ------------------------------------------------------------> :::: { .column .pe-3 }
+
+## <i class="bi bi-filetype-html text-blue"></i> HTML Output
+
+::: { #links-newline }
+
+:::
+
+<!-- STOP COLUMN -------------------------------------------------------------> ::::
+
+<!-- START COLUMN ------------------------------------------------------------> :::: { .column .ps-3 }
+
+## <i class="bi bi-file-pdf text-red"></i> PDF Output
+
+[View full PDF output](/components/floaty/resume-links.pdf)
+
+::: { #links-pdf-iframe }
+
+:::
+
+<!-- STOP COLUMN -------------------------------------------------------------> ::::
+
+<!-- END COLUMNS -------------------------------------------------------------> :::::
+
+::: { .callout-note collapse=true }
+
+## Filter Configuration: Links
+
+There are no additional configurations for this field.
+The `PDF` output is rendered from the following quarto document:
+
+```{quarto}
+{{< include resume-links.qmd >}}
+```
+
+and the following metadata under `$.floaty-links`:
+
+```{ .yaml include="_metadata.yaml" snippet="links" }
+
+```
+
+:::

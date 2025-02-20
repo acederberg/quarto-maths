@@ -1,0 +1,425 @@
+/*-- scss:rules --*/
+.nav-tabs .nav-link.active {
+  background-color: var(--bs-black) !important;
+  border-bottom: none;
+}
+
+#tab-content .tab-pane {
+  height: 80vh;
+  overflow-y: scroll;
+  scrollbar-color:
+    var(--bs-gray-900) var(--bs-black);
+}
+
+
+/* Ammendments to make overlay look nice. */
+.live-overlay {
+  background-color: rgba(0, 0, 0, .3) !important;
+  backdrop-filter: blur(5px) !important;
+  z-index: 1050; // Should be higher than the default.
+
+  .overlay-content {
+    /* Somehow this (setting height in any way) makes overflow work. */
+    width: 90vw !important;
+    height: 80vh !important;
+    overflow: hidden;
+    background: var(--bs-black) !important;
+
+    backdrop-filter: blur(7px);
+
+    .overlay-content-items {
+      .overlay-content-item {
+        scrollbar-color:
+          var(--bs-gray-900) var(--bs-black);
+
+        height: 80vh !important;
+        background: var(--bs-black);
+        overflow-y: scroll;
+
+        .terminal {
+          height: auto;
+          display: block;
+          margin-bottom: 128px; // Add some whitespace to avoid not showing all content.
+        }
+      }
+    }
+
+    .overlay-controls {
+      .overlay-controls-exit {
+        margin-left: auto;
+      }
+    }
+
+  }
+
+  &.when-navbar {
+    background-color: rgba(0, 0, 0, .8) !important;
+
+    .overlay-content {
+      height: 74vh !important;
+
+      .overlay-content-items {
+        .overlay-content-item {
+          height: 70vh !important;
+        }
+      }
+    }
+  }
+
+}
+
+
+
+
+
+.quarto {
+  word-break: break-all;
+  table-layout: fixed;
+  border: none;
+  background: none;
+  font-family: monospace;
+  font-size: medium;
+  color: var(--bs-white);
+
+  td {
+    align-content: center;
+
+    p {
+      margin: 0
+    }
+  }
+
+  .quarto-row {
+    transition: border-color 30s, color 30s;
+
+    &.highlight {
+      background: var(--bs-black);
+      border-color: var(--bs-yellow) !important;
+    }
+
+    &.highlight * {
+      color: var(--bs-yellow) !important;
+    }
+  }
+
+  .quarto-success {
+    border-left: 3px solid var(--bs-black);
+    border-right: 3px solid var(--bs-black);
+
+  }
+
+  .quarto-failure {
+    background-color: rgba(255, 0, 0, 0.05) !important;
+    color: var(--bs-red);
+  }
+
+
+
+  .quarto-static {
+    color: var(--bs-primary) !important;
+  }
+
+
+  /* .quarto-success-new { */
+  /*   border-color: var(--bs-teal) !important; */
+  /*   color: var(--bs-white) !important; */
+  /* } */
+  /**/
+  /* .quarto-failure-new { */
+  /*   border-color: red !important; */
+  /*   color: var(--bs-white); */
+  /* } */
+
+  .quarto-log-from {
+    width: 7vw;
+  }
+
+  .quarto-log-kind {
+    width: 7vw;
+  }
+
+  .quarto-log-info,
+  .quarto-log-render {
+    width: 3vw;
+  }
+
+  .quarto-log-time {
+    width: 15vw;
+  }
+
+  i.bi-info-circle:hover,
+  i.bi-arrow-repeat:hover {
+    color: var(--bs-white);
+  }
+}
+
+
+.terminal {
+
+  word-break: break-all;
+  text-align: left !important;
+  table-layout: fixed;
+  font-size: medium;
+  border: none;
+  font-family: monospace;
+  font-weight: bolder;
+  background: var(--bs-black);
+
+  * {
+    border: none;
+  }
+
+  td {
+    padding-top: 0px;
+    padding-bottom: 0px;
+  }
+
+  .terminal-row {
+    width: 100%;
+    display: block;
+  }
+
+  .quarto-target,
+  .quarto-origin,
+  .quarto-exit-code,
+  .quarto-command {
+    color: var(--bs-white);
+  }
+
+
+  .terminal-row {
+    .terminal-row-time {
+      /* width: 16vw; */
+      color: var(--bs-teal);
+      width: 10vw;
+    }
+
+    .terminal-row-level {
+      color: var(--bs-success);
+      width: 5vw;
+    }
+
+    .info {
+      color: var(--bs-info);
+    }
+
+    .warning {
+      color: var(--bs-warning);
+    }
+
+    .critical {
+      color: var(--bs-danger);
+    }
+
+    .terminal-row-msg,
+    .terminal-row-name {
+      color: var(--bs-white);
+    }
+
+    .terminal-row-name {
+      text-align: right;
+      width: 15vw;
+    }
+
+    .terminal-row-msg {
+      width: 65vw;
+    }
+
+    .uvicorn-ip {
+      color: var(--bs-green);
+    }
+
+    .uvicorn-port {
+      color: var(--bs-blue);
+    }
+
+    .uvicorn-method {
+      color: var(--bs-yellow);
+    }
+
+    .uvicorn-path {
+      color: var(--bs-white);
+    }
+
+    .uvicorn-status {
+      color: var(--bs-blue);
+    }
+
+    .uvicorn-protocol {
+      color: var(--bs-red);
+    }
+  }
+}
+
+
+.overlay-content-item .terminal {
+  $padding-x: map-get($spacers, 3);
+  $padding-y: map-get($spacers, 5);
+
+  white-space: break-spaces;
+  padding-top: $padding-y;
+  padding-bottom: $padding-y;
+  padding-right: $padding-x;
+  padding-left: $padding-x;
+}
+
+
+
+.banner-tooltip {
+  --bs-tooltip-zindex: 9001;
+  --bs-tooltip-color: var(--bs-black);
+  --bs-tooltip-bg: var(--bs-white);
+
+}
+
+#quarto-render-notification {
+  @include make-container();
+
+
+  transition: 15s border-color;
+  z-index: 9000;
+  width: 100%;
+  color: var(--bs-white);
+  background: var(--bs-black);
+  position: fixed !important;
+  bottom: 0 !important;
+  border-top: 2px solid var(--bs-black);
+  border-bottom: 2px solid var(--bs-black);
+  padding-top: 5px;
+  padding-bottom: 5px;
+
+
+  &.success {
+    border-color: $teal;
+
+    i {
+      color: $teal
+    }
+
+    &.new {
+      border-color: $blue;
+
+    }
+  }
+
+  &.failure {
+    border-color: $orange;
+
+    i {
+      color: $orange
+    }
+
+    &.new {
+      border-color: $red;
+    }
+
+  }
+
+  .banner-content {
+    @include make-row();
+
+
+    .banner-controls {
+      display: flex;
+      align-items: center;
+
+      .banner-controls-container {
+
+        margin: auto;
+
+        button {
+          border: 1px solid var(--bs-black);
+          border-radius: 3px;
+          margin-right: 1px;
+          margin-left: 1px;
+          transition: 0.1s border-color;
+
+          i {
+            transition: 1s color;
+          }
+
+          &:hover {
+            border-color: var(--bs-white);
+
+            i {
+              color: var(--bs-white);
+            }
+
+          }
+        }
+      }
+
+    }
+
+    .banner-text {
+
+      display: flex;
+      align-items: center;
+      border-left: none;
+
+      .banner-text-container {
+        text-align: center !important;
+        margin: auto;
+
+        code {
+          background: $black;
+          color: var(--bs-yellow);
+        }
+      }
+    }
+
+    @include media-breakpoint-up(xxl) {
+      $border-sides: 1px solid var(--bs-gray-800);
+
+      .banner-controls {
+        @include make-col(4);
+
+        border-left: $border-sides;
+        border-right: $border-sides;
+      }
+
+      .banner-text {
+        @include make-col(8);
+
+        border-left: $border-sides;
+        border-right: $border-sides;
+      }
+    }
+
+    @include media-breakpoint-down(xxl) {
+      .banner-controls {
+        @include make-col(12);
+      }
+
+      .banner-text {
+        @include make-col(12);
+      }
+    }
+  }
+
+
+
+
+}
+
+.quarto .spinner-border,
+#quarto-render-notification .spinner-border {
+  height: 1em;
+  width: 1em;
+  border-width: 2px;
+}
+
+#server-controls button,
+#quarto-controls button {
+  margin-right: 3px;
+}
+
+
+.quarto-embed {
+  filter: contrast(0.9);
+  transition: 10s filter;
+
+  &.new {
+    filter: contrast(0.5) blur(1px);
+  }
+}

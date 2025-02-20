@@ -1,0 +1,14 @@
+```{=html}
+<table class="table table-borderless quarto p-2" id="live-server-logs-table">
+  <thead style="display: none;">
+    <tr class="quarto-row">
+      <th class="quarto-log-kind">Kind</th>
+      <th class="quarto-log-time">Time</th>
+      <th class="quarto-log-target">Level</th>
+      <th class="quarto-log-origin">Message</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+```

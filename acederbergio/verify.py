@@ -319,7 +319,7 @@ class Metadata(Minimal):
 
         q = [match, lookup, fix_depth]
         if depth is not None:
-            q.append({"$limit": depth})
+            q.append({"$limit": depth}) # type: ignore
 
         return q
 
@@ -571,7 +571,6 @@ class Handler:
             if use_timestamp
             else metadata.aggr_linkedlist(self.source)
         )
-        print(q)
         items = collection.aggregate(q)
 
         if not use_timestamp:

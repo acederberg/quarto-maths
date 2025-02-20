@@ -1,0 +1,62 @@
+---
+title: Testing Floaty Grid Resizes
+format:
+  html:
+    page-layout: full
+---
+
+## Responsiveness To Resizing
+
+In certain viewports it is better to reduce/increase the number of
+columns and move tooltips to card descriptions.
+For this reason I wrote some additional javascript to make this possible.
+The following should demonstrate this - to test the functionality, resize the
+window or open the developer console.
+
+::: { #floaty-with-resize }
+
+:::
+
+| Boostrap Breakpoint Size | Start of Range | End of Range | Columns |
+| ------------------------ | -------------- | ------------ | ------- |
+| xs                       | -              | 576px        | 1       |
+| sm                       | 576px          | 768px        | 1       |
+| md                       | 768px          | 992px        | 2       |
+| lg                       | 992px          | 1200px       | 3       |
+| xl                       | 1200px         | 1400px       | 5       |
+| xxl                      | 1400px         | -            | 5       |
+
+: Number of columns to expect for various window widths. { #tbl-letters .table-striped .table-borderless }
+
+::: { .callout-warning }
+
+When a floaty has a number of items that is not nicely divisible by the number
+of columns, some empty cards are inserted to make the final row of cards even.
+
+:::
+
+::: { .callout-note collapse=true }
+
+### Filter Configuration: Responsive Resizing
+
+The following configuration will enable resizing.
+In particular, `$.container.resize` should map breakpoint sizes as in
+to a number of columns. It can also be set to `true` which will
+cause it to use the defaults specified by the javascript module.
+Similarly, `$.container.tooltipsToggle` can be set to a particular bootstrap
+breakpoint size or use the default by setting it to `true`.
+Once the window width is within the bounds for the specified size, it should
+turn tooltips into descriptions.
+
+```{ .yaml include="_metadata.yaml" snippet="resize" }
+
+```
+
+The following anchors are used in the above:
+
+```{ .yaml include="_metadata.yaml" snippet="resizeDefinitions" }
+...
+
+```
+
+:::

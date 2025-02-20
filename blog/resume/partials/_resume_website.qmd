@@ -1,0 +1,3 @@
+```{=latex}
+\href{https://acederberg.io/resume/resume.pdf}{\faFilePdf { Most Recent Resume }}
+```

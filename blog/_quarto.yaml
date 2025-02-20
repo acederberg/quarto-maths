@@ -13,6 +13,55 @@ project:
     port: 3000
     browser: false
 jupyter: python3
+# NOTE: This is currently half baked, and documentation will not be completed
+#       for quite a while. This is being added for the sake of completeness of
+#       the components demos/docs since js docs already exist.
+quartodoc:
+  title: acederberg.io
+  package: acederbergio
+  dir: ../blog/projects/blog/quartodoc
+  parser: sphinx
+  rewrite_all_pages: true
+  options: {}
+  sections:
+    - title: Quarato Filters
+      desc: Custom filters utilitized by quarto.
+      contents:
+        - name: overlay
+          package: acederbergio.filters
+        - name: floaty
+          package: acederbergio.filters
+        - name: live
+          package: acederbergio.filters
+        - name: resume
+          package: acederbergio.filters
+        - name: iframe
+          package: acederbergio.filters
+
+    - title: Utilities
+      desc: Utilities for building and writing filters and API endpoints.
+      options:
+        exclude: [cli_show_environ, cli_show_logging, cli_find, cli]
+      contents:
+        - name: env
+        - name: util
+        - name: iconify
+
+    - title: Development API
+      desc: Development Mode API
+      options:
+        exclude: []
+      contents:
+        - name: quarto
+          package: acederbergio.api
+
+
+  # - title: API Documentation
+  #   desc: API Documentation Beyond that Provided by Swagger.
+  #   contents:
+  #     - name: api.schemas
+
+
 website:
   favicon: ./icons/favicon.svg
   twitter-card:
@@ -50,12 +99,49 @@ website:
                       href: ./projects/blog/instructions.qmd
                     - text: 'Docker and Quarto'
                       href: ./projects/blog/build.qmd
-                    # - text: 'Quality Assurence'
-                    #   href: ./projects/blog/qa.qmd
                     - text: 'How is the Blog Deployed?'
                       href: ./projects/blog/deploy.qmd
                     - text: Static Quarto Websites in Kubernetes
                       href: ./posts/quarto-kube-static/index.qmd
+
+                - section: Components and Filters
+                  contents:
+                    - section: IFrames
+                      contents:
+                        - text: Demo
+                          href: ./components/iframe/index.qmd
+                        - text: "Docs: Pandoc Filter"
+                          href: "./projects/blog/quartodoc/iframe.qmd"
+                    - section: Overlay
+                      contents:
+                        - text: Demo
+                          href: ./components/overlay/index.qmd
+                        - text: "Docs: Pandoc Filter"
+                          href: "./projects/blog/quartodoc/overlay.qmd"
+                        - text: "Docs: Javascript"
+                          href: "./projects/blog/typedoc/overlay.qmd"
+                    - section: Floaty
+                      contents:
+                        - text: "Demo: Overview"
+                          href: ./components/floaty/index.qmd
+                        - text: "Demo: Skills"
+                          href: ./components/floaty/skills.qmd
+                        - text: "Demo: Contacts"
+                          href: ./components/floaty/contacts.qmd
+                        - text: "Demo: Links"
+                          href: ./components/floaty/links.qmd
+                        - text: "Demo: Under Construction"
+                          href: ./components/floaty/under-construction.qmd
+                        - text: "Docs: Pandoc Filter"
+                          href: "./projects/blog/quartodoc/floaty.qmd"
+                        - text: "Docs: Javascript"
+                          href: "./projects/blog/typedoc/floaty.qmd"
+                    - section: Resume
+                      contents:
+                        - text: Demo
+                          href: ./components/resume/index.qmd
+                        - text: "Docs: Pandoc Filter"
+                          href: "./projects/blog/quartodoc/resume.qmd"
 
             - section: Nvim Configuration
               contents:
@@ -63,10 +149,6 @@ website:
                   href: ./projects/nvim-config/index.qmd
                 - title: Gallery
                   href: ./projects/nvim-config/gallery.qmd
-                  # - title: Configuration ReadMe
-                  #   href: ./projects/nvim-config/instructions.qmd
-
-
 
             - section: Blog and Demo Automation
               contents:
@@ -106,9 +188,23 @@ website:
       - text: Leetcode
         href: /dsa/leetcode
 theme:
-  light: [cosmo, ./themes/index.css, ./themes/overlay.css, ./themes/floaty.scss, ./themes/resume.scss]
+  light:
+    - themes/extras.scss
+    - cosmo
+    - themes/live.scss
+    - themes/floaty.scss
+    - themes/index.scss
+    - themes/overlay.scss
+    - themes/resume.scss
+    - themes/glow.scss
+    - themes/landing-page.scss
 format:
   html:
+    # NOTE: Mermaid formatting does not play  nice in the container.
+    #       Just use mermaid CLI to make SVGs for thumbnails etc
+    # # https://quarto.org/docs/authoring/diagrams.html#mermaid-formats
+    # mermaid-format: svg
+    layout: full-page
     code-fold: false
     embed-resources: false
     # template-partials:
@@ -117,14 +213,22 @@ format:
       - file: ./includes/iconify.html
       - file: ./includes/external_links.html
       - file: ./includes/overlay.html
+      - file: ./includes/floaty.html
+      - file: ./includes/live.html
 
 author:
   - name: Adrian Cederberg
     url: acederberg.io
     email: adrn.cederberg123@gmail.com
+
 filters:
   - include-code-files
   - iconify
+  - quarto
+  - ./filters/live.py
+  - ./filters/overlay.py
+  - ./filters/floaty.py
+
 execute:
   freeze: true
   cache: true

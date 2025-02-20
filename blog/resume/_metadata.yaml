@@ -1,0 +1,979 @@
+definitions:
+  skills:
+    classes:
+      classes_progress_impl: &classes-progress-impl
+        - bg-indigo
+        - progress-bar-striped
+        - progress-bar-animated
+      classes_progress_front_end: &classes-progress-front-end
+        - "bg-blue"
+        - "text-white"
+        - "progress-bar-animated"
+        - "progress-bar-striped"
+      classes_progress_back_end: &classes-progress-back-end
+        - "bg-yellow"
+        - "progress-bar-animated"
+        - "progress-bar-striped"
+      classes_progress_devops: &classes-progress-devops
+        - "bg-teal"
+        - "progress-bar-animated"
+        - "progress-bar-striped"
+
+
+    containers:
+      # NOTE: Container for floaties at the end of the HTML resume.
+      #       Do not include fields incompatible with ``FloatyContainer`` since
+      #       this is also used for projects.
+      main: &skills-container-main
+        mode: bootstrap
+        size: 5
+        columns: 2
+        include_titles: true
+        include_tooltips: true
+        classes: []
+        resize:
+          xs: 1
+          sm: 1
+          md: 2
+          lg: 2
+          xl: 2
+          xxl: 4
+        classes_card_images:
+          - px-5
+          - py-3
+        classes_items:
+          - py-3
+        attributes_cards:
+          data-bs-offset: '[0,32]'
+          data-bs-placement: bottom
+          data-card-tooltip-toggle: 'true'
+
+      # NOTE: The rows in the skills overlay.
+      overlay-content: &skills-container-overlay-content
+        size: 6
+        include_titles: true
+        columns: -9000
+        classes: [px-5]
+        classes_rows: [py-3]
+
+      # NOTE: How overlay header content should look.
+      overlay-head: &skills-container-overlay-head
+        mode: bootstrap
+        size: 1
+        columns: 1
+        include_titles: true
+        include_tooltips: false
+        classes:
+          - m-5
+    contents:
+      code: &skill-code
+        title: Code
+        key: impl
+        tooltip: Learn more about my programming skills in general.
+        since: 2017-08-01
+        image:
+          iconify:
+            set: misc
+            name: binary
+          bootstrap:
+            name: code-slash
+            # code, braces, regex, etc.
+
+      back-end: &skill-back-end
+        title: Back End
+        key: api-and-db
+        tooltip: Learn more about my experience implementing REST APIs and database applications.
+        since: 2021-02-01
+        image:
+          iconify:
+            set: misc
+            name: api
+          bootstrap:
+            name: database-fill-gear
+
+      front-end: &skill-front-end
+        title: Front End
+        tooltip: Learn more about my experience with user interface and dashboard design and implementation.
+        key: uiux
+        since: 2021-05-01
+        image:
+          iconify:
+            set: misc
+            name: dashboard
+          bootstrap:
+            name: speedometer
+
+      cloud: &skill-cloud
+        title: Cloud/DevOps
+        tooltip: Learn about my automation, containerization, and cloud engineering experience
+        key: devops
+        since: 2021-06-01
+        image:
+          iconify:
+            set: misc
+            name: devops
+          bootstrap:
+            name: cloud-lightning-fill
+filters:
+  - ../filters/links.py
+  - ../filters/contacts.py
+links:
+  - identifier: resume-links
+    container:
+      tex:
+        sep: "hfill"
+      columns: 0
+      include_tooltips: true
+      include_href: true
+      include_descriptions: false
+      include_titles: true
+      size: 6
+      mode: bootstrap
+      resize:
+        xxl: 4
+        xl: 4
+        lg: 2
+        md: 2
+        sm: 1
+        xs: 1
+      classes:
+        - py-3
+      classes_cards:
+        - py-2
+        - rounded-3
+      attributes_cards:
+        data-bs-placement: bottom
+        data-bs-offset: '[0,16]'
+        data-card-tooltip-toggle: 'true'
+    content:
+      - key: linkedin
+        title: Linkedin
+        tooltip: Check out my profile on LinkedIn.
+        href: https://www.linkedin.com/in/adrian-cederberg-b453571b9
+        label: Linkedin
+        image:
+          tex:
+            font_awesome: faLinkedin
+          iconify:
+            set: devicon
+            name: linkedin
+          bootstrap:
+            name: linkedin
+            classes:
+              - text-blue
+
+      - key: github
+        title: Github
+        tooltip: Check out my Github profile! This is the best place to learn about my skills.
+        href: https://github.com/acederberg
+        label: Github
+        image:
+          tex:
+            font_awesome: faGithub
+          iconify:
+            set: devicon
+            name: github
+          bootstrap:
+            name: github
+            classes:
+              - text-black
+
+      - key: website
+        title: Website
+        tooltip: My website - projects, articles, blog posts, notes, and this resume.
+        href: https://acederberg.io
+        label: Blog
+        image:
+          iconify:
+            set: hugeicons
+            name: house-01
+          tex:
+            font_awesome: faCubes
+          bootstrap:
+            name: globe
+            classes:
+              - text-cyan
+
+      - key: resume
+        title: PDF
+        href: https://acederberg.io/resume/resume.pdf
+        tooltip: Most recent version of my resume in ``PDF`` format.
+        label: Resume
+        # formats: ["latex"]
+        image:
+          tex:
+            font_awesome: faFilePdf
+          iconify:
+            set: hugeicons
+            name: document
+          bootstrap:
+            name: file-pdf
+            classes:
+              - text-red
+
+contacts:
+  - identifier: resume-contacts
+    container:
+      mode: bootstrap
+      tex:
+        sep: "hfill"
+      size: 6
+      include_tooltips: true
+      include_titles: true
+      include_descriptions: true
+      columns: 3
+      attributes_cards:
+        data-bs-offset: '[0,16]'
+        data-bs-placement: bottom
+        data-card-tooltip-toggle: 'true'
+      resize:
+        xxl: 3
+        xl: 1
+        lg: 3
+        md: 1
+        sm: 1
+        xs: 1
+    content:
+      - key: location
+        description: Albuquerque, NM
+        title: Location
+        tooltip: I current reside in Albuquerque, New Mexico.
+        image:
+          iconify:
+            set: hugeicons
+            name: location-01
+          bootstrap:
+            name: geo
+          tex:
+            font_awesome: faLocationArrow
+            # end snippet contacts
+      - key: phone
+        title: Phone
+        description: (505) 589 - 6914
+        tooltip: Reach out by phone.
+        image:
+          iconify:
+            set: hugeicons
+            name: smart-phone-01
+          bootstrap:
+            name: phone
+          tex:
+            font_awesome: faPhone
+      - key: email
+        description: adrn.cederberg123@gmail.com
+        title: Email
+        tooltip: Reach out by email.
+        image:
+          iconify:
+            set: hugeicons
+            name: mail-01
+          bootstrap:
+            name: envelope
+          tex:
+            font_awesome: faEnvelope
+
+
+resume:
+  # ----------------------------------------------------------------------- #
+  # Education
+  education:
+    - identifier: resume-education-unm
+      organization: University of New Mexico
+      degree: Bachelors of Science
+      concentration: Applied Mathematics
+      start: August 2015
+      stop: December 2019
+  # ----------------------------------------------------------------------- #
+  # Experience
+  experience:
+    - identifier: resume-experience-mve
+      organization: Mountain Vector Energy
+      title: Senior Software Engineer
+      start: January 2022
+      stop: December 2023
+
+    - identifier: resume-experience-blog
+      organization: acederberg.io
+      title: Sole Proprietor
+      start: January 2024
+      stop: Now
+
+    - identifier: resume-experience-dsi
+      organization: University of New Mexico
+      title: Research Assistent
+      start: August 2019
+      stop: December 2020
+
+  headshot:
+    url: https://avatars.githubusercontent.com/u/77076023?v=4
+    title: Headshot
+    description: It'sa Me!
+
+# ---------------------------------------------------------------------------- #
+# Skills
+skills:
+  - identifier: resume-skills-overlay-head-impl
+    container:
+      <<: *skills-container-overlay-head
+      classes_progress_bar: *classes-progress-impl
+    content:
+      - *skill-code
+
+  - identifier: resume-skills-overlay-head-api-and-db
+    container:
+      <<: *skills-container-overlay-head
+      classes_progress_bar: *classes-progress-back-end
+    content:
+      - *skill-back-end
+
+  - identifier: resume-skills-overlay-head-uiux
+    container:
+      <<: *skills-container-overlay-head
+      classes_progress_bar: *classes-progress-front-end
+    content:
+      - *skill-front-end
+
+  - identifier: resume-skills-overlay-head-devops
+    container:
+      <<: *skills-container-overlay-head
+      classes_progress_bar: *classes-progress-devops
+    content:
+      - *skill-cloud
+
+  - identifier: resume-skills-main
+    container:
+      <<: *skills-container-main
+      include_progress: false
+    overlay:
+      identifier: resume-skills-overlay
+      classes:
+        - overlay-blur-1
+      classes_items:
+        - skills-content
+      classes_items_wrapper:
+        - skills-page
+    content:
+      - *skill-code
+      - *skill-front-end
+      - *skill-back-end
+      - *skill-cloud
+  - identifier: resume-skills-impl
+    container:
+      <<: *skills-container-overlay-content
+      classes_progress_bar: *classes-progress-impl
+    content:
+      - title: Python
+        key: python
+        since: 2017-08-01
+        image:
+          iconify:
+            set: skill-icons
+            name: python-dark
+      - title: Docker
+        key: docker
+        since: 2021-04-01
+        image:
+          iconify:
+            set: devicon
+            name: docker
+      - title: Pipelines
+        key: pipelines
+        since: 2021-07-01
+        image:
+          iconify:
+            set: logos
+            name: github-actions
+      - title: Linux
+        key: linux
+        since: 2019-08-01
+        image:
+          iconify:
+            set: devicon
+            name: linux
+
+      - title: Git
+        key: git
+        since: 2021-01-01
+        image:
+          iconify:
+            set: devicon
+            name: git
+      - title: NeoVim
+        key: nvim
+        since: 2021-06-01
+        image:
+          iconify:
+            set: devicon
+            name: neovim
+      - title: Javascript
+        key: javascript
+        since: 2021-04-01
+        image:
+          iconify:
+            set: devicon
+            name: javascript
+  - identifier: api-and-db
+    container:
+      <<: *skills-container-overlay-content
+      classes_progress_bar: *classes-progress-back-end
+    content:
+      - title: HTTP
+        key: http
+        since: 2021-01-01
+        image:
+          iconify:
+            set: material-symbols
+            name: http
+      - title: Python
+        key: python
+        since: 2017-08-01
+        image:
+          iconify:
+            set: skill-icons
+            name: python-dark
+      - title: MySQL
+        key: mysql
+        since: 2021-02-01
+        image:
+          iconify:
+            set: devicon
+            name: mysql
+      - title: MongoDB
+        key: mongodb
+        since: 2021-07-01
+        image:
+          iconify:
+            set: devicon
+            name: mongodb
+      - title: SqlAlchemy
+        key: sqlalchemy
+        since: 2021-02-01
+        image:
+          iconify:
+            set: devicon
+            name: sqlalchemy
+      - title: FastAPI
+        key: fastapi
+        since: 2022-01-01
+        image:
+          iconify:
+            set: devicon
+            name: fastapi
+
+  - identifier: uiux
+    container:
+      <<: *skills-container-overlay-content
+      classes_progress_bar: *classes-progress-front-end
+
+    content:
+      - title: Jinja
+        key: jinja
+        since: 2021-04-01
+        image:
+          iconify:
+            set: file-icons
+            name: jinja
+      - title: Typescript
+        key: typescript
+        since: 2021-07-01
+        image:
+          iconify:
+            set: devicon
+            name: typescript
+      - title: React
+        key: react
+        since: 2021-07-01
+        image:
+          iconify:
+            set: devicon
+            name: react
+      - title: JavaScript
+        key: js
+        since: 2021-04-01
+        image:
+          iconify:
+            set: devicon
+            name: javascript
+      - title: HTML
+        key: html
+        since: 2021-04-01
+        image:
+          iconify:
+            set: logos
+            name: html-5
+      - title: CSS
+        key: css
+        since: 2021-04-01
+        image:
+          iconify:
+            set: logos
+            name: css-3
+
+  - identifier: devops
+    container:
+      <<: *skills-container-overlay-content
+      classes_progress_bar: *classes-progress-devops
+    content:
+      - title: Docker
+        key: docker
+        since: 2021-04-01
+        image:
+          iconify:
+            set: devicon
+            name: docker
+
+      - title: Pipelines
+        key: pipelines
+        since: 2021-07-01
+        image:
+          iconify:
+            set: logos
+            name: github-actions
+
+      - title: Terraform
+        key: terraform
+        since: 2022-04-01
+        image:
+          iconify:
+            set: devicon
+            name: terraform
+
+      - title: Kuberenetes
+        key: k8s
+        since: 2022-04-01
+        image:
+          iconify:
+            set: devicon
+            name: kubernetes
+
+      - title: Ansible
+        key: ansible
+        since: 2021-10-01
+        image:
+          iconify:
+            set: devicon
+            name: ansible
+
+      - title: Cloud
+        key: cloud
+        since: 2021-06-01
+        image:
+          iconify:
+            set: hugeicons
+            name: cloud
+
+      - title: Pulumi
+        key: pulumi
+        since: 2024-01-01
+        image:
+          iconify:
+            set: devicon
+            name: pulumi
+floaty:
+  # NOTE: I don't know if I want these but hesitate to delete them.
+  - identifier: blog-skills
+    content:
+      - image:
+          iconify:
+            set: misc
+            name: quarto
+        key: quarto
+        title: Quarto
+      - image:
+          iconify:
+            set: devicon
+            name: latex
+        key: latex
+        title: Latex
+      - image:
+          iconify:
+            set: devicon
+            name: pulumi
+        key: pulumi
+        title: Pulumi
+      - image:
+          iconify:
+            set: logos
+            name: github-icon
+        key: github
+        title: Github
+      - image:
+          iconify:
+            set: devicon
+            name: git
+        key: git
+        title: Git
+      - image:
+          iconify:
+            set: devicon
+            name: neovim
+        key: neovim
+        title: Neovim
+      - image:
+          iconify:
+            set: devicon
+            name: python-wordmark
+        key: python
+        title: Python
+      - image:
+          iconify:
+            set: devicon
+            name: nodejs-wordmark
+        key: nodejs
+        title: Nodejs
+      - image:
+          iconify:
+            set: misc
+            name: mermaid
+        key: mermaid
+        title: Mermaidjs
+      - image:
+          iconify:
+            set: logos
+            name: linode
+        key: linode
+        title: Linode
+      - image:
+          iconify:
+            set: logos
+            name: kubernetes
+        key: kubernetes
+        title: Kubernetes
+      - image:
+          iconify:
+            set: devicon
+            name: pandas-wordmark
+        key: pandas
+        title: Pandas
+      - image:
+          iconify:
+            set: devicon
+            name: kaggle-wordmark
+        key: kaggle
+        title: Kaggle
+      - image:
+          iconify:
+            set: devicon
+            name: docker-wordmark
+        key: docker
+        title: Docker
+
+  # NOTE: I don't know if I want these but hesitate to delete them.
+  - identifier: mve-skills
+    content:
+      - image:
+          iconify:
+            name: fastapi
+            set: devicon
+        key: fastapi
+        title: FastAPI
+      - image:
+          iconify:
+            name: terraform
+            set: devicon
+        key: terraform
+        title: Terraform
+      - image:
+          iconify:
+            name: bitbucket
+            set: devicon
+        key: bitbucket
+        title: Bitbucket
+      - image:
+          iconify:
+            name: kubernetes
+            set: devicon
+        key: kubernetes
+        title: Kubernetes
+      - image:
+          iconify:
+            name: helm
+            set: devicon
+        key: helm
+        title: Helm
+      - image:
+          iconify:
+            name: docker
+            set: devicon
+        key: docker
+        title: Docker
+      - image:
+          iconify:
+            name: python
+            set: devicon
+        key: python
+        title: Python
+      - image:
+          iconify:
+            name: nodejs
+            set: devicon
+        key: nodejs
+        title: NodeJS
+      - image:
+          iconify:
+            name: react
+            set: devicon
+        key: react
+        title: React
+      - image:
+          iconify:
+            name: auth0-icon
+            set: logos
+        key: auth0
+        title: Auth0
+      - image:
+          iconify:
+            name: sqlalchemy
+            set: devicon
+        key: sqlalchemy
+        title: SQLAlchemy
+      - image:
+          iconify:
+            name: mysql
+            set: devicon
+        key: mysql
+        title: MySQL
+      - image:
+          iconify:
+            name: mongodb
+            set: devicon
+        key: mongodb
+        title: MongoDB
+      - image:
+          iconify:
+            name: azure
+            set: devicon
+        key: azure
+        title: Azure
+      - image:
+          iconify:
+            name: github-actions
+            set: logos
+        key: cicd
+        title: Bitbucket Pipelines
+      - image:
+          iconify:
+            name: traefikproxy
+            set: devicon
+        key: traefik
+        title: Traefik
+
+  - identifier: resume-skills-impl-etc
+    container:
+      size: 6
+      columns: 7
+      include_titles: true
+      classes:
+        - py-5
+    content:
+      - empty-1
+      - title: Lua
+        key: lua
+        image:
+          iconify:
+            set: devicon
+            name: lua
+      - empty-2
+      - title: Go
+        key: go
+        image:
+          iconify:
+            set: devicon
+            name: go
+      - empty-3
+      - title: JSON
+        key: json
+        image:
+          iconify:
+            set: devicon
+            name: json
+      - empty-4
+      - title: YAML
+        key: yaml
+        image:
+          iconify:
+            set: devicon
+            name: yaml
+      - empty-5
+      - image:
+          iconify:
+            set: misc
+            name: quarto
+        key: quarto
+        title: Quarto
+      - empty-6
+      - image:
+          iconify:
+            set: devicon
+            name: latex
+        key: latex
+        title: Latex
+      - empty-7
+      - image:
+          iconify:
+            set: misc
+            name: mermaid
+        key: mermaid
+        title: Mermaidjs
+      - empty-8
+      - image:
+          iconify:
+            set: devicon
+            name: pandas-wordmark
+        key: pandas
+        title: Pandas
+      - empty-9
+      - title: Typescript
+        key: typescript
+        image:
+          iconify:
+            set: devicon
+            name: typescript
+      - empty-10
+      - title: React
+        key: react
+        image:
+          iconify:
+            set: devicon
+            name: react
+      - empty-11
+      - title: HTML
+        key: html
+        image:
+          iconify:
+            set: logos
+            name: html-5
+      - empty-12
+      - title: CSS
+        key: css
+        image:
+          iconify:
+            set: logos
+            name: css-3
+      - empty-13
+      - title: Pydantic
+        key: pydantic
+        image:
+          iconify:
+            set: simple-icons
+            name: pydantic
+      - empty-14
+      - title: FastAPI
+        key: fastapi
+        image:
+          iconify:
+            name: fastapi
+            set: devicon
+      - empty-15
+      - title: FastAPI
+        key: typer
+        image:
+          iconify:
+            name: typer
+            set: simple-icons
+      - empty-16
+      - title: pytest
+        key: pytest
+        image:
+          iconify:
+            name: pytest
+            set: simple-icons
+      - empty-17
+      - title: ZSH
+        key: zsh
+        image:
+          iconify:
+            set: codicon
+            name: terminal-bash
+      - empty-18
+
+  - identifier: resume-projects-floaty
+    container:
+      <<: *skills-container-main
+      columns: 2
+      mode: iconify
+      include_href: true
+    content:
+      - title: acederberg.io
+        href: /projects/blog
+        tooltip: The website that you are viewing this resume on.
+        key: website
+        image:
+          iconify:
+            set: misc
+            name: favicon
+
+      - title: Automation
+        key: automation
+        href: /projects/automation
+        tooltip: The actions and automation used to deploy this website.
+        image:
+          iconify:
+            set: material-symbols
+            name: automation-outline
+
+      - title: Nvim Configuration
+        key: nvim
+        href: /projects/nvim-config
+        tooltip: My custom configuration for my favorite text editor.
+        image:
+          iconify:
+            set: devicon
+            name: neovim
+
+      - title: Captura
+        key: captura
+        href: https://github.com/acederberg/captura
+        tooltip: A REST API I built for permissions management.
+        image:
+          iconify:
+            set: misc
+            name: favicon-black
+
+
+          # ----------------------------------------------------------------------- #
+          # Contact
+#   contact:
+#     use: bootstrap
+#     tooltip:
+#       include: true
+#       text: Click any row to learn more about each contact method.
+#     container:
+#       include: true
+#       size_item: 32
+#       classes: ["floaty-container-macos", "pt-3", "px-5"]
+#       titles: false
+#       kind: table
+#     overlay:
+#       include: true
+#       size_icon: 128
+#     content:
+#       - title: Phone
+#         key: phone
+#         value: (505) 589 - 6914
+#         font_awesome: faPhone
+#         image:
+#           iconify:
+#             set: hugeicons
+#             name: smart-phone-01
+#           bootstrap: phone
+#       - title: Email
+#         key: email
+#         value: adrn.cederberg123@gmail.com
+#         font_awesome: faEnvelope
+#         image:
+#           iconify:
+#             set: hugeicons
+#             name: mail-01
+#           bootstrap: envelope
+#       - title: Location
+#         key: location
+#         value: Albuquerque, NM
+#         font_awesome: faLocationArrow
+#         image:
+#           iconify:
+#             set: hugeicons
+#             name: location-01
+#           bootstrap: compass
+# floaty:
+#

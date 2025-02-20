@@ -1,0 +1,702 @@
+definitions:
+  # start snippet resizeDefinitions
+  floaty-with-resize:
+    classes:
+      classes_red: &resize-classes-red
+        - bg-red
+        - text-black
+      classes_black: &resize-classes-black
+        - bg-black
+        - text-yellow
+      classes_yellow: &resize-classes-yellow
+        - bg-yellow
+
+    content:
+      yellow: &resize-content-yellow
+        tooltip: This text should show up in the card body when the window is small.
+        image:
+          bootstrap:
+            name: egg-fried
+        classes: *resize-classes-yellow
+
+      black: &resize-content-black
+        tooltip: This text should show up in the card body when the window is small.
+        image:
+          bootstrap:
+            name: box
+        classes: *resize-classes-black
+
+      red: &resize-content-red
+        tooltip: This text should show up in the card body when the window is small.
+        image:
+          bootstrap:
+            name: bricks
+        classes: *resize-classes-red
+        # end snippet resizeDefinitions
+
+format:
+  html:
+    page-layout: full
+    theme:
+      light:
+        - themes/extras.scss
+        - cosmo
+        - themes/live.scss
+        - themes/floaty.scss
+        - themes/index.scss
+        - themes/overlay.scss
+        - themes/resume.scss
+
+title: Floaty Storybook
+contents: true
+live_reload: true
+skills:
+  # start snippet 7
+  - identifier: skills-minimal
+    container:
+      columns: 2
+      include_titles: true
+      include_descriptions: true
+      classes_rows:
+        - py-3
+    content:
+      - title: Programming Skills
+        description: Learn more about my programming skills.
+        key: impl
+        since: 2017-08-01
+        image:
+          iconify:
+            set: misc
+            name: binary
+
+      - title: APIs and Databases
+        description: Learn about my background in API development.
+        key: api-and-db
+        since: 2021-02-01
+        image:
+          iconify:
+            set: misc
+            name: api
+
+      - title: Dashboards and UIs
+        description: Learn more about UI/UX skills.
+        key: uiux
+        since: 2021-05-01
+        image:
+          iconify:
+            set: misc
+            name: dashboard
+
+      - title: DevOps Engineering
+        description: About my devops experience.
+        key: devops
+        since: 2021-06-01
+        image:
+          iconify:
+            set: misc
+            name: devops
+            # end snippet 7
+
+  # start snippet 8
+  - identifier: skills-listed
+    container:
+      size: 6
+      classes_progress_bar: ["progress-bar-animated", "progress-bar-striped"]
+      columns: -1
+      include_titles: true
+      classes_rows:
+        - py-3
+    content:
+      - title: Docker
+        key: docker
+        since: 2021-04-01
+        image:
+          iconify:
+            set: devicon
+            name: docker
+        classes_progress_bar:
+          - bg-red
+      - title: Pipelines
+        key: pipelines
+        since: 2021-07-01
+        image:
+          iconify:
+            set: logos
+            name: github-actions
+        classes_progress_bar:
+          - bg-indigo
+      - title: Terraform
+        key: terraform
+        since: 2022-04-01
+        image:
+          iconify:
+            set: devicon
+            name: terraform
+        classes_progress_bar:
+          - bg-blue
+      - title: Kuberenetes
+        key: k8s
+        since: 2022-04-01
+        image:
+          iconify:
+            set: devicon
+            name: kubernetes
+        classes_progress_bar:
+          - bg-teal
+      - title: Ansible
+        key: ansible
+        since: 2021-10-01
+        image:
+          iconify:
+            set: devicon
+            name: ansible
+        classes_progress_bar:
+          - bg-pink
+      - title: Cloud
+        key: cloud
+        since: 2021-06-01
+        image:
+          iconify:
+            set: hugeicons
+            name: cloud
+        classes_progress_bar:
+          - bg-orange
+
+      - title: Pulumi
+        key: pulumi
+        since: 2024-01-01
+        image:
+          iconify:
+            set: devicon
+            name: pulumi
+        classes_progress_bar:
+          - bg-yellow
+          # end snippet 8
+
+floaty:
+  # start snippet resize
+  - identifier: floaty-with-resize
+    container:
+      size: 6
+      mode: bootstrap
+      include_titles: true
+      include_descriptions: true
+      include_tooltips: true
+      columns: 4
+      classes_items:
+        - py-3
+      classes_cards:
+        - rounded-4
+      resize:
+        sm: 1
+        md: 2
+        lg: 3
+        xl: 5
+        xxl: 5
+      tooltips_toggle: true
+    content:
+      - title: Red 1
+        key: red-1
+        <<: *resize-content-red
+
+      - title: Black 1
+        key: redblack-1
+        <<: *resize-content-black
+
+      - title: Yellow 1
+        key: yellow-1
+        <<: *resize-content-yellow
+
+      - title: Red 2
+        key: red-2
+        <<: *resize-content-red
+
+      - title: Black 2
+        key: redblack-2
+        <<: *resize-content-black
+
+      - title: Yellow 2
+        key: yellow-2
+        <<: *resize-content-yellow
+
+      - title: Red 3
+        key: red-3
+        <<: *resize-content-red
+
+      - title: Black 3
+        key: redblack-3
+        <<: *resize-content-black
+
+      - title: Yellow 3
+        key: yellow-3
+        <<: *resize-content-yellow
+
+      - title: Red 4
+        key: red-4
+        <<: *resize-content-red
+
+      - title: Black 4
+        key: redblack-4
+        <<: *resize-content-black
+
+      - title: Yellow 4
+        key: yellow-4
+        <<: *resize-content-yellow
+
+      - title: Red 5
+        key: red-5
+        <<: *resize-content-red
+
+      - title: Black 5
+        key: redblack-5
+        <<: *resize-content-black
+
+      - title: Yellow 5
+        key: yellow-5
+        <<: *resize-content-yellow
+
+      - title: Red 6
+        key: red-6
+        <<: *resize-content-red
+
+      - title: Black 6
+        key: redblack-6
+        <<: *resize-content-black
+
+      - title: Yellow 6
+        key: yellow-6
+        <<: *resize-content-yellow
+        # end snippet resize
+
+  # start snippet 0
+  - identifier: floaty-plain
+    container:
+      size: 1
+    content:
+      - image:
+          iconify:
+            set: misc
+            name: quarto
+        key: quarto
+        title: Quarto
+      - image:
+          iconify:
+            set: devicon
+            name: latex
+        key: latex
+        title: Latex
+      - image:
+          iconify:
+            set: devicon
+            name: pulumi
+        key: pulumi
+        title: Pulumi
+
+  # end snippet 0
+  # start snippet 1
+  - identifier: floaty-bg-grow-shadow
+    container:
+      include_titles: true
+      size: 1
+      classes:
+        - floaty-hover
+        - floaty-shadow-2
+        - floaty-bg-light
+        - py-5
+      classes_items:
+        - py-3
+      classes_rows:
+        - "py-1"
+    content:
+      - image:
+          iconify:
+            set: misc
+            name: quarto
+        key: quarto
+        title: Quarto
+      - empty-1
+      - image:
+          iconify:
+            set: devicon
+            name: latex
+        key: latex
+        title: Latex
+      - empty-2
+      - image:
+          iconify:
+            set: devicon
+            name: pulumi
+        key: pulumi
+        title: Pulumi
+      - empty-3
+      - image:
+          iconify:
+            set: logos
+            name: github-icon
+        key: github
+        title: Github
+      - empty-4
+      - image:
+          iconify:
+            set: devicon
+            name: git
+        key: git
+        title: Git
+        # end snippet 1
+  # start snippet 2
+  - identifier: floaty-bg-card-grow-shadow
+    container:
+      include_titles: true
+      size: 3
+      classes:
+        - floaty
+        - floaty-hover
+        - floaty-shadow-3
+        - floaty-card-bg-light
+        - py-5
+      classes_items:
+        - px-1
+        - py-3
+
+    content:
+      - image:
+          iconify:
+            set: devicon
+            name: neovim
+        key: neovim
+        title: Neovim
+      - empty-1
+      - image:
+          iconify:
+            set: devicon
+            name: python-wordmark
+        key: python
+        title: Python
+      - empty-2
+      - image:
+          iconify:
+            set: devicon
+            name: nodejs-wordmark
+        key: nodejs
+        title: Nodejs
+      - empty-3
+      - image:
+          iconify:
+            set: misc
+            name: mermaid
+        key: mermaid
+        title: Mermaidjs
+        description: |
+          For making some terrific diagrams.
+      - empty-4
+      - image:
+          iconify:
+            set: logos
+            name: linode
+        key: linode
+        title: Linode
+        description: |
+          This is where the servers live.
+        # end snippet 2
+
+  # start snippet 3
+  - identifier: floaty-bootstrap
+    overlay:
+      classes:
+        - overlay-blur
+      identifier: floaty-bootstrap-overlay
+      colorize:
+        color: teal
+        color_text: black
+        color_text_hover: white
+    container:
+      mode: bootstrap
+      columns: 0
+      include_titles: false
+      size: 5
+      classes:
+        - floaty
+        - floaty-hover
+        - floaty-shadow-2
+        - floaty-bg-light
+        - py-2
+      classes_rows:
+        - "py-5"
+      classes_items:
+        - px-1
+      classes_cards:
+        - text-teal
+    content:
+      - image:
+          bootstrap:
+            name: filetype-py
+        title: Python
+        key: py
+      - image:
+          bootstrap:
+            name: filetype-js
+        title: Javascript
+        key: js
+      - image:
+          bootstrap:
+            name: filetype-html
+        title: HTML
+        key: html
+      - image:
+          bootstrap:
+            name: filetype-yml
+        title: YAML
+        key: yaml
+      - image:
+          bootstrap:
+            name: file-earmark-pdf
+        title: PDF
+        key: pdf
+      - image:
+          bootstrap:
+            name: alarm
+        title: Alaram
+        key: alarm
+        # end snippet 3
+  # start snippet 4
+  - identifier: floaty-rows
+    container:
+      size: 6
+      mode: bootstrap
+      classes:
+        - floaty-hover
+      columns: -1
+      include_titles: true
+      include_descriptions: true
+    content:
+      - title: Phone
+        description: (505) 589 - 6914
+        key: phone
+        image:
+          tex:
+            font_awesome: faPhone
+          bootstrap:
+            name: phone
+
+      - title: Email
+        description: adrn.cederberg123@gmail.com
+        key: email
+        image:
+          tex:
+            font_awesome: faEnvelope
+          bootstrap:
+            name: envelope
+
+      - title: Location
+        description: Albuquerque, NM
+        key: location
+        image:
+          tex:
+            font_awesome: faLocationArrow
+          bootstrap:
+            name: compass
+            # end snippet 4
+under_construction:
+  # start snippet 5
+  - identifier: uses-bootstrap
+    container:
+      size: 1
+      mode: bootstrap
+      classes:
+        - floaty-shadow-1
+    content:
+      key: uses-bs
+      title: This Floaty uses a Bootstrap Icon
+      image:
+        bootstrap:
+          # NOTE: Applies classes specificaly to the bootstrap icon.
+          classes:
+            - bg-yellow
+            - border
+            - border-black
+            - border-5
+            - rounded-4
+            - p-5
+      classes:
+        - p-3
+        # end snippet 5
+  # start snippet 6
+  - identifier: custom
+    container:
+      size: 1
+      mode: bootstrap
+      classes:
+        - floaty-shadow-1
+    content:
+      key: a-bug
+      title: A Bug
+      description: Look! *There is a bug.*
+      image:
+        bootstrap:
+          name: bug-fill
+          classes:
+            - bg-black
+            - border
+            - border-red
+            - border-5
+            - rounded-5
+            - p-5
+      classes:
+        - p-3
+        - text-red
+        # end snippet 6
+# start snippet contacts
+contacts:
+  - identifier: contacts-newline
+    container: &container-contacts
+      tex:
+        sep: "newline"
+      size: 5
+      include_href: true
+      include_titles: true
+      include_descriptions: true
+      mode: bootstrap
+      columns: -9000
+      classes_items:
+        - text-teal
+      classes:
+        - floaty-hover
+    content: &content-contacts
+      - key: phone
+        title: Phone
+        description: (505) 589 - 6914
+        image:
+          iconify:
+            set: hugeicons
+            name: smart-phone-01
+          bootstrap:
+            name: phone
+          tex:
+            font_awesome: faPhone
+      - key: email
+        title: Email
+        description: adrn.cederberg123@gmail.com
+        image:
+          iconify:
+            set: hugeicons
+            name: mail-01
+          bootstrap:
+            name: envelope
+          tex:
+            font_awesome: faEnvelope
+      - key: location
+        title: Location
+        description: Albuquerque, New Mexico
+        image:
+          iconify:
+            set: hugeicons
+            name: location-01
+          bootstrap:
+            name: compass
+          tex:
+            font_awesome: faLocationArrow
+  - identifier: contacts-hfill
+    container:
+      tex:
+        sep: "hfill"
+      <<: *container-contacts
+    content: *content-contacts
+    # end snippet contacts
+
+
+# start snippet links
+links:
+  - identifier: links-hfill
+    container: &container-links
+      tex:
+        sep: "hfill"
+      columns: 0
+      include_href: true
+      include_descriptions: false
+      include_titles: true
+      size: 5
+      mode: bootstrap
+      classes:
+        - floaty-hover
+        # - floaty-card-bg-light
+        - floaty-shadow-1
+        - floaty-hover-1
+    content: &content-links
+      - key: linkedin
+        title: Linkedin
+        description: My profile on linkedin.
+        href: https://www.linkedin.com/in/adrian-cederberg-b453571b9
+        label: Linkedin
+        image:
+          tex:
+            font_awesome: faLinkedin
+          iconify:
+            set: devicon
+            name: linkedin
+          bootstrap:
+            name: linkedin
+            classes:
+              - text-blue
+
+      - key: github
+        title: Github
+        description: My github account.
+        href: https://github.com/acederberg
+        label: Github
+        image:
+          tex:
+            font_awesome: faGithub
+          iconify:
+            set: devicon
+            name: github
+          bootstrap:
+            name: github
+            classes:
+              - text-black
+
+      - key: website
+        title: Website
+        description: My Website
+        href: https://acederberg.io
+        label: Blog
+        image:
+          iconify:
+            set: hugeicons
+            name: house-01
+          tex:
+            font_awesome: faCubes
+          bootstrap:
+            name: globe
+            classes:
+              - text-cyan
+
+      - key: resume
+        title: Resume
+        href: https://acederberg.io/resume
+        description: Most Recent Version of Resume
+        label: Resume
+        # formats: ["latex"]
+        image:
+          tex:
+            font_awesome: faFilePdf
+          iconify:
+            set: hugeicons
+            name: document
+          bootstrap:
+            name: file-pdf
+            classes:
+              - text-red
+
+  - identifier: links-newline
+    container:
+      tex:
+        sep: "newline"
+      <<: *container-links
+    content: *content-links
+    # end snippet links
+
+
+
+
+
+

@@ -1,0 +1,29 @@
+---
+title: SKLean Text Feature Extraction Notes
+draft: true
+---
+
+While contemplating how to compare keywords in documents I decided to ask
+`Chat-GPT` what it thought on the matter. One of the tools it mentioned
+was included in `SKLearn` and thus I will be taking a look at that here:
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+```{python}
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+documents = [
+    "Python is great for data science and machine learning.",
+    "Machine learning and AI are transforming the world.",
+    "Software development relies on Python and AI.",
+]
+
+vectorizer = TfidfVectorizer()
+tfidf_matrix = vectorizer.fit_transform(documents)
+
+# Compute cosine similarity between documents
+similarity_matrix = cosine_similarity(tfidf_matrix)
+print(similarity_matrix)
+```

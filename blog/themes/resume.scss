@@ -1,54 +1,360 @@
 /*-- scss:rules --*/
 
-#resume #resume-headshot img {
-  border-radius: 50% !important;
+
+@mixin make-gutters($size) {
+  padding-left: $size;
+  padding-right: $size;
 }
 
-#resume #resume-sidebar h2,
-#resume #resume-sidebar h3,
-#resume #resume-sidebar h4 {
-  border: none;
-  font-size: large;
-  text-align: center;
+$resume-bg-sidebar: $gray-100;
+$resume-bg-main: $white;
+
+
+
+.page-layout-custom {
+  @include make-container();
+
+  background: $resume-bg-sidebar;
+  padding-bottom: calc(5 * map-get($spacers, 5)) !important;
+
+
+  // NOTE: Content independent of screen size.
+  .page-layout-custom-content {
+    @include make-row();
+
+    background: $resume-bg-sidebar;
+    margin: auto; // Makes page overflow when not set
+    max-width: 1600px;
+
+    .page-layout-custom-main {
+      background: $resume-bg-main;
+    }
+
+    .page-layout-custom-sidebar {
+      background: $resume-bg-sidebar;
+      padding-bottom: map-get($spacers, 5);
+    }
+
+    .page-layout-custom-footer {
+      @include make-col(12);
+    }
+
+  }
+
+
+
+
+  // Make the columns take up the entire page around a medium view.
+  @include media-breakpoint-up(xxl) {
+
+    $gutter-size: map-get($spacers, 5);
+    $page-padding: map-get($spacers, 5);
+
+    .page-layout-custom-content {
+      padding-left: $page-padding;
+      padding-right: $page-padding;
+
+      .page-layout-custom-sidebar {
+        @include make-col(5);
+        @include make-gutters($gutter-size);
+        /* background: $gray-100; */
+      }
+
+      .page-layout-custom-main {
+        @include make-col(7);
+        @include make-gutters($gutter-size);
+      }
+
+      .page-layout-custom-footer {
+        @include make-gutters($gutter-size);
+      }
+    }
+
+  }
+
+  @include media-breakpoint-only(xl) {
+    $gutter-size: map-get($spacers, 3);
+    $page-padding: map-get($spacers, 5);
+
+    .page-layout-custom-content {
+      padding-left: $page-padding;
+      padding-right: $page-padding;
+
+      .page-layout-custom-sidebar {
+        @include make-col(4);
+        @include make-gutters($gutter-size);
+        /* background: $gray-100; */
+      }
+
+      .page-layout-custom-main {
+        @include make-col(8);
+        @include make-gutters($gutter-size);
+      }
+
+      .page-layout-custom-footer {
+        @include make-gutters($gutter-size);
+      }
+    }
+  }
+
+  // NOTE: Padding goes to zero because these should now be in their own
+  //       rows.
+  @include media-breakpoint-only(lg) {
+
+    $gutter-size: map-get($spacers, 3);
+    $page-padding: map-get($spacers, 2);
+
+    .page-layout-custom-content {
+      @include make-gutters($page-padding);
+
+      .page-layout-custom-main {
+        @include make-col(12);
+        @include make-gutters($gutter-size);
+      }
+
+      .page-layout-custom-sidebar {
+        @include make-col(12);
+        @include make-gutters($gutter-size);
+      }
+
+      .page-layout-custom-footer {
+        @include make-gutters($gutter-size);
+      }
+    }
+  }
+
+  @include media-breakpoint-only(md) {
+
+    $gutter-size: map-get($spacers, 2);
+    $page-padding: map-get($spacers, 1);
+
+    .page-layout-custom-content {
+      @include make-gutters($page-padding);
+
+      .page-layout-custom-main {
+        @include make-col(12);
+        @include make-gutters($gutter-size);
+      }
+
+      .page-layout-custom-sidebar {
+        @include make-col(12);
+        @include make-gutters($gutter-size);
+      }
+
+      .page-layout-custom-footer {
+        @include make-gutters($gutter-size);
+      }
+    }
+  }
+
+  @include media-breakpoint-down(md) {
+    $gutter-size: map-get($spacers, 1);
+
+    .page-layout-custom-content {
+      @include make-gutters(0px);
+
+      .page-layout-custom-main {
+        @include make-col(12);
+        @include make-gutters($gutter-size);
+      }
+
+      .page-layout-custom-sidebar {
+        @include make-col(12);
+        @include make-gutters($gutter-size);
+      }
+
+      .page-layout-custom-footer {
+        @include make-gutters($gutter-size);
+      }
+    }
+  }
+
 }
 
-#resume #resume-sidebar p {
-  font-size: medium;
-}
+#resume {
+  /* #title-block-header { */
+  /* } */
 
-#resume #resume-sidebar #resume-links p {
-  text-align: center;
-}
+  /* .experience { */
+  .experience-header {
+    .experience-organization {
+      margin-left: auto;
+    }
+  }
 
-#resume #resume-sidebar #resume-links h2 {
-  display: none;
-}
+  /* .experience-duration { */
+  /* } */
 
-#resume #resume-body ul li p {
-  padding: 0px;
-  margin: 0px;
-}
+  #resume-headshot {
+    display: flex;
 
-#resume .progress {
-  background: var(--bs-gray-400);
-  height: 32px;
-}
+    img {
+      margin: auto;
+      border-radius: 50% !important;
+      max-height: 384px;
+    }
+  }
 
-#resume .progress .progress-bar {
-  color: var(--bs-black);
-  font-size: large !important;
-  text-align: left !important;
+  // Want all headers a level less large.
+  h2 {
+    /* border: none; */
+    font-size: map-get($font-sizes, 3);
+    text-align: center;
+  }
+
+  @for $size from 3 through 5 {
+    h#{$size} {
+      font-size: map-get($font-sizes, $size + 1)
+    }
+  }
+
+
+  #resume-sidebar {
+
+    // NOTE: Because I want quarto to make sections, but don't want the titles
+    //       shown.
+
+    @include media-breakpoint-up(xl) {
+
+      h2,
+      h3,
+      h4,
+      h5 {
+        display: none;
+      }
+
+    }
+
+    .floaty {
+      .card {
+        background: $resume-bg-sidebar;
+        /* margin-left: map-get($spacers, 5); */
+        /* margin-right: map-get($spacers, 5); */
+
+        &:hover,
+        &.hover {
+          background: $gray-200;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+
+  #resume-education,
+  #resume-experience {
+    section {
+      padding-top: map-get($spacers, 5);
+      padding-bottom: map-get($spacers, 5);
+    }
+  }
+
+  #resume-contacts {
+    .floaty {
+      .floaty-item-img {
+        flex-grow: 5;
+      }
+
+      .floaty-item-text {
+        flex-grow: 8;
+      }
+
+      .floaty-item-footer {
+        flex-grow: 13;
+      }
+    }
+  }
+
+
+  #resume-skills {
+    .overlay-content-item {
+      &.skills-content {
+        height: 80vh;
+        overflow-y: scroll;
+
+        .skills-page {
+          text-align: left;
+          margin-right: map-get($spacers, 3);
+          margin-left: map-get($spacers, 3);
+          padding-top: map-get($spacers, 5);
+          padding-bottom: calc(2 * map-get($spacers, 5));
+          /* background: $red; */
+
+          h1,
+          h2,
+          h3,
+          h4,
+          h5,
+          h6 {
+            text-align: center;
+          }
+
+          .skills-header {
+            /* background: $green; */
+
+            padding-top: map-get($spacers, 5);
+            padding-bottom: map-get($spacers, 5);
+          }
+
+          .skills-text {
+
+            padding-top: map-get($spacers, 5);
+            padding-bottom: map-get($spacers, 5);
+          }
+        }
+      }
+    }
+  }
+
+
+  #resume-projects-floaty,
+  #resume-skills-main {
+    .card {
+      margin-left: map-get($spacers, 5);
+      margin-right: map-get($spacers, 5);
+
+      border-radius: $border-radius-lg !important;
+      border-width: map-get($border-widths, 5) !important;
+      border-style: solid;
+      border-color: var(--bs-white);
+
+      transition: color 300ms,
+        transform 100ms;
+
+      &.hover,
+      &:hover {
+        $hover-color: var(--bs-blue);
+        z-index: 1;
+        filter: drop-shadow(4px 4px 8px rgba(0, 0, 0, 0.5));
+        cursor: pointer;
+        transform: scale(1.1);
+        color: $hover-color;
+
+        iconify-icon,
+        i {
+          color: var(--bs-blue);
+        }
+      }
+    }
+
+  }
 }
 
 // ------------------------------------------------------------------------- //
 // Skills
+/* #resume  #resume-links h2 { */
+/*   display: none; */
+/* } */
 
+
+/*
 :root {
   --angle: 0deg;
   --color-hover-1: var(--bs-blue);
   --color-hover-2: var(--bs-white);
 }
+*/
 
+/*
 @property --angle {
   syntax: "<angle>";
   initial-value: 0deg;
@@ -60,43 +366,22 @@
     --angle: 360deg;
   }
 }
+*/
 
-#resume #resume-projects ul li,
-#resume #resume-skills li {
-  height: 160px;
-  width: 160px;
-  border: 1px solid var(--bs-body-bg);
-  padding: 5px;
-}
-
-#resume #resume-skills .overlay ul li {
-  border: none;
-}
-
+/*
 $hover_animation: rotate 2s linear infinite !important;
 $hover_gradient : conic-gradient(from var(--angle),
   var(--color-hover-1), 30deg,
   var(--color-hover-2), 35deg,
   var(--color-hover-1));
+  */
 
+
+/*
 #resume #resume-projects ul li:hover,
 #resume #resume-skills ul li:hover {
   animation: $hover_animation;
   border-image: $hover_gradient 1 !important;
   transform: scale(1.1);
 }
-
-#resume #resume-skills .overlay ul li:hover {
-  animation: none;
-  border-image: none;
-  transform: none;
-  border-color: var(--color-hover-1);
-}
-
-#resume #resume-skills tr:hover {
-  transform: none;
-}
-
-#resume #resume-skills .skills-content {
-  text-align: left;
-}
+*/

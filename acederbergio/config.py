@@ -85,7 +85,7 @@ class BuildInfo(util.HasTimestamp):
 
         if _git_commit is None or _git_ref is None:
             logger.debug("Getting repository information from repository.")
-            repo = git.Repo(env.ROOT)
+            repo = git.Repo(env.WORKDIR)
             _git_ref = _git_ref or str(repo.head.ref)
             _git_commit = _git_commit or str(repo.head.commit)
 

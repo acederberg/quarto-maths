@@ -1,0 +1,94 @@
+---
+title: Playing With LocalStorage
+live_reload: true
+# live_disable: true
+---
+
+## Complete Example with Overlay
+
+```{=html}
+  <div class="overlay" id="overlay">
+    <div class="overlay-content">
+      <div class="overlay-content-item text-start" data-key="1">
+        <h3>It Works!<h3>
+        <div class="mx-5">
+          <h3>Overlay ID</h3>
+          <p class="overlay-id text-success fs-5"></p>
+
+          <h3>Overlay Key</h3>
+          <p class="overlay-key text-success fs-5"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button data-key="1" id="overlay-button">Show Overlay</button>
+  <div class="text-success mx-5 overlay-start">
+    <h3>Overlay ID</h3>
+    <p class="overlay-id"></p>
+
+    <h3>Overlay Key</h3>
+    <p class="overlay-key"></p>
+  </div>
+  <script type="module" id="overlay-script">
+
+    const overlayControls = Overlay(document.getElementById("overlay"))
+
+    const overlayButton = document.getElementById("overlay-button")
+    const overlayIdPara = Array.from(document.getElementsByClassName("overlay-id"))
+    const overlayKeyPara = Array.from(document.getElementsByClassName("overlay-key"))
+
+    function updateOverlayData(){
+      const overlayId = window.localStorage.getItem("overlayId")
+      const overlayKey = window.localStorage.getItem("overlayKey")
+
+      overlayIdPara.map(p => p.innerText = overlayId)
+      overlayKeyPara.map(p => p.innerText = overlayKey)
+    }
+
+    function overlayButtonAction(){
+      overlayControls.showOverlay()
+      overlayControls.showOverlayContentItem("1")
+      updateOverlayData()
+    }
+
+    overlayControls.elem.addEventListener("click", updateOverlayData)
+    overlayButton.addEventListener("click", overlayButtonAction)
+    updateOverlayData()
+
+    globalThis.overlayButtonAction = overlayButtonAction
+    globalThis.overlayControls = overlayControls
+    globalThis.overlayButton = overlayButton
+    /*
+    */
+  </script>
+
+```
+
+## Simple Example
+
+```{=html}
+<p id="display"></p>
+<button id="mybutton">
+  Set Session Storage
+</button>
+<script>
+  function updateDisplay(){
+    display.innerText = window.localStorage.getItem("it") || "Nothing Set"
+  }
+
+  function action() {
+    mybutton.innerText = "Has Been Clicked"
+    window.localStorage.setItem("it", "works!")
+    console.log("done")
+
+    updateDisplay()
+  }
+
+
+  const display = document.getElementById("display")
+  updateDisplay()
+
+  const mybutton = document.getElementById("mybutton")
+  mybutton.addEventListener("click", action)
+</script>
+```

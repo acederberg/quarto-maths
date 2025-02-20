@@ -1,0 +1,18 @@
+// vi: set ft=django :
+
+import { OverlayInstances } from '/js/overlay.js'
+import { lazyFloaty } from '/js/floaty.js'
+
+const {{ owner.js_name }} = lazyFloaty(
+  '{{ element.identifier }}',
+  {
+    overlayControls: OverlayInstances.get('{{ overlay.identifier }}'),
+    resize: {{ options.resize | lower | default('null') }},
+    {% if options.resizeBreakpoints %}
+      resizeBreakpoints: new Map(Object.entries({{ options.resizeBreakpoints | tojson }})),
+    {% endif %}
+    tooltipsToggle: {{ options.tooltipsToggle | lower | default('null') }},
+    tooltipsToggleBreakpoint: {{ options.tooltipsToggleBreakpoint | default('null' ) }},
+  }
+)
+

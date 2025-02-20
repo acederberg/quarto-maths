@@ -1,0 +1,29 @@
+---
+title: Contacts Links PDF Output
+format:
+  pdf:
+    template: ../../resume/templates/template.tex
+    keep-tex: true
+filters:
+  - ../../filters/contacts.py
+  - ../../filters/links.py
+floaty: null
+under_construction: null
+live: {}
+---
+
+## Links - `sep=newline`
+
+From `links-newline`. It is defined as follows:
+
+::: { #links-newline }
+
+:::
+
+## Links - `sep=hfill`
+
+From `links-hfill`.
+
+::: { #links-hfill }
+
+:::

@@ -1,0 +1,145 @@
+---
+title: Verifying Use Of Bootstrap Utilities API
+format:
+  html:
+    include-in-header:
+      - ../includes/test-overlay.html
+live_reload: true
+---
+
+This is a visual test of additional bootstrap theming.
+
+<!-- START COLUMNS -----------------------------------------------------------> ::::: { .columns }
+<!-- START COLUMN 1 ----------------------------------------------------------> :::: { .column width="33%" }
+
+## Overlay
+
+Overlay content items should be able to specify their color using the dataset
+for `data-colorizeColor`.
+
+```{=html}
+<div id="overlay-test" class="overlay overlay-blur">
+  <div class="overlay-content">
+    <div class="overlay-content-items">
+    </div>
+  </div>
+</div>
+<div id="overlay-test-buttons"></div>
+<script type="module" id="overlay-test-script">
+  const overlayColorize = OverlayColorizeTest({
+    overlay: Overlay(document.getElementById("overlay-test")),
+    controls: document.getElementById("overlay-test-buttons"),
+  })
+  console.log(overlayColorize)
+  globalThis.overlayColorize = overlayColorize
+</script>
+```
+
+<!-- STOP COLUMN 1 -----------------------------------------------------------> ::::
+
+<!-- START COLUMN 2 ----------------------------------------------------------> :::: { .column width="33%" }
+
+## Borders
+
+```{=html}
+<div class="border border-3 border-blue text-blue my-1">
+	<p>This should have blue colorded border </p>
+</div>
+<div class="border border-3 border-indigo text-indigo my-1">
+	<p>This should have indigo colorded border </p>
+</div>
+<div class="border border-3 border-purple text-purple my-1">
+	<p>This should have purple colorded border </p>
+</div>
+<div class="border border-3 border-pink text-pink my-1">
+	<p>This should have pink colorded border </p>
+</div>
+<div class="border border-3 border-red text-red my-1">
+	<p>This should have red colorded border </p>
+</div>
+<div class="border border-3 border-orange text-orange my-1">
+	<p>This should have orange colorded border </p>
+</div>
+<div class="border border-3 border-yellow text-yellow my-1">
+	<p>This should have yellow colorded border </p>
+</div>
+<div class="border border-3 border-green text-green my-1">
+	<p>This should have green colorded border </p>
+</div>
+<div class="border border-3 border-teal text-teal my-1">
+	<p>This should have teal colorded border </p>
+</div>
+<div class="border border-3 border-cyan text-cyan my-1">
+	<p>This should have cyan colorded border </p>
+</div>
+```
+
+<!-- STOP COLUMN 2 -----------------------------------------------------------> ::::
+
+<!-- START COLUMN 3 ----------------------------------------------------------> :::: { .column width="33%" }
+
+## Backgrounds
+
+::: { .bg-blue }
+
+This should have a blue background
+
+:::
+
+::: { .bg-indigo }
+
+This should have a indigo background
+
+:::
+
+::: { .bg-purple }
+
+This should have a purple background
+
+:::
+
+::: { .bg-pink }
+
+This should have a pink background
+
+:::
+
+::: { .bg-red }
+
+This should have a red background
+
+:::
+
+::: { .bg-orange }
+
+This should have a orange background
+
+:::
+
+::: { .bg-yellow }
+
+This should have a yellow background
+
+:::
+
+::: { .bg-green }
+
+This should have a green background
+
+:::
+
+::: { .bg-teal }
+
+This should have a teal background
+
+:::
+
+::: { .bg-cyan }
+
+This should have a cyan background
+
+:::
+
+<!-- STOP COLUMN 3 -----------------------------------------------------------> ::::
+
+<!-- STOP COLUMNS  -----------------------------------------------------------> :::::

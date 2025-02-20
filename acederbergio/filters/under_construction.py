@@ -1,17 +1,16 @@
-from typing import Literal
+import secrets
+from typing import Annotated
 
 import panflute as pf
+import pydantic
+from pydantic.v1.utils import deep_update
 
-from acederbergio.filters import util
+from acederbergio import env
+from acederbergio.filters import floaty, util
 
-FONTSIZES = {"small": 64, "medium": 128, "large": 256, "#": 512}
-HEADERS = {
-    "small": 4,
-    "medium": 3,
-    "large": 2,
-    "#": 1,
-}
-CLASSES = {f"under-construction-{key}": key for key in FONTSIZES if key != "#"}
+logger = env.create_logger(__name__)
+
+CLASSES = {f"under-construction-{key}": key for key in range(1, 7)}
 MSG_HEAD_PAGE = "This Page is Currently Under Construction."
 MSG_HEAD_SECTION = "This Section is Currently Under Construction."
 MSG_DONOTPANIC = (
@@ -19,51 +18,92 @@ MSG_DONOTPANIC = (
     "something here soon but changes are yet to be deployed."
 )
 
-Size = Literal["small", "medium", "large", "#"]
+
+def create_config(v: dict):
+    if not isinstance(v, dict):
+        raise ValueError
+
+    if "content" in v and not isinstance(v["content"], dict):
+        raise ValueError
+
+    defaults = dict(
+        identifier=f"under-construction-{secrets.token_urlsafe(16)}",
+        content=dict(
+            key="under-construction",
+            title=MSG_HEAD_PAGE,
+            description=MSG_HEAD_SECTION,
+            label="under-construction",
+            image=dict(
+                iconify=dict(set="misc", name="construction"),
+                bootstrap=dict(name="hammer"),
+            ),
+        ),
+        container=dict(
+            mode="iconify",
+            include_titles=True,
+            include_descriptions=True,
+            columns=1,
+            size=1,
+        ),
+    )
+
+    defaults = deep_update(defaults, v)
+    defaults["content"] = {defaults["content"]["key"]: defaults["content"]}  # type: ignore
+
+    return ConfigUnderConstruction.model_validate(defaults)
 
 
-class FilterUnderConstruction(util.BaseFilter):
-    filter_name = "under_construction"
-    filter_config_cls = None
+def validate_configs(v):
+    if v is None:
+        return v
+    v = util.content_from_list_identifier(v)
+    v = {k: create_config(w) for k, w in v.items()}
+    return v
 
-    def under_construction(
+
+class ConfigContainer(floaty.ConfigFloatyContainer):
+
+    @pydantic.computed_field  # type: ignore[prop-decorator]
+    @property
+    def classes_always(self) -> list[str]:
+        return ["under-construction", f"under-construction-{self.size}", "floaty"]
+
+
+class ConfigUnderConstruction(
+    floaty.ConfigFloaty[floaty.ConfigFloatyItem, ConfigContainer]
+):
+
+    def hydrate(
         self,
         element: pf.Element,
-        size: Size,
     ):
-        header = pf.Header(
-            pf.Str(MSG_HEAD_PAGE if size == "#" else MSG_HEAD_SECTION),
-            level=HEADERS[size],
-        )
-        if not element.content:
-            element.content.append(pf.Para(pf.Str(MSG_DONOTPANIC)))
+        element = super().hydrate_html(element)
+        element.classes.append("under-construction")
 
-        detail = pf.Div(
-            header,
-            *element.content,
-            identifier="under-construction-detail",
-            classes=["px-3"],
-        )
-
-        floaty = pf.Div(
-            pf.Div(
-                pf.Div(
-                    pf.RawBlock(
-                        "<iconify-icon icon='misc:construction' style='font-"
-                        f"size: {FONTSIZES[size]}px;'></iconify-icon>"
-                    ),
-                    classes=["floaty"],
-                ),
-                detail,
-                classes=["floaty-container-single"],
-            ),
-        )
-        element.content = (floaty,)
         return element
 
-    def is_under_construction(self, element: pf.Element) -> Size | None:
+
+class Config(util.BaseConfig):
+    under_construction: Annotated[
+        dict[str, ConfigUnderConstruction] | None,
+        pydantic.Field(
+            default=None,
+            description=(
+                "Map from element id's to their custom configuration. Custom "
+                "configuration will be merged into the defaults"
+            ),
+        ),
+        pydantic.BeforeValidator(validate_configs),
+    ]
+
+
+class FilterUnderConstruction(util.BaseFilterHasConfig[Config]):
+    filter_name = "under_construction"
+    filter_config_cls = Config
+
+    def is_under_construction(self, element: pf.Element) -> floaty.FieldSize | None:
         if "under-construction" == element.identifier:
-            return "#"
+            return 1
 
         # NOTE: Probably should just use hash.
         item = next(
@@ -86,14 +126,29 @@ class FilterUnderConstruction(util.BaseFilter):
         return None
 
     def __call__(self, element: pf.Element):
-        if not isinstance(element, pf.Div):
+        if (
+            self.config is None
+            or (config := self.config.under_construction) is None
+            or not isinstance(element, pf.Div)
+        ):
             return element
 
         # NOTE: Generally use `#under-construction` for pages and
         #       `#under-construction-{size}` for sections.
 
-        if (size := self.is_under_construction(element)) is not None:
-            return self.under_construction(element, size)
+        if config_floaty := config.get(element.identifier):
+            logger.debug(
+                "Found target with id ``%s`` for ``under_construction``.",
+                element.identifier,
+            )
+            return config_floaty.hydrate(element)
+
+        if size := self.is_under_construction(element):
+            logger.debug("Found ``under_construction`` div for for `%s`.", size)
+            _config = create_config(dict(container=dict(size=size)))
+            element = _config.hydrate(element)
+
+            return element
 
         return element
 

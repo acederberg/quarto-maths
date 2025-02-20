@@ -1,0 +1,16 @@
+{# vi: set ft=django #} 
+
+<div id="{{ server.container.identifier }}" class="{{ server.container.classes | join(" ") }}">
+  <table  id="{{ server.table.identifier }}" class="{{ server.table.classes | join(" ") }}">
+    <thead style="display: none;">
+      <tr class="terminal-row">
+        <th class="terminal-row-time">Time</th>
+        <th class="terminal-row-level">Level</th>
+        <th class="terminal-row-msg">Message</th>
+        <th class="terminal-row-name">Name</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+</div>

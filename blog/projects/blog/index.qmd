@@ -9,16 +9,18 @@ format:
 filters:
   - ../../filters/floaty.py
 floaty:
-  thank-you-tools:
-    tooltip:
-      include: true
-    container:
-      size_item: 128 # px
-      size_item_margin: 32
-      kind: list
+  - identifier: thank-you-tools
     overlay:
-      include: true
-      size_icon: 256
+      identifier: thank-you-overlay
+      classes: [overlay-blur]
+      colorize:
+        color: teal
+        color_text: black
+        color_test_hover: white
+    container:
+      size: 1
+      classes_cards:
+        - py-5
     content:
       - image:
           iconify:
