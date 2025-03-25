@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: blog
-          image: acederberg/blog:latest
+          image: acederberg/blog:main
           imagePullPolicy: Always
           ports:
             - name: captura-http

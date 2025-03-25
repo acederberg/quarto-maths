@@ -138,9 +138,9 @@ spec:
     - kind: Rule
       match: HOST(`blog.acederberg.io`) || Host(`acederberg.io`)
       middlewares:
-        - name: traefik-ratelimit
+        - name: traefik-mw-ratelimit
           namespace: traefik
-        - name: traefik-error-pages
+        - name: traefik-mw-error-pages
           namespace: traefik
       services:
         - kind: Service
@@ -168,9 +168,9 @@ spec:
     - kind: Rule
       match: HOST(`preview.acederberg.io`)
       middlewares:
-        - name: traefik-ratelimit
+        - name: traefik-mw-ratelimit
           namespace: traefik
-        - name: traefik-error-pages
+        - name: traefik-mw-error-pages
           namespace: traefik
       services:
         - kind: Service
