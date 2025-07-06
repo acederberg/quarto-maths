@@ -1,0 +1,86 @@
+---
+title: Pytest In Neovim
+---
+
+Many IDEs have extensions for running tests within them - for instance VS code
+does a great job in doing this for `C#`. I wanted to make it easy to run tests
+on my python code within `neovim` (since it is my preferred editor) to enhance
+my productivity and determine if I can run my `C#` tests inside neovim instead
+of VS code.
+
+The plugins used here can be used with just about any language.
+
+- Testing plugin: [Neotest](https://github.com/nvim-neotest/neotest?tab=readme-ov-file)
+- Debugging plugin: [nvim-dap](https://github.com/mfussenegger/nvim-dap)
+
+## Demo
+
+The following will demonstrate how I use `neotest` to run tests inside of
+neovim for `python`:
+
+0. Enter the file you want to edit.
+
+   ![Some silly tests open in neovim](img/open-tests-file.png)
+
+   Additionally, I opened up the source file for the sake of this demo.
+
+   ![Tests and code being tested.](img/open-tests-file-2.png)
+
+1. Now start the tests for the entire file using `@@twe` in normal mode.
+   This will open up the [`which-key`](https://github.com/folke/which-key)
+   dialogue to show the options:
+
+   ![Options after hitting `@@`](img/which-key-helper-0.png)
+
+   ![Options after hitting `@@t`](img/which-key-helper-t.png)
+
+   ![Options after hitting `@@tw`](img/which-key-helper-tw.png)
+
+   This should open the test summary and output and run the tests:
+
+   ![Result after running tests](img/tests-run.png)
+
+2. First, we must make a test that fails since all of the tests pass initially.
+   To do this we update `test_comprehension`. This will result in the tests
+   re-running on `write`.
+
+   ![Tests re-run after updating the test fail.](img/test-failed.png)
+
+   To prove that we can go to a failing test, navigate to the top of the test
+   file, then go back to a failing test using `@@tgfn`. This will open the
+   test results just as shown above.
+
+3. To enter a debug session, we just use `@@Db` to set the breakpoint where we
+   want to enter and run `@@tcd` to run the closest test to the cursor. Then
+   we can use `@@Di` to enter the debug session:
+
+   ![Debug session in failed test](img/test-debug-0.png)
+
+   Using the debug session it possible to see why our test failed:
+
+   ![Debug session exploration.](img/test-debug-1.png)
+
+## Configuration
+
+## Key-maps
+
+This is not exhaustive as there are many more specific
+key-maps defined for tests, all of which can be explored using the
+[`folke/which-key` plugin](https://github.com/folke/which-key) plugin as in
+step 1.
+
+```md
+|       |                                     |
+| ----- | ----------------------------------- |
+| @@tf  | Run all tests in this file          |
+| @@tfd | Test current value.                 |
+| @@tc  | Run the closest tests to the cursor |
+| @@tcd | Debug closest test.                 |
+| @@tx  | Cancel tests.                       |
+| @@ta  | To attach to test output.           |
+| @@ts  | Test summary                        |
+| @@to  | Show neotest output.                |
+| @@tdb | Set/unset breakpoint                |
+| @@tdc | Debug continue/exit                 |
+| @@tdx | Exit the debug session              |
+```
