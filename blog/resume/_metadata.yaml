@@ -286,6 +286,12 @@ resume:
   # ----------------------------------------------------------------------- #
   # Experience
   experience:
+    - identifier: resume-experience-milvets
+      title: Mid-level Software Engineer
+      organization: MILVETS Systems Technologies
+      start: April 2025
+      stop: Now
+
     - identifier: resume-experience-mve
       organization: Mountain Vector Energy
       title: Senior Software Engineer
@@ -300,7 +306,7 @@ resume:
 
     - identifier: resume-experience-dsi
       organization: University of New Mexico
-      title: Research Assistent
+      title: Research Assistant
       start: August 2019
       stop: December 2020
 
