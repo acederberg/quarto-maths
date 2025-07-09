@@ -30,7 +30,7 @@ filters:
 \phantomsection\label{resume-links}
 \href{https://www.linkedin.com/in/adrian-cederberg-b453571b9}{\faLinkedin { Linkedin } \label{linkedin}}
 \href{https://github.com/acederberg}{\faGithub { Github } \label{github}}
-\href{https://acederberg.io/resume.html}{\faCubes { Website } \label{website}}
+\href{https://acederberg.io/resume/index.html}{\faCubes { Website } \label{website}}
 \href{https://acederberg.io/resume/resume.pdf}{\faFilePdf { PDF } \label{resume}}
 \end{center}
 ```
@@ -41,7 +41,13 @@ filters:
 
 {{< include ./partials/_profile.qmd >}}
 
+## Certifications
+
+{{< include ./partials/_certifications.qmd >}}
+
 ## Experience
+
+{{< include ./partials/_milvets.qmd >}}
 
 {{< include ./partials/_blog.qmd >}}
 

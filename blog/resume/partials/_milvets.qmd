@@ -1,0 +1,17 @@
+:::: {#resume-experience-milvets .experience }
+
+To expedite operations by the United States Air Force, lead the modernization
+and containerize various legacy applications at the Distributed Mission
+Operation Control (DMOC) at Kirkland Air Force Base in Albuquerque, New Mexico
+as subcontractor for Northrop Grumman and Serco.
+
+- Maximized developer productivity and code maintainability by modernizing
+  and rewriting legacy applications.
+- Deprecated legacy applications by architecting APIs and UIs using
+  `django-ninja`, `typescript`, and `docker`.
+- Architecting `kubernetes` deployments of custom software services and
+  containerizing containerizing these services.
+- Achieved a CompTIA Security+ certification and working towards Certified
+  Kubernetes Application Developer (CKAD).
+
+::::
