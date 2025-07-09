@@ -1,6 +1,6 @@
 ---
 title: Basic Natural Language Processing in `Python` {{< iconify devicon python >}}
-image: https://bucket.acederberg.io/thumbnails/keywords.jpg
+image: https://acederbergio-object-storage.us-lax-1.linodeobjects.com/thumbnails/keywords.jpg
 live:
   quarto:
     reload: true

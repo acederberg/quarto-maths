@@ -68,14 +68,9 @@ NOTE: The first set of columns should contain the headshot, links, contact,
 
 {{< include "./partials/_links.qmd" >}}
 
-```{=html}
-<script>
-// NOTE: Want the clipboard in the upper right hand corner.
-/*
-  {{< include copy.js >}}
-*/
-</script>
-```
+## Certifications { #resume-certifications .py-3 }
+
+{{< include "./partials/_certifications.qmd" >}}
 
 <!---
 ## Contents
@@ -111,6 +106,8 @@ NOTE: This section should contain education, profile, and experience.
 {{< include ./partials/_profile.qmd >}}
 
 ## Experience { .py-3 #resume-experience }
+
+{{< include ./partials/_milvets.qmd >}}
 
 {{< include ./partials/_blog.qmd >}}
 

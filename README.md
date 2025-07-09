@@ -1,5 +1,5 @@
 This is my blog, powered by [quarto](https://quarto.org). 
-For more details about site content see [the deployed instance](acederberg.io).
+For more details about site content see [the deployed instance](https://acederberg.io).
 To see coverage reports, got see [the artifacts on github pages](https://acederberg.github.io/quarto-maths/).
 
 

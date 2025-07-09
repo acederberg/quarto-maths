@@ -2,8 +2,12 @@
 
 :::
 
-::: { .fw-light .text-center .fst-italic .content-visible when-format="html" .py-5 .text-muted }
+::: { when-format="html" .content-visible }
 
-All links will open in a new tab.
+```{=html}
+<div class="w-100 fw-light text-center fst-italic text-muted">
+  All links will open in a new tab.
+</div>
+```
 
 :::

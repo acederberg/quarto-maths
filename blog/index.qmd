@@ -189,7 +189,7 @@ For inquiries, please reach out to me at `adrn.cederberg123@gmail.com` or `@_ace
 This site deprecates my previous blog, for which I made the [captura-text](https://github.com/acederberg/captura-text) plugin.
 The content on the deprecated site can be found in [another repo](https://github.com/acederberg/captura-text-portfolio-assets).
 
-Go to (posts)[#posts].
+Go to [posts](/#landing-page-posts-content).
 
 ## Reporting Issues
 

@@ -1,0 +1,76 @@
+::: { #certification-items .grid }
+
+::: { .content-visible when-format="html" }
+
+```{=html}
+  <div class="g-col-2"></div>
+  <div class="g-col-4">
+    <div class=" d-flex">
+      <!-- Adds the tradmark logo -->
+      <div class="position-relative d-inline-block mx-auto">
+        <div class="badge position-absolute top-0 end-0 badge bg-transparent text-dark">&#8482</div>
+        <img
+          src="https://acederbergio-object-storage.us-lax-1.linodeobjects.com/resume/security-plus.svg"
+          class="img-fluid mx-auto"
+          style="height: 128px"
+        >
+        </img>
+      </div>
+    </div>
+    <section class="text-center">
+      <h4 class="text-center">CompTIA Security+</h4>
+      <p class="text-muted fst-italic">Earned July 2, 2025</p>
+    </section>
+  </div>
+  <div class="g-col-4">
+    <style>
+      #in-progress {
+        rotate: -45deg;
+        text-align: center;
+        background: var(--bs-white);
+        z-index: 1;
+      }
+    </style>
+    <div id="in-progress" class="top-50 end-0 position-relative border border-black border-1 rounded fs-5 fw-bold">
+      In Progress
+    </div>
+    <div style="filter: blur(5px);">
+      <div class="d-flex">
+        <!-- Adds the tradmark logo -->
+        <div class="position-relative d-inline-block mx-auto">
+          <img
+            src="https://training.linuxfoundation.org/wp-content/uploads/2019/03/kubernetes-ckad-color-300x294.png"
+            class="img-fluid mx-auto"
+            style="height: 128px"
+          >
+          </img>
+        </div>
+      </div>
+      <section class="text-center">
+        <h4 class="text-center">CKAD</h4>
+        <p class="text-muted fst-italic">In progress.</p>
+      </section>
+    </div>
+  </div>
+  <div class="g-col-2"></div>
+```
+
+:::
+
+::: { .content-visible when-format="latex" }
+
+<!---
+
+NOTE: Getting crazy nonsense errors from panflute while doing this.
+      For now, text will suffice.
+      Try again later.
+
+      [Foobabababa](https://acederbergio-object-storage.us-lax-1.linodeobjects.com/resume/security-plus.svg)
+
+-->
+
+CompTIA Security+. Working towards the 'Certified Kubernetes Application Developer' certification.
+
+:::
+
+:::

@@ -1,7 +1,7 @@
 ---
 title: How to Write Custom Neovim Queries
 subtitle: A Case-Study using Quarto
-image: https://bucket.acederberg.io/thumbnails/nvim-queries-and-highlights.png
+image: https://acederbergio-object-storage.us-lax-1.linodeobjects.com/thumbnails/nvim-queries-and-highlights.png
 keywords:
   - neovim
   - lua
