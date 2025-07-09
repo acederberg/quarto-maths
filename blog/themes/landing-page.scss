@@ -175,7 +175,7 @@ $extraColors : ("blue": $blue,
 
     #landing-page-banner-content {
       @include make-container(0px);
-      background: radial-gradient(rgba(255, 212, 59, 0.07), transparent 75%);
+      /* background: radial-gradient(rgba(255, 212, 59, 0.07), transparent 75%); */
 
       #landing-page-banner-title {
         @include make-row();
@@ -277,14 +277,17 @@ $extraColors : ("blue": $blue,
 
   /* This is the about sections */
   #landing-page-about {
-    @include landing-page-section();
+    @include landing-page-section($padding: 0.5rem);
 
     $color: var(--bs-teal);
     background: url(daimond.svg), radial-gradient(var(--bs-black), var(--bs-gray-900) 110%);
     backdrop-filter: blur(5px);
 
+    border: 3px solid $color;
+    box-shadow: 0 0 15px $color, inset 0 0 15px $color;
+
     #landing-page-about-content {
-      @include landing-page-section-inner();
+      @include landing-page-section-inner($padding: 1rem, $border-radius: 1.55rem);
 
       border: 3px solid $color;
       box-shadow: 0 0 15px $color, inset 0 0 15px $color;

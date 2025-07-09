@@ -1,0 +1,31 @@
+---
+title: Testing Columns
+---
+
+```{=html}
+<div class="
+  <div class="g-col-4">
+    <div class="top-50 end-50 position-absolute">
+      In Progress
+    </div>
+    <div style="filter: blur(5px);">
+      <div class="d-flex">
+        <!-- Adds the tradmark logo -->
+        <div class="position-relative d-inline-block mx-auto">
+          <img
+            src="https://training.linuxfoundation.org/wp-content/uploads/2019/03/kubernetes-ckad-color-300x294.png"
+            class="img-fluid mx-auto"
+            style="height: 128px"
+          >
+          </img>
+        </div>
+      </div>
+      <section class="text-center">
+        <h4 class="text-center">Certificied Kubernetes Application Developer</h4>
+        <p class="text-muted fst-italic">In progress.</p>
+      </section>
+    </div>
+  </div>
+  <div class="g-col-2"></div>
+
+```

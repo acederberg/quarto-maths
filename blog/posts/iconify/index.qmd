@@ -1,6 +1,6 @@
 ---
 title: Building and Using a Custom Iconify Image Set For Mermaid
-image: https://bucket.acederberg.io/thumbnails/iconify.png
+image: https://acederbergio-object-storage.us-lax-1.linodeobjects.com/thumbnails/iconify.png
 format:
   html:
     include-in-header:
